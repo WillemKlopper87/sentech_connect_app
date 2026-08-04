@@ -1,0 +1,63 @@
+name: sentech_connect_app
+description: "Sentech Connect — 5G FWA subscriber app (UI + mock-repository phase)."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.12.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+
+  # State management
+  flutter_bloc: ^9.0.0
+  equatable: ^2.0.5
+
+  # Navigation
+  go_router: ^14.6.2
+
+  # Functional error handling (Either<Failure, T>)
+  fpdart: ^1.1.1
+
+  # Dependency injection (manual registration, no codegen in this phase)
+  get_it: ^8.0.2
+
+  # Real device integrations
+  mobile_scanner: ^6.0.7
+  geolocator: ^13.0.2
+  geocoding: ^5.0.0
+  shared_preferences: ^2.3.4
+  url_launcher: ^6.3.1
+  flutter_map: ^7.0.2
+  latlong2: ^0.9.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.3
+  flutter_native_splash: ^2.4.3
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/brand/logo/sentech_logo_full_colour.jpg
+    - assets/brand/logo/sentech_logo_white.png
+
+flutter_launcher_icons:
+  android: true
+  image_path: "assets/brand/logo/sentech_icon_square.png"
+  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_foreground: "assets/brand/logo/sentech_icon_square.png"
+  min_sdk_android: 24
+
+flutter_native_splash:
+  color: "#FFFFFF"
+  image: assets/brand/logo/sentech_icon_square.png
+  android_12:
+    color: "#FFFFFF"
+    image: assets/brand/logo/sentech_icon_square.png
