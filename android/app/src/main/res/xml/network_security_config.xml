@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Release network policy: HTTPS only, system trust store only.
+     Certificate pinning is deliberately NOT configured yet: pin the real API
+     hostnames (with a backup pin + remote kill-switch) once the backend
+     endpoints exist, e.g.
+       <domain-config>
+         <domain includeSubdomains="true">api.example.co.za</domain>
+         <pin-set expiration="2027-01-01">
+           <pin digest="SHA-256">...</pin>
+           <pin digest="SHA-256">...backup...</pin>
+         </pin-set>
+       </domain-config> -->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>

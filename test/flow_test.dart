@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentech_connect_app/app/app.dart';
-import 'package:sentech_connect_app/app/locator.dart';
+import 'helpers/test_setup.dart';
 
 /// Drives the full "Discover → Activate → Manage" journey end-to-end
 /// against the mock repositories, asserting each screen renders the
@@ -14,22 +14,29 @@ import 'package:sentech_connect_app/app/locator.dart';
 /// while other tabs/routes are shown), so `pumpAndSettle` can never
 /// resolve from that point on — bounded `pump(duration)` calls are used
 /// instead of `pumpAndSettle` for every step after that.
+/// Route transitions animate for longer than the old fixed 400ms on current
+/// Flutter/go_router, and the incoming page ignores taps until they finish.
+/// `pumpAndSettle` can't be used here (see the class note about the scanner
+/// animation), so pump a bounded duration that comfortably covers them.
+Future<void> pumpTransition(WidgetTester tester) => tester.pump(const Duration(milliseconds: 1000));
+
 void main() {
-  setUpAll(() {
-    setupLocator();
-  });
+  setUpAppTests();
 
   testWidgets(
       'splash -> login -> coverage -> catalog -> cart -> checkout -> rica -> confirmation -> dashboard',
       (tester) async {
-    await tester.pumpWidget(SentechConnectApp());
+    await tester.pumpWidget(const SentechConnectApp());
     await tester.pump(); // splash first frame
     await tester.pump(const Duration(milliseconds: 1300)); // splash auto-advance delay
     await tester.pumpAndSettle();
 
     // 1. Login
     expect(find.text('Welcome back'), findsOneWidget);
-    await tester.tap(find.text('Log in with Face ID'));
+    expect(find.text('Use biometrics'), findsNothing); // no earlier session on this device
+    await tester.enterText(find.widgetWithText(TextField, 'Mobile number'), '0810000000');
+    await tester.enterText(find.widgetWithText(TextField, 'Password'), 'secret');
+    await tester.tap(find.widgetWithText(ElevatedButton, 'Log in'));
     await tester.pumpAndSettle();
 
     // 2. Coverage check
@@ -52,38 +59,55 @@ void main() {
     await tester.pump();
     await tester.tap(find.byIcon(Icons.shopping_bag_outlined));
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 400)); // push transition
+    await pumpTransition(tester); // push transition
 
     // 5. Cart review
     expect(find.text('Your cart'), findsOneWidget);
     expect(find.text('Home 100'), findsWidgets); // also present in the catalog page underneath
+    // The "added to cart" snackbar floats over the Checkout button until it
+    // times out, so let it expire before tapping.
+    // (The dismiss timer only starts once the snackbar's enter animation
+    // finishes, so a single long pump isn't enough — step through time.)
+    for (var i = 0; i < 6; i++) {
+      await tester.pump(const Duration(seconds: 1));
+    }
     await tester.tap(find.text('Checkout'));
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 400)); // push transition
+    await pumpTransition(tester); // push transition
 
-    // 6. Checkout
+    // 6. Checkout review — identity is verified BEFORE payment, so this
+    // step only creates the (unpaid) order.
     expect(find.text('Checkout'), findsWidgets); // app bar title + the cart page's button underneath
-    expect(find.textContaining('Pay R'), findsOneWidget);
-    await tester.tap(find.textContaining('Pay R'));
+    expect(find.text('Verify identity to continue'), findsOneWidget);
+    expect(find.textContaining('Pay R'), findsNothing);
+    await tester.tap(find.text('Verify identity to continue'));
     await tester.pump();
-    await tester.pump(const Duration(seconds: 2)); // mock payment delay
-    await tester.pump(const Duration(milliseconds: 400)); // push transition
+    await tester.pump(const Duration(seconds: 1)); // mock order creation delay
+    await pumpTransition(tester); // push transition
 
     // 7. RICA verification
     expect(find.text('Verify your identity'), findsOneWidget);
-    await tester.tap(find.byType(Checkbox));
-    await tester.pump();
     await tester.tap(find.text('Continue'));
+    await tester.pumpAndSettle(); // POPIA consent dialog (verification has not started yet)
+    expect(find.text('Your privacy'), findsOneWidget);
+    await tester.tap(find.text('I agree'));
     await tester.pump();
     await tester.pump(const Duration(seconds: 3)); // mock liveness delay
-    await tester.pump(const Duration(milliseconds: 400)); // push transition
+    await pumpTransition(tester); // push transition
+
+    // 7b. Payment — only reachable once identity is verified
+    expect(find.text('Identity verified'), findsOneWidget);
+    await tester.tap(find.textContaining('Pay R'));
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 2)); // mock payment delay
+    await pumpTransition(tester); // navigation transition
 
     // 8. Confirmation
     expect(find.text("You're connected!"), findsOneWidget);
     expect(find.textContaining('SEN-48213'), findsOneWidget);
     await tester.tap(find.text('Back to dashboard'));
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 400)); // navigation transition
+    await pumpTransition(tester); // navigation transition
     await tester.pump(const Duration(milliseconds: 500)); // account cubit load delay
 
     // 9. Dashboard — go_router reuses the existing MainShell instance, which

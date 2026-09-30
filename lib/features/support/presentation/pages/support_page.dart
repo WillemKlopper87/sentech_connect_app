@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sentech_connect_app/features/support/domain/entities/faq.dart';
 import 'package:sentech_connect_app/features/support/presentation/bloc/support_cubit.dart';
+import 'package:sentech_connect_app/l10n/l10n.dart';
 import 'package:sentech_connect_app/shared/actions/support_actions.dart';
 
 class SupportPage extends StatelessWidget {
@@ -9,8 +10,9 @@ class SupportPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
-      appBar: AppBar(title: const Text('Help & support')),
+      appBar: AppBar(title: Text(l10n.supportTitle)),
       body: BlocBuilder<SupportCubit, SupportState>(
         builder: (context, state) {
           if (state.status == SupportStatus.loading) {
@@ -25,9 +27,9 @@ class SupportPage extends StatelessWidget {
               children: [
                 TextField(
                   onChanged: (value) => context.read<SupportCubit>().search(value),
-                  decoration: const InputDecoration(
-                    hintText: 'Search FAQs',
-                    prefixIcon: Icon(Icons.search, size: 20),
+                  decoration: InputDecoration(
+                    hintText: l10n.supportSearchHint,
+                    prefixIcon: const Icon(Icons.search, size: 20),
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -35,7 +37,7 @@ class SupportPage extends StatelessWidget {
                   child: faqs.isEmpty
                       ? Center(
                           child: Text(
-                            'No results for "${state.query}"',
+                            l10n.supportNoResults(state.query),
                             style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                           ),
                         )
@@ -50,7 +52,7 @@ class SupportPage extends StatelessWidget {
                         ),
                 ),
                 const SizedBox(height: 8),
-                Text('STILL STUCK?', style: theme.textTheme.labelLarge?.copyWith(letterSpacing: 0.6)),
+                Text(l10n.supportStillStuck, style: theme.textTheme.labelLarge?.copyWith(letterSpacing: 0.6)),
                 const SizedBox(height: 8),
                 Row(
                   children: [
@@ -58,7 +60,7 @@ class SupportPage extends StatelessWidget {
                       child: OutlinedButton.icon(
                         onPressed: () => openWhatsAppChat(context),
                         icon: const Icon(Icons.chat_bubble_outline, size: 18),
-                        label: const Text('WhatsApp'),
+                        label: Text(l10n.supportWhatsApp),
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -66,7 +68,7 @@ class SupportPage extends StatelessWidget {
                       child: ElevatedButton.icon(
                         onPressed: () => submitSupportTicket(context),
                         icon: const Icon(Icons.confirmation_number_outlined, size: 18),
-                        label: const Text('Submit a ticket'),
+                        label: Text(l10n.supportSubmitTicket),
                       ),
                     ),
                   ],
@@ -97,20 +99,21 @@ class _FaqTile extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    faq.question,
-                    style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
+            Semantics(
+              button: true,
+              expanded: expanded,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(faq.question, style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600)),
                   ),
-                ),
-                AnimatedRotation(
-                  turns: expanded ? 0.5 : 0,
-                  duration: const Duration(milliseconds: 180),
-                  child: const Icon(Icons.expand_more, size: 20),
-                ),
-              ],
+                  AnimatedRotation(
+                    turns: expanded ? 0.5 : 0,
+                    duration: const Duration(milliseconds: 180),
+                    child: const Icon(Icons.expand_more, size: 20),
+                  ),
+                ],
+              ),
             ),
             AnimatedCrossFade(
               firstChild: const SizedBox(width: double.infinity),

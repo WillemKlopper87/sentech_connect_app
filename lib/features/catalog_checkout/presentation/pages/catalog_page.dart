@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sentech_connect_app/app/locator.dart';
 import 'package:sentech_connect_app/features/cart/presentation/bloc/cart_cubit.dart';
+import 'package:sentech_connect_app/l10n/l10n.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/domain/entities/plan.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/presentation/bloc/catalog_cubit.dart';
 import 'package:sentech_connect_app/features/wifi_voucher/presentation/bloc/free_wifi_cubit.dart';
 import 'package:sentech_connect_app/features/wifi_voucher/presentation/pages/free_wifi_card.dart';
+import 'package:sentech_connect_app/shared/widgets/failure_view.dart';
 
 class CatalogPage extends StatelessWidget {
   const CatalogPage({super.key, required this.onOpenCart, required this.onFindHotspots});
@@ -41,7 +43,11 @@ class _CatalogScaffold extends StatelessWidget {
                 child: Stack(
                   clipBehavior: Clip.none,
                   children: [
-                    IconButton(icon: const Icon(Icons.shopping_bag_outlined), onPressed: onOpenCart),
+                    IconButton(
+                      tooltip: context.l10n.a11yCart,
+                      icon: const Icon(Icons.shopping_bag_outlined),
+                      onPressed: onOpenCart,
+                    ),
                     if (cartState.itemCount > 0)
                       Positioned(
                         right: 4,
@@ -69,6 +75,9 @@ class _CatalogScaffold extends StatelessWidget {
           if (state.status == CatalogStatus.loading || state.status == CatalogStatus.initial) {
             return const Center(child: CircularProgressIndicator());
           }
+          if (state.status == CatalogStatus.failure) {
+            return FailureView(failure: state.failure, onRetry: () => context.read<CatalogCubit>().load());
+          }
           return ListView(
             padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
             children: [
@@ -88,10 +97,9 @@ class _CatalogScaffold extends StatelessWidget {
                     context.read<CartCubit>().addItem(plan);
                     ScaffoldMessenger.of(context)
                       ..hideCurrentSnackBar()
-                      ..showSnackBar(SnackBar(
-                        content: Text('${plan.name} added to cart'),
-                        duration: const Duration(seconds: 10),
-                      ));
+                      ..showSnackBar(
+                        SnackBar(content: Text('${plan.name} added to cart'), duration: const Duration(seconds: 3)),
+                      );
                   },
                 ),
                 const SizedBox(height: 14),
@@ -116,23 +124,30 @@ class _SegmentedRow extends StatelessWidget {
     Widget seg(ProductCategory category) {
       final active = category == selected;
       return Expanded(
-        child: InkWell(
-          onTap: () => onSelect(category),
-          borderRadius: BorderRadius.circular(9),
-          child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 9),
-            decoration: BoxDecoration(
-              color: active ? theme.colorScheme.surface : null,
-              borderRadius: BorderRadius.circular(9),
-              boxShadow: active ? [const BoxShadow(blurRadius: 4, color: Colors.black12)] : null,
-            ),
-            child: Text(
-              category.label,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: active ? theme.colorScheme.primary : theme.colorScheme.onSurfaceVariant,
+        child: Semantics(
+          button: true,
+          selected: active,
+          child: InkWell(
+            onTap: () => onSelect(category),
+            borderRadius: BorderRadius.circular(9),
+            child: Container(
+              // 48dp minimum touch target.
+              constraints: const BoxConstraints(minHeight: 48),
+              alignment: Alignment.center,
+              padding: const EdgeInsets.symmetric(vertical: 9),
+              decoration: BoxDecoration(
+                color: active ? theme.colorScheme.surface : null,
+                borderRadius: BorderRadius.circular(9),
+                boxShadow: active ? [const BoxShadow(blurRadius: 4, color: Colors.black12)] : null,
+              ),
+              child: Text(
+                category.label,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: active ? theme.colorScheme.primary : theme.colorScheme.onSurfaceVariant,
+                ),
               ),
             ),
           ),
@@ -178,10 +193,7 @@ class _PlanCard extends StatelessWidget {
               right: 8,
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFAA61A),
-                  borderRadius: BorderRadius.circular(999),
-                ),
+                decoration: BoxDecoration(color: const Color(0xFFFAA61A), borderRadius: BorderRadius.circular(999)),
                 child: const Text(
                   'MOST POPULAR',
                   style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: Color(0xFF3A2400)),
@@ -195,7 +207,8 @@ class _PlanCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text(plan.name, style: theme.textTheme.titleMedium),
+                  Expanded(child: Text(plan.name, style: theme.textTheme.titleMedium)),
+                  const SizedBox(width: 8),
                   RichText(
                     text: TextSpan(
                       style: theme.textTheme.titleMedium,

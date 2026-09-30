@@ -2,13 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sentech_connect_app/features/cart/domain/entities/cart_item.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/domain/entities/order.dart';
-import 'package:sentech_connect_app/features/catalog_checkout/domain/entities/plan.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/presentation/bloc/checkout_cubit.dart';
+import 'package:sentech_connect_app/shared/widgets/failure_view.dart';
 
+/// Step 1 of checkout: review, then verify identity. The customer is only
+/// charged after RICA succeeds (see `PaymentPage`), so this screen creates
+/// the order and hands off to verification rather than taking payment.
 class CheckoutPage extends StatelessWidget {
-  const CheckoutPage({super.key, required this.onPaid});
+  const CheckoutPage({super.key, required this.onOrderCreated});
 
-  final void Function(Order order) onPaid;
+  final void Function(Order order) onOrderCreated;
 
   @override
   Widget build(BuildContext context) {
@@ -16,13 +19,13 @@ class CheckoutPage extends StatelessWidget {
       appBar: AppBar(title: const Text('Checkout')),
       body: BlocConsumer<CheckoutCubit, CheckoutState>(
         listener: (context, state) {
-          if (state.status == CheckoutStatus.paid && state.order != null) {
-            onPaid(state.order!);
+          if (state.status == CheckoutStatus.created && state.order != null) {
+            onOrderCreated(state.order!);
           }
         },
         builder: (context, state) {
           final theme = Theme.of(context);
-          final paying = state.status == CheckoutStatus.paying;
+          final creating = state.status == CheckoutStatus.creating;
           return SafeArea(
             child: Column(
               children: [
@@ -33,16 +36,34 @@ class CheckoutPage extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         _SummaryCard(items: state.items, total: state.total),
-                        const SizedBox(height: 22),
-                        Text('PAYMENT METHOD', style: theme.textTheme.labelLarge?.copyWith(letterSpacing: 0.6)),
-                        const SizedBox(height: 10),
-                        for (final method in PaymentMethod.values) ...[
-                          _PayTile(
-                            method: method,
-                            selected: state.method == method,
-                            onTap: () => context.read<CheckoutCubit>().selectMethod(method),
+                        const SizedBox(height: 18),
+                        Container(
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.primary.withValues(alpha: 0.06),
+                            borderRadius: BorderRadius.circular(12),
                           ),
-                          const SizedBox(height: 10),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Icon(Icons.verified_user_outlined, size: 20, color: theme.colorScheme.primary),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Text(
+                                  'Next we verify your identity (required by RICA). You are only charged after that succeeds.',
+                                  style: theme.textTheme.bodyMedium,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        if (state.status == CheckoutStatus.failure) ...[
+                          const SizedBox(height: 18),
+                          FailureView(
+                            failure: state.failure,
+                            compact: true,
+                            onRetry: () => context.read<CheckoutCubit>().createOrder(),
+                          ),
                         ],
                       ],
                     ),
@@ -50,37 +71,15 @@ class CheckoutPage extends StatelessWidget {
                 ),
                 Padding(
                   padding: const EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Icon(Icons.lock_outline, size: 14, color: theme.colorScheme.onSurfaceVariant),
-                          const SizedBox(width: 6),
-                          Expanded(
-                            child: Text(
-                              'Payments are tokenised and PCI-compliant — Sentech never stores your card details.',
-                              style: theme.textTheme.bodyMedium?.copyWith(
-                                fontSize: 11.5,
-                                color: theme.colorScheme.onSurfaceVariant,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 14),
-                      ElevatedButton(
-                        onPressed: paying ? null : () => context.read<CheckoutCubit>().pay(),
-                        child: paying
-                            ? const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                              )
-                            : Text('Pay R${state.total.toStringAsFixed(2)} securely'),
-                      ),
-                    ],
+                  child: ElevatedButton(
+                    onPressed: (creating || state.items.isEmpty) ? null : () => context.read<CheckoutCubit>().createOrder(),
+                    child: creating
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                          )
+                        : const Text('Verify identity to continue'),
                   ),
                 ),
               ],
@@ -127,67 +126,8 @@ class _SummaryCard extends StatelessWidget {
               'R${item.lineTotal.toStringAsFixed(2)}',
             ),
           const Padding(padding: EdgeInsets.symmetric(vertical: 6), child: Divider(height: 1)),
-          row('Due today', 'R${total.toStringAsFixed(2)}', total: true),
+          row('Due after verification', 'R${total.toStringAsFixed(2)}', total: true),
         ],
-      ),
-    );
-  }
-}
-
-class _PayTile extends StatelessWidget {
-  const _PayTile({required this.method, required this.selected, required this.onTap});
-
-  final PaymentMethod method;
-  final bool selected;
-  final VoidCallback onTap;
-
-  IconData get _icon => switch (method) {
-        PaymentMethod.card => Icons.credit_card,
-        PaymentMethod.ozow => Icons.account_balance_outlined,
-        PaymentMethod.payshap => Icons.qr_code_2,
-      };
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final color = selected ? theme.colorScheme.primary : theme.colorScheme.onSurfaceVariant;
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(10),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(
-            color: selected ? theme.colorScheme.primary : theme.colorScheme.outlineVariant,
-            width: selected ? 1.4 : 1,
-          ),
-          color: selected ? theme.colorScheme.primary.withValues(alpha: 0.06) : null,
-        ),
-        child: Row(
-          children: [
-            Icon(_icon, size: 19, color: color),
-            const SizedBox(width: 10),
-            Expanded(child: Text(method.label, style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w700))),
-            Container(
-              width: 16,
-              height: 16,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: selected ? theme.colorScheme.primary : theme.colorScheme.outlineVariant, width: 1.5),
-              ),
-              child: selected
-                  ? Center(
-                      child: Container(
-                        width: 8,
-                        height: 8,
-                        decoration: BoxDecoration(shape: BoxShape.circle, color: theme.colorScheme.primary),
-                      ),
-                    )
-                  : null,
-            ),
-          ],
-        ),
       ),
     );
   }

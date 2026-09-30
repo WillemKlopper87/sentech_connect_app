@@ -1,0 +1,314 @@
+// ignore: unused_import
+import 'package:intl/intl.dart' as intl;
+import 'app_localizations.dart';
+
+// ignore_for_file: type=lint
+
+/// The translations for English (`en`).
+class AppLocalizationsEn extends AppLocalizations {
+  AppLocalizationsEn([String locale = 'en']) : super(locale);
+
+  @override
+  String get commonCancel => 'Cancel';
+
+  @override
+  String get commonContinue => 'Continue';
+
+  @override
+  String get commonRetry => 'Retry';
+
+  @override
+  String get commonDone => 'Done';
+
+  @override
+  String get loginWelcomeBack => 'Welcome back';
+
+  @override
+  String get loginSubtitle => 'Log in to manage your connection';
+
+  @override
+  String get loginUseBiometrics => 'Use biometrics';
+
+  @override
+  String get loginOr => 'or';
+
+  @override
+  String get loginMobileHint => 'Mobile number';
+
+  @override
+  String get loginPasswordHint => 'Password';
+
+  @override
+  String get loginButton => 'Log in';
+
+  @override
+  String get loginCreateAccount => 'New to Sentech? Create an account';
+
+  @override
+  String get biometricPromptReason =>
+      'Confirm it is you to log in to Sentech Connect';
+
+  @override
+  String get biometricNotEnrolled =>
+      'No fingerprint or face is set up on this phone. Add one in system settings, or log in with your password.';
+
+  @override
+  String get biometricUnavailable =>
+      'Biometrics are not available right now. Log in with your password.';
+
+  @override
+  String get biometricLockedOut =>
+      'Too many attempts. Wait a moment and try again, or log in with your password.';
+
+  @override
+  String get biometricPermanentlyLockedOut =>
+      'Biometrics are locked. Unlock your phone with your PIN or pattern first, or log in with your password.';
+
+  @override
+  String get biometricFailed =>
+      'Biometric check failed. Try again or log in with your password.';
+
+  @override
+  String get registerTitle => 'Create an account';
+
+  @override
+  String get registerPersonalDetails => 'PERSONAL DETAILS';
+
+  @override
+  String get registerFullName => 'Full name';
+
+  @override
+  String get registerEmail => 'Email address';
+
+  @override
+  String get registerMobile => 'Mobile number';
+
+  @override
+  String get registerInstallationAddress => 'INSTALLATION ADDRESS';
+
+  @override
+  String get registerAddressHint => 'Street address, suburb, city';
+
+  @override
+  String get registerLocationCaptured => 'Location captured';
+
+  @override
+  String get registerUseLocation => 'Use my current location';
+
+  @override
+  String get registerLocationHelp =>
+      'Narrows your coverage check to your exact location — you can still edit the address above.';
+
+  @override
+  String get registerContactHeading => 'HOW SHOULD WE CONTACT YOU?';
+
+  @override
+  String get registerMarketingHeading => 'MARKETING PREFERENCES';
+
+  @override
+  String get registerMarketingEmail => 'Send me offers by email';
+
+  @override
+  String get registerMarketingSms => 'Send me offers by SMS';
+
+  @override
+  String get registerMarketingPush => 'Send me push notifications';
+
+  @override
+  String get registerCreateAccount => 'Create account';
+
+  @override
+  String get registerSaveFailed =>
+      'Could not save your details — please try again.';
+
+  @override
+  String get registerLocationDenied =>
+      'Location permission denied — enter your address manually.';
+
+  @override
+  String get registerLocationFailed =>
+      'Could not get your location — check that location services are on.';
+
+  @override
+  String get accountTitle => 'Account';
+
+  @override
+  String get accountNotLoggedIn => 'Not logged in';
+
+  @override
+  String get accountAppearance => 'APPEARANCE';
+
+  @override
+  String get accountThemeSystem => 'Match device setting';
+
+  @override
+  String get accountThemeLight => 'Light';
+
+  @override
+  String get accountThemeDark => 'Dark';
+
+  @override
+  String get accountLanguage => 'LANGUAGE';
+
+  @override
+  String get accountLanguageSystem => 'Match device language';
+
+  @override
+  String get accountLogOut => 'Log out';
+
+  @override
+  String get accountLogOutTitle => 'Log out?';
+
+  @override
+  String get accountLogOutBody => 'You can log back in at any time.';
+
+  @override
+  String get accountNotifications => 'NOTIFICATIONS';
+
+  @override
+  String get accountPushTitle => 'Push notifications';
+
+  @override
+  String get accountPushOn => 'On — usage alerts, outages and order updates';
+
+  @override
+  String get accountPushOff =>
+      'Off — turn on to get usage alerts, outages and order updates';
+
+  @override
+  String get accountPushBlocked => 'Blocked — change this in system settings';
+
+  @override
+  String get accountPushTurnOn => 'Turn on';
+
+  @override
+  String get accountPushOpenSettings => 'Open settings';
+
+  @override
+  String get accountPrivacy => 'PRIVACY & DATA';
+
+  @override
+  String get accountPrivacyPolicy => 'Privacy policy';
+
+  @override
+  String get accountDownloadData => 'Download my data';
+
+  @override
+  String get accountDownloadDataDone =>
+      'Request received. We will send your data to your email once it is ready.';
+
+  @override
+  String get accountDeleteData => 'Delete my account & data';
+
+  @override
+  String get accountDeleteTitle => 'Delete your account?';
+
+  @override
+  String get accountDeleteBody =>
+      'This permanently deletes your Sentech account and all personal data stored on this phone. This cannot be undone.';
+
+  @override
+  String get accountDeleteConfirm => 'Delete everything';
+
+  @override
+  String get accountRequestFailed =>
+      'We could not complete that request. Please try again.';
+
+  @override
+  String get accountLinkFailed => 'Could not open the link.';
+
+  @override
+  String get supportTitle => 'Help & support';
+
+  @override
+  String get supportSearchHint => 'Search FAQs';
+
+  @override
+  String supportNoResults(String query) {
+    return 'No results for \"$query\"';
+  }
+
+  @override
+  String get supportStillStuck => 'STILL STUCK?';
+
+  @override
+  String get supportWhatsApp => 'WhatsApp';
+
+  @override
+  String get supportSubmitTicket => 'Submit a ticket';
+
+  @override
+  String get supportTicketCategory => 'Category';
+
+  @override
+  String get supportTicketDescribe => 'Describe the issue';
+
+  @override
+  String get supportCategoryBilling => 'Billing';
+
+  @override
+  String get supportCategoryTechnical => 'Technical';
+
+  @override
+  String get supportCategoryOther => 'Other';
+
+  @override
+  String get supportWhatsAppFailed =>
+      'Could not open WhatsApp — is it installed?';
+
+  @override
+  String get supportTicketOpened =>
+      'Ticket opened in your email app — send it to submit.';
+
+  @override
+  String get supportTicketNoEmail =>
+      'Could not open an email app on this device.';
+
+  @override
+  String get consentTitle => 'Your privacy';
+
+  @override
+  String get consentLocationBody =>
+      'We use your phone\'s location once to check 5G coverage at your address. It is not stored on your phone or kept after the check.';
+
+  @override
+  String get consentRicaBody =>
+      'South African law (RICA) requires us to verify your identity. We will process your face and ID information for verification only, under POPIA.';
+
+  @override
+  String get consentPolicyLink => 'Read our privacy policy';
+
+  @override
+  String get consentAgree => 'I agree';
+
+  @override
+  String get consentDecline => 'Not now';
+
+  @override
+  String get notifRationaleTitle => 'Stay in the loop';
+
+  @override
+  String get notifRationaleBody =>
+      'Allow notifications so we can tell you when your data is running low, when there is an outage in your area, and when your order moves forward. You can turn this off at any time.';
+
+  @override
+  String get notifRationaleAllow => 'Allow notifications';
+
+  @override
+  String get notifRationaleLater => 'Not now';
+
+  @override
+  String get a11yCart => 'Shopping cart';
+
+  @override
+  String get a11yDecreaseQuantity => 'Decrease quantity';
+
+  @override
+  String get a11yIncreaseQuantity => 'Increase quantity';
+
+  @override
+  String get a11yToggleTorch => 'Toggle flashlight';
+
+  @override
+  String get a11yEnterCode => 'Enter code manually';
+}

@@ -1,0 +1,7 @@
+arb-dir: lib/l10n
+template-arb-file: app_en.arb
+output-localization-file: app_localizations.dart
+output-class: AppLocalizations
+# Generated Dart is written next to the ARBs and committed, so a fresh
+# checkout compiles without running `flutter gen-l10n` first.
+nullable-getter: false

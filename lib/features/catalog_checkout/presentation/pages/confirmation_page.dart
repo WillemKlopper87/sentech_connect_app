@@ -1,8 +1,59 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/domain/entities/order.dart';
+import 'package:sentech_connect_app/features/catalog_checkout/presentation/bloc/order_cubit.dart';
+import 'package:sentech_connect_app/shared/widgets/failure_view.dart';
 
+/// Loads the order by id (from the route) via [OrderCubit]; never relies on
+/// an object passed through navigation.
 class ConfirmationPage extends StatelessWidget {
-  const ConfirmationPage({super.key, required this.order, required this.onDone});
+  const ConfirmationPage({super.key, required this.onDone, required this.onResume});
+
+  final VoidCallback onDone;
+  final void Function(Order order) onResume;
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<OrderCubit, OrderState>(
+      builder: (context, state) {
+        if (state.status == OrderLoadStatus.loading) {
+          return const Scaffold(body: Center(child: CircularProgressIndicator()));
+        }
+        final order = state.order;
+        if (order == null) {
+          return Scaffold(
+            appBar: AppBar(),
+            body: FailureView(failure: state.failure, onRetry: () => context.read<OrderCubit>().load()),
+          );
+        }
+        if (order.status != OrderStatus.paid) {
+          // Deep link / restored state pointing at an order that is not
+          // complete: never claim "connected" for an unpaid order.
+          return Scaffold(
+            appBar: AppBar(title: const Text('Order')),
+            body: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text('Order #${order.orderNumber} is not complete yet.', textAlign: TextAlign.center),
+                    const SizedBox(height: 16),
+                    ElevatedButton(onPressed: () => onResume(order), child: const Text('Continue your order')),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }
+        return _ConfirmationView(order: order, onDone: onDone);
+      },
+    );
+  }
+}
+
+class _ConfirmationView extends StatelessWidget {
+  const _ConfirmationView({required this.order, required this.onDone});
 
   final Order order;
   final VoidCallback onDone;

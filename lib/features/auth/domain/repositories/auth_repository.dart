@@ -8,5 +8,8 @@ abstract class AuthRepository {
     required String password,
   });
 
-  Future<Either<Failure, User>> logInWithBiometrics();
+  /// Re-establishes a session from the credential saved by a previous login
+  /// (see `SessionStore.loadBiometricCredential`). The caller must already
+  /// have passed a biometric check — this only exchanges the credential.
+  Future<Either<Failure, User>> logInWithStoredCredential(String credential);
 }

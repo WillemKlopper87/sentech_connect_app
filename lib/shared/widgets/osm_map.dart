@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -6,16 +7,112 @@ import 'package:latlong2/latlong.dart';
 /// specific location (device GPS or a typed/geocoded address) is known.
 const southAfricaCenter = LatLng(-28.4793, 24.6727);
 
-/// A real, interactive OpenStreetMap view (free, no API key) used for
-/// both the coverage-check address pin and the WiFi hotspot locator.
+/// Where map tiles come from. Injected at build time so the provider (and its
+/// API key) can change without touching code:
 ///
-/// Note: this fetches OSM tiles over the network on demand. Caching
-/// those tiles for offline use (e.g. "pre-load South Africa once on
-/// WiFi, refresh monthly") is a real, separate engineering project —
-/// tile storage budgets, background sync scheduling, cache invalidation
-/// — worth scoping on its own once this basic map has been reviewed,
-/// rather than half-building it here.
+///   flutter build apk --release \
+///     --dart-define=TILE_URL_TEMPLATE=https://api.example.com/tiles/{z}/{x}/{y}.png?key={apiKey} \
+///     --dart-define=TILE_API_KEY=... \
+///     --dart-define=TILE_ATTRIBUTION="© OpenStreetMap contributors, © ExampleMaps"
+///
+/// `{apiKey}` in the template is replaced with `TILE_API_KEY`. Keys compiled
+/// into an app are extractable, so restrict the key to this app's id and
+/// signing certificate at the provider.
+///
+/// The public OpenStreetMap tile servers are only used for debug/demo builds
+/// (their usage policy forbids production apps, and every tile request leaks
+/// the viewport to the tile host). A release build with no provider configured
+/// shows a placeholder instead and never contacts tile.openstreetmap.org.
+abstract class MapTileSource {
+  const MapTileSource();
+
+  static const _urlDefine = String.fromEnvironment('TILE_URL_TEMPLATE');
+  static const _keyDefine = String.fromEnvironment('TILE_API_KEY');
+  static const _attributionDefine = String.fromEnvironment('TILE_ATTRIBUTION');
+
+  /// Picks the source for this build. Parameters exist so tests can cover
+  /// release/debug without recompiling.
+  static MapTileSource resolve({
+    String url = _urlDefine,
+    String apiKey = _keyDefine,
+    String attribution = _attributionDefine,
+    bool release = kReleaseMode,
+  }) {
+    if (url.isNotEmpty) {
+      // HTTPS only: cleartext tile requests are blocked by the network
+      // security config anyway, and would expose the key.
+      if (!url.startsWith('https://')) return const UnavailableTileSource();
+      return ConfiguredTileSource(
+        urlTemplate: url,
+        apiKey: apiKey.isEmpty ? null : apiKey,
+        attribution: attribution.isEmpty ? '© OpenStreetMap contributors' : attribution,
+      );
+    }
+    return release ? const UnavailableTileSource() : const OsmDemoTileSource();
+  }
+
+  /// Null when no tiles may be fetched (see [UnavailableTileSource]).
+  String? get urlTemplate;
+
+  Map<String, String> get additionalOptions => const {};
+
+  String get attribution;
+}
+
+/// A commercial / self-hosted provider supplied via `--dart-define`.
+class ConfiguredTileSource extends MapTileSource {
+  const ConfiguredTileSource({required this.urlTemplate, required this.attribution, this.apiKey});
+
+  @override
+  final String urlTemplate;
+  final String? apiKey;
+  @override
+  final String attribution;
+
+  @override
+  Map<String, String> get additionalOptions => apiKey == null ? const {} : {'apiKey': apiKey!};
+}
+
+/// Public OSM tiles — debug/demo builds only.
+class OsmDemoTileSource extends MapTileSource {
+  const OsmDemoTileSource();
+
+  @override
+  String get urlTemplate => 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+
+  @override
+  String get attribution => '© OpenStreetMap contributors';
+}
+
+/// Release build with no provider configured.
+class UnavailableTileSource extends MapTileSource {
+  const UnavailableTileSource();
+
+  @override
+  String? get urlTemplate => null;
+
+  @override
+  String get attribution => '';
+}
+
+/// An interactive map used for both the coverage-check address pin and the
+/// WiFi hotspot locator. Tiles come from [MapTileSource]; see there for how
+/// to configure a production provider.
+///
+/// Note: this fetches tiles over the network on demand. Caching tiles for
+/// offline use (e.g. "pre-load South Africa once on WiFi, refresh monthly")
+/// is a real, separate engineering project — tile storage budgets,
+/// background sync scheduling, cache invalidation — worth scoping on its own.
 class OsmMap extends StatelessWidget {
+  /// Replaces the network tile provider so widget tests never hit a tile
+  /// server. Leave null in production code.
+  @visibleForTesting
+  static TileProvider? tileProviderOverride;
+
+  /// Replaces the build-time tile source (tests).
+  @visibleForTesting
+  static MapTileSource? sourceOverride;
+
   const OsmMap({
     super.key,
     required this.center,
@@ -31,17 +128,80 @@ class OsmMap extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final source = sourceOverride ?? _buildSource;
+    final template = source.urlTemplate;
+    if (template == null) {
+      return ClipRRect(borderRadius: borderRadius, child: const _MapUnavailable());
+    }
     return ClipRRect(
       borderRadius: borderRadius,
       child: FlutterMap(
         options: MapOptions(initialCenter: center, initialZoom: zoom),
         children: [
           TileLayer(
-            urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+            urlTemplate: template,
+            additionalOptions: source.additionalOptions,
             userAgentPackageName: 'za.co.sentech.sentech_connect_app',
+            tileProvider: tileProviderOverride,
           ),
           if (markers.isNotEmpty) MarkerLayer(markers: markers),
+          _MapAttribution(text: source.attribution),
         ],
+      ),
+    );
+  }
+
+  static final MapTileSource _buildSource = MapTileSource.resolve();
+}
+
+/// Required by OSM-derived tile licences: visible credit on the map.
+class _MapAttribution extends StatelessWidget {
+  const _MapAttribution({required this.text});
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: Alignment.bottomRight,
+      child: Semantics(
+        label: 'Map data $text',
+        child: ColoredBox(
+          color: Colors.white.withValues(alpha: 0.8),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+            child: Text(text, style: const TextStyle(fontSize: 10, color: Colors.black87)),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _MapUnavailable extends StatelessWidget {
+  const _MapUnavailable();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return ColoredBox(
+      color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.map_outlined, color: theme.colorScheme.onSurfaceVariant),
+              const SizedBox(height: 6),
+              Text(
+                'Map unavailable in this build — no map provider is configured.',
+                textAlign: TextAlign.center,
+                style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

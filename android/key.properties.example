@@ -1,0 +1,11 @@
+# Copy to android/key.properties (git-ignored) and fill in. NEVER commit the
+# real file or the keystore. Generate the upload keystore once, e.g.:
+#   keytool -genkey -v -keystore <path>/sentech-upload.jks -keyalg RSA -keysize 2048 -validity 10000 -alias <alias>
+# and keep it (and its passwords) in the team's secret manager; use Play App
+# Signing so Google holds the actual app-signing key.
+#
+# storeFile is resolved relative to the android/ directory (or use an absolute path).
+storeFile=../../secrets/sentech-upload.jks
+storePassword=CHANGE_ME
+keyAlias=CHANGE_ME
+keyPassword=CHANGE_ME

@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:sentech_connect_app/app/locator.dart';
+import 'package:sentech_connect_app/features/voucher_scanner/presentation/bloc/voucher_cubit.dart';
+import 'package:sentech_connect_app/l10n/l10n.dart';
+import 'package:sentech_connect_app/features/voucher_scanner/presentation/pages/voucher_result_sheet.dart';
 import 'package:sentech_connect_app/shared/widgets/viewfinder_corners.dart';
 
 /// Real camera-based QR scanning via `mobile_scanner` (Module E,
@@ -16,20 +21,29 @@ import 'package:sentech_connect_app/shared/widgets/viewfinder_corners.dart';
 /// lifecycle + tab-visibility observers below, which explicitly stop the
 /// camera when it isn't the visible, foregrounded tab and restart it when
 /// it is.
-class VoucherScannerPage extends StatefulWidget {
+class VoucherScannerPage extends StatelessWidget {
   const VoucherScannerPage({super.key});
 
   @override
-  State<VoucherScannerPage> createState() => _VoucherScannerPageState();
+  Widget build(BuildContext context) {
+    return BlocProvider(create: (_) => VoucherCubit(locator()), child: const _VoucherScannerView());
+  }
 }
 
-class _VoucherScannerPageState extends State<VoucherScannerPage>
-    with WidgetsBindingObserver {
-  final MobileScannerController _controller = MobileScannerController(
-    detectionSpeed: DetectionSpeed.noDuplicates,
-  );
-  bool _handled = false;
+class _VoucherScannerView extends StatefulWidget {
+  const _VoucherScannerView();
+
+  @override
+  State<_VoucherScannerView> createState() => _VoucherScannerViewState();
+}
+
+class _VoucherScannerViewState extends State<_VoucherScannerView> with WidgetsBindingObserver {
+  final MobileScannerController _controller = MobileScannerController(detectionSpeed: DetectionSpeed.noDuplicates);
   bool _wasTabActive = false;
+
+  /// Scanning is paused from the moment a code is submitted until its
+  /// result sheet is dismissed (see [VoucherCubit]).
+  bool get _scanning => context.read<VoucherCubit>().state.status == VoucherStatus.scanning;
 
   @override
   void initState() {
@@ -42,7 +56,7 @@ class _VoucherScannerPageState extends State<VoucherScannerPage>
     super.didChangeDependencies();
     final isTabActive = TickerMode.valuesOf(context).enabled;
     if (isTabActive && !_wasTabActive) {
-      _controller.start();
+      if (_scanning) _controller.start();
     } else if (!isTabActive && _wasTabActive) {
       _controller.stop();
     }
@@ -54,7 +68,7 @@ class _VoucherScannerPageState extends State<VoucherScannerPage>
     if (!_wasTabActive) return; // don't fight the tab-visibility logic above
     switch (state) {
       case AppLifecycleState.resumed:
-        _controller.start();
+        if (_scanning) _controller.start();
       case AppLifecycleState.inactive:
       case AppLifecycleState.paused:
       case AppLifecycleState.detached:
@@ -71,22 +85,37 @@ class _VoucherScannerPageState extends State<VoucherScannerPage>
   }
 
   void _onDetect(BarcodeCapture capture) {
-    if (_handled) return;
-    final code = capture.barcodes.firstOrNull?.rawValue;
-    if (code == null || code.isEmpty) return;
-    _handled = true;
-    _redeem(code);
+    // The cubit ignores submissions unless it is in the scanning state, so a
+    // QR that stays in frame cannot be re-submitted while a result is open.
+    context.read<VoucherCubit>().submit(capture.barcodes.firstOrNull?.rawValue);
   }
 
-  void _redeem(String code) {
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(
-        content: Text('Voucher "$code" redeemed — data added to your account.'),
-      ));
-    Future.delayed(const Duration(seconds: 2), () {
-      if (mounted) setState(() => _handled = false);
-    });
+  Future<void> _onVoucherState(BuildContext context, VoucherState state) async {
+    final cubit = context.read<VoucherCubit>();
+    if (state.status == VoucherStatus.redeeming) {
+      await _controller.stop();
+    } else if (state.status == VoucherStatus.result) {
+      await showModalBottomSheet<void>(
+        context: context,
+        isDismissible: state.failure == null,
+        isScrollControlled: true,
+        builder: (sheetContext) => VoucherResultSheet(
+          state: state,
+          onRetry: () {
+            Navigator.pop(sheetContext);
+            cubit.retry();
+          },
+        ),
+      );
+      // Sheet closed. If "Try again" started a new redemption the cubit is
+      // already past the result state; otherwise resume scanning.
+      if (cubit.state.status == VoucherStatus.result) {
+        cubit.dismiss();
+        if (mounted && _wasTabActive) await _controller.start();
+      }
+    } else if (mounted && _wasTabActive) {
+      await _controller.start();
+    }
   }
 
   Future<void> _enterCodeManually() async {
@@ -103,68 +132,73 @@ class _VoucherScannerPageState extends State<VoucherScannerPage>
         ),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, controller.text.trim()),
-            child: const Text('Redeem'),
-          ),
+          FilledButton(onPressed: () => Navigator.pop(context, controller.text.trim()), child: const Text('Redeem')),
         ],
       ),
     );
     if (code == null || code.isEmpty || !mounted) return;
-    _redeem(code);
+    context.read<VoucherCubit>().submit(code);
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Scan voucher'),
-        actions: [
-          IconButton(
-            icon: ValueListenableBuilder(
-              valueListenable: _controller,
-              builder: (context, state, child) {
-                return Icon(state.torchState == TorchState.on ? Icons.flash_on : Icons.flash_off);
-              },
+    return BlocListener<VoucherCubit, VoucherState>(
+      listener: _onVoucherState,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Scan voucher'),
+          actions: [
+            IconButton(
+              tooltip: context.l10n.a11yToggleTorch,
+              icon: ValueListenableBuilder(
+                valueListenable: _controller,
+                builder: (context, state, child) {
+                  return Icon(state.torchState == TorchState.on ? Icons.flash_on : Icons.flash_off);
+                },
+              ),
+              onPressed: () => _controller.toggleTorch(),
             ),
-            onPressed: () => _controller.toggleTorch(),
-          ),
-          IconButton(icon: const Icon(Icons.keyboard), onPressed: _enterCodeManually),
-          const SizedBox(width: 4),
-        ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(16),
-              child: SizedBox(
-                height: 320,
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    MobileScanner(
-                      controller: _controller,
-                      onDetect: _onDetect,
-                      errorBuilder: (context, error, child) => _CameraError(error: error),
-                    ),
-                    const ViewfinderCorners(color: Colors.white),
-                  ],
+            IconButton(
+              tooltip: context.l10n.a11yEnterCode,
+              icon: const Icon(Icons.keyboard),
+              onPressed: _enterCodeManually,
+            ),
+            const SizedBox(width: 4),
+          ],
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: SizedBox(
+                  height: 320,
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      MobileScanner(
+                        controller: _controller,
+                        onDetect: _onDetect,
+                        errorBuilder: (context, error) => _CameraError(error: error),
+                      ),
+                      const ViewfinderCorners(color: Colors.white),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              "Align the voucher's QR code within the frame",
-              textAlign: TextAlign.center,
-              style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-            ),
-            const Spacer(),
-            OutlinedButton(onPressed: _enterCodeManually, child: const Text('Enter code manually instead')),
-          ],
+              const SizedBox(height: 16),
+              Text(
+                "Align the voucher's QR code within the frame",
+                textAlign: TextAlign.center,
+                style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+              ),
+              const Spacer(),
+              OutlinedButton(onPressed: _enterCodeManually, child: const Text('Enter code manually instead')),
+            ],
+          ),
         ),
       ),
     );

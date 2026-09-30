@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sentech_connect_app/features/cart/presentation/bloc/cart_cubit.dart';
+import 'package:sentech_connect_app/l10n/l10n.dart';
 
 class CartPage extends StatelessWidget {
   const CartPage({super.key, required this.onCheckout});
@@ -72,7 +73,15 @@ class CartPage extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text('Total', style: theme.textTheme.titleLarge),
-                          Text('R${state.total.toStringAsFixed(2)}', style: theme.textTheme.titleLarge),
+                          const SizedBox(width: 12),
+                          // Flexible so a large text size wraps instead of overflowing.
+                          Flexible(
+                            child: Text(
+                              'R${state.total.toStringAsFixed(2)}',
+                              textAlign: TextAlign.end,
+                              style: theme.textTheme.titleLarge,
+                            ),
+                          ),
                         ],
                       ),
                       const SizedBox(height: 12),
@@ -100,14 +109,15 @@ class _QtyStepper extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
+        // Default IconButton size keeps the 48dp touch target (no compact density).
         IconButton(
-          visualDensity: VisualDensity.compact,
+          tooltip: context.l10n.a11yDecreaseQuantity,
           icon: const Icon(Icons.remove_circle_outline, size: 20),
           onPressed: () => onChanged(quantity - 1),
         ),
         Text('$quantity', style: Theme.of(context).textTheme.titleMedium),
         IconButton(
-          visualDensity: VisualDensity.compact,
+          tooltip: context.l10n.a11yIncreaseQuantity,
           icon: const Icon(Icons.add_circle_outline, size: 20),
           onPressed: () => onChanged(quantity + 1),
         ),

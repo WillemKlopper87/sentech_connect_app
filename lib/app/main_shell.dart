@@ -4,8 +4,10 @@ import 'package:sentech_connect_app/app/locator.dart';
 import 'package:sentech_connect_app/features/account/presentation/pages/account_page.dart';
 import 'package:sentech_connect_app/features/account_dashboard/presentation/bloc/account_cubit.dart';
 import 'package:sentech_connect_app/features/account_dashboard/presentation/pages/dashboard_page.dart';
+import 'package:sentech_connect_app/features/catalog_checkout/domain/entities/order.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/domain/entities/plan.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/presentation/bloc/catalog_cubit.dart';
+import 'package:sentech_connect_app/features/catalog_checkout/presentation/bloc/order_cubit.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/presentation/pages/catalog_page.dart';
 import 'package:sentech_connect_app/features/support/presentation/bloc/support_cubit.dart';
 import 'package:sentech_connect_app/features/support/presentation/pages/support_page.dart';
@@ -20,13 +22,13 @@ class MainShell extends StatefulWidget {
   const MainShell({
     super.key,
     required this.onOpenCart,
-    required this.onLoggedOut,
+    required this.onResumeOrder,
     required this.onOpenPromotions,
     required this.onFindHotspots,
   });
 
   final VoidCallback onOpenCart;
-  final VoidCallback onLoggedOut;
+  final void Function(Order order) onResumeOrder;
   final VoidCallback onOpenPromotions;
   final VoidCallback onFindHotspots;
 
@@ -42,9 +44,21 @@ class _MainShellState extends State<MainShell> {
   // tab's category filter directly, not just switch to it blindly.
   late final CatalogCubit _catalogCubit = CatalogCubit(locator());
 
+  /// Unpaid order shown as a "finish your order" banner on the dashboard.
+  late final OpenOrderCubit _openOrderCubit = OpenOrderCubit(locator());
+
+  @override
+  void didUpdateWidget(MainShell oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // go_router reuses this shell when a checkout flow returns to /main, so
+    // pick up an order that was just completed (or created) in the meantime.
+    _openOrderCubit.refresh();
+  }
+
   @override
   void dispose() {
     _catalogCubit.close();
+    _openOrderCubit.close();
     super.dispose();
   }
 
@@ -56,13 +70,17 @@ class _MainShellState extends State<MainShell> {
   @override
   Widget build(BuildContext context) {
     final pages = [
-      BlocProvider(
-        create: (_) => AccountCubit(locator()),
+      MultiBlocProvider(
+        providers: [
+          BlocProvider(create: (_) => AccountCubit(locator())),
+          BlocProvider.value(value: _openOrderCubit),
+        ],
         child: DashboardPage(
           onTopUp: () => _goToShop(ProductCategory.voucher),
           onUpgrade: () => _goToShop(ProductCategory.home5g),
           onReportIssue: () => submitSupportTicket(context, initialCategory: TicketCategory.technical),
           onOpenPromotions: widget.onOpenPromotions,
+          onResumeOrder: widget.onResumeOrder,
         ),
       ),
       BlocProvider.value(
@@ -71,7 +89,7 @@ class _MainShellState extends State<MainShell> {
       ),
       const VoucherScannerPage(),
       BlocProvider(create: (_) => SupportCubit(locator()), child: const SupportPage()),
-      AccountPage(onLoggedOut: widget.onLoggedOut),
+      const AccountPage(),
     ];
     return Scaffold(
       body: IndexedStack(
@@ -82,7 +100,10 @@ class _MainShellState extends State<MainShell> {
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
-        onDestinationSelected: (i) => setState(() => _index = i),
+        onDestinationSelected: (i) {
+          if (i == 0) _openOrderCubit.refresh();
+          setState(() => _index = i);
+        },
         destinations: const [
           NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home), label: 'Home'),
           NavigationDestination(icon: Icon(Icons.shopping_bag_outlined), selectedIcon: Icon(Icons.shopping_bag), label: 'Shop'),

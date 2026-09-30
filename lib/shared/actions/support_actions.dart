@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sentech_connect_app/l10n/l10n.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 /// Placeholder WhatsApp Business number — swap for Sentech's real number
@@ -10,10 +11,18 @@ const supportEmail = 'support@sentech.co.za'; // from the Sentech CI manual
 enum TicketCategory { billing, technical, other }
 
 extension TicketCategoryLabel on TicketCategory {
+  /// English label used in the email subject that support staff read.
   String get label => switch (this) {
         TicketCategory.billing => 'Billing',
         TicketCategory.technical => 'Technical',
         TicketCategory.other => 'Other',
+      };
+
+  /// Label shown to the customer, in their language.
+  String localizedLabel(BuildContext context) => switch (this) {
+        TicketCategory.billing => context.l10n.supportCategoryBilling,
+        TicketCategory.technical => context.l10n.supportCategoryTechnical,
+        TicketCategory.other => context.l10n.supportCategoryOther,
       };
 }
 
@@ -29,7 +38,7 @@ Future<void> openWhatsAppChat(BuildContext context) async {
   if (!launched && context.mounted) {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
-      ..showSnackBar(const SnackBar(content: Text('Could not open WhatsApp — is it installed?')));
+      ..showSnackBar(SnackBar(content: Text(context.l10n.supportWhatsAppFailed)));
   }
 }
 
@@ -59,9 +68,7 @@ Future<void> submitSupportTicket(
   ScaffoldMessenger.of(context)
     ..hideCurrentSnackBar()
     ..showSnackBar(SnackBar(
-      content: Text(launched
-          ? 'Ticket opened in your email app — send it to submit.'
-          : 'Could not open an email app on this device.'),
+      content: Text(launched ? context.l10n.supportTicketOpened : context.l10n.supportTicketNoEmail),
     ));
 }
 
@@ -86,17 +93,18 @@ class _TicketDialogState extends State<_TicketDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return AlertDialog(
-      title: const Text('Submit a ticket'),
+      title: Text(l10n.supportSubmitTicket),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           DropdownButtonFormField<TicketCategory>(
             initialValue: _category,
-            decoration: const InputDecoration(labelText: 'Category'),
+            decoration: InputDecoration(labelText: l10n.supportTicketCategory),
             items: TicketCategory.values
-                .map((c) => DropdownMenuItem(value: c, child: Text(c.label)))
+                .map((c) => DropdownMenuItem(value: c, child: Text(c.localizedLabel(context))))
                 .toList(),
             onChanged: (c) => setState(() => _category = c!),
           ),
@@ -105,20 +113,20 @@ class _TicketDialogState extends State<_TicketDialog> {
             controller: _descriptionController,
             onChanged: (_) => setState(() {}),
             maxLines: 4,
-            decoration: const InputDecoration(
-              labelText: 'Describe the issue',
+            decoration: InputDecoration(
+              labelText: l10n.supportTicketDescribe,
               alignLabelWithHint: true,
             ),
           ),
         ],
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+        TextButton(onPressed: () => Navigator.pop(context), child: Text(l10n.commonCancel)),
         FilledButton(
           onPressed: _descriptionController.text.trim().isEmpty
               ? null
               : () => Navigator.pop(context, (_category, _descriptionController.text.trim())),
-          child: const Text('Continue'),
+          child: Text(l10n.commonContinue),
         ),
       ],
     );

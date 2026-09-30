@@ -1,12 +1,18 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:sentech_connect_app/core/error/failure.dart';
+import 'package:sentech_connect_app/core/network/simulated_network.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/domain/entities/plan.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/domain/repositories/catalog_repository.dart';
 
 class MockCatalogRepository implements CatalogRepository {
+  MockCatalogRepository([SimulatedNetwork? network]) : _network = network ?? SimulatedNetwork();
+
+  final SimulatedNetwork _network;
+
   @override
   Future<Either<Failure, List<Plan>>> getProducts() async {
     await Future.delayed(const Duration(milliseconds: 400));
+    if (_network.failure case final failure?) return Left(failure);
     return const Right([
       // Home 5G
       Plan(

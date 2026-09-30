@@ -5,25 +5,25 @@ import 'package:sentech_connect_app/features/auth/domain/entities/registration_d
 import 'package:sentech_connect_app/features/auth/domain/entities/user.dart';
 import 'package:sentech_connect_app/features/auth/presentation/bloc/auth_cubit.dart';
 import 'package:sentech_connect_app/features/auth/presentation/bloc/registration_cubit.dart';
+import 'package:sentech_connect_app/features/privacy/domain/entities/consent_record.dart';
+import 'package:sentech_connect_app/features/privacy/presentation/widgets/consent_gate.dart';
+import 'package:sentech_connect_app/l10n/l10n.dart';
+import 'package:sentech_connect_app/shared/widgets/notification_rationale_sheet.dart';
 
 class RegistrationPage extends StatelessWidget {
-  const RegistrationPage({super.key, required this.onRegistered});
-
-  final VoidCallback onRegistered;
+  const RegistrationPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => RegistrationCubit(locator()),
-      child: _RegistrationView(onRegistered: onRegistered),
+      child: const _RegistrationView(),
     );
   }
 }
 
 class _RegistrationView extends StatefulWidget {
-  const _RegistrationView({required this.onRegistered});
-
-  final VoidCallback onRegistered;
+  const _RegistrationView();
 
   @override
   State<_RegistrationView> createState() => _RegistrationViewState();
@@ -44,25 +44,40 @@ class _RegistrationViewState extends State<_RegistrationView> {
     super.dispose();
   }
 
+  /// POPIA: location is only captured after the customer has agreed to the
+  /// (versioned, timestamped) location-consent notice.
+  Future<void> _useLocation(RegistrationCubit cubit) async {
+    if (!await ensureConsent(context, ConsentPurpose.locationCapture)) return;
+    await cubit.useDeviceLocation();
+  }
+
+  /// Ticking "push notifications" explains the permission before the system
+  /// prompt (Android 13+) appears.
+  Future<void> _onPushToggled(RegistrationCubit cubit, bool enabled) async {
+    cubit.setMarketingPush(enabled);
+    if (enabled) await showNotificationRationale(context);
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
     return Scaffold(
-      appBar: AppBar(title: const Text('Create an account')),
+      appBar: AppBar(title: Text(l10n.registerTitle)),
       body: BlocConsumer<RegistrationCubit, RegistrationState>(
         listener: (context, state) {
           if (state.submitStatus == SubmitStatus.submitted) {
+            // The router guard moves the signed-in user on to coverage.
             context.read<AuthCubit>().registered(User(
                   id: 'usr_new',
                   fullName: state.fullName,
                   mobileNumber: state.mobileNumber,
                 ));
-            widget.onRegistered();
           }
           if (state.submitStatus == SubmitStatus.failed) {
             ScaffoldMessenger.of(context)
               ..hideCurrentSnackBar()
-              ..showSnackBar(const SnackBar(content: Text('Could not save your details — please try again.')));
+              ..showSnackBar(SnackBar(content: Text(l10n.registerSaveFailed)));
           }
           if (state.locationStatus == LocationFetchStatus.fetched && _addressController.text != state.address) {
             _addressController.text = state.address;
@@ -70,12 +85,12 @@ class _RegistrationViewState extends State<_RegistrationView> {
           if (state.locationStatus == LocationFetchStatus.denied) {
             ScaffoldMessenger.of(context)
               ..hideCurrentSnackBar()
-              ..showSnackBar(const SnackBar(content: Text('Location permission denied — enter your address manually.')));
+              ..showSnackBar(SnackBar(content: Text(l10n.registerLocationDenied)));
           }
           if (state.locationStatus == LocationFetchStatus.failed) {
             ScaffoldMessenger.of(context)
               ..hideCurrentSnackBar()
-              ..showSnackBar(const SnackBar(content: Text('Could not get your location — check that location services are on.')));
+              ..showSnackBar(SnackBar(content: Text(l10n.registerLocationFailed)));
           }
         },
         builder: (context, state) {
@@ -86,6 +101,7 @@ class _RegistrationViewState extends State<_RegistrationView> {
               state.email.isNotEmpty &&
               state.mobileNumber.isNotEmpty &&
               state.address.isNotEmpty;
+          final heading = theme.textTheme.labelLarge?.copyWith(letterSpacing: 0.6);
 
           return SafeArea(
             child: SingleChildScrollView(
@@ -93,53 +109,54 @@ class _RegistrationViewState extends State<_RegistrationView> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text('PERSONAL DETAILS', style: theme.textTheme.labelLarge?.copyWith(letterSpacing: 0.6)),
+                  Text(l10n.registerPersonalDetails, style: heading),
                   const SizedBox(height: 10),
                   TextField(
                     controller: _nameController,
                     onChanged: cubit.setFullName,
-                    decoration: const InputDecoration(hintText: 'Full name'),
+                    textCapitalization: TextCapitalization.words,
+                    decoration: InputDecoration(hintText: l10n.registerFullName),
                   ),
                   const SizedBox(height: 10),
                   TextField(
                     controller: _emailController,
                     onChanged: cubit.setEmail,
                     keyboardType: TextInputType.emailAddress,
-                    decoration: const InputDecoration(hintText: 'Email address'),
+                    decoration: InputDecoration(hintText: l10n.registerEmail),
                   ),
                   const SizedBox(height: 10),
                   TextField(
                     controller: _mobileController,
                     onChanged: cubit.setMobileNumber,
                     keyboardType: TextInputType.phone,
-                    decoration: const InputDecoration(hintText: 'Mobile number'),
+                    decoration: InputDecoration(hintText: l10n.registerMobile),
                   ),
                   const SizedBox(height: 22),
-                  Text('INSTALLATION ADDRESS', style: theme.textTheme.labelLarge?.copyWith(letterSpacing: 0.6)),
+                  Text(l10n.registerInstallationAddress, style: heading),
                   const SizedBox(height: 10),
                   TextField(
                     controller: _addressController,
                     onChanged: cubit.setAddress,
                     maxLines: 2,
-                    decoration: const InputDecoration(hintText: 'Street address, suburb, city'),
+                    decoration: InputDecoration(hintText: l10n.registerAddressHint),
                   ),
                   const SizedBox(height: 10),
                   OutlinedButton.icon(
-                    onPressed: locating ? null : cubit.useDeviceLocation,
+                    onPressed: locating ? null : () => _useLocation(cubit),
                     icon: locating
                         ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
                         : Icon(state.hasLocation ? Icons.check_circle : Icons.my_location, size: 18),
-                    label: Text(state.hasLocation ? 'Location captured' : 'Use my current location'),
+                    label: Text(state.hasLocation ? l10n.registerLocationCaptured : l10n.registerUseLocation),
                   ),
                   Padding(
                     padding: const EdgeInsets.only(top: 6),
                     child: Text(
-                      'Narrows your coverage check to your exact location — you can still edit the address above.',
+                      l10n.registerLocationHelp,
                       style: theme.textTheme.bodyMedium?.copyWith(fontSize: 11.5, color: theme.colorScheme.onSurfaceVariant),
                     ),
                   ),
                   const SizedBox(height: 22),
-                  Text('HOW SHOULD WE CONTACT YOU?', style: theme.textTheme.labelLarge?.copyWith(letterSpacing: 0.6)),
+                  Text(l10n.registerContactHeading, style: heading),
                   const SizedBox(height: 10),
                   SegmentedButton<ContactMethod>(
                     segments: ContactMethod.values
@@ -149,27 +166,27 @@ class _RegistrationViewState extends State<_RegistrationView> {
                     onSelectionChanged: (s) => cubit.setPreferredContactMethod(s.first),
                   ),
                   const SizedBox(height: 22),
-                  Text('MARKETING PREFERENCES', style: theme.textTheme.labelLarge?.copyWith(letterSpacing: 0.6)),
+                  Text(l10n.registerMarketingHeading, style: heading),
                   CheckboxListTile(
                     contentPadding: EdgeInsets.zero,
                     controlAffinity: ListTileControlAffinity.leading,
                     value: state.marketingEmail,
                     onChanged: (v) => cubit.setMarketingEmail(v ?? false),
-                    title: const Text('Send me offers by email'),
+                    title: Text(l10n.registerMarketingEmail),
                   ),
                   CheckboxListTile(
                     contentPadding: EdgeInsets.zero,
                     controlAffinity: ListTileControlAffinity.leading,
                     value: state.marketingSms,
                     onChanged: (v) => cubit.setMarketingSms(v ?? false),
-                    title: const Text('Send me offers by SMS'),
+                    title: Text(l10n.registerMarketingSms),
                   ),
                   CheckboxListTile(
                     contentPadding: EdgeInsets.zero,
                     controlAffinity: ListTileControlAffinity.leading,
                     value: state.marketingPush,
-                    onChanged: (v) => cubit.setMarketingPush(v ?? false),
-                    title: const Text('Send me push notifications'),
+                    onChanged: (v) => _onPushToggled(cubit, v ?? false),
+                    title: Text(l10n.registerMarketingPush),
                   ),
                   const SizedBox(height: 20),
                   ElevatedButton(
@@ -180,7 +197,7 @@ class _RegistrationViewState extends State<_RegistrationView> {
                             height: 20,
                             child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                           )
-                        : const Text('Create account'),
+                        : Text(l10n.registerCreateAccount),
                   ),
                 ],
               ),

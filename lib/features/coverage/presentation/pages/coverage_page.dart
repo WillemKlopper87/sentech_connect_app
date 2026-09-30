@@ -5,6 +5,9 @@ import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:sentech_connect_app/core/utils/reverse_geocode.dart';
 import 'package:sentech_connect_app/features/coverage/presentation/bloc/coverage_cubit.dart';
+import 'package:sentech_connect_app/features/privacy/domain/entities/consent_record.dart';
+import 'package:sentech_connect_app/features/privacy/presentation/widgets/consent_gate.dart';
+import 'package:sentech_connect_app/shared/widgets/failure_view.dart';
 import 'package:sentech_connect_app/shared/widgets/osm_map.dart';
 
 class CoveragePage extends StatefulWidget {
@@ -50,6 +53,8 @@ class _CoveragePageState extends State<CoveragePage> {
   }
 
   Future<void> _useDeviceLocation() async {
+    // POPIA: agree to the location notice before any location is read.
+    if (!await ensureConsent(context, ConsentPurpose.locationCapture) || !mounted) return;
     setState(() => _locating = true);
     try {
       final serviceEnabled = await Geolocator.isLocationServiceEnabled();
@@ -131,6 +136,12 @@ class _CoveragePageState extends State<CoveragePage> {
                         ),
                         const SizedBox(height: 20),
                         if (checking) const Center(child: CircularProgressIndicator()),
+                        if (state.status == CoverageStatus.failure)
+                          FailureView(
+                            failure: state.failure,
+                            compact: true,
+                            onRetry: () => context.read<CoverageCubit>().retry(),
+                          ),
                         if (state.status == CoverageStatus.checked && state.result != null)
                           _ResultCard(covered: state.result!.isCovered, speed: state.result!.estimatedSpeedMbps),
                       ],

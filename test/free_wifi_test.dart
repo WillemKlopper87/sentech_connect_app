@@ -1,21 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sentech_connect_app/core/storage/secure_store.dart';
+import 'package:sentech_connect_app/core/time/platform_clock.dart';
 import 'package:sentech_connect_app/features/wifi_voucher/data/repositories/mock_free_wifi_repository.dart';
 import 'package:sentech_connect_app/features/wifi_voucher/presentation/bloc/free_wifi_cubit.dart';
 import 'package:sentech_connect_app/features/wifi_voucher/presentation/pages/free_wifi_card.dart';
 
 void main() {
-  setUp(() {
-    SharedPreferences.setMockInitialValues({});
-  });
+  MockFreeWifiRepository newRepo() => MockFreeWifiRepository(InMemorySecureStore(), clock: FakePlatformClock());
 
   Widget buildCard() {
     return MaterialApp(
       home: Scaffold(
         body: BlocProvider(
-          create: (_) => FreeWifiCubit(MockFreeWifiRepository()),
+          create: (_) => FreeWifiCubit(newRepo()),
           child: FreeWifiCard(onFindHotspots: () {}),
         ),
       ),
@@ -48,13 +47,11 @@ void main() {
     expect(find.textContaining('44m'), findsOneWidget);
   });
 
-  testWidgets('all 3 daily ads used disables watching a 4th', (tester) async {
-    final repo = MockFreeWifiRepository();
-    // Burn through the daily cap directly via the repository so the test
-    // doesn't need to sit through three simulated ads.
-    for (var i = 0; i < 3; i++) {
-      await repo.recordAdWatchedAndGrantSession();
-    }
+  testWidgets('a granted session counts against the daily allowance', (tester) async {
+    final repo = newRepo();
+    // Grant via the repository so the test doesn't need to sit through a
+    // simulated ad. The full cap is covered in free_wifi_repository_test.dart.
+    await repo.recordAdWatchedAndGrantSession();
 
     await tester.pumpWidget(MaterialApp(
       home: Scaffold(
@@ -66,13 +63,10 @@ void main() {
     ));
     await tester.pumpAndSettle();
 
-    // A session is active from the loop above, so the countdown shows —
-    // the daily-cap messaging is only visible once that session expires.
-    // Directly assert on cubit state instead of requiring the UI to be
-    // mid-session-expiry, which would need real wall-clock time to pass.
+    // A session is active, so the countdown shows; assert on cubit state.
     final cubit = BlocProvider.of<FreeWifiCubit>(
       tester.element(find.byType(FreeWifiCard)),
     );
-    expect(cubit.state.adsRemainingToday, 0);
+    expect(cubit.state.adsRemainingToday, 2);
   });
 }

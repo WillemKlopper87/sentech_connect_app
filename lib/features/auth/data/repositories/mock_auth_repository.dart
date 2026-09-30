@@ -26,8 +26,11 @@ class MockAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, User>> logInWithBiometrics() async {
+  Future<Either<Failure, User>> logInWithStoredCredential(String credential) async {
     await Future.delayed(const Duration(milliseconds: 400));
+    if (credential.isEmpty) {
+      return const Left(ValidationFailure('Your saved sign-in has expired. Log in with your password.'));
+    }
     return const Right(_demoUser);
   }
 }
