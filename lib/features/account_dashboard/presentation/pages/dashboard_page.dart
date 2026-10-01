@@ -27,7 +27,7 @@ class DashboardPage extends StatelessWidget {
     this.onBuyPass,
     this.onOpenPasses,
     this.showRouterCard = true,
-    required this.onReportIssue,
+    this.onReportIssue,
     required this.onOpenPromotions,
     required this.onResumeOrder,
   });
@@ -43,7 +43,8 @@ class DashboardPage extends StatelessWidget {
   /// The tenant's `cpe` flag. Off: no router card, no fixed-plan usage, no
   /// Upgrade shortcut; the dashboard is about hotspot passes only.
   final bool showRouterCard;
-  final VoidCallback onReportIssue;
+  /// Null hides the shortcut (support tickets are mock-backed in prod).
+  final VoidCallback? onReportIssue;
   final VoidCallback onOpenPromotions;
   final void Function(Order order) onResumeOrder;
 
@@ -146,12 +147,13 @@ class DashboardPage extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
               ],
-              Expanded(
-                child: _QuickAction(
-                  label: context.l10n.dashboardReportIssue,
-                  onTap: onReportIssue,
+              if (onReportIssue case final reportIssue?)
+                Expanded(
+                  child: _QuickAction(
+                    label: context.l10n.dashboardReportIssue,
+                    onTap: reportIssue,
+                  ),
                 ),
-              ),
             ],
           ),
         ],

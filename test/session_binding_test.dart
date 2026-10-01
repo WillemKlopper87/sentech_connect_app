@@ -54,7 +54,7 @@ void main() {
     if (withTokens) {
       await h.tokens.write(AuthTokens(
         accessToken: 'access-1',
-        refreshToken: 'refresh-1',
+        refreshToken: 'refresh-token-0000000-1',
         accessExpiresAt: h.now.add(const Duration(minutes: 10)),
         customerId: tokenCustomer ?? _user.id,
         tenantSlug: tenant,

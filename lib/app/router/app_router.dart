@@ -36,6 +36,12 @@ import 'package:sentech_connect_app/features/tenant/presentation/pages/update_re
 import 'package:sentech_connect_app/features/wifi_voucher/presentation/bloc/wifi_hotspots_cubit.dart';
 import 'package:sentech_connect_app/features/wifi_voucher/presentation/pages/wifi_hotspots_page.dart';
 
+/// Router/usage data is mock-backed, so it only shows in the demo flavor (and
+/// only with the tenant's `cpe` flag): a server flag must never show
+/// fabricated account data to real customers.
+bool showRouterCardFor({required bool isDemo, required bool cpe}) =>
+    isDemo && cpe;
+
 abstract class AppRoutes {
   static const splash = '/';
   static const login = '/login';
@@ -299,7 +305,13 @@ GoRouter _buildRouter(
           onOpenPromotions: () => context.push(AppRoutes.promotions),
           onFindHotspots: () => context.push(AppRoutes.wifiHotspots),
           onOpenPasses: () => context.push(AppRoutes.passes),
-          showRouterCard: tenantCubit?.state.featureFlags.cpe ?? false,
+          // Router/usage data is mock-backed: a server-side `cpe` flag must
+          // never show it to real prod customers.
+          showRouterCard: showRouterCardFor(
+            isDemo: locator<AppEnvironment>().isDemo,
+            cpe: tenantCubit?.state.featureFlags.cpe ?? false,
+          ),
+          showMockFeatures: locator<AppEnvironment>().isDemo,
           onChangeProvider: tenantCubit?.openPicker,
           providerName: tenantCubit?.state.config?.tenant.name,
         ),

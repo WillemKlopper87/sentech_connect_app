@@ -14,11 +14,13 @@ class CatalogPage extends StatelessWidget {
   const CatalogPage({
     super.key,
     required this.onOpenCart,
-    required this.onFindHotspots,
+    this.onFindHotspots,
   });
 
   final VoidCallback onOpenCart;
-  final VoidCallback onFindHotspots;
+
+  /// Null hides the free Wi-Fi card (mock-backed in prod).
+  final VoidCallback? onFindHotspots;
 
   @override
   Widget build(BuildContext context) {
@@ -35,11 +37,13 @@ class CatalogPage extends StatelessWidget {
 class _CatalogScaffold extends StatelessWidget {
   const _CatalogScaffold({
     required this.onOpenCart,
-    required this.onFindHotspots,
+    this.onFindHotspots,
   });
 
   final VoidCallback onOpenCart;
-  final VoidCallback onFindHotspots;
+
+  /// Null hides the free Wi-Fi card (mock-backed in prod).
+  final VoidCallback? onFindHotspots;
 
   @override
   Widget build(BuildContext context) {
@@ -114,8 +118,9 @@ class _CatalogScaffold extends StatelessWidget {
                       context.read<CatalogCubit>().selectCategory(c),
                 ),
               const SizedBox(height: 16),
-              if (state.selectedCategory == ProductCategory.voucher) ...[
-                FreeWifiCard(onFindHotspots: onFindHotspots),
+              if (state.selectedCategory == ProductCategory.voucher &&
+                  onFindHotspots != null) ...[
+                FreeWifiCard(onFindHotspots: onFindHotspots!),
                 const SizedBox(height: 16),
               ],
               for (final plan in state.visibleProducts) ...[

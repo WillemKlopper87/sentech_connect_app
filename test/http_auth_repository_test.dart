@@ -88,7 +88,7 @@ void main() {
     h.adapter.on('GET', '/v1/me/profile', (_) => FakeReply(200, fixture('profile_complete.json')));
     final user = (await repo.resumeSession()).getOrElse((f) => throw StateError(f.message));
     expect(user.fullName, 'Thandi Mokoena');
-    expect(h.adapter.requestsTo('POST', '/v1/auth/token/refresh').single.data, {'tenant': 'sentech', 'refresh_token': 'refresh-1'});
+    expect(h.adapter.requestsTo('POST', '/v1/auth/token/refresh').single.data, {'tenant': 'sentech', 'refresh_token': 'refresh-token-0000000-1'});
   });
 
   test('resumeSession with a revoked refresh token fails and forgets the tokens', () async {
@@ -125,7 +125,7 @@ void main() {
     h.adapter.on('POST', '/v1/auth/logout', (_) => const FakeReply(204));
     await repo.logOut();
     final sent = h.adapter.requestsTo('POST', '/v1/auth/logout').single;
-    expect(sent.data, {'refresh_token': 'refresh-1'});
+    expect(sent.data, {'refresh_token': 'refresh-token-0000000-1'});
     expect(sent.headers['Authorization'], 'Bearer access-1');
     expect(await h.tokens.read(), isNull);
   });
@@ -142,11 +142,11 @@ void main() {
   group('logOut with an expired access token (R-m9)', () {
     test('refreshes first and revokes with the NEW refresh token and bearer', () async {
       await h.signIn(validFor: const Duration(seconds: 5)); // inside the refresh margin
-      h.adapter.on('POST', '/v1/auth/token/refresh', (_) => FakeReply(200, tokenPair(access: 'access-2', refresh: 'refresh-2')));
+      h.adapter.on('POST', '/v1/auth/token/refresh', (_) => FakeReply(200, tokenPair(access: 'access-2', refresh: 'refresh-token-0000000-2')));
       h.adapter.on('POST', '/v1/auth/logout', (_) => const FakeReply(204));
       await repo.logOut();
       final sent = h.adapter.requestsTo('POST', '/v1/auth/logout').single;
-      expect(sent.data, {'refresh_token': 'refresh-2'}, reason: 'the spent token must never be sent');
+      expect(sent.data, {'refresh_token': 'refresh-token-0000000-2'}, reason: 'the spent token must never be sent');
       expect(sent.headers['Authorization'], 'Bearer access-2');
       expect(h.adapter.requestsTo('POST', '/v1/auth/token/refresh'), hasLength(1));
       expect(await h.tokens.read(), isNull);
@@ -157,7 +157,7 @@ void main() {
       h.adapter.on('POST', '/v1/auth/token/refresh', (_) => FakeReply(200, tokenPair()));
       h.adapter.on('POST', '/v1/auth/logout', (_) => const FakeReply(204));
       await repo.logOut();
-      expect(h.adapter.requestsTo('POST', '/v1/auth/logout').single.data, {'refresh_token': 'refresh-2'});
+      expect(h.adapter.requestsTo('POST', '/v1/auth/logout').single.data, {'refresh_token': 'refresh-token-0000000-2'});
     });
 
     test('a fresh token is not refreshed first', () async {

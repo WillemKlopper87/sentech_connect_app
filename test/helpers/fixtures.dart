@@ -8,7 +8,7 @@ Object? fixture(String name) => jsonDecode(File('test/fixtures/api/$name').readA
 
 Map<String, Object?> fixtureMap(String name) => Map<String, Object?>.from(fixture(name)! as Map);
 
-Map<String, Object?> tokenPair({String access = 'access-2', String refresh = 'refresh-2', int expiresIn = 900}) => {
+Map<String, Object?> tokenPair({String access = 'access-2', String refresh = 'refresh-token-0000000-2', int expiresIn = 900}) => {
       ...fixtureMap('token_pair.json'),
       'access_token': access,
       'refresh_token': refresh,

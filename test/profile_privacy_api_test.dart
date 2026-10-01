@@ -98,6 +98,16 @@ void main() {
       expect(privacy, isNull); // agreed to 2026-08-01, current is 2026-09-30
     });
 
+    test('legal versions not loaded yet: currentConsent is a retryable failure, never "not accepted"', () async {
+      h.tenantContext
+        ..termsVersion = null
+        ..privacyVersion = null;
+      final result = await repo.currentConsent(ConsentPurpose.terms);
+      expect(result.isLeft(), isTrue);
+      expect(result.match((f) => f, (_) => null), isNot(isA<ValidationFailure>()));
+      expect(h.adapter.requestsTo('GET', '/v1/me/consents'), isEmpty);
+    });
+
     test('granting posts purpose, current version and source with a STABLE Idempotency-Key', () async {
       h.adapter.on('GET', '/v1/me/consents', (_) => FakeReply(200, fixture('consents.json')));
       h.adapter.on('POST', '/v1/me/consents', (_) => FakeReply(201, fixture('consent_out.json')));

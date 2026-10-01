@@ -43,7 +43,7 @@ void main() {
     });
     h.adapter.on('POST', '/v1/auth/token/refresh', (_) async {
       await gate.future;
-      return FakeReply(200, tokenPair(access: 'access-2', refresh: 'refresh-2'));
+      return FakeReply(200, tokenPair(access: 'access-2', refresh: 'refresh-token-0000000-2'));
     });
 
     final calls = [for (var i = 0; i < 3; i++) h.api.get('/v1/orders', decode: id)];
@@ -56,9 +56,9 @@ void main() {
     expect(results.every((r) => r.isRight()), isTrue);
     final refreshes = h.adapter.requestsTo('POST', '/v1/auth/token/refresh');
     expect(refreshes, hasLength(1));
-    expect(refreshes.single.data, {'tenant': 'sentech', 'refresh_token': 'refresh-1'});
+    expect(refreshes.single.data, {'tenant': 'sentech', 'refresh_token': 'refresh-token-0000000-1'});
     expect(h.adapter.requestsTo('GET', '/v1/orders'), hasLength(6));
-    expect((await h.tokens.read())!.refreshToken, 'refresh-2');
+    expect((await h.tokens.read())!.refreshToken, 'refresh-token-0000000-2');
   });
 
   test('a request is retried at most once', () async {

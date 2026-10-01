@@ -24,6 +24,8 @@ class HttpConsentRepository implements ConsentRepository {
 
   static const _legalVersionsMissing = ValidationFailure('We could not load the legal documents. Try again.', 'legal_versions_missing');
 
+  static const _legalVersionsNotLoaded = ServerFailure('We could not load the legal documents. Try again.');
+
   final ApiClient _api;
   final ConsentRepository _local;
   final TenantContext _tenant;
@@ -60,7 +62,10 @@ class HttpConsentRepository implements ConsentRepository {
     final name = purpose.apiName;
     if (name == null) return _local.currentConsent(purpose);
     final version = _currentVersion(purpose);
-    if (version == null) return const Right(null);
+    // Legal versions not loaded yet (the tenant has not settled): the answer
+    // is unknown, not "not accepted". A retryable failure sends the legal gate
+    // to its retry state instead of asking a returning customer to re-accept.
+    if (version == null) return const Left(_legalVersionsNotLoaded);
     return (await _ledger()).map((ledger) {
       final entry = ledger[name];
       if (entry == null || !entry.granted || entry.version != version) return null;

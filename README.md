@@ -15,7 +15,7 @@ The app has two flavors (`--dart-define=APP_FLAVOR=demo|prod`):
 - **`demo`** (default in debug/profile): every repository is a mock; works fully offline. All tests run in this flavor.
 - **`prod`**: tenants, sign-in (SMS one-time code), catalogue (hotspot passes), orders, payment hand-off, "My passes", profile, consents, data export and account deletion use the Sentech Connect platform API. It **requires** `--dart-define=API_BASE_URL=https://...` (an origin only; https, except cleartext to local dev hosts in debug builds). **Release builds must set `APP_FLAVOR` explicitly** (`demo` or `prod`); a release build without it stops at startup.
 
-Still mock in **both** flavors because the platform has no API for them yet (listed in `stillMockInProd`, `lib/app/locator.dart`): coverage, free Wi-Fi, hotspot map, voucher redemption, account usage/router summary, promotions, support and RICA liveness. A prod build shows their demo data.
+Still mock in **both** flavors because the platform has no API for them yet (listed in `stillMockInProd`, `lib/app/locator.dart`): coverage, free Wi-Fi, hotspot map, voucher redemption, account usage/router summary, promotions, support and RICA liveness. In a prod build the mock-backed Scan, Support and free Wi-Fi entry points and the router/usage card are hidden (shown in demo only), so customers never see fabricated account data.
 
 ## Quick start
 
@@ -29,8 +29,14 @@ flutter test             # widget + flow tests
 Building a release APK (what's shipped for demoing on a physical device):
 
 ```bash
-flutter build apk --release --obfuscate --split-debug-info=build/debug-info
+# demo flavor (mock-backed, offline)
+flutter build apk --release --obfuscate --split-debug-info=build/debug-info --dart-define=APP_FLAVOR=demo
+
+# prod flavor (real platform API; API_BASE_URL is an https origin only)
+flutter build apk --release --obfuscate --split-debug-info=build/debug-info --dart-define=APP_FLAVOR=prod --dart-define=API_BASE_URL=https://api.example.com
 ```
+
+A release build without `APP_FLAVOR` stops at startup with an error screen.
 
 Requires the Android SDK (platform 36, build-tools) and **JDK 17** (Flutter's own Gradle template targets Java/Kotlin 17, and so does this project) — see `flutter doctor` if either is missing. Gradle will prompt to auto-install missing SDK components on first build if `cmdline-tools` is present.
 
@@ -80,7 +86,7 @@ Nothing below contains a real secret; each item needs an input from the owner be
 
 | Area | How it is wired | Owner input needed |
 |---|---|---|
-| **Release signing** | `android/app/build.gradle.kts` reads `android/key.properties` (git-ignored; copy `android/key.properties.example`). A release build **fails with a clear message** if it is missing. For a throwaway local demo APK only: `SENTECH_ALLOW_DEBUG_SIGNING=true flutter build apk --release` (debug-signed, never distribute). | Upload keystore + passwords (keep in a secret manager; use Play App Signing) |
+| **Release signing** | `android/app/build.gradle.kts` reads `android/key.properties` (git-ignored; copy `android/key.properties.example`). A release build **fails with a clear message** if it is missing. For a throwaway local demo APK only: `SENTECH_ALLOW_DEBUG_SIGNING=true flutter build apk --release --dart-define=APP_FLAVOR=demo` (or `APP_FLAVOR=prod --dart-define=API_BASE_URL=https://…`; debug-signed, never distribute). | Upload keystore + passwords (keep in a secret manager; use Play App Signing) |
 | **Android application id** | Single source: `sentech.applicationId` in `android/gradle.properties` (override per build with `-Psentech.applicationId=…`, `-Psentech.applicationIdSuffix=.demo`). The Kotlin package/namespace is independent and stays put. | **Final id — cannot change after the first Play upload** |
 | **Map tiles** | `--dart-define=TILE_URL_TEMPLATE=https://…/{z}/{x}/{y}.png?key={apiKey} --dart-define=TILE_API_KEY=… [--dart-define=TILE_ATTRIBUTION="…"]`. Public OSM tiles are used only in debug/demo builds; a release build without a provider shows a placeholder and never contacts tile.openstreetmap.org. | Commercial/self-hosted provider + app-restricted key |
 | **Push (FCM)** | `NotificationService` interface + Android 13 permission flow are done; no transport. Exact wiring steps are in the doc comment of `lib/core/notifications/notification_service.dart`. | Firebase project, `google-services.json` / APNs key, final application id |
@@ -98,7 +104,7 @@ Nothing below contains a real secret; each item needs an input from the owner be
 
 - Personal data (session, registration details, consent records, orders) is stored through `SecureStore` (Android Keystore / iOS Keychain via `flutter_secure_storage`), never SharedPreferences; GPS coordinates are not persisted. Logout revokes the session on the server, forgets the tokens and the biometric unlock, and wipes registration details, local orders, the free-WiFi grant and the in-memory cart; account deletion (`DELETE /v1/me`) wipes everything. On a cold start with a stored session and an enrolled biometric the app starts locked and "Use biometrics" unlocks it. Switching provider (Account > Change provider) signs the customer out first.
 - The RICA and Account screens set `FLAG_SECURE` (no screenshots/recents preview) through a small MethodChannel in `MainActivity.kt`. Cleartext HTTP is disabled (`network_security_config.xml`; debug builds allow localhost only). Certificate pinning is deferred until real endpoints exist.
-- Order flow is **create order -> RICA identity check -> payment -> confirmation**: the customer is only charged after verification succeeds, and the order is persisted so it can be resumed from the dashboard after a failure or an app restart.
+- Order flow (prod): **create order -> hosted payment (gateway web view) -> passes**. The order is held server-side and payment is confirmed by the server (the app only polls its status); hotspot orders skip RICA. The demo flavor keeps the mock **order -> RICA -> payment -> confirmation** flow, with the order persisted locally so it can be resumed from the dashboard.
 
 ## Architecture
 

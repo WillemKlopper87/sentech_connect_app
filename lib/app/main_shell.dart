@@ -28,6 +28,7 @@ class MainShell extends StatefulWidget {
     required this.onFindHotspots,
     this.onOpenPasses,
     this.showRouterCard = true,
+    this.showMockFeatures = true,
     this.onChangeProvider,
     this.providerName,
   });
@@ -40,6 +41,10 @@ class MainShell extends StatefulWidget {
 
   /// The tenant's `cpe` flag: router and fixed-plan content is hidden when off.
   final bool showRouterCard;
+
+  /// Scan (voucher redemption), Support tickets and free Wi-Fi are backed by
+  /// mock repositories until real APIs exist: shown in demo only, never prod.
+  final bool showMockFeatures;
   final VoidCallback? onChangeProvider;
   final String? providerName;
 
@@ -98,10 +103,12 @@ class _MainShellState extends State<MainShell> {
           onBuyPass: () => _goToShop(ProductCategory.hotspotPass),
           onTopUp: () => _goToShop(ProductCategory.voucher),
           onUpgrade: () => _goToShop(ProductCategory.home5g),
-          onReportIssue: () => submitSupportTicket(
-            context,
-            initialCategory: TicketCategory.technical,
-          ),
+          onReportIssue: widget.showMockFeatures
+              ? () => submitSupportTicket(
+                    context,
+                    initialCategory: TicketCategory.technical,
+                  )
+              : null,
           onOpenPromotions: widget.onOpenPromotions,
           onResumeOrder: widget.onResumeOrder,
           onOpenPasses: widget.onOpenPasses,
@@ -112,14 +119,16 @@ class _MainShellState extends State<MainShell> {
         value: _catalogCubit,
         child: CatalogPage(
           onOpenCart: widget.onOpenCart,
-          onFindHotspots: widget.onFindHotspots,
+          onFindHotspots:
+              widget.showMockFeatures ? widget.onFindHotspots : null,
         ),
       ),
-      const VoucherScannerPage(),
-      BlocProvider(
-        create: (_) => SupportCubit(locator()),
-        child: const SupportPage(),
-      ),
+      if (widget.showMockFeatures) const VoucherScannerPage(),
+      if (widget.showMockFeatures)
+        BlocProvider(
+          create: (_) => SupportCubit(locator()),
+          child: const SupportPage(),
+        ),
       AccountPage(
         onChangeProvider: widget.onChangeProvider,
         providerName: widget.providerName,
@@ -142,7 +151,7 @@ class _MainShellState extends State<MainShell> {
           }
           setState(() => _index = i);
         },
-        destinations: const [
+        destinations: [
           NavigationDestination(
             icon: Icon(Icons.home_outlined),
             selectedIcon: Icon(Icons.home),
@@ -153,16 +162,18 @@ class _MainShellState extends State<MainShell> {
             selectedIcon: Icon(Icons.shopping_bag),
             label: 'Shop',
           ),
-          NavigationDestination(
-            icon: Icon(Icons.qr_code_scanner_outlined),
-            selectedIcon: Icon(Icons.qr_code_scanner),
-            label: 'Scan',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.support_agent_outlined),
-            selectedIcon: Icon(Icons.support_agent),
-            label: 'Support',
-          ),
+          if (widget.showMockFeatures) ...const [
+            NavigationDestination(
+              icon: Icon(Icons.qr_code_scanner_outlined),
+              selectedIcon: Icon(Icons.qr_code_scanner),
+              label: 'Scan',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.support_agent_outlined),
+              selectedIcon: Icon(Icons.support_agent),
+              label: 'Support',
+            ),
+          ],
           NavigationDestination(
             icon: Icon(Icons.person_outline),
             selectedIcon: Icon(Icons.person),

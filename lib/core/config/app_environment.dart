@@ -22,12 +22,10 @@ class AppEnvironment {
   static const demo = AppEnvironment(flavor: AppFlavor.demo);
 
   /// Hosts that this app accepts over cleartext HTTP, in debug builds only.
-  /// This is the Dart-side allowlist. On Android the debug network security
-  /// config (android/app/src/debug/res/xml/network_security_config.xml) is
-  /// stricter: it permits cleartext for `localhost` and `10.0.2.2` only, so
-  /// `127.0.0.1` passes this check but is still blocked by the Android
-  /// platform (use `localhost` or `10.0.2.2` there). iOS/desktop debug runs
-  /// can use `127.0.0.1`.
+  /// This is the Dart-side allowlist; the Android debug network security
+  /// config (android/app/src/debug/res/xml/network_security_config.xml) must
+  /// permit the same hosts (`localhost`, `127.0.0.1` and `10.0.2.2`), and the
+  /// release config allows no cleartext at all.
   static const localDevHosts = {'localhost', '127.0.0.1', '10.0.2.2'};
 
   final AppFlavor flavor;

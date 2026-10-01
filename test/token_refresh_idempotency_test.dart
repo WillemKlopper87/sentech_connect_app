@@ -40,7 +40,7 @@ void main() {
     final keys = keysSent();
     expect(keys, hasLength(2));
     expect(keys[0], keys[1]);
-    expect((await h.tokens.read())!.refreshToken, 'refresh-2');
+    expect((await h.tokens.read())!.refreshToken, 'refresh-token-0000000-2');
     expect(expiredEvents, 0);
   });
 
@@ -73,7 +73,7 @@ void main() {
 
     expect(await h.api.refresher.refresh(), isA<RefreshSucceeded>());
     expect(h.adapter.requestsTo('POST', _path), hasLength(2));
-    expect((await h.tokens.read())!.refreshToken, 'refresh-2');
+    expect((await h.tokens.read())!.refreshToken, 'refresh-token-0000000-2');
     await Future<void>.delayed(Duration.zero);
     expect(expiredEvents, 0, reason: 'the session must not be revoked by our own retry');
   });
@@ -98,7 +98,7 @@ void main() {
   test('a new refresh operation (after the token rotated) uses a NEW key', () async {
     h.adapter.on('POST', _path, (_) => FakeReply(200, tokenPair()));
     await h.api.refresher.refresh();
-    h.adapter.on('POST', _path, (_) => FakeReply(200, tokenPair(access: 'access-3', refresh: 'refresh-3')));
+    h.adapter.on('POST', _path, (_) => FakeReply(200, tokenPair(access: 'access-3', refresh: 'refresh-token-0000000-3')));
     await h.api.refresher.refresh();
     final keys = keysSent();
     expect(keys, hasLength(2));
@@ -160,7 +160,7 @@ void main() {
 
   test('a rejection ends the key: the next operation never reuses it', () async {
     h.adapter.on('POST', _path, (_) => const FakeReply.error(DioExceptionType.connectionError));
-    await h.api.refresher.refresh(); // issues a key for refresh-1
+    await h.api.refresher.refresh(); // issues a key for refresh-token-0000000-1
     h.adapter.on('POST', _path, (_) => FakeReply.problem(401, 'invalid_refresh_token'));
     await h.api.refresher.refresh();
     await h.signIn(); // the very same token string again (artificial, to isolate the key lifetime)

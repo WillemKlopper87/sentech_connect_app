@@ -134,7 +134,7 @@ void main() {
         final failure = await run(reply);
         expect(failure, isNotNull);
         expect(failure, isNot(isA<UnauthorizedFailure>()));
-        expect((await h.tokens.read())!.refreshToken, 'refresh-1');
+        expect((await h.tokens.read())!.refreshToken, 'refresh-token-0000000-1');
         expect(expiredEvents, 0);
         expect(h.adapter.requestsTo('GET', '/v1/orders'), hasLength(1), reason: 'not retried without a fresh token');
       });
@@ -210,7 +210,7 @@ void main() {
         // Another caller refreshed while this request was in flight.
         await h.tokens.write(AuthTokens(
           accessToken: 'access-2',
-          refreshToken: 'refresh-2',
+          refreshToken: 'refresh-token-0000000-2',
           accessExpiresAt: h.now.add(const Duration(minutes: 15)),
           customerId: ApiHarness.customerId,
           tenantSlug: 'sentech',

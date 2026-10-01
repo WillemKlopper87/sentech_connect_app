@@ -44,7 +44,7 @@ class ApiHarness {
 
   Future<void> signIn({
     String access = 'access-1',
-    String refresh = 'refresh-1',
+    String refresh = 'refresh-token-0000000-1',
     Duration validFor = const Duration(minutes: 15),
     String? tenant,
   }) =>
