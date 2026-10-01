@@ -67,17 +67,36 @@ const stillMockInProd = <Type>[
   LivenessRepository,
 ];
 
+/// Mocks and local-only stores that are mock BY DESIGN until the task named
+/// beside each one swaps in its HTTP implementation. A later task must remove
+/// the entry in the same change (test/locator_test.dart fails otherwise, in
+/// both directions).
+const mockUntilLaterTasks = <Type>[
+  AuthRepository, // Task 6: OTP authentication
+  ConsentRepository, // Task 7: consent ledger over the API
+  PrivacyRepository, // Task 7: data export and account deletion
+  RegistrationRepository, // Task 7: profile completion
+  CatalogRepository, // Task 9: hotspot-pass catalogue
+  CheckoutRepository, // Task 9: orders (hosted payment follows in Task 10)
+];
+
 /// [environment] comes from `AppEnvironment.fromDefines()` in main.dart;
 /// tests use the default (demo), which never creates an [ApiClient].
 void setupLocator({CrashReporter? crashReporter, AppEnvironment environment = AppEnvironment.demo}) {
+  // Validate before registering anything, so a bad environment leaves no
+  // half-built container. A prod flavor must never fall back to mocks: that
+  // would ship fake data as if it were real.
+  final baseUrl = environment.apiBaseUrl;
+  if (!environment.isDemo && baseUrl == null) {
+    throw const InvalidEnvironment('APP_FLAVOR=prod needs an API base URL.');
+  }
   locator.registerSingleton<AppEnvironment>(environment);
   _registerPlatformServices(crashReporter);
   _registerStillMockRepositories();
-  final baseUrl = environment.apiBaseUrl;
-  if (environment.isDemo || baseUrl == null) {
+  if (environment.isDemo) {
     _registerDemoRepositories();
   } else {
-    _registerProdRepositories(baseUrl);
+    _registerProdRepositories(baseUrl!);
   }
 }
 

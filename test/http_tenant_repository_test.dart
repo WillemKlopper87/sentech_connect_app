@@ -13,10 +13,12 @@ import 'helpers/fixtures.dart';
 void main() {
   late ApiHarness h;
   late HttpTenantRepository repo;
+  late List<String> logLines;
 
   setUp(() {
     h = ApiHarness();
-    repo = HttpTenantRepository(h.api);
+    logLines = [];
+    repo = HttpTenantRepository(h.api, log: logLines.add);
   });
 
   test('lists the ISP directory without authentication', () async {
@@ -57,5 +59,175 @@ void main() {
   test('app-config round-trips through JSON (used for the offline cache)', () {
     final config = AppConfig.fromJson(fixtureMap('app_config.json'));
     expect(AppConfig.fromJson(config.toJson()), config);
+  });
+
+  group('slug validation', () {
+    Map<String, Object?> tenantJson(Object? slug) => {'slug': slug, 'name': 'X', 'type': 'operator'};
+
+    test('well-formed slugs are accepted', () {
+      for (final slug in ['sentech', 'acme-wifi', 'a1', 'a' * 40]) {
+        expect(Tenant.fromJson(tenantJson(slug)).slug, slug);
+      }
+    });
+
+    test('malformed, missing or wrong-typed slugs throw FormatException', () {
+      for (final slug in ['A', 'a', 'a' * 41, 'a b', 'a_b', '../x', 'ACME', 'a/b', '', 'é-é', null, 7, true, ['a']]) {
+        expect(() => Tenant.fromJson(tenantJson(slug)), throwsFormatException, reason: '$slug');
+      }
+      expect(() => Tenant.fromJson({'name': 'X', 'type': 'operator'}), throwsFormatException);
+    });
+
+    test('app-config validates the nested tenant slug', () {
+      final json = fixtureMap('app_config.json');
+      final tenant = Map<String, Object?>.from(json['tenant']! as Map);
+      for (final slug in ['Bad Slug', null, 42]) {
+        expect(() => AppConfig.fromJson({...json, 'tenant': {...tenant, 'slug': slug}}), throwsFormatException);
+      }
+    });
+
+    test('a response for a different tenant than requested is rejected', () async {
+      h.adapter.on('GET', '/v1/app-config', (_) => FakeReply(200, fixture('app_config.json')));
+      final result = await repo.getAppConfig('sentech'); // the fixture describes acme-wifi
+      expect(result.match((f) => f, (_) => null), isA<ServerFailure>());
+    });
+
+    test('a response with a malformed slug is a ServerFailure', () async {
+      final body = fixtureMap('app_config.json');
+      body['tenant'] = {...(body['tenant']! as Map), 'slug': '../etc'};
+      h.adapter.on('GET', '/v1/app-config', (_) => FakeReply(200, body));
+      expect((await repo.getAppConfig('../etc')).match((f) => f, (_) => null), isA<ServerFailure>());
+    });
+  });
+
+  group('tenant field limits', () {
+    test('empty or over-long name/type are rejected', () {
+      Map<String, Object?> json({String name = 'X', String type = 'operator'}) =>
+          {'slug': 'sentech', 'name': name, 'type': type};
+      expect(() => Tenant.fromJson(json(name: '')), throwsFormatException);
+      expect(() => Tenant.fromJson(json(type: '')), throwsFormatException);
+      expect(() => Tenant.fromJson(json(name: 'n' * 81)), throwsFormatException);
+      expect(() => Tenant.fromJson(json(type: 't' * 81)), throwsFormatException);
+      expect(Tenant.fromJson(json(name: 'n' * 80, type: 't' * 80)).name.length, 80);
+    });
+
+    test('wrong-typed name or type is rejected', () {
+      expect(() => Tenant.fromJson({'slug': 'sentech', 'name': 5, 'type': 'operator'}), throwsFormatException);
+      expect(() => Tenant.fromJson({'slug': 'sentech', 'name': 'X', 'type': null}), throwsFormatException);
+    });
+  });
+
+  group('directory is fail-closed per entry, not per list', () {
+    test('a malformed entry is skipped and the rest are listed', () async {
+      final good = (fixtureMap('tenants.json')['tenants']! as List).cast<Map<String, Object?>>();
+      h.adapter.on(
+        'GET',
+        '/v1/tenants',
+        (_) => FakeReply(200, {
+          'tenants': [
+            good[0],
+            {'slug': 'Bad Slug', 'name': 'Evil', 'type': 'operator'},
+            {'name': 'No slug', 'type': 'operator'},
+            'not-an-object',
+            good[1],
+          ],
+        }),
+      );
+      final tenants = (await repo.listTenants()).getOrElse((f) => throw StateError(f.message));
+      expect(tenants.map((t) => t.slug), ['sentech', 'acme-wifi']);
+      // A count only: never the skipped entries themselves.
+      expect(logLines, ['tenant directory: skipped 3 malformed entries']);
+    });
+
+    test('a directory where nothing is usable is a ServerFailure', () async {
+      h.adapter.on('GET', '/v1/tenants', (_) => FakeReply(200, {'tenants': [{'slug': 'X'}, 5]}));
+      expect((await repo.listTenants()).match((f) => f, (_) => null), isA<ServerFailure>());
+    });
+
+    test('an empty directory is an empty list, not an error', () async {
+      h.adapter.on('GET', '/v1/tenants', (_) => FakeReply(200, {'tenants': <Object?>[]}));
+      expect((await repo.listTenants()).getOrElse((f) => throw StateError(f.message)), isEmpty);
+    });
+
+    test('a wrong-shaped directory body is a ServerFailure', () async {
+      for (final body in <Object?>[<Object?>[], {'tenants': 'x'}, {'other': 1}]) {
+        h.adapter.on('GET', '/v1/tenants', (_) => FakeReply(200, body));
+        expect((await repo.listTenants()).match((f) => f, (_) => null), isA<ServerFailure>(), reason: '$body');
+      }
+    });
+  });
+
+  group('feature flags fail off', () {
+    test('missing or wrong-typed flags are off, never on', () {
+      final json = fixtureMap('app_config.json');
+      for (final flags in <Map<String, Object?>>[
+        {},
+        {'hotspot_passes': 'true', 'rica': 1, 'cpe': 'yes'},
+        {'hotspot_passes': null, 'rica': [], 'cpe': {}},
+        {'hotspot_passes': true},
+      ]) {
+        final config = AppConfig.fromJson({...json, 'feature_flags': flags});
+        expect(config.featureFlags.rica, isFalse, reason: '$flags');
+        expect(config.featureFlags.cpe, isFalse, reason: '$flags');
+        expect(config.featureFlags.hotspotPasses, flags['hotspot_passes'] == true, reason: '$flags');
+      }
+    });
+
+    test('a flags object of the wrong type rejects the config', () {
+      final json = fixtureMap('app_config.json');
+      expect(() => AppConfig.fromJson({...json, 'feature_flags': 'all'}), throwsFormatException);
+    });
+  });
+
+  group('app-config garbage is a ServerFailure through the repository', () {
+    test('bodies that are not a valid config', () async {
+      final good = fixtureMap('app_config.json');
+      final bodies = <Object?>[
+        <Object?>[],
+        'text',
+        {...good, 'tenant': 'acme-wifi'},
+        {...good, 'min_app_version': 1},
+        {...good, 'legal': {'terms': 1}},
+        {...good}..remove('feature_flags'),
+      ];
+      for (final body in bodies) {
+        h.adapter.on('GET', '/v1/app-config', (_) => FakeReply(200, body));
+        expect((await repo.getAppConfig('acme-wifi')).match((f) => f, (_) => null), isA<ServerFailure>(), reason: '$body');
+      }
+    });
+  });
+
+  group('branding logo_url', () {
+    Uri? logo(String url) => TenantBranding.fromJson({'logo_url': url}).logoUrl;
+
+    test('only plain https URLs with a host are accepted', () {
+      expect(logo('https://cdn.example.test/a.png'), Uri.parse('https://cdn.example.test/a.png'));
+      for (final bad in [
+        'https:///x',
+        'https://u:p@host.test/logo.png',
+        'https://user@host.test/logo.png',
+        'javascript:alert(1)',
+        'data:image/png;base64,AAAA',
+        'http://host.test/logo.png',
+        'ftp://host.test/logo.png',
+        '//host.test/logo.png',
+        '/logo.png',
+        '',
+        'https://host.test/${'a' * 2048}',
+      ]) {
+        expect(logo(bad), isNull, reason: bad);
+      }
+    });
+
+    test('a URL of exactly 2048 characters is accepted, one more is not', () {
+      const prefix = 'https://host.test/';
+      expect(logo(prefix + 'a' * (2048 - prefix.length)), isNotNull);
+      expect(logo(prefix + 'a' * (2049 - prefix.length)), isNull);
+    });
+
+    test('a wrong-typed logo or colour is ignored', () {
+      final b = TenantBranding.fromJson({'logo_url': 5, 'primary_color': 7});
+      expect(b.logoUrl, isNull);
+      expect(b.primaryColor, isNull);
+    });
   });
 }

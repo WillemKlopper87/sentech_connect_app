@@ -10,6 +10,9 @@ class TenantBranding extends Equatable {
 
   static final _hex = RegExp(r'^#([0-9a-fA-F]{6})$');
 
+  /// Longer logo URLs are ignored (they are never legitimate CDN links).
+  static const maxLogoUrlLength = 2048;
+
   final Color? primaryColor;
   final Uri? logoUrl;
 
@@ -23,8 +26,9 @@ class TenantBranding extends Equatable {
     }
     Uri? parsedLogo;
     if (logo is String) {
-      final uri = Uri.tryParse(logo);
-      if (uri != null && uri.scheme == 'https' && uri.host.isNotEmpty) parsedLogo = uri;
+      final uri = logo.length <= maxLogoUrlLength ? Uri.tryParse(logo) : null;
+      // https only, a real host, and no embedded credentials (userinfo).
+      if (uri != null && uri.scheme == 'https' && uri.host.isNotEmpty && uri.userInfo.isEmpty) parsedLogo = uri;
     }
     return TenantBranding(primaryColor: parsedColour, logoUrl: parsedLogo);
   }
@@ -49,6 +53,10 @@ class Tenant extends Equatable {
     final type = json['type'];
     final branding = json['branding'];
     if (slug is! String || name is! String || type is! String) throw const FormatException('Malformed tenant');
+    if (!slugPattern.hasMatch(slug)) throw const FormatException('Malformed tenant slug');
+    if (name.isEmpty || name.length > maxTextLength || type.isEmpty || type.length > maxTextLength) {
+      throw const FormatException('Malformed tenant');
+    }
     return Tenant(
       slug: slug,
       name: name,
@@ -56,6 +64,12 @@ class Tenant extends Equatable {
       branding: branding is Map ? TenantBranding.fromJson(Map<String, Object?>.from(branding)) : const TenantBranding(),
     );
   }
+
+  /// Tenant slugs are lowercase letters, digits and hyphens (2-40 chars).
+  static final slugPattern = RegExp(r'^[a-z0-9-]{2,40}$');
+
+  /// Longest accepted `name` / `type`.
+  static const maxTextLength = 80;
 
   final String slug;
   final String name;
