@@ -136,7 +136,7 @@ void main() {
   test('after a failed operation the same unrotated token keeps its key (the server may have rotated)', () async {
     h.adapter.on('POST', _path, (_) => const FakeReply.error(DioExceptionType.connectionError));
     await h.api.refresher.refresh();
-    h.now = h.now.add(const Duration(seconds: 10));
+    h.elapsed += const Duration(seconds: 10);
     await h.api.refresher.refresh();
     expect(keysSent().toSet(), hasLength(1));
   });
@@ -144,18 +144,49 @@ void main() {
   test('a key older than the replay window is replaced', () async {
     h.adapter.on('POST', _path, (_) => const FakeReply.error(DioExceptionType.connectionError));
     await h.api.refresher.refresh();
-    h.now = h.now.add(const Duration(seconds: 51));
+    h.elapsed += const Duration(seconds: 51);
     await h.api.refresher.refresh();
     expect(keysSent().toSet(), hasLength(2));
   });
 
   test('no retry is sent once the replay window has passed', () async {
     h.adapter.on('POST', _path, (_) {
-      h.now = h.now.add(const Duration(seconds: 55)); // a very slow first attempt
+      h.elapsed += const Duration(seconds: 55); // a very slow first attempt
       return const FakeReply.error(DioExceptionType.receiveTimeout);
     });
     expect(await h.api.refresher.refresh(), isA<RefreshUnavailable>());
     expect(h.adapter.requestsTo('POST', _path), hasLength(1));
+  });
+
+  test('a rejection ends the key: the next operation never reuses it', () async {
+    h.adapter.on('POST', _path, (_) => const FakeReply.error(DioExceptionType.connectionError));
+    await h.api.refresher.refresh(); // issues a key for refresh-1
+    h.adapter.on('POST', _path, (_) => FakeReply.problem(401, 'invalid_refresh_token'));
+    await h.api.refresher.refresh();
+    await h.signIn(); // the very same token string again (artificial, to isolate the key lifetime)
+    h.adapter.on('POST', _path, (_) => FakeReply(200, tokenPair()));
+    await h.api.refresher.refresh();
+    final keys = keysSent();
+    expect(keys.first, isNot(keys.last));
+  });
+
+  test('a refresh while signed out forgets the key (it does not outlive its session)', () async {
+    h.adapter.on('POST', _path, (_) => const FakeReply.error(DioExceptionType.connectionError));
+    await h.api.refresher.refresh();
+    final first = keysSent().first;
+    await h.tokens.clear(); // logout
+    expect(await h.api.refresher.refresh(), isA<RefreshRejected>());
+    await h.signIn(); // same token string again, artificial
+    await h.api.refresher.refresh();
+    expect(keysSent().last, isNot(first));
+  });
+
+  test('the key window follows the monotonic clock, not the wall clock', () async {
+    h.adapter.on('POST', _path, (_) => const FakeReply.error(DioExceptionType.connectionError));
+    await h.api.refresher.refresh();
+    h.now = h.now.add(const Duration(hours: 3)); // the user changed the phone's clock
+    await h.api.refresher.refresh();
+    expect(keysSent().toSet(), hasLength(1));
   });
 
   test('the key never appears in a log line', () async {

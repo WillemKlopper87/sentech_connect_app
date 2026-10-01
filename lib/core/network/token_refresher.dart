@@ -54,13 +54,20 @@ class TokenRefresher {
     required this._dio,
     required this._sessionEvents,
     DateTime Function()? now,
+    Duration Function()? monotonic,
     String Function()? newKey,
     this.retryBackoff = const [Duration(milliseconds: 500), Duration(seconds: 1)],
     this.keyReuseWindow = const Duration(seconds: 50),
   }) : _now = now ?? DateTime.now,
+       _monotonic = monotonic ?? _processClock(),
        _newKey = newKey ?? newIdempotencyKey;
 
   static const path = '/v1/auth/token/refresh';
+
+  static Duration Function() _processClock() {
+    final stopwatch = Stopwatch()..start();
+    return () => stopwatch.elapsed;
+  }
 
   /// Pauses before each in-operation retry of a transient failure (timeout,
   /// connection error, 502/503/504); its length is the retry count.
@@ -75,10 +82,14 @@ class TokenRefresher {
   final SessionEvents _sessionEvents;
   final DateTime Function() _now;
   final String Function() _newKey;
+
+  /// Elapsed time on a monotonic clock (immune to wall-clock changes), used
+  /// only for the key replay window.
+  final Duration Function() _monotonic;
   Future<RefreshOutcome>? _inFlight;
-  String? _keyedToken;
+  int? _keyedTokenHash; // a hash, never the token itself
   String? _key;
-  DateTime? _keyIssuedAt;
+  Duration? _keyIssuedAt;
 
   /// [staleAccessToken] is the token the caller used; pass null to force a
   /// network refresh (e.g. to prove a stored session is still valid).
@@ -96,6 +107,7 @@ class TokenRefresher {
   /// cannot be read): clears the tokens (best effort, a storage failure must
   /// not swallow the event) and tells the app to sign out.
   Future<void> expireSession() async {
+    _forgetKey();
     try {
       await _tokens.clear();
     } on Object {
@@ -114,7 +126,10 @@ class TokenRefresher {
       await expireSession();
       return const RefreshRejected();
     }
-    if (current == null) return const RefreshRejected();
+    if (current == null) {
+      _forgetKey(); // signed out: a key must not outlive its session
+      return const RefreshRejected();
+    }
     // Captured with no await since the read: see TokenStore.generation.
     final generation = _tokens.generation;
     if (staleAccessToken != null &&
@@ -164,7 +179,7 @@ class TokenRefresher {
         if (attempt >= retryBackoff.length || !_isTransient(e)) rethrow;
         final pause = retryBackoff[attempt];
         // A retry sent after the replay window would be treated as reuse.
-        if (_now().difference(_keyIssuedAt ?? _now()) + pause >= keyReuseWindow) rethrow;
+        if (_monotonic() - (_keyIssuedAt ?? _monotonic()) + pause >= keyReuseWindow) rethrow;
         await Future<void>.delayed(pause);
         if (_tokens.generation != generation) rethrow; // signed out meanwhile
       }
@@ -174,16 +189,17 @@ class TokenRefresher {
   String _keyFor(String refreshToken) {
     final issuedAt = _keyIssuedAt;
     final existing = _key;
-    if (existing != null && _keyedToken == refreshToken && issuedAt != null && _now().difference(issuedAt) < keyReuseWindow) {
+    final hash = refreshToken.hashCode;
+    if (existing != null && _keyedTokenHash == hash && issuedAt != null && _monotonic() - issuedAt < keyReuseWindow) {
       return existing;
     }
-    _keyedToken = refreshToken;
-    _keyIssuedAt = _now();
+    _keyedTokenHash = hash;
+    _keyIssuedAt = _monotonic();
     return _key = _newKey();
   }
 
   void _forgetKey() {
-    _keyedToken = null;
+    _keyedTokenHash = null;
     _key = null;
     _keyIssuedAt = null;
   }

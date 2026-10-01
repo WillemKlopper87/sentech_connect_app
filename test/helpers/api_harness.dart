@@ -23,6 +23,7 @@ class ApiHarness {
       adapter: adapter,
       log: logLines.add,
       now: () => now,
+      monotonic: () => elapsed,
       refreshRetryBackoff: const [Duration.zero, Duration.zero], // keep failure tests fast
     );
   }
@@ -37,6 +38,9 @@ class ApiHarness {
   late final ApiClient api;
   final logLines = <String>[];
   DateTime now = DateTime.utc(2026, 10, 1, 12);
+
+  /// The monotonic clock the refresher measures its key window with.
+  Duration elapsed = Duration.zero;
 
   Future<void> signIn({
     String access = 'access-1',

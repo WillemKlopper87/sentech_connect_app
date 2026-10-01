@@ -34,6 +34,7 @@ class ApiClient {
     Duration connectTimeout = const Duration(seconds: 10),
     Duration receiveTimeout = const Duration(seconds: 20),
     List<Duration>? refreshRetryBackoff,
+    Duration Function()? monotonic,
   }) {
     final options = BaseOptions(
       baseUrl: baseUrl.toString(),
@@ -57,6 +58,7 @@ class ApiClient {
       dio: refreshDio,
       sessionEvents: sessionEvents,
       now: now,
+      monotonic: monotonic,
       retryBackoff: refreshRetryBackoff ?? const [Duration(milliseconds: 500), Duration(seconds: 1)],
     );
     _dio.interceptors.addAll([
