@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sentech_connect_app/core/money/money.dart';
 import 'package:sentech_connect_app/features/cart/domain/entities/cart_item.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/domain/entities/order.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/presentation/bloc/checkout_cubit.dart';
@@ -35,7 +36,7 @@ class CheckoutPage extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        _SummaryCard(items: state.items, total: state.total),
+                        _SummaryCard(items: state.items, totalCents: state.totalCents),
                         const SizedBox(height: 18),
                         Container(
                           padding: const EdgeInsets.all(14),
@@ -92,10 +93,10 @@ class CheckoutPage extends StatelessWidget {
 }
 
 class _SummaryCard extends StatelessWidget {
-  const _SummaryCard({required this.items, required this.total});
+  const _SummaryCard({required this.items, required this.totalCents});
 
   final List<CartItem> items;
-  final double total;
+  final int totalCents;
 
   @override
   Widget build(BuildContext context) {
@@ -123,10 +124,10 @@ class _SummaryCard extends StatelessWidget {
           for (final item in items)
             row(
               item.quantity > 1 ? '${item.plan.name} × ${item.quantity}' : item.plan.name,
-              'R${item.lineTotal.toStringAsFixed(2)}',
+              formatRands(item.lineTotalCents),
             ),
           const Padding(padding: EdgeInsets.symmetric(vertical: 6), child: Divider(height: 1)),
-          row('Due after verification', 'R${total.toStringAsFixed(2)}', total: true),
+          row('Due after verification', formatRands(totalCents), total: true),
         ],
       ),
     );

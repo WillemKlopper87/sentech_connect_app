@@ -10,7 +10,7 @@ class CartState extends Equatable {
 
   int get itemCount => items.fold(0, (sum, i) => sum + i.quantity);
 
-  double get total => items.fold(0.0, (sum, i) => sum + i.lineTotal);
+  int get totalCents => items.fold(0, (sum, i) => sum + i.lineTotalCents);
 
   @override
   List<Object?> get props => [items];

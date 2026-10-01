@@ -18,7 +18,7 @@ class MockCatalogRepository implements CatalogRepository {
       Plan(
         id: 'home_50',
         name: 'Home 50',
-        priceRands: 399,
+        priceCents: 39900,
         dataDescription: '50GB anytime data',
         speedMbps: 50,
         category: ProductCategory.home5g,
@@ -26,7 +26,7 @@ class MockCatalogRepository implements CatalogRepository {
       Plan(
         id: 'home_100',
         name: 'Home 100',
-        priceRands: 549,
+        priceCents: 54900,
         dataDescription: '100GB anytime data',
         speedMbps: 100,
         category: ProductCategory.home5g,
@@ -35,7 +35,7 @@ class MockCatalogRepository implements CatalogRepository {
       Plan(
         id: 'home_unlimited',
         name: 'Home Unlimited',
-        priceRands: 799,
+        priceCents: 79900,
         dataDescription: 'Uncapped data',
         speedMbps: 100,
         category: ProductCategory.home5g,
@@ -44,7 +44,7 @@ class MockCatalogRepository implements CatalogRepository {
       Plan(
         id: 'mifi_20',
         name: 'MiFi 20',
-        priceRands: 199,
+        priceCents: 19900,
         dataDescription: '20GB anytime data',
         speedMbps: 50,
         category: ProductCategory.mifi,
@@ -52,7 +52,7 @@ class MockCatalogRepository implements CatalogRepository {
       Plan(
         id: 'mifi_50',
         name: 'MiFi 50',
-        priceRands: 349,
+        priceCents: 34900,
         dataDescription: '50GB anytime data',
         speedMbps: 50,
         category: ProductCategory.mifi,
@@ -62,7 +62,7 @@ class MockCatalogRepository implements CatalogRepository {
       Plan(
         id: 'voucher_5gb',
         name: '5GB Wi-Fi Voucher',
-        priceRands: 59,
+        priceCents: 5900,
         dataDescription: 'Valid for 30 days',
         speedMbps: 50,
         category: ProductCategory.voucher,
@@ -70,7 +70,7 @@ class MockCatalogRepository implements CatalogRepository {
       Plan(
         id: 'voucher_20gb',
         name: '20GB Wi-Fi Voucher',
-        priceRands: 199,
+        priceCents: 19900,
         dataDescription: 'Valid for 30 days',
         speedMbps: 50,
         category: ProductCategory.voucher,

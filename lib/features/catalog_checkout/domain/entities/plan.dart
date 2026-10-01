@@ -14,7 +14,7 @@ class Plan extends Equatable {
   const Plan({
     required this.id,
     required this.name,
-    required this.priceRands,
+    required this.priceCents,
     required this.dataDescription,
     required this.speedMbps,
     required this.category,
@@ -23,7 +23,8 @@ class Plan extends Equatable {
 
   final String id;
   final String name;
-  final double priceRands;
+  /// Price in integer cents (ZAR). The server is the authority for prices.
+  final int priceCents;
   final String dataDescription;
   final int speedMbps;
   final ProductCategory category;
@@ -31,7 +32,7 @@ class Plan extends Equatable {
 
   @override
   List<Object?> get props =>
-      [id, name, priceRands, dataDescription, speedMbps, category, isFeatured];
+      [id, name, priceCents, dataDescription, speedMbps, category, isFeatured];
 }
 
 enum PaymentMethod { card, ozow, payshap }

@@ -23,7 +23,7 @@ const _plans = [
   Plan(
     id: 'home_unlimited',
     name: 'Home Unlimited',
-    priceRands: 799,
+    priceCents: 79900,
     dataDescription: 'Uncapped data',
     speedMbps: 100,
     category: ProductCategory.home5g,
@@ -31,7 +31,7 @@ const _plans = [
   Plan(
     id: 'voucher_20gb',
     name: '20GB Wi-Fi Voucher',
-    priceRands: 199,
+    priceCents: 19900,
     dataDescription: 'Valid for 30 days',
     speedMbps: 50,
     category: ProductCategory.voucher,
@@ -39,7 +39,7 @@ const _plans = [
   Plan(
     id: 'mifi_50',
     name: 'MiFi 50',
-    priceRands: 349,
+    priceCents: 34900,
     dataDescription: '50GB anytime data',
     speedMbps: 50,
     category: ProductCategory.mifi,

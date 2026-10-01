@@ -23,7 +23,7 @@ class CheckoutState extends Equatable {
   final Order? order;
   final Failure? failure;
 
-  double get total => items.fold(0.0, (sum, i) => sum + i.lineTotal);
+  int get totalCents => items.fold(0, (sum, i) => sum + i.lineTotalCents);
 
   CheckoutState copyWith({CheckoutStatus? status, Order? order, Failure? failure}) {
     return CheckoutState(

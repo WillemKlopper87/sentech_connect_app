@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sentech_connect_app/core/money/money.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/domain/entities/order.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/domain/entities/plan.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/presentation/bloc/payment_cubit.dart';
@@ -95,7 +96,7 @@ class PaymentPage extends StatelessWidget {
                                 height: 20,
                                 child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                               )
-                            : Text('Pay R${order.totalRands.toStringAsFixed(2)} securely'),
+                            : Text('Pay ${formatRands(order.totalCents)} securely'),
                       ),
                     ],
                   ),
@@ -138,7 +139,7 @@ class _OrderCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Expanded(child: Text(order.planName, style: theme.textTheme.titleMedium)),
-              Text('R${order.totalRands.toStringAsFixed(2)}', style: theme.textTheme.titleMedium),
+              Text(formatRands(order.totalCents),style: theme.textTheme.titleMedium),
             ],
           ),
         ],

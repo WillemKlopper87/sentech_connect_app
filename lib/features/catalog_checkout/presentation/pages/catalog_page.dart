@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sentech_connect_app/app/locator.dart';
+import 'package:sentech_connect_app/core/money/money.dart';
 import 'package:sentech_connect_app/features/cart/presentation/bloc/cart_cubit.dart';
 import 'package:sentech_connect_app/l10n/l10n.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/domain/entities/plan.dart';
@@ -213,7 +214,7 @@ class _PlanCard extends StatelessWidget {
                     text: TextSpan(
                       style: theme.textTheme.titleMedium,
                       children: [
-                        TextSpan(text: 'R${plan.priceRands.toStringAsFixed(0)}'),
+                        TextSpan(text: formatRands(plan.priceCents, wholeRands: true)),
                         TextSpan(
                           text: plan.category == ProductCategory.voucher ? '' : '/mo',
                           style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),

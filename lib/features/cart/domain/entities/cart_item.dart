@@ -7,7 +7,7 @@ class CartItem extends Equatable {
   final Plan plan;
   final int quantity;
 
-  double get lineTotal => plan.priceRands * quantity;
+  int get lineTotalCents => plan.priceCents * quantity;
 
   CartItem copyWith({int? quantity}) => CartItem(plan: plan, quantity: quantity ?? this.quantity);
 

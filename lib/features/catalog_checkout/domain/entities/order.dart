@@ -22,7 +22,7 @@ class Order extends Equatable {
     required this.id,
     required this.orderNumber,
     required this.planName,
-    required this.totalRands,
+    required this.totalCents,
     this.status = OrderStatus.pendingVerification,
   });
 
@@ -31,7 +31,9 @@ class Order extends Equatable {
   final String id;
   final String orderNumber;
   final String planName;
-  final double totalRands;
+
+  /// Total in integer cents (ZAR); the server owns it.
+  final int totalCents;
   final OrderStatus status;
 
   bool get isOpen => status != OrderStatus.paid;
@@ -40,7 +42,7 @@ class Order extends Equatable {
         id: id,
         orderNumber: orderNumber,
         planName: planName,
-        totalRands: totalRands,
+        totalCents: totalCents,
         status: status ?? this.status,
       );
 
@@ -48,7 +50,7 @@ class Order extends Equatable {
         'id': id,
         'orderNumber': orderNumber,
         'planName': planName,
-        'totalRands': totalRands,
+        'totalCents': totalCents,
         'status': status.name,
       };
 
@@ -56,7 +58,8 @@ class Order extends Equatable {
         id: json['id'] as String,
         orderNumber: json['orderNumber'] as String,
         planName: json['planName'] as String,
-        totalRands: (json['totalRands'] as num).toDouble(),
+        // Builds before integer cents stored `totalRands` as a double.
+        totalCents: (json['totalCents'] as num?)?.toInt() ?? (((json['totalRands'] as num?) ?? 0) * 100).round(),
         status: OrderStatus.values.firstWhere(
           (s) => s.name == json['status'],
           orElse: () => OrderStatus.pendingVerification,
@@ -64,5 +67,5 @@ class Order extends Equatable {
       );
 
   @override
-  List<Object?> get props => [id, orderNumber, planName, totalRands, status];
+  List<Object?> get props => [id, orderNumber, planName, totalCents, status];
 }

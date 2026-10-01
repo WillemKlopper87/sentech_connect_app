@@ -56,13 +56,13 @@ class MockCheckoutRepository implements CheckoutRepository {
     if (items.isEmpty) return const Left(ValidationFailure('Your cart is empty.'));
 
     final n = await _nextCounter();
-    final total = items.fold(0.0, (sum, i) => sum + i.lineTotal);
+    final total = items.fold(0, (sum, i) => sum + i.lineTotalCents);
     final summary = items.length == 1 ? items.first.plan.name : '${items.length} items';
     final order = Order(
       id: 'ord_${DateTime.now().microsecondsSinceEpoch}_$n',
       orderNumber: 'SEN-${_firstOrderNumber + n}',
       planName: summary,
-      totalRands: total,
+      totalCents: total,
     );
     // One open order at a time: a new cart supersedes any unpaid one.
     final kept = (await _load()).where((o) => !o.isOpen).toList();

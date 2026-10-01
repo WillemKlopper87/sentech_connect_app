@@ -16,7 +16,7 @@ import 'package:sentech_connect_app/features/rica/presentation/bloc/rica_cubit.d
 const _plan = Plan(
   id: 'home_100',
   name: 'Home 100',
-  priceRands: 549,
+  priceCents: 54900,
   dataDescription: '100GB',
   speedMbps: 100,
   category: ProductCategory.home5g,

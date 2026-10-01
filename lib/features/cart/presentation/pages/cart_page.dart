@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sentech_connect_app/core/money/money.dart';
 import 'package:sentech_connect_app/features/cart/presentation/bloc/cart_cubit.dart';
 import 'package:sentech_connect_app/l10n/l10n.dart';
 
@@ -46,7 +47,7 @@ class CartPage extends StatelessWidget {
                               children: [
                                 Text(item.plan.name, style: theme.textTheme.titleMedium),
                                 Text(
-                                  'R${item.plan.priceRands.toStringAsFixed(2)} each',
+                                  '${formatRands(item.plan.priceCents)} each',
                                   style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                                 ),
                               ],
@@ -77,7 +78,7 @@ class CartPage extends StatelessWidget {
                           // Flexible so a large text size wraps instead of overflowing.
                           Flexible(
                             child: Text(
-                              'R${state.total.toStringAsFixed(2)}',
+                              formatRands(state.totalCents),
                               textAlign: TextAlign.end,
                               style: theme.textTheme.titleLarge,
                             ),
