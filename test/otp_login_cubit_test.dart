@@ -146,6 +146,49 @@ void main() {
 
     OtpLoginCubit build(CodeVerifier verifier) => OtpLoginCubit(repo, verifier: verifier, ticker: (_) => ticks.stream);
 
+    for (final source in ['send', 'verify', 'resend']) {
+      test('changeNumber preserves the $source rate limit until its original countdown ends', () async {
+        const failure = RateLimitedFailure('slow down', Duration(seconds: 90));
+        final cubit = build((_, _) async => const Left(failure));
+        if (source == 'send') repo.requestFailure = failure;
+        await cubit.submitPhone('0821234567');
+        if (source == 'verify') await cubit.submitCode('123456');
+        if (source == 'resend') {
+          ticks.add(0);
+          await Future<void>.delayed(Duration.zero);
+          repo.requestFailure = failure;
+          await cubit.resend();
+        }
+        final requests = repo.requests;
+        ticks.add(45);
+        await Future<void>.delayed(Duration.zero);
+
+        cubit.changeNumber();
+        expect(cubit.state.step, OtpStep.phone);
+        expect(cubit.state.challenge, isNull);
+        expect(cubit.state.failure, failure);
+        expect(cubit.state.resendIn, 45, reason: 'changing number must not restart or clear the wait');
+        expect(cubit.state.locked, isTrue);
+        repo.requestFailure = null;
+        await cubit.submitPhone('0821234567');
+        await cubit.submitPhone('0831234567');
+        expect(repo.requests, requests, reason: 'same and different numbers remain locked');
+
+        ticks.add(1);
+        await Future<void>.delayed(Duration.zero);
+        cubit.changeNumber();
+        await cubit.submitPhone('0821234567');
+        expect(cubit.state.resendIn, 1);
+        expect(repo.requests, requests);
+        ticks.add(0);
+        await Future<void>.delayed(Duration.zero);
+        await cubit.submitPhone('0821234567');
+        expect(repo.requests, requests + 1);
+        expect(cubit.state.step, OtpStep.code);
+        await cubit.close();
+      });
+    }
+
     test('a 429 on send waits as long as the server asked, locks sending, and counts down', () async {
       repo.requestFailure = const RateLimitedFailure('slow down', Duration(seconds: 90));
       final cubit = build(_verifier(repo));

@@ -44,6 +44,14 @@ class _RateLimitedRepository extends MockAuthRepository {
 class _RateLimitedOnVerifyRepository extends MockAuthRepository {
   _RateLimitedOnVerifyRepository() : super(latency: Duration.zero);
 
+  int requests = 0;
+
+  @override
+  Future<Either<Failure, OtpChallenge>> requestOtp({required String phoneNumber}) {
+    requests++;
+    return super.requestOtp(phoneNumber: phoneNumber);
+  }
+
   @override
   Future<Either<Failure, User>> verifyOtp({required OtpChallenge challenge, required String code}) async =>
       const Left(RateLimitedFailure('slow down from the server', Duration(seconds: 120)));
@@ -165,6 +173,43 @@ void main() {
   });
 
   group('rate limiting', () {
+    testWidgets('Change number keeps Send code locked for the remaining verify Retry-After', (tester) async {
+      final repository = _RateLimitedOnVerifyRepository();
+      locator.registerSingleton<AuthRepository>(repository);
+      await auth.close();
+      auth = AuthCubit(repository, sessionStore: locator(), biometrics: MockBiometricAuthenticator(), wiper: locator());
+      await toCodeStep(tester);
+      await tester.enterText(find.widgetWithText(TextField, '6-digit code'), '123456');
+      await tester.tap(find.widgetWithText(ElevatedButton, 'Verify'));
+      await tester.pump();
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 60));
+      tester.state<ScaffoldMessengerState>(find.byType(ScaffoldMessenger)).hideCurrentSnackBar();
+      await tester.ensureVisible(find.widgetWithText(TextButton, 'Change number'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(TextButton, 'Change number'));
+      await tester.pump();
+
+      final phone = find.widgetWithText(TextField, 'Mobile number');
+      final send = find.widgetWithText(ElevatedButton, 'Send code');
+      expect(tester.widget<TextField>(phone).controller!.text, '0821234567');
+      expect(tester.widget<ElevatedButton>(send).onPressed, isNull);
+      await tester.testTextInput.receiveAction(TextInputAction.send);
+      await tester.pump();
+      expect(repository.requests, 1);
+      await tester.enterText(phone, '0831234567');
+      expect(tester.widget<ElevatedButton>(send).onPressed, isNull);
+      await tester.pump(const Duration(seconds: 59));
+      expect(tester.widget<ElevatedButton>(send).onPressed, isNull);
+      await tester.pump(const Duration(seconds: 1));
+      expect(tester.widget<ElevatedButton>(send).onPressed, isNotNull);
+      await tester.tap(send);
+      await tester.pump();
+      await tester.pump();
+      expect(repository.requests, 2);
+      expect(find.text('We sent a 6-digit code to +27 83 *** 4567.'), findsOneWidget);
+    });
+
     testWidgets('a 429 shows a localised message and disables Send code for the wait', (tester) async {
       final repository = _RateLimitedRepository();
       locator.registerSingleton<AuthRepository>(repository);

@@ -182,6 +182,17 @@ class OtpLoginCubit extends Cubit<OtpLoginState> {
   }
 
   void changeNumber() {
+    // A server wait belongs to this login flow, even if the phone changes.
+    // Keep its running countdown while discarding the old challenge.
+    if (state.locked) {
+      emit(OtpLoginState(
+        status: OtpLoginStatus.failure,
+        failure: state.failure,
+        resendIn: state.resendIn,
+        rateLimited: true,
+      ));
+      return;
+    }
     _countdown?.cancel();
     emit(const OtpLoginState());
   }
