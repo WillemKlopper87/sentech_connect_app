@@ -14,6 +14,14 @@ typedef ResponseDecoder<T> = T Function(Object? data);
 /// The only class that talks HTTP. Repositories call it with a path and a
 /// decoder and get `Either<Failure, T>` back; transport concerns (tokens,
 /// refresh, problem+json, ids, timeouts, logging) live here.
+///
+/// Threading: create ONE [ApiClient] (and one [TokenStore]) per process and
+/// use it only from the main isolate. The in-memory token cache and the
+/// single-flight refresh do not work across isolates, so a background isolate
+/// would refresh with a stale token and trip the server's reuse detection.
+///
+/// Redirects are never followed: an API does not redirect, and following one
+/// could move a bearer token to another origin. A 3xx is a [ServerFailure].
 class ApiClient {
   ApiClient({
     required Uri baseUrl,
@@ -33,6 +41,7 @@ class ApiClient {
       sendTimeout: receiveTimeout,
       headers: const {'Accept': 'application/json, application/problem+json'},
       contentType: Headers.jsonContentType,
+      followRedirects: false,
     );
     final logger = log ?? _defaultLog;
     final refreshDio = Dio(options);
@@ -45,7 +54,7 @@ class ApiClient {
     refresher = TokenRefresher(tokens: tokens, dio: refreshDio, sessionEvents: sessionEvents, now: now);
     _dio.interceptors.addAll([
       RequestIdInterceptor(),
-      AuthInterceptor(tokens: tokens, tenant: tenant, refresher: refresher, dio: _dio, now: now),
+      AuthInterceptor(baseUrl: baseUrl, tokens: tokens, tenant: tenant, refresher: refresher, dio: _dio, now: now),
       SafeLogInterceptor(logger),
     ]);
   }

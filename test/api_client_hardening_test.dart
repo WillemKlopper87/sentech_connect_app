@@ -16,6 +16,10 @@ class _FlakyTokenStore implements TokenStore {
   final TokenStore _inner;
   bool failReads = false;
   bool failWrites = false;
+  bool failClears = false;
+
+  @override
+  int get generation => _inner.generation;
 
   @override
   Future<AuthTokens?> read() async {
@@ -30,7 +34,13 @@ class _FlakyTokenStore implements TokenStore {
   }
 
   @override
-  Future<void> clear() => _inner.clear();
+  Future<void> clear() async {
+    if (failClears) {
+      await _inner.clear(); // the in-memory state is gone even if the disk delete fails
+      throw StateError('keystore unavailable');
+    }
+    return _inner.clear();
+  }
 }
 
 void main() {
@@ -75,11 +85,31 @@ void main() {
       );
     });
 
-    test('an unreadable session is a failure, not a hang, and nothing is sent', () async {
+    test('an unreadable session signs the customer out (not "offline" forever) and is not sticky', () async {
       flaky.failReads = true;
       final result = await api.get('/v1/orders', decode: id).timeout(const Duration(seconds: 5));
-      expect(result.isLeft(), isTrue);
+      expect(result.match((f) => f, (_) => null), isA<UnauthorizedFailure>());
       expect(h.adapter.requests, isEmpty);
+      await Future<void>.delayed(Duration.zero);
+      expect(expiredEvents, 1);
+
+      // The failed-read state is not sticky: once storage works again the
+      // client simply has no session (cleared) instead of failing forever.
+      flaky.failReads = false;
+      expect(await flaky.read(), isNull);
+      final again = await api.get('/v1/orders', decode: id).timeout(const Duration(seconds: 5));
+      expect(again.match((f) => f, (_) => null), isA<UnauthorizedFailure>());
+      expect(h.adapter.requests, isEmpty);
+    });
+
+    test('a failing token clear still announces the expired session', () async {
+      flaky.failClears = true;
+      h.adapter.on('GET', '/v1/orders', (_) => FakeReply.problem(401, 'invalid_token'));
+      h.adapter.on('POST', '/v1/auth/token/refresh', (_) => FakeReply.problem(401, 'invalid_refresh_token'));
+      final result = await api.get('/v1/orders', decode: id).timeout(const Duration(seconds: 5));
+      expect(result.match((f) => f, (_) => null), isA<UnauthorizedFailure>());
+      await Future<void>.delayed(Duration.zero);
+      expect(expiredEvents, 1);
     });
 
     test('a refresh whose new tokens cannot be stored is a failure, not a hang, and not a logout', () async {

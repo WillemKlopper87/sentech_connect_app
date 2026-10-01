@@ -34,10 +34,12 @@ class RequestIdInterceptor extends Interceptor {
 }
 
 /// Bearer tokens for `authenticated` requests: proactive refresh shortly
-/// before expiry, one refresh + one retry on 401, and never a token issued
-/// for a different tenant than the one currently selected.
+/// before expiry, one refresh + one retry on 401, never a token issued for a
+/// different tenant than the one currently selected, and never a request to
+/// anything but the configured API origin.
 class AuthInterceptor extends Interceptor {
   AuthInterceptor({
+    required this._baseUrl,
     required this._tokens,
     required this._tenant,
     required this._refresher,
@@ -47,6 +49,7 @@ class AuthInterceptor extends Interceptor {
 
   static const refreshMargin = Duration(seconds: 30);
 
+  final Uri _baseUrl;
   final TokenStore _tokens;
   final TenantContext _tenant;
   final TokenRefresher _refresher;
@@ -55,11 +58,32 @@ class AuthInterceptor extends Interceptor {
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
+    // An absolute URL in a path would override the base URL and could carry
+    // the bearer token to another host (or over plain http): refuse it. Every
+    // request is checked, not only authenticated ones, so the client never
+    // talks to anything but its own API origin.
+    if (!_isApiOrigin(options.uri)) {
+      handler.reject(DioException(
+        requestOptions: options,
+        error: const ServerFailure('Blocked a request to an unexpected address.'),
+      ));
+      return;
+    }
     if (options.extra[kAuthenticated] != true) {
       handler.next(options);
       return;
     }
-    var tokens = await _tokens.read();
+    final AuthTokens? stored;
+    try {
+      stored = await _tokens.read();
+    } on Object {
+      // Keystore read failure: end the session cleanly rather than showing
+      // "network error" forever.
+      await _refresher.expireSession();
+      handler.reject(DioException(requestOptions: options, error: const UnauthorizedFailure()));
+      return;
+    }
+    var tokens = stored;
     if (tokens == null || tokens.tenantSlug != _tenant.slug) {
       handler.reject(DioException(requestOptions: options, error: const UnauthorizedFailure()));
       return;
@@ -101,14 +125,16 @@ class AuthInterceptor extends Interceptor {
         }
       case RefreshRejected():
         handler.next(err);
-      case RefreshUnavailable():
+      case RefreshUnavailable(failure: final failure):
         handler.next(DioException(
           requestOptions: options,
           type: DioExceptionType.connectionError,
-          error: 'token refresh unavailable',
+          error: failure,
         ));
     }
   }
+
+  bool _isApiOrigin(Uri uri) => uri.scheme == _baseUrl.scheme && uri.host == _baseUrl.host && uri.port == _baseUrl.port;
 }
 
 /// One line per request: method, path (no query), outcome, duration and

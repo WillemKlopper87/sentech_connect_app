@@ -76,6 +76,11 @@ class AuthTokens extends Equatable {
 }
 
 abstract class TokenStore {
+  /// Bumped by every [write] and [clear]. A refresh captures it when it starts
+  /// and discards its result if it changed, so a logout (or a new sign-in)
+  /// during an in-flight refresh is never overwritten by the stale tokens.
+  int get generation;
+
   Future<AuthTokens?> read();
 
   Future<void> write(AuthTokens tokens);
@@ -93,6 +98,10 @@ class SecureTokenStore implements TokenStore {
   final SecureStore _store;
   AuthTokens? _cache;
   var _loaded = false;
+  var _generation = 0;
+
+  @override
+  int get generation => _generation;
 
   @override
   Future<AuthTokens?> read() async {
@@ -114,6 +123,7 @@ class SecureTokenStore implements TokenStore {
 
   @override
   Future<void> write(AuthTokens tokens) async {
+    _generation++;
     _cache = tokens;
     _loaded = true;
     await _store.write(key, jsonEncode(tokens.toJson()));
@@ -121,6 +131,7 @@ class SecureTokenStore implements TokenStore {
 
   @override
   Future<void> clear() async {
+    _generation++;
     _cache = null;
     _loaded = true;
     await _store.delete(key);
