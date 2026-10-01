@@ -139,7 +139,7 @@ class _OrderCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Expanded(child: Text(order.planName, style: theme.textTheme.titleMedium)),
-              Text(formatRands(order.totalCents),style: theme.textTheme.titleMedium),
+              Text(formatRands(order.totalCents), style: theme.textTheme.titleMedium),
             ],
           ),
         ],

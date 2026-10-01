@@ -58,13 +58,23 @@ class Order extends Equatable {
         id: json['id'] as String,
         orderNumber: json['orderNumber'] as String,
         planName: json['planName'] as String,
-        // Builds before integer cents stored `totalRands` as a double.
-        totalCents: (json['totalCents'] as num?)?.toInt() ?? (((json['totalRands'] as num?) ?? 0) * 100).round(),
+        totalCents: _centsFrom(json),
         status: OrderStatus.values.firstWhere(
           (s) => s.name == json['status'],
           orElse: () => OrderStatus.pendingVerification,
         ),
       );
+
+  /// Builds before integer cents stored `totalRands` as a double. A record with
+  /// neither field is corrupt: throwing lets the caller discard it rather than
+  /// showing a R0.00 order.
+  static int _centsFrom(Map<String, dynamic> json) {
+    final cents = json['totalCents'];
+    if (cents is num) return cents.toInt();
+    final rands = json['totalRands'];
+    if (rands is num) return (rands * 100).round();
+    throw const FormatException('Order has neither totalCents nor totalRands');
+  }
 
   @override
   List<Object?> get props => [id, orderNumber, planName, totalCents, status];

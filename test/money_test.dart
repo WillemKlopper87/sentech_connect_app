@@ -38,16 +38,28 @@ void main() {
     await cart.close();
   });
 
-  test('orders persisted by older builds (totalRands) are read as cents', () {
-    final order = Order.fromJson({
-      'id': 'o1',
-      'orderNumber': 'SEN-1',
-      'planName': 'Home 100',
-      'totalRands': 549.99,
-      'status': 'paid',
-    });
+  test('orders persisted by older builds (totalRands) are rounded to cents', () {
+    Order legacy(num rands) => Order.fromJson({
+          'id': 'o1',
+          'orderNumber': 'SEN-1',
+          'planName': 'Home 100',
+          'totalRands': rands,
+          'status': 'paid',
+        });
+    // 19.99 * 100 == 1998.9999999999998 and 0.29 * 100 == 28.999999999999996:
+    // truncating instead of rounding would give 1998 and 28.
+    expect(legacy(19.99).totalCents, 1999);
+    expect(legacy(0.29).totalCents, 29);
+    final order = legacy(549.99);
     expect(order.totalCents, 54999);
     expect(order.toJson()['totalCents'], 54999);
     expect(Order.fromJson(order.toJson()), order);
+  });
+
+  test('an order with neither totalCents nor totalRands is rejected, not read as R0.00', () {
+    expect(
+      () => Order.fromJson({'id': 'o1', 'orderNumber': 'SEN-1', 'planName': 'Home 100', 'status': 'paid'}),
+      throwsFormatException,
+    );
   });
 }
