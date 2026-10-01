@@ -81,6 +81,19 @@ void main() {
     expect(state.status, AuthStatus.locked);
   });
 
+  test('API tokens without a stored customer record are orphans and are discarded (N3)', () async {
+    await h.tokens.write(AuthTokens(
+      accessToken: 'access-1',
+      refreshToken: 'refresh-1',
+      accessExpiresAt: h.now.add(const Duration(minutes: 10)),
+      customerId: _user.id,
+      tenantSlug: 'sentech',
+    ));
+    final state = await restore();
+    expect(state.isSignedIn, isFalse);
+    expect(await h.tokens.read(), isNull);
+  });
+
   test('first launch of a clean install writes the marker and starts signed out', () async {
     marker.present = false;
     expect((await restore()).status, AuthStatus.initial);

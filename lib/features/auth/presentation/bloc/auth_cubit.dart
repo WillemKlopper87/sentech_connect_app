@@ -2,10 +2,12 @@ import 'dart:async';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:sentech_connect_app/core/biometrics/biometric_authenticator.dart';
 import 'package:sentech_connect_app/core/error/failure.dart';
 import 'package:sentech_connect_app/core/local/personal_data_wiper.dart';
 import 'package:sentech_connect_app/core/network/tenant_context.dart';
+import 'package:sentech_connect_app/features/auth/domain/entities/otp_challenge.dart';
 import 'package:sentech_connect_app/features/auth/domain/entities/user.dart';
 import 'package:sentech_connect_app/features/auth/domain/repositories/auth_repository.dart';
 import 'package:sentech_connect_app/features/auth/domain/repositories/session_store.dart';
@@ -101,18 +103,12 @@ class AuthCubit extends Cubit<AuthState> {
   final String Function() _activeTenantSlug;
   StreamSubscription<void>? _expiry;
 
+  /// Interactive sign-ins running (verify + sign-in). A session-expired event
+  /// during one belongs to the session being REPLACED, never to the new one.
+  int _signingIn = 0;
+
   void _emitIfOpen(AuthState next) {
     if (!isClosed) emit(next);
-  }
-
-  /// Password sign-in from the mock phase; deleted with the password form.
-  Future<void> logIn({required String mobileNumber, required String password}) async {
-    _emitIfOpen(state.copyWith(status: AuthStatus.loading));
-    final result = await _repository.logIn(mobileNumber: mobileNumber, password: password);
-    await result.match(
-      (failure) async => _emitIfOpen(state.copyWith(status: AuthStatus.failure, errorMessage: failure.message)),
-      (user) => signedIn(user, fresh: true),
-    );
   }
 
   /// Re-checks whether the "Use biometrics" button should be offered.
@@ -157,8 +153,29 @@ class AuthCubit extends Cubit<AuthState> {
         // Offline or a server hiccup: the session is kept, so stay locked.
         _emitIfOpen(state.copyWith(status: AuthStatus.failure, errorMessage: failure.message));
       },
-      (user) => signedIn(user, fresh: false),
+      (user) async {
+        // The session the server resumed must be the customer this device
+        // holds: a different id means the tokens and the stored record (or
+        // biometric marker) belong to different customers. Nothing of either
+        // may be kept.
+        final record = await _sessionStore.loadUser();
+        if (user.id != credential || (record != null && record.id != user.id)) {
+          await _rejectForeignSession();
+          return;
+        }
+        await signedIn(user, fresh: false);
+      },
     );
+  }
+
+  Future<void> _rejectForeignSession() async {
+    _emitIfOpen(const AuthState());
+    try {
+      await _endSession(_wiper.wipeOnLogout);
+    } catch (_) {
+      // Signed out in the UI regardless; every step still ran.
+    }
+    _emitIfOpen(const AuthState(status: AuthStatus.failure, errorMessage: 'Your session could not be verified. Sign in again.'));
   }
 
   BiometricIssue _issueFor(BiometricResult result) => switch (result) {
@@ -170,22 +187,81 @@ class AuthCubit extends Cubit<AuthState> {
         _ => BiometricIssue.failed,
       };
 
+  /// Verifies the SMS code AND signs the customer in, as one operation (the
+  /// login UI never calls the repository and the cubit separately, so the
+  /// tokens that verification stores can never be left without a session).
+  ///
+  /// [beforeReady] runs once the code is verified and before the session is
+  /// considered ready (e.g. the legal terms must be accepted); returning
+  /// false ends the new session again and reports `terms_not_accepted`.
+  /// Session-expired events are ignored while this runs.
+  Future<Either<Failure, User>> signInWithOtp({
+    required OtpChallenge challenge,
+    required String code,
+    Future<bool> Function(User user)? beforeReady,
+  }) async {
+    _signingIn++;
+    try {
+      final verified = await _repository.verifyOtp(challenge: challenge, code: code);
+      final user = verified.match((_) => null, (u) => u);
+      if (user == null || isClosed) return verified;
+      try {
+        if (beforeReady != null && !await beforeReady(user)) {
+          await _discardNewSession();
+          return const Left(ValidationFailure('Accept the Terms of Service to continue.', 'terms_not_accepted'));
+        }
+        await signedIn(user, fresh: true);
+      } catch (_) {
+        await _discardNewSession();
+        return const Left(ServerFailure('We could not finish signing you in. Please try again.'));
+      }
+      return Right(user);
+    } finally {
+      _signingIn--;
+    }
+  }
+
+  /// A verified session that is not going to be used: revoke it (best effort)
+  /// and make sure no token stays on the device.
+  Future<void> _discardNewSession() async {
+    try {
+      await _repository.logOut();
+    } catch (_) {
+      // Fall through: the local tokens are dropped below regardless.
+    }
+    try {
+      await _repository.discardLocalSession();
+    } catch (_) {
+      // Nothing more can be done from here.
+    }
+  }
+
   /// After an interactive sign-in ([fresh]) or a biometric unlock.
   ///
   /// Signing in as a DIFFERENT customer than the one stored on this device
   /// first wipes everything local that belonged to the previous one (orders,
   /// registration details, free-WiFi grant), before the new session is saved.
+  /// When that wipe fails the new customer's tokens are dropped again (they
+  /// must not sit next to the previous customer's data) and the error is
+  /// rethrown.
   Future<void> signedIn(User user, {required bool fresh}) async {
     final previous = state.user ?? await _sessionStore.loadUser();
-    if (previous != null && previous.id != user.id) await _wiper.wipeOnLogout();
+    if (previous != null && previous.id != user.id) {
+      try {
+        await _wiper.wipeOnLogout();
+      } catch (_) {
+        try {
+          await _repository.discardLocalSession();
+        } catch (_) {
+          // The wipe failure below is the one the caller needs to see.
+        }
+        rethrow;
+      }
+    }
     await _sessionStore.saveUser(user, tenantSlug: _activeTenantSlug());
     await _sessionStore.saveBiometricCredential(user.id);
     _emitIfOpen(state.copyWith(status: AuthStatus.success, user: user, freshSignIn: fresh));
   }
-
-  /// Registration page of the mock phase; deleted with it in favour of
-  /// [profileUpdated].
-  Future<void> registered(User user) => signedIn(user, fresh: true);
 
   /// After the customer completed or edited their profile.
   Future<void> profileUpdated(User user) async {
@@ -243,6 +319,7 @@ class AuthCubit extends Cubit<AuthState> {
   }
 
   Future<void> _onSessionExpired() async {
+    if (_signingIn > 0) return; // belongs to the session being replaced
     if (!state.isSignedIn && state.status != AuthStatus.locked) return;
     try {
       await logOut();

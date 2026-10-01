@@ -93,10 +93,14 @@ class TokenRefresher {
 
   /// [staleAccessToken] is the token the caller used; pass null to force a
   /// network refresh (e.g. to prove a stored session is still valid).
-  Future<RefreshOutcome> refresh({String? staleAccessToken}) {
+  /// [announceExpiry] false is for a session that is being REPLACED (sign-in
+  /// as another customer): its rejection must not sign the app out, because
+  /// the new session is about to take its place. (A refresh already in
+  /// flight is shared and keeps the setting it started with.)
+  Future<RefreshOutcome> refresh({String? staleAccessToken, bool announceExpiry = true}) {
     final running = _inFlight;
     if (running != null) return running;
-    final next = _run(staleAccessToken).whenComplete(() {
+    final next = _run(staleAccessToken, announceExpiry).whenComplete(() {
       _inFlight = null;
     });
     _inFlight = next;
@@ -106,24 +110,24 @@ class TokenRefresher {
   /// Ends the local session because the server no longer accepts it (or it
   /// cannot be read): clears the tokens (best effort, a storage failure must
   /// not swallow the event) and tells the app to sign out.
-  Future<void> expireSession() async {
+  Future<void> expireSession({bool announce = true}) async {
     _forgetKey();
     try {
       await _tokens.clear();
     } on Object {
       // Best effort: the in-memory state is already cleared by the store.
     }
-    _sessionEvents.sessionExpired();
+    if (announce) _sessionEvents.sessionExpired();
   }
 
-  Future<RefreshOutcome> _run(String? staleAccessToken) async {
+  Future<RefreshOutcome> _run(String? staleAccessToken, bool announceExpiry) async {
     final AuthTokens? current;
     try {
       current = await _tokens.read();
     } on Object {
       // Keystore read failure: the session is unusable, so end it cleanly
       // instead of reporting "offline" forever.
-      await expireSession();
+      await expireSession(announce: announceExpiry);
       return const RefreshRejected();
     }
     if (current == null) {
@@ -156,7 +160,7 @@ class TokenRefresher {
     } on DioException catch (e) {
       if (_isRejection(e)) {
         _forgetKey();
-        if (_tokens.generation == generation) await expireSession();
+        if (_tokens.generation == generation) await expireSession(announce: announceExpiry);
         return const RefreshRejected();
       }
       return RefreshUnavailable(failureFromDioException(e));

@@ -32,7 +32,4 @@ abstract class AuthRepository {
 
   /// Forgets the tokens on this device without contacting the server.
   Future<void> discardLocalSession();
-
-  /// Password sign-in from the mock phase; deleted with the password form.
-  Future<Either<Failure, User>> logIn({required String mobileNumber, required String password});
 }

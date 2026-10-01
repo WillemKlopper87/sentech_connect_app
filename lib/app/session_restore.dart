@@ -14,6 +14,7 @@ import 'package:sentech_connect_app/features/auth/presentation/bloc/auth_cubit.d
 ///  - a stored user without a tenant/customer binding (mock-phase builds), or
 ///    without API tokens for that same customer and tenant (a "zombie" that
 ///    the server would reject on every call);
+///  - API tokens without a stored customer record (orphans);
 ///  - any storage error while checking (fail closed: start signed out).
 /// Whether the session also matches the tenant the app opens with is checked
 /// once that tenant is active (`AuthCubit.ensureSessionMatches`).
@@ -45,7 +46,12 @@ Future<AuthState> restoreAuthState({
     }
 
     final user = await sessionStore.loadUser();
-    if (user == null) return const AuthState();
+    if (user == null) {
+      // No customer record: tokens without one are orphans (a failed or
+      // interrupted sign-in, a cleared record) and must not linger.
+      await auth.discardLocalSession();
+      return const AuthState();
+    }
     final binding = await sessionStore.loadBinding();
     final trusted = binding != null &&
         binding.customerId == user.id &&

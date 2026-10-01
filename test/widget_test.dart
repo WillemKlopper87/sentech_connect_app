@@ -12,6 +12,6 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Welcome back'), findsOneWidget);
-    expect(find.text('Log in'), findsOneWidget);
+    expect(find.text('Send code'), findsOneWidget);
   });
 }

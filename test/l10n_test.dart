@@ -55,22 +55,22 @@ void main() {
   });
 
   group('login page', () {
-    for (final (locale, welcome, button) in [
-      (const Locale('en'), 'Welcome back', 'Log in'),
-      (const Locale('af'), 'Welkom terug', 'Teken in'),
-      (const Locale('zu'), 'Siyakwamukela futhi', 'Ngena'),
+    for (final (locale, welcome) in [
+      (const Locale('en'), 'Welcome back'),
+      (const Locale('af'), 'Welkom terug'),
+      (const Locale('zu'), 'Siyakwamukela futhi'),
     ]) {
       testWidgets('renders in ${locale.languageCode}', (tester) async {
         final auth = newAuth();
         addTearDown(auth.close);
         await tester.pumpWidget(localized(
           locale,
-          LoginPage(onRegister: () {}),
+          const LoginPage(),
           wrap: (child) => BlocProvider.value(value: auth, child: child),
         ));
         await tester.pumpAndSettle();
         expect(find.text(welcome), findsOneWidget);
-        expect(find.widgetWithText(ElevatedButton, button), findsOneWidget);
+        expect(find.widgetWithText(ElevatedButton, lookupAppLocalizations(locale).loginSendCode), findsOneWidget);
       });
     }
   });

@@ -154,24 +154,6 @@ abstract class AppLocalizations {
   /// **'Mobile number'**
   String get loginMobileHint;
 
-  /// No description provided for @loginPasswordHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Password'**
-  String get loginPasswordHint;
-
-  /// No description provided for @loginButton.
-  ///
-  /// In en, this message translates to:
-  /// **'Log in'**
-  String get loginButton;
-
-  /// No description provided for @loginCreateAccount.
-  ///
-  /// In en, this message translates to:
-  /// **'New to Sentech? Create an account'**
-  String get loginCreateAccount;
-
   /// No description provided for @biometricPromptReason.
   ///
   /// In en, this message translates to:
@@ -181,31 +163,139 @@ abstract class AppLocalizations {
   /// No description provided for @biometricNotEnrolled.
   ///
   /// In en, this message translates to:
-  /// **'No fingerprint or face is set up on this phone. Add one in system settings, or log in with your password.'**
+  /// **'No fingerprint or face is set up on this phone. Add one in system settings.'**
   String get biometricNotEnrolled;
 
   /// No description provided for @biometricUnavailable.
   ///
   /// In en, this message translates to:
-  /// **'Biometrics are not available right now. Log in with your password.'**
+  /// **'Biometrics are not available right now. Log in with your mobile number and SMS code.'**
   String get biometricUnavailable;
 
   /// No description provided for @biometricLockedOut.
   ///
   /// In en, this message translates to:
-  /// **'Too many attempts. Wait a moment and try again, or log in with your password.'**
+  /// **'Too many attempts. Wait a moment and try again.'**
   String get biometricLockedOut;
 
   /// No description provided for @biometricPermanentlyLockedOut.
   ///
   /// In en, this message translates to:
-  /// **'Biometrics are locked. Unlock your phone with your PIN or pattern first, or log in with your password.'**
+  /// **'Biometrics are locked. Unlock your phone with your PIN or pattern first.'**
   String get biometricPermanentlyLockedOut;
+
+  /// No description provided for @loginSendCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Send code'**
+  String get loginSendCode;
+
+  /// No description provided for @loginPhoneInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid South African mobile number, e.g. 082 123 4567.'**
+  String get loginPhoneInvalid;
+
+  /// No description provided for @loginNewCustomerHint.
+  ///
+  /// In en, this message translates to:
+  /// **'New here? Enter your number and we\'ll create your account.'**
+  String get loginNewCustomerHint;
+
+  /// No description provided for @loginWelcomeBackName.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome back, {name}'**
+  String loginWelcomeBackName(String name);
+
+  /// No description provided for @loginNotYou.
+  ///
+  /// In en, this message translates to:
+  /// **'Not you? Sign out'**
+  String get loginNotYou;
+
+  /// No description provided for @otpSentTo.
+  ///
+  /// In en, this message translates to:
+  /// **'We sent a 6-digit code to {phone}.'**
+  String otpSentTo(String phone);
+
+  /// No description provided for @otpCodeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'6-digit code'**
+  String get otpCodeHint;
+
+  /// No description provided for @otpVerify.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify'**
+  String get otpVerify;
+
+  /// No description provided for @otpResend.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend code'**
+  String get otpResend;
+
+  /// No description provided for @otpResendIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend code in {seconds}s'**
+  String otpResendIn(int seconds);
+
+  /// No description provided for @otpChangeNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Change number'**
+  String get otpChangeNumber;
+
+  /// No description provided for @otpInvalidCode.
+  ///
+  /// In en, this message translates to:
+  /// **'That code is not right or has expired. Try again or ask for a new code.'**
+  String get otpInvalidCode;
+
+  /// No description provided for @otpDemoHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Demo mode: any 6-digit code except 000000 works.'**
+  String get otpDemoHint;
+
+  /// No description provided for @otpTermsRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'To sign in you need to accept the Terms of Service. Please try again.'**
+  String get otpTermsRequired;
+
+  /// No description provided for @otpOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re offline. Check your connection and try again.'**
+  String get otpOffline;
+
+  /// No description provided for @registerAcceptTerms.
+  ///
+  /// In en, this message translates to:
+  /// **'I accept the Terms of Service and the Privacy notice'**
+  String get registerAcceptTerms;
+
+  /// No description provided for @accountRequestOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re offline. Check your connection and try again.'**
+  String get accountRequestOffline;
+
+  /// No description provided for @accountRequestRateLimited.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many requests. Please wait a moment and try again.'**
+  String get accountRequestRateLimited;
 
   /// No description provided for @biometricFailed.
   ///
   /// In en, this message translates to:
-  /// **'Biometric check failed. Try again or log in with your password.'**
+  /// **'Biometric check failed. Try again or log in with your SMS code.'**
   String get biometricFailed;
 
   /// No description provided for @registerTitle.

@@ -15,9 +15,15 @@ class MockAuthRepository implements AuthRepository {
 
   final Duration latency;
 
+  /// A zero latency really is instant (no timer), so widget tests can drive
+  /// the flow with plain `pump()` calls.
+  Future<void> _simulateLatency() async {
+    if (latency > Duration.zero) await Future<void>.delayed(latency);
+  }
+
   @override
   Future<Either<Failure, OtpChallenge>> requestOtp({required String phoneNumber}) async {
-    await Future<void>.delayed(latency);
+    await _simulateLatency();
     final phone = normaliseZaMobile(phoneNumber);
     if (phone == null) {
       return const Left(ValidationFailure('Enter a valid South African mobile number.', 'invalid_phone'));
@@ -27,7 +33,7 @@ class MockAuthRepository implements AuthRepository {
 
   @override
   Future<Either<Failure, User>> verifyOtp({required OtpChallenge challenge, required String code}) async {
-    await Future<void>.delayed(latency);
+    await _simulateLatency();
     if (!RegExp(r'^\d{6}$').hasMatch(code)) return const Left(ValidationFailure('Enter the 6-digit code.', 'invalid_code'));
     if (code == rejectedDemoCode) return const Left(ValidationFailure('The code is invalid or has expired.', 'otp_invalid'));
     return Right(User(id: _demoUser.id, fullName: _demoUser.fullName, mobileNumber: challenge.phoneE164));
@@ -35,7 +41,7 @@ class MockAuthRepository implements AuthRepository {
 
   @override
   Future<Either<Failure, User>> resumeSession() async {
-    await Future<void>.delayed(latency);
+    await _simulateLatency();
     return const Right(_demoUser);
   }
 
@@ -48,13 +54,4 @@ class MockAuthRepository implements AuthRepository {
 
   @override
   Future<void> discardLocalSession() async {}
-
-  @override
-  Future<Either<Failure, User>> logIn({required String mobileNumber, required String password}) async {
-    await Future<void>.delayed(latency);
-    if (mobileNumber.isEmpty || password.isEmpty) {
-      return const Left(ValidationFailure('Enter your mobile number and password.'));
-    }
-    return const Right(_demoUser);
-  }
 }

@@ -16,7 +16,11 @@ class RegistrationPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => RegistrationCubit(locator()),
+      create: (context) => RegistrationCubit(
+        locator(),
+        consents: locator(),
+        initialMobile: context.read<AuthCubit>().state.user?.mobileNumber ?? '',
+      ),
       child: const _RegistrationView(),
     );
   }
@@ -34,6 +38,12 @@ class _RegistrationViewState extends State<_RegistrationView> {
   final _emailController = TextEditingController();
   final _mobileController = TextEditingController();
   final _addressController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _mobileController.text = context.read<RegistrationCubit>().state.mobileNumber;
+  }
 
   @override
   void dispose() {
@@ -67,12 +77,13 @@ class _RegistrationViewState extends State<_RegistrationView> {
       body: BlocConsumer<RegistrationCubit, RegistrationState>(
         listener: (context, state) {
           if (state.submitStatus == SubmitStatus.submitted) {
-            // The router guard moves the signed-in user on to coverage.
-            context.read<AuthCubit>().registered(User(
-                  id: 'usr_new',
-                  fullName: state.fullName,
-                  mobileNumber: state.mobileNumber,
-                ));
+            // The router guard then moves the customer on (coverage for a fresh sign-in).
+            final auth = context.read<AuthCubit>();
+            auth.profileUpdated(User(
+              id: auth.state.user?.id ?? 'usr_new',
+              fullName: state.fullName.trim(),
+              mobileNumber: auth.state.user?.mobileNumber ?? state.mobileNumber,
+            ));
           }
           if (state.submitStatus == SubmitStatus.failed) {
             ScaffoldMessenger.of(context)
@@ -97,7 +108,8 @@ class _RegistrationViewState extends State<_RegistrationView> {
           final cubit = context.read<RegistrationCubit>();
           final submitting = state.submitStatus == SubmitStatus.submitting;
           final locating = state.locationStatus == LocationFetchStatus.fetching;
-          final canSubmit = state.fullName.isNotEmpty &&
+          final canSubmit = state.acceptedTerms &&
+              state.fullName.trim().isNotEmpty &&
               state.email.isNotEmpty &&
               state.mobileNumber.isNotEmpty &&
               state.address.isNotEmpty;
@@ -127,7 +139,7 @@ class _RegistrationViewState extends State<_RegistrationView> {
                   const SizedBox(height: 10),
                   TextField(
                     controller: _mobileController,
-                    onChanged: cubit.setMobileNumber,
+                    readOnly: true, // verified by SMS
                     keyboardType: TextInputType.phone,
                     decoration: InputDecoration(hintText: l10n.registerMobile),
                   ),
@@ -189,6 +201,14 @@ class _RegistrationViewState extends State<_RegistrationView> {
                     title: Text(l10n.registerMarketingPush),
                   ),
                   const SizedBox(height: 20),
+                  CheckboxListTile(
+                    contentPadding: EdgeInsets.zero,
+                    controlAffinity: ListTileControlAffinity.leading,
+                    value: state.acceptedTerms,
+                    onChanged: (v) => cubit.setAcceptedTerms(v ?? false),
+                    title: Text(l10n.registerAcceptTerms),
+                  ),
+                  const SizedBox(height: 8),
                   ElevatedButton(
                     onPressed: (!canSubmit || submitting) ? null : cubit.submit,
                     child: submitting

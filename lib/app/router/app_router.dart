@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sentech_connect_app/app/locator.dart';
 import 'package:sentech_connect_app/app/main_shell.dart';
+import 'package:sentech_connect_app/core/config/app_environment.dart';
 import 'package:sentech_connect_app/features/auth/presentation/bloc/auth_cubit.dart';
 import 'package:sentech_connect_app/features/auth/presentation/pages/login_page.dart';
 import 'package:sentech_connect_app/features/auth/presentation/pages/registration_page.dart';
@@ -64,9 +65,9 @@ abstract class AppRoutes {
   /// Query parameter on `/login` holding the route the user originally asked for.
   static const fromParam = 'from';
 
-  static const _public = {splash, login, register, tenantPicker, updateRequired};
+  static const _public = {splash, login, tenantPicker, updateRequired};
 
-  /// Everything except splash/login/register needs a signed-in user.
+  /// Everything except splash/login needs a signed-in user.
   static bool isProtected(String location) => !_public.contains(location);
 }
 
@@ -93,6 +94,7 @@ class _GuardRefresh extends ChangeNotifier {
 /// Pure redirect rule, separated out so it can be unit tested.
 ///
 /// - Signed out + protected route  -> `/login?from=<intended route>`
+/// - Signed in without a name yet (new customer) -> `/register` (complete the profile)
 /// - Signed in + `/login`/`/register` -> the intended route (`from`), else
 ///   coverage right after a fresh sign-in (first-time onboarding), else `/main`.
 String? authRedirect(AuthState auth, Uri uri) {
@@ -102,6 +104,13 @@ String? authRedirect(AuthState auth, Uri uri) {
     final target = uri.toString();
     if (location == AppRoutes.main) return AppRoutes.login;
     return Uri(path: AppRoutes.login, queryParameters: {AppRoutes.fromParam: target}).toString();
+  }
+  // New customers (first verified code) have no name yet: complete the
+  // profile before anything else. (Splash and the tenant screens keep their
+  // own flow; they lead on to a protected route, which lands here.)
+  if (auth.user!.fullName.trim().isEmpty) {
+    const own = {AppRoutes.register, AppRoutes.splash, AppRoutes.tenantPicker, AppRoutes.updateRequired};
+    return own.contains(location) ? null : AppRoutes.register;
   }
   if (location == AppRoutes.login || location == AppRoutes.register) {
     final from = safeFrom(uri.queryParameters[AppRoutes.fromParam]);
@@ -189,9 +198,7 @@ GoRouter _buildRouter(AuthCubit authCubit, TenantCubit? tenantCubit, Listenable 
       GoRoute(path: AppRoutes.updateRequired, builder: (context, state) => const UpdateRequiredPage()),
       GoRoute(
         path: AppRoutes.login,
-        builder: (context, state) => LoginPage(
-          onRegister: () => context.push(AppRoutes.register),
-        ),
+        builder: (context, state) => LoginPage(demoMode: locator<AppEnvironment>().isDemo),
       ),
       GoRoute(
         path: AppRoutes.register,

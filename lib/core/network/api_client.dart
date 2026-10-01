@@ -92,8 +92,12 @@ class ApiClient {
     bool authenticated = true,
     String? idempotencyKey,
     Duration? timeout,
+    Map<String, String>? headers,
   }) =>
-      _send(() => _dio.post<Object?>(path, data: body, options: _options(authenticated, timeout, idempotencyKey)), decode);
+      _send(
+        () => _dio.post<Object?>(path, data: body, options: _options(authenticated, timeout, idempotencyKey, headers)),
+        decode,
+      );
 
   Future<Either<Failure, T>> patch<T>(
     String path, {
@@ -107,11 +111,11 @@ class ApiClient {
   Future<Either<Failure, Unit>> delete(String path, {bool authenticated = true, Duration? timeout}) =>
       _send(() => _dio.delete<Object?>(path, options: _options(authenticated, timeout, null)), (_) => unit);
 
-  Options _options(bool authenticated, Duration? timeout, String? idempotencyKey) => Options(
+  Options _options(bool authenticated, Duration? timeout, String? idempotencyKey, [Map<String, String>? headers]) => Options(
         extra: {kAuthenticated: authenticated},
         sendTimeout: timeout,
         receiveTimeout: timeout,
-        headers: {'Idempotency-Key': ?idempotencyKey},
+        headers: {...?headers, 'Idempotency-Key': ?idempotencyKey},
       );
 
   Future<Either<Failure, T>> _send<T>(Future<Response<Object?>> Function() call, ResponseDecoder<T> decode) async {

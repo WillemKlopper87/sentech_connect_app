@@ -9,6 +9,7 @@ import 'package:sentech_connect_app/core/network/session_events.dart';
 import 'package:sentech_connect_app/core/storage/secure_store.dart';
 import 'package:sentech_connect_app/features/auth/data/repositories/mock_auth_repository.dart';
 import 'package:sentech_connect_app/features/auth/data/repositories/secure_session_store.dart';
+import 'package:sentech_connect_app/features/auth/domain/entities/otp_challenge.dart';
 import 'package:sentech_connect_app/features/auth/domain/entities/user.dart';
 import 'package:sentech_connect_app/features/auth/domain/repositories/session_store.dart';
 import 'package:sentech_connect_app/features/auth/presentation/bloc/auth_cubit.dart';
@@ -35,7 +36,10 @@ class _FakeAuthRepository extends MockAuthRepository {
   _FakeAuthRepository() : super(latency: Duration.zero);
 
   int logOuts = 0;
+  int discards = 0;
   int resumes = 0;
+  Future<void>? verifyGate;
+  Either<Failure, User>? verifyResult;
   bool matches = true;
   Future<void>? resumeGate;
   Object? logOutError;
@@ -47,6 +51,15 @@ class _FakeAuthRepository extends MockAuthRepository {
     await resumeGate;
     return resumeResult;
   }
+
+  @override
+  Future<Either<Failure, User>> verifyOtp({required OtpChallenge challenge, required String code}) async {
+    await verifyGate;
+    return verifyResult ?? super.verifyOtp(challenge: challenge, code: code);
+  }
+
+  @override
+  Future<void> discardLocalSession() async => discards++;
 
   @override
   Future<bool> sessionMatches({required String tenantSlug, required User user}) async => matches;
@@ -239,6 +252,150 @@ void main() {
       await expectLater(cubit.signedIn(other, fresh: true), throwsStateError);
       expect(cubit.state.isSignedIn, isFalse);
       expect(await sessionStore.loadUser(), _user);
+      expect(repo.discards, 1, reason: "the new customer's tokens must not stay next to the old record (N1)");
+      await cubit.close();
+    });
+  });
+
+  group('a resumed session must be the customer this device holds (N1)', () {
+    const other = User(id: 'c2', fullName: 'Sipho Dlamini', mobileNumber: '+27820000000');
+
+    test('a resumed user that differs from the biometric credential is signed out and wiped', () async {
+      repo.resumeResult = const Right(other);
+      final cubit = await lockedCubit();
+      await cubit.logInWithBiometrics(reason: 'test');
+      expect(cubit.state.isSignedIn, isFalse);
+      expect(cubit.state.status, AuthStatus.failure);
+      expect(await sessionStore.loadUser(), isNull);
+      expect(await sessionStore.loadBiometricCredential(), isNull);
+      expect(wiper.logoutWipes, 1);
+      expect(repo.logOuts, 1, reason: 'the foreign session is revoked too');
+      await cubit.close();
+    });
+
+    test('a resumed user that differs from the stored record is signed out and wiped', () async {
+      await sessionStore.saveUser(other, tenantSlug: 'sentech'); // record of c2 ...
+      await sessionStore.saveBiometricCredential(_user.id); // ... marker of c1
+      final cubit = build(initial: AuthState.restore(user: _user, hasBiometricCredential: true, biometricsAvailable: true));
+      await cubit.logInWithBiometrics(reason: 'test');
+      expect(cubit.state.isSignedIn, isFalse);
+      expect(await sessionStore.loadUser(), isNull);
+      expect(wiper.logoutWipes, 1);
+      await cubit.close();
+    });
+
+    test('the matching customer still unlocks', () async {
+      final cubit = await lockedCubit();
+      await cubit.logInWithBiometrics(reason: 'test');
+      expect(cubit.state.isSignedIn, isTrue);
+      expect(wiper.logoutWipes, 0);
+      await cubit.close();
+    });
+  });
+
+  group('signInWithOtp: verify and sign-in are one operation', () {
+    const challenge = OtpChallenge(id: 'ch-1', phoneE164: '+27810000000', expiresIn: Duration(minutes: 5));
+    const sipho = User(id: 'c2', fullName: 'Sipho', mobileNumber: '+27820000000');
+
+    Future<void> settle() async {
+      for (var i = 0; i < 5; i++) {
+        await Future<void>.delayed(Duration.zero);
+      }
+    }
+
+    test('a correct code signs the customer in (fresh) and returns the user', () async {
+      final cubit = build();
+      final result = await cubit.signInWithOtp(challenge: challenge, code: '123456');
+      expect(result.isRight(), isTrue);
+      expect(cubit.state.isSignedIn, isTrue);
+      expect(cubit.state.freshSignIn, isTrue);
+      expect(await sessionStore.loadUser(), isNotNull);
+      await cubit.close();
+    });
+
+    test('a wrong code leaves the customer signed out and stores nothing', () async {
+      final cubit = build();
+      final result = await cubit.signInWithOtp(challenge: challenge, code: MockAuthRepository.rejectedDemoCode);
+      expect((result.match((f) => f, (_) => null)! as ValidationFailure).code, 'otp_invalid');
+      expect(cubit.state.isSignedIn, isFalse);
+      expect(await sessionStore.loadUser(), isNull);
+      await cubit.close();
+    });
+
+    test('declining the legal step ends the new session: revoked, tokens dropped, not signed in', () async {
+      final cubit = build();
+      final result = await cubit.signInWithOtp(challenge: challenge, code: '123456', beforeReady: (_) async => false);
+      expect((result.match((f) => f, (_) => null)! as ValidationFailure).code, 'terms_not_accepted');
+      expect(cubit.state.isSignedIn, isFalse);
+      expect(repo.logOuts, 1);
+      expect(repo.discards, 1);
+      expect(await sessionStore.loadUser(), isNull);
+      await cubit.close();
+    });
+
+    test('a failing legal step also ends the new session (no silent half sign-in)', () async {
+      final cubit = build();
+      final result = await cubit.signInWithOtp(
+        challenge: challenge,
+        code: '123456',
+        beforeReady: (_) async => throw StateError('consent store'),
+      );
+      expect(result.isLeft(), isTrue);
+      expect(cubit.state.isSignedIn, isFalse);
+      expect(repo.discards, 1);
+      await cubit.close();
+    });
+
+    test('the legal step runs after verification and before the session is ready', () async {
+      final cubit = build();
+      var signedInDuringStep = true;
+      await cubit.signInWithOtp(
+        challenge: challenge,
+        code: '123456',
+        beforeReady: (_) async {
+          signedInDuringStep = cubit.state.isSignedIn;
+          return true;
+        },
+      );
+      expect(signedInDuringStep, isFalse);
+      expect(cubit.state.isSignedIn, isTrue);
+      await cubit.close();
+    });
+
+    test('a sign-in whose wipe fails reports a failure and drops the new tokens', () async {
+      final cubit = await lockedCubit();
+      repo.verifyResult = const Right(sipho);
+      wiper.onWipe = () async => throw StateError('disk');
+      final result = await cubit.signInWithOtp(challenge: challenge, code: '123456');
+      expect(result.isLeft(), isTrue);
+      expect(cubit.state.isSignedIn, isFalse);
+      expect(repo.discards, greaterThanOrEqualTo(1));
+      await cubit.close();
+    });
+
+    test('a session-expired event during the sign-in is ignored: it belongs to the replaced session (N2)', () async {
+      final cubit = build();
+      await cubit.signedIn(_user, fresh: true);
+      final gate = Completer<void>();
+      repo.verifyGate = gate.future;
+      repo.verifyResult = const Right(sipho);
+      final pending = cubit.signInWithOtp(challenge: challenge, code: '123456');
+      events.sessionExpired();
+      await settle();
+      gate.complete();
+      await pending;
+      expect(cubit.state.isSignedIn, isTrue);
+      expect(cubit.state.user!.id, 'c2');
+      expect(repo.logOuts, 0, reason: 'the expiry must not have signed the new session out');
+      await cubit.close();
+    });
+
+    test('expiry events count again once the sign-in is over', () async {
+      final cubit = build();
+      await cubit.signInWithOtp(challenge: challenge, code: '123456');
+      events.sessionExpired();
+      await settle();
+      expect(cubit.state.isSignedIn, isFalse);
       await cubit.close();
     });
   });

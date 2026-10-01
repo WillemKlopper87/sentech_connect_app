@@ -36,37 +36,96 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loginMobileHint => 'Mobile number';
 
   @override
-  String get loginPasswordHint => 'Password';
-
-  @override
-  String get loginButton => 'Log in';
-
-  @override
-  String get loginCreateAccount => 'New to Sentech? Create an account';
-
-  @override
   String get biometricPromptReason =>
       'Confirm it is you to log in to Sentech Connect';
 
   @override
   String get biometricNotEnrolled =>
-      'No fingerprint or face is set up on this phone. Add one in system settings, or log in with your password.';
+      'No fingerprint or face is set up on this phone. Add one in system settings.';
 
   @override
   String get biometricUnavailable =>
-      'Biometrics are not available right now. Log in with your password.';
+      'Biometrics are not available right now. Log in with your mobile number and SMS code.';
 
   @override
   String get biometricLockedOut =>
-      'Too many attempts. Wait a moment and try again, or log in with your password.';
+      'Too many attempts. Wait a moment and try again.';
 
   @override
   String get biometricPermanentlyLockedOut =>
-      'Biometrics are locked. Unlock your phone with your PIN or pattern first, or log in with your password.';
+      'Biometrics are locked. Unlock your phone with your PIN or pattern first.';
+
+  @override
+  String get loginSendCode => 'Send code';
+
+  @override
+  String get loginPhoneInvalid =>
+      'Enter a valid South African mobile number, e.g. 082 123 4567.';
+
+  @override
+  String get loginNewCustomerHint =>
+      'New here? Enter your number and we\'ll create your account.';
+
+  @override
+  String loginWelcomeBackName(String name) {
+    return 'Welcome back, $name';
+  }
+
+  @override
+  String get loginNotYou => 'Not you? Sign out';
+
+  @override
+  String otpSentTo(String phone) {
+    return 'We sent a 6-digit code to $phone.';
+  }
+
+  @override
+  String get otpCodeHint => '6-digit code';
+
+  @override
+  String get otpVerify => 'Verify';
+
+  @override
+  String get otpResend => 'Resend code';
+
+  @override
+  String otpResendIn(int seconds) {
+    return 'Resend code in ${seconds}s';
+  }
+
+  @override
+  String get otpChangeNumber => 'Change number';
+
+  @override
+  String get otpInvalidCode =>
+      'That code is not right or has expired. Try again or ask for a new code.';
+
+  @override
+  String get otpDemoHint => 'Demo mode: any 6-digit code except 000000 works.';
+
+  @override
+  String get otpTermsRequired =>
+      'To sign in you need to accept the Terms of Service. Please try again.';
+
+  @override
+  String get otpOffline =>
+      'You\'re offline. Check your connection and try again.';
+
+  @override
+  String get registerAcceptTerms =>
+      'I accept the Terms of Service and the Privacy notice';
+
+  @override
+  String get accountRequestOffline =>
+      'You\'re offline. Check your connection and try again.';
+
+  @override
+  String get accountRequestRateLimited =>
+      'Too many requests. Please wait a moment and try again.';
 
   @override
   String get biometricFailed =>
-      'Biometric check failed. Try again or log in with your password.';
+      'Biometric check failed. Try again or log in with your SMS code.';
 
   @override
   String get registerTitle => 'Create an account';

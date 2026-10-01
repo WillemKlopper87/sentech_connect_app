@@ -141,12 +141,15 @@ class HttpAuthRepository implements AuthRepository {
   }
 
   /// `POST /v1/auth/logout` for the stored session, if there is one for the
-  /// active tenant. Never throws for network reasons.
-  Future<void> _revokeStored() async {
+  /// active tenant. Never throws for network reasons. With [replaced] (the
+  /// session is being overwritten by a new sign-in) nothing here may sign the
+  /// app out: its rejection is not announced and the logout is sent with the
+  /// bearer set by hand, outside the interceptor's refresh-and-expire path.
+  Future<void> _revokeStored({bool replaced = false}) async {
     var tokens = await _readTokens();
     if (tokens == null || tokens.tenantSlug != _tenant.slug) return;
     if (tokens.expiresWithin(AuthInterceptor.refreshMargin, _now())) {
-      switch (await _api.refresher.refresh(staleAccessToken: tokens.accessToken)) {
+      switch (await _api.refresher.refresh(staleAccessToken: tokens.accessToken, announceExpiry: !replaced)) {
         case RefreshSucceeded(tokens: final fresh):
           tokens = fresh;
         case RefreshRejected():
@@ -159,6 +162,8 @@ class HttpAuthRepository implements AuthRepository {
       '/v1/auth/logout',
       body: {'refresh_token': tokens.refreshToken},
       timeout: const Duration(seconds: 5),
+      authenticated: !replaced,
+      headers: replaced ? {'Authorization': 'Bearer ${tokens.accessToken}'} : null,
       decode: (_) => unit,
     );
   }
@@ -170,15 +175,11 @@ class HttpAuthRepository implements AuthRepository {
     final previous = await _readTokens();
     if (previous == null || previous.customerId == newCustomerId) return;
     try {
-      await _revokeStored().timeout(logoutTimeout);
+      await _revokeStored(replaced: true).timeout(logoutTimeout);
     } on Object {
       // Best effort.
     }
   }
-
-  @override
-  Future<Either<Failure, User>> logIn({required String mobileNumber, required String password}) async =>
-      const Left(ValidationFailure('Sign in with the one-time code we send to your phone.', 'password_login_removed'));
 
   Future<Either<Failure, User>> _profile({required String fallbackPhone, required bool clearTokensOnAnyFailure}) async {
     final result = await _api.get<User>(

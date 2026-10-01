@@ -73,7 +73,7 @@ void main() {
         wiper: locator(),
       );
 
-  Widget loginPage(AuthCubit auth) => BlocProvider.value(value: auth, child: LoginPage(onRegister: () {}));
+  Widget loginPage(AuthCubit auth) => BlocProvider.value(value: auth, child: const LoginPage());
 
   Widget checkoutPage(CartCubit cart) => BlocProvider(
         create: (_) => CheckoutCubit(MockCheckoutRepository(InMemorySecureStore(), latency: Duration.zero), cart),
@@ -95,13 +95,12 @@ void main() {
       await pumpScaled(tester, loginPage(auth), scale: 2.0);
 
       expect(tester.takeException(), isNull);
-      for (final label in ['Log in', 'New to Sentech? Create an account']) {
+      for (final label in ['Send code']) {
         await tester.ensureVisible(find.text(label));
         expect(find.text(label), findsOneWidget);
       }
       // The form still works at large text.
       await tester.enterText(find.widgetWithText(TextField, 'Mobile number'), '0810000000');
-      await tester.enterText(find.widgetWithText(TextField, 'Password'), 'pw');
       expect(tester.takeException(), isNull);
     });
 

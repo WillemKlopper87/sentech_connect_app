@@ -35,8 +35,17 @@ void main() {
     expect(find.text('Welcome back'), findsOneWidget);
     expect(find.text('Use biometrics'), findsNothing); // no earlier session on this device
     await tester.enterText(find.widgetWithText(TextField, 'Mobile number'), '0810000000');
-    await tester.enterText(find.widgetWithText(TextField, 'Password'), 'secret');
-    await tester.tap(find.widgetWithText(ElevatedButton, 'Log in'));
+    await tester.tap(find.widgetWithText(ElevatedButton, 'Send code'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500)); // mock OTP request delay
+    await tester.enterText(find.widgetWithText(TextField, '6-digit code'), '123456');
+    await tester.tap(find.widgetWithText(ElevatedButton, 'Verify'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500)); // mock OTP verify delay
+    // A returning customer must accept the (current) terms before the session is ready.
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.text('Your privacy'), findsOneWidget);
+    await tester.tap(find.text('I agree'));
     await tester.pumpAndSettle();
 
     // 2. Coverage check

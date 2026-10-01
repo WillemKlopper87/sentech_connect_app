@@ -4,6 +4,8 @@ import 'package:geolocator/geolocator.dart';
 import 'package:sentech_connect_app/core/utils/reverse_geocode.dart';
 import 'package:sentech_connect_app/features/auth/domain/entities/registration_details.dart';
 import 'package:sentech_connect_app/features/auth/domain/repositories/registration_repository.dart';
+import 'package:sentech_connect_app/features/privacy/domain/entities/consent_record.dart';
+import 'package:sentech_connect_app/features/privacy/domain/repositories/consent_repository.dart';
 
 enum LocationFetchStatus { idle, fetching, fetched, denied, failed }
 
@@ -23,6 +25,7 @@ class RegistrationState extends Equatable {
     this.preferredContactMethod = ContactMethod.email,
     this.locationStatus = LocationFetchStatus.idle,
     this.submitStatus = SubmitStatus.idle,
+    this.acceptedTerms = false,
   });
 
   final String fullName;
@@ -37,6 +40,9 @@ class RegistrationState extends Equatable {
   final ContactMethod preferredContactMethod;
   final LocationFetchStatus locationStatus;
   final SubmitStatus submitStatus;
+
+  /// Terms of Service + Privacy notice accepted (required).
+  final bool acceptedTerms;
 
   bool get hasLocation => latitude != null && longitude != null;
 
@@ -66,6 +72,7 @@ class RegistrationState extends Equatable {
     ContactMethod? preferredContactMethod,
     LocationFetchStatus? locationStatus,
     SubmitStatus? submitStatus,
+    bool? acceptedTerms,
   }) {
     return RegistrationState(
       fullName: fullName ?? this.fullName,
@@ -80,6 +87,7 @@ class RegistrationState extends Equatable {
       preferredContactMethod: preferredContactMethod ?? this.preferredContactMethod,
       locationStatus: locationStatus ?? this.locationStatus,
       submitStatus: submitStatus ?? this.submitStatus,
+      acceptedTerms: acceptedTerms ?? this.acceptedTerms,
     );
   }
 
@@ -97,13 +105,18 @@ class RegistrationState extends Equatable {
         preferredContactMethod,
         locationStatus,
         submitStatus,
+        acceptedTerms,
       ];
 }
 
 class RegistrationCubit extends Cubit<RegistrationState> {
-  RegistrationCubit(this._repository) : super(const RegistrationState());
+  RegistrationCubit(this._repository, {this._consents, String initialMobile = ''})
+      : super(RegistrationState(mobileNumber: initialMobile));
 
   final RegistrationRepository _repository;
+  final ConsentRepository? _consents;
+
+  void setAcceptedTerms(bool v) => emit(state.copyWith(acceptedTerms: v));
 
   void setFullName(String v) => emit(state.copyWith(fullName: v));
   void setEmail(String v) => emit(state.copyWith(email: v));
@@ -148,12 +161,33 @@ class RegistrationCubit extends Cubit<RegistrationState> {
     }
   }
 
+  /// Saves the profile, then records the legal consents (POPIA: versioned,
+  /// timestamped, server-held in prod). Nothing is submitted without the
+  /// terms being accepted.
   Future<void> submit() async {
+    if (!state.acceptedTerms || state.submitStatus == SubmitStatus.submitting) return;
     emit(state.copyWith(submitStatus: SubmitStatus.submitting));
-    final result = await _repository.save(state.toDetails());
-    result.match(
-      (_) => emit(state.copyWith(submitStatus: SubmitStatus.failed)),
-      (_) => emit(state.copyWith(submitStatus: SubmitStatus.submitted)),
-    );
+    final saved = await _repository.save(state.toDetails());
+    if (isClosed) return;
+    if (saved.isLeft()) {
+      emit(state.copyWith(submitStatus: SubmitStatus.failed));
+      return;
+    }
+    final consents = _consents;
+    if (consents != null) {
+      for (final purpose in [
+        ConsentPurpose.terms,
+        ConsentPurpose.privacy,
+        if (state.marketingSms) ConsentPurpose.marketingSms,
+      ]) {
+        final granted = await consents.grant(purpose);
+        if (isClosed) return;
+        if (granted.isLeft()) {
+          emit(state.copyWith(submitStatus: SubmitStatus.failed));
+          return;
+        }
+      }
+    }
+    emit(state.copyWith(submitStatus: SubmitStatus.submitted));
   }
 }

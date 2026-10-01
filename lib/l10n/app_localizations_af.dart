@@ -36,15 +36,6 @@ class AppLocalizationsAf extends AppLocalizations {
   String get loginMobileHint => 'Selfoonnommer';
 
   @override
-  String get loginPasswordHint => 'Wagwoord';
-
-  @override
-  String get loginButton => 'Teken in';
-
-  @override
-  String get loginCreateAccount => 'Nuut by Sentech? Skep \'n rekening';
-
-  @override
   String get biometricPromptReason =>
       'Bevestig dat dit jy is om by Sentech Connect in te teken';
 
@@ -63,6 +54,74 @@ class AppLocalizationsAf extends AppLocalizations {
   @override
   String get biometricPermanentlyLockedOut =>
       'Biometrie is gesluit. Ontsluit eers jou foon met jou PIN of patroon, of teken met jou wagwoord in.';
+
+  @override
+  String get loginSendCode => 'Send code';
+
+  @override
+  String get loginPhoneInvalid =>
+      'Enter a valid South African mobile number, e.g. 082 123 4567.';
+
+  @override
+  String get loginNewCustomerHint =>
+      'New here? Enter your number and we\'ll create your account.';
+
+  @override
+  String loginWelcomeBackName(String name) {
+    return 'Welcome back, $name';
+  }
+
+  @override
+  String get loginNotYou => 'Not you? Sign out';
+
+  @override
+  String otpSentTo(String phone) {
+    return 'We sent a 6-digit code to $phone.';
+  }
+
+  @override
+  String get otpCodeHint => '6-digit code';
+
+  @override
+  String get otpVerify => 'Verify';
+
+  @override
+  String get otpResend => 'Resend code';
+
+  @override
+  String otpResendIn(int seconds) {
+    return 'Resend code in ${seconds}s';
+  }
+
+  @override
+  String get otpChangeNumber => 'Change number';
+
+  @override
+  String get otpInvalidCode =>
+      'That code is not right or has expired. Try again or ask for a new code.';
+
+  @override
+  String get otpDemoHint => 'Demo mode: any 6-digit code except 000000 works.';
+
+  @override
+  String get otpTermsRequired =>
+      'To sign in you need to accept the Terms of Service. Please try again.';
+
+  @override
+  String get otpOffline =>
+      'You\'re offline. Check your connection and try again.';
+
+  @override
+  String get registerAcceptTerms =>
+      'I accept the Terms of Service and the Privacy notice';
+
+  @override
+  String get accountRequestOffline =>
+      'You\'re offline. Check your connection and try again.';
+
+  @override
+  String get accountRequestRateLimited =>
+      'Too many requests. Please wait a moment and try again.';
 
   @override
   String get biometricFailed =>

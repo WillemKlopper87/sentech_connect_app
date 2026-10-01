@@ -284,6 +284,49 @@ void main() {
       expect((await repo.verifyOtp(challenge: _challenge, code: '123456')).isRight(), isTrue);
     });
 
+    group('the replaced session never ends the NEW sign-in (N2)', () {
+      late int expiredEvents;
+
+      setUp(() {
+        expiredEvents = 0;
+        final sub = h.events.expired.listen((_) => expiredEvents++);
+        addTearDown(sub.cancel);
+        h.adapter.on('POST', '/v1/auth/otp/verify', (_) => FakeReply(200, tokenPair()));
+        h.adapter.on('GET', '/v1/me/profile', (_) => FakeReply(200, fixture('profile.json')));
+      });
+
+      Future<void> flush() async {
+        for (var i = 0; i < 10; i++) {
+          await Future<void>.delayed(Duration.zero);
+        }
+      }
+
+      test('a rejected refresh of the old session does not announce an expiry', () async {
+        await h.tokens.write(AuthTokens(
+          accessToken: 'old-access',
+          refreshToken: 'old-refresh',
+          accessExpiresAt: h.now.add(const Duration(seconds: 5)), // inside the refresh margin
+          customerId: 'previous-customer',
+          tenantSlug: 'sentech',
+        ));
+        h.adapter.on('POST', '/v1/auth/token/refresh', (_) => FakeReply.problem(401, 'invalid_refresh_token'));
+        expect((await repo.verifyOtp(challenge: _challenge, code: '123456')).isRight(), isTrue);
+        await flush();
+        expect(expiredEvents, 0);
+        expect((await h.tokens.read())!.customerId, ApiHarness.customerId, reason: 'the new session must be stored');
+      });
+
+      test('a 401 on the old session logout neither refreshes nor announces an expiry', () async {
+        await signInOther();
+        h.adapter.on('POST', '/v1/auth/logout', (_) => FakeReply.problem(401, 'unauthorized'));
+        h.adapter.on('POST', '/v1/auth/token/refresh', (_) => FakeReply.problem(401, 'invalid_refresh_token'));
+        expect((await repo.verifyOtp(challenge: _challenge, code: '123456')).isRight(), isTrue);
+        await flush();
+        expect(expiredEvents, 0);
+        expect(h.adapter.requestsTo('POST', '/v1/auth/token/refresh'), isEmpty);
+      });
+    });
+
     test('the same customer signing in again triggers no revoke', () async {
       await h.signIn();
       h.adapter.on('POST', '/v1/auth/otp/verify', (_) => FakeReply(200, tokenPair()));

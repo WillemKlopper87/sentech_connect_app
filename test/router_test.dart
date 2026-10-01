@@ -47,7 +47,7 @@ void main() {
     }
 
     test('public routes stay reachable when signed out', () {
-      for (final path in ['/', '/login', '/register']) {
+      for (final path in ['/', '/login']) {
         expect(authRedirect(signedOut, Uri.parse(path)), isNull);
       }
     });
@@ -61,6 +61,28 @@ void main() {
       const fresh = AuthState(status: AuthStatus.success, user: _user, freshSignIn: true);
       expect(authRedirect(fresh, Uri.parse('/login')), '/coverage');
       expect(authRedirect(fresh, Uri.parse('/login?from=%2Fcart')), '/cart');
+    });
+
+    test('a new customer without a name must complete the profile first', () {
+      const fresh = AuthState(status: AuthStatus.success, user: User(id: 'c1', fullName: '', mobileNumber: '+27821234567'), freshSignIn: true);
+      expect(authRedirect(fresh, Uri.parse('/main')), AppRoutes.register);
+      expect(authRedirect(fresh, Uri.parse(AppRoutes.register)), isNull);
+    });
+
+    test('a nameless customer is not pulled off splash or the tenant screens', () {
+      const fresh = AuthState(status: AuthStatus.success, user: User(id: 'c1', fullName: ' ', mobileNumber: '+27821234567'));
+      for (final path in [AppRoutes.splash, AppRoutes.tenantPicker, AppRoutes.updateRequired]) {
+        expect(authRedirect(fresh, Uri.parse(path)), isNull, reason: path);
+      }
+      expect(authRedirect(fresh, Uri.parse(AppRoutes.login)), AppRoutes.register);
+    });
+
+    test('a customer with a name never lands on /register', () {
+      expect(authRedirect(_signedIn, Uri.parse(AppRoutes.register)), AppRoutes.main);
+    });
+
+    test('/register is protected', () {
+      expect(authRedirect(const AuthState(), Uri.parse(AppRoutes.register)), startsWith(AppRoutes.login));
     });
 
     test('unsafe "from" values are ignored', () {
@@ -108,9 +130,14 @@ void main() {
       expect(find.text('Your cart'), findsNothing);
 
       await tester.enterText(find.widgetWithText(TextField, 'Mobile number'), '0810000000');
-      await tester.enterText(find.widgetWithText(TextField, 'Password'), 'pw');
-      await tester.tap(find.widgetWithText(ElevatedButton, 'Log in'));
+      await tester.tap(find.widgetWithText(ElevatedButton, 'Send code'));
       await tester.pump(const Duration(seconds: 1));
+      await tester.enterText(find.widgetWithText(TextField, '6-digit code'), '123456');
+      await tester.tap(find.widgetWithText(ElevatedButton, 'Verify'));
+      await tester.pump(const Duration(seconds: 1));
+      // A returning customer must accept the (current) terms before the session is ready.
+      await tester.pump(const Duration(milliseconds: 500));
+      await tester.tap(find.text('I agree'));
       await tester.pumpAndSettle();
 
       expect(find.text('Your cart'), findsOneWidget);
