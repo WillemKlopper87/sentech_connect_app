@@ -46,6 +46,9 @@ import 'package:sentech_connect_app/features/promotions/data/repositories/mock_p
 import 'package:sentech_connect_app/features/promotions/domain/repositories/promotions_repository.dart';
 import 'package:sentech_connect_app/features/rica/data/repositories/mock_liveness_repository.dart';
 import 'package:sentech_connect_app/features/rica/domain/repositories/liveness_repository.dart';
+import 'package:sentech_connect_app/features/passes/data/repositories/http_passes_repository.dart';
+import 'package:sentech_connect_app/features/passes/data/repositories/mock_passes_repository.dart';
+import 'package:sentech_connect_app/features/passes/domain/repositories/passes_repository.dart';
 import 'package:sentech_connect_app/features/support/data/repositories/mock_support_repository.dart';
 import 'package:sentech_connect_app/features/support/domain/repositories/support_repository.dart';
 import 'package:sentech_connect_app/features/tenant/data/repositories/http_tenant_repository.dart';
@@ -180,6 +183,9 @@ void _registerDemoRepositories() {
   locator.registerLazySingleton<CatalogRepository>(
     () => MockCatalogRepository(locator()),
   );
+  locator.registerLazySingleton<PassesRepository>(
+    () => MockPassesRepository(network: locator()),
+  );
   locator.registerLazySingleton<CheckoutRepository>(
     () => MockCheckoutRepository(locator(), network: locator()),
   );
@@ -213,6 +219,9 @@ void _registerProdRepositories(Uri baseUrl) {
   );
   locator.registerLazySingleton<AuthRepository>(
     () => HttpAuthRepository(locator(), tokens: locator(), tenant: locator()),
+  );
+  locator.registerLazySingleton<PassesRepository>(
+    () => HttpPassesRepository(locator()),
   );
   locator.registerLazySingleton<CatalogRepository>(
     () => HttpCatalogRepository(locator(), locator()),

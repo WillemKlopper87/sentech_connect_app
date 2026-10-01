@@ -10,7 +10,7 @@ class CatalogState extends Equatable {
   const CatalogState({
     this.status = CatalogStatus.initial,
     this.allProducts = const [],
-    this.selectedCategory = ProductCategory.home5g,
+    this.selectedCategory = ProductCategory.hotspotPass,
     this.failure,
   });
 

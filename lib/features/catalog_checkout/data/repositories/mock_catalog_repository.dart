@@ -5,7 +5,8 @@ import 'package:sentech_connect_app/features/catalog_checkout/domain/entities/pl
 import 'package:sentech_connect_app/features/catalog_checkout/domain/repositories/catalog_repository.dart';
 
 class MockCatalogRepository implements CatalogRepository {
-  MockCatalogRepository([SimulatedNetwork? network]) : _network = network ?? SimulatedNetwork();
+  MockCatalogRepository([SimulatedNetwork? network])
+    : _network = network ?? SimulatedNetwork();
 
   final SimulatedNetwork _network;
 
@@ -14,7 +15,41 @@ class MockCatalogRepository implements CatalogRepository {
     await Future.delayed(const Duration(milliseconds: 400));
     if (_network.failure case final failure?) return Left(failure);
     return const Right([
-      // Home 5G
+      // Hotspot passes: the launch product (see the `hotspot_passes` flag).
+      Plan(
+        id: 'pass_1h',
+        name: '1 Hour Pass',
+        priceCents: 1500,
+        dataDescription: '1 GB data · valid 1 hour',
+        speedMbps: 10,
+        category: ProductCategory.hotspotPass,
+      ),
+      Plan(
+        id: 'pass_1d',
+        name: 'Day Pass',
+        priceCents: 3500,
+        dataDescription: '5 GB data · valid 24 hours',
+        speedMbps: 10,
+        category: ProductCategory.hotspotPass,
+        isFeatured: true,
+      ),
+      Plan(
+        id: 'pass_7d',
+        name: '7 Day Pass',
+        priceCents: 12900,
+        dataDescription: '25 GB data · valid 7 days',
+        speedMbps: 10,
+        category: ProductCategory.hotspotPass,
+      ),
+      Plan(
+        id: 'pass_30d',
+        name: '30 Day Pass',
+        priceCents: 34900,
+        dataDescription: '100 GB data · valid 30 days',
+        speedMbps: 10,
+        category: ProductCategory.hotspotPass,
+      ),
+      // Home 5G (fixed wireless: later tab, kept for the physical/RICA flow)
       Plan(
         id: 'home_50',
         name: 'Home 50',

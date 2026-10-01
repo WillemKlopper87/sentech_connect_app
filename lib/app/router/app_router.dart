@@ -23,6 +23,8 @@ import 'package:sentech_connect_app/features/catalog_checkout/presentation/pages
 import 'package:sentech_connect_app/features/catalog_checkout/presentation/pages/payment_page.dart';
 import 'package:sentech_connect_app/features/coverage/presentation/bloc/coverage_cubit.dart';
 import 'package:sentech_connect_app/features/coverage/presentation/pages/coverage_page.dart';
+import 'package:sentech_connect_app/features/passes/presentation/bloc/passes_cubit.dart';
+import 'package:sentech_connect_app/features/passes/presentation/pages/my_passes_page.dart';
 import 'package:sentech_connect_app/features/privacy/presentation/pages/legal_gate_page.dart';
 import 'package:sentech_connect_app/features/promotions/presentation/bloc/promotions_cubit.dart';
 import 'package:sentech_connect_app/features/promotions/presentation/pages/promotions_page.dart';
@@ -43,6 +45,7 @@ abstract class AppRoutes {
   static const main = '/main';
   static const cart = '/cart';
   static const checkout = '/checkout';
+  static const passes = '/passes';
   static const promotions = '/promotions';
   static const wifiHotspots = '/wifi-hotspots';
   static const tenantPicker = '/tenant';
@@ -295,8 +298,17 @@ GoRouter _buildRouter(
           onResumeOrder: (order) => context.push(AppRoutes.forOrder(order)),
           onOpenPromotions: () => context.push(AppRoutes.promotions),
           onFindHotspots: () => context.push(AppRoutes.wifiHotspots),
+          onOpenPasses: () => context.push(AppRoutes.passes),
+          showRouterCard: tenantCubit?.state.featureFlags.cpe ?? false,
           onChangeProvider: tenantCubit?.openPicker,
           providerName: tenantCubit?.state.config?.tenant.name,
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.passes,
+        builder: (context, state) => BlocProvider(
+          create: (_) => PassesCubit(locator()),
+          child: const MyPassesPage(),
         ),
       ),
       GoRoute(
@@ -378,6 +390,7 @@ GoRouter _buildRouter(
             child: ConfirmationPage(
               onDone: () => context.go(AppRoutes.main),
               onResume: (order) => context.go(AppRoutes.forOrder(order)),
+              onViewPasses: () => context.go(AppRoutes.passes),
             ),
           );
         },

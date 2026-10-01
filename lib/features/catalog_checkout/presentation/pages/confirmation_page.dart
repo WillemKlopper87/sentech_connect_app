@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/domain/entities/order.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/presentation/bloc/order_cubit.dart';
+import 'package:sentech_connect_app/l10n/l10n.dart';
 import 'package:sentech_connect_app/shared/widgets/failure_view.dart';
 
 /// Loads the order by id (from the route) via [OrderCubit]; never relies on
@@ -11,10 +12,12 @@ class ConfirmationPage extends StatelessWidget {
     super.key,
     required this.onDone,
     required this.onResume,
+    this.onViewPasses,
   });
 
   final VoidCallback onDone;
   final void Function(Order order) onResume;
+  final VoidCallback? onViewPasses;
 
   @override
   Widget build(BuildContext context) {
@@ -73,17 +76,26 @@ class ConfirmationPage extends StatelessWidget {
             ),
           );
         }
-        return _ConfirmationView(order: order, onDone: onDone);
+        return _ConfirmationView(
+          order: order,
+          onDone: onDone,
+          onViewPasses: onViewPasses,
+        );
       },
     );
   }
 }
 
 class _ConfirmationView extends StatelessWidget {
-  const _ConfirmationView({required this.order, required this.onDone});
+  const _ConfirmationView({
+    required this.order,
+    required this.onDone,
+    this.onViewPasses,
+  });
 
   final Order order;
   final VoidCallback onDone;
+  final VoidCallback? onViewPasses;
 
   @override
   Widget build(BuildContext context) {
@@ -142,6 +154,13 @@ class _ConfirmationView extends StatelessWidget {
               ] else
                 const _Timeline(),
               const Spacer(),
+              if (order.isHotspotPass && onViewPasses != null) ...[
+                OutlinedButton(
+                  onPressed: onViewPasses,
+                  child: Text(context.l10n.confirmationViewPasses),
+                ),
+                const SizedBox(height: 10),
+              ],
               ElevatedButton(
                 onPressed: onDone,
                 child: Text(

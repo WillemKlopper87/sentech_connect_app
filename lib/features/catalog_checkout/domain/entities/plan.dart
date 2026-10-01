@@ -1,6 +1,8 @@
 import 'package:equatable/equatable.dart';
 
-enum ProductCategory { home5g, mifi, voucher, hotspotPass }
+/// Declaration order is the Shop tab order: hotspot passes lead; the physical
+/// (Home 5G / MiFi) products sit in the later tabs.
+enum ProductCategory { hotspotPass, voucher, home5g, mifi }
 
 extension ProductCategoryLabel on ProductCategory {
   String get label => switch (this) {

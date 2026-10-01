@@ -6,8 +6,9 @@ import 'package:sentech_connect_app/features/tenant/domain/entities/tenant.dart'
 class FeatureFlags extends Equatable {
   const FeatureFlags({required this.hotspotPasses, required this.rica, required this.cpe});
 
-  /// Demo flavor: everything the mock repositories can show is on.
-  static const demo = FeatureFlags(hotspotPasses: true, rica: true, cpe: true);
+  /// Demo flavor: hotspot passes lead; router/CPE content stays off, as at
+  /// launch (RICA stays on for the physical-product demo flow).
+  static const demo = FeatureFlags(hotspotPasses: true, rica: true, cpe: false);
 
   final bool hotspotPasses;
   final bool rica;

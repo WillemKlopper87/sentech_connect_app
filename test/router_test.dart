@@ -183,6 +183,9 @@ void main() {
         child: MaterialApp.router(routerConfig: appRouter.router),
       ));
       await tester.pumpAndSettle();
+      // The hotspot-only dashboard no longer shows a long-running spinner, so
+      // let the mock shell repositories (catalog, support) finish their delays.
+      await tester.pump(const Duration(seconds: 1));
     }
 
     testWidgets('signed-out deep link to /cart lands on login, then returns to /cart after sign-in', (tester) async {

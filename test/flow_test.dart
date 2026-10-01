@@ -57,10 +57,18 @@ void main() {
 
     // 3. Catalog — MainShell lands on Home/Dashboard by default, switch to Shop
     expect(find.text('Dashboard'), findsOneWidget);
+    // Demo dashboard is about hotspot passes, not a router.
+    expect(find.text('Buy a pass'), findsWidgets);
+    expect(find.text('Living room router'), findsNothing);
     await tester.tap(find.text('Shop'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 500)); // catalog cubit load delay
     expect(find.text('Plans'), findsOneWidget);
+    // Hotspot passes lead the Shop; the physical Home 5G plans are a later tab.
+    expect(find.text('Day Pass'), findsOneWidget);
+    expect(find.text('Home 100'), findsNothing);
+    await tester.tap(find.text('Home 5G'));
+    await tester.pump();
     expect(find.text('Home 100'), findsOneWidget);
 
     // 4. Add the featured plan to cart, then open the cart

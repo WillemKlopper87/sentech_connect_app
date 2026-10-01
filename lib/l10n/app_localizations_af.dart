@@ -471,4 +471,71 @@ class AppLocalizationsAf extends AppLocalizations {
 
   @override
   String get accountChangeProvider => 'Change provider';
+
+  @override
+  String get passesTitle => 'My passes';
+
+  @override
+  String get passesEmpty => 'You have no active passes. Buy one in Shop.';
+
+  @override
+  String get passesShowExpired => 'Show expired passes';
+
+  @override
+  String get passesStatusActive => 'Active';
+
+  @override
+  String get passesStatusScheduled => 'Starts later';
+
+  @override
+  String get passesStatusExpired => 'Expired';
+
+  @override
+  String get passesStatusExhausted => 'Used up';
+
+  @override
+  String get passesStatusRevoked => 'Cancelled';
+
+  @override
+  String passesExpires(String date) {
+    return 'Expires $date';
+  }
+
+  @override
+  String passesStarts(String date) {
+    return 'Starts $date';
+  }
+
+  @override
+  String passesDevices(int count) {
+    return 'Up to $count devices';
+  }
+
+  @override
+  String get dashboardMyPasses => 'My passes';
+
+  @override
+  String get dashboardBuyPass => 'Buy a pass';
+
+  @override
+  String get dashboardNoPass => 'No active pass';
+
+  @override
+  String get dashboardNoPassHint => 'Buy a Wi-Fi pass to get online.';
+
+  @override
+  String dashboardTimeLeft(String time) {
+    return '$time left';
+  }
+
+  @override
+  String dashboardDataLeft(String left, String total) {
+    return '$left of $total left';
+  }
+
+  @override
+  String get dashboardUncapped => 'Uncapped data';
+
+  @override
+  String get confirmationViewPasses => 'View my passes';
 }

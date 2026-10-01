@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:sentech_connect_app/features/account_dashboard/domain/entities/account_summary.dart';
 import 'package:sentech_connect_app/features/account_dashboard/presentation/bloc/account_cubit.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/domain/entities/order.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/presentation/bloc/order_cubit.dart';
+import 'package:sentech_connect_app/features/passes/domain/entities/pass.dart';
+import 'package:sentech_connect_app/features/passes/presentation/bloc/passes_cubit.dart';
+import 'package:sentech_connect_app/l10n/l10n.dart';
 import 'package:sentech_connect_app/shared/widgets/failure_view.dart';
 import 'package:sentech_connect_app/shared/widgets/sentech_logo.dart';
 
@@ -17,6 +21,9 @@ class DashboardPage extends StatelessWidget {
     super.key,
     required this.onTopUp,
     required this.onUpgrade,
+    this.onBuyPass,
+    this.onOpenPasses,
+    this.showRouterCard = true,
     required this.onReportIssue,
     required this.onOpenPromotions,
     required this.onResumeOrder,
@@ -24,6 +31,15 @@ class DashboardPage extends StatelessWidget {
 
   final VoidCallback onTopUp;
   final VoidCallback onUpgrade;
+
+  /// Opens the Shop on hotspot passes. When set, the dashboard leads with the
+  /// customer's current pass (it needs a [PassesCubit] above it).
+  final VoidCallback? onBuyPass;
+  final VoidCallback? onOpenPasses;
+
+  /// The tenant's `cpe` flag. Off: no router card, no fixed-plan usage, no
+  /// Upgrade shortcut; the dashboard is about hotspot passes only.
+  final bool showRouterCard;
   final VoidCallback onReportIssue;
   final VoidCallback onOpenPromotions;
   final void Function(Order order) onResumeOrder;
@@ -46,61 +62,85 @@ class DashboardPage extends StatelessWidget {
           ),
         ],
       ),
-      body: BlocBuilder<AccountCubit, AccountState>(
-        builder: (context, state) {
-          if (state.status == AccountStatus.failure) {
-            return FailureView(
-              failure: state.failure,
-              onRetry: () => context.read<AccountCubit>().load(),
-            );
-          }
-          if (state.status != AccountStatus.loaded || state.summary == null) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          final summary = state.summary!;
-          return ListView(
-            padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
-            children: [
-              BlocBuilder<OpenOrderCubit, Order?>(
-                builder: (context, order) {
-                  if (order == null) return const SizedBox.shrink();
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 16),
-                    child: _ResumeOrderBanner(
-                      order: order,
-                      onTap: () => onResumeOrder(order),
-                    ),
-                  );
-                },
-              ),
-              _UsageCard(summary: summary),
-              const SizedBox(height: 16),
-              _PromoBanner(onTap: onOpenPromotions),
-              const SizedBox(height: 16),
-              _CpeCard(summary: summary),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: _QuickAction(label: 'Top up', onTap: onTopUp),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: _QuickAction(label: 'Upgrade', onTap: onUpgrade),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: _QuickAction(
-                      label: 'Report issue',
-                      onTap: onReportIssue,
-                    ),
-                  ),
-                ],
-              ),
-            ],
+      body: showRouterCard ? _withAccount(context) : _content(context, null),
+    );
+  }
+
+  /// Fixed-plan content needs the account summary; hotspot-only does not.
+  Widget _withAccount(BuildContext context) {
+    return BlocBuilder<AccountCubit, AccountState>(
+      builder: (context, state) {
+        if (state.status == AccountStatus.failure) {
+          return FailureView(
+            failure: state.failure,
+            onRetry: () => context.read<AccountCubit>().load(),
           );
-        },
-      ),
+        }
+        if (state.status != AccountStatus.loaded || state.summary == null) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        return _content(context, state.summary!);
+      },
+    );
+  }
+
+  Widget _content(BuildContext context, AccountSummary? summary) {
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
+      children: [
+        BlocBuilder<OpenOrderCubit, Order?>(
+          builder: (context, order) {
+            if (order == null) return const SizedBox.shrink();
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: _ResumeOrderBanner(
+                order: order,
+                onTap: () => onResumeOrder(order),
+              ),
+            );
+          },
+        ),
+        if (onOpenPasses case final openPasses?) ...[
+          _CurrentPassCard(
+            onOpenPasses: openPasses,
+            onBuyPass: onBuyPass ?? onTopUp,
+          ),
+          const SizedBox(height: 16),
+        ],
+        if (summary != null) ...[
+          _UsageCard(summary: summary),
+          const SizedBox(height: 16),
+        ],
+        _PromoBanner(onTap: onOpenPromotions),
+        const SizedBox(height: 16),
+        // Router telemetry needs the CPE/ACS integration (flag `cpe`, off at launch).
+        if (showRouterCard && summary != null) ...[
+          _CpeCard(summary: summary),
+          const SizedBox(height: 16),
+        ],
+        Row(
+          children: [
+            Expanded(
+              child: _QuickAction(
+                label: onBuyPass != null
+                    ? context.l10n.dashboardBuyPass
+                    : 'Top up',
+                onTap: onBuyPass ?? onTopUp,
+              ),
+            ),
+            const SizedBox(width: 8),
+            if (showRouterCard) ...[
+              Expanded(
+                child: _QuickAction(label: 'Upgrade', onTap: onUpgrade),
+              ),
+              const SizedBox(width: 8),
+            ],
+            Expanded(
+              child: _QuickAction(label: 'Report issue', onTap: onReportIssue),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }
@@ -370,6 +410,147 @@ class _QuickAction extends StatelessWidget {
           style: theme.textTheme.labelLarge,
         ),
       ),
+    );
+  }
+}
+
+/// The customer's current hotspot pass (active first, else the next
+/// scheduled one) with time and data remaining, plus a "Buy a pass" action.
+class _CurrentPassCard extends StatelessWidget {
+  const _CurrentPassCard({required this.onOpenPasses, required this.onBuyPass});
+
+  final VoidCallback onOpenPasses;
+  final VoidCallback onBuyPass;
+
+  static String _duration(Duration d) {
+    if (d.inDays >= 1) return '${d.inDays}d ${d.inHours.remainder(24)}h';
+    if (d.inHours >= 1) return '${d.inHours}h ${d.inMinutes.remainder(60)}m';
+    return '${d.inMinutes.clamp(0, 59)}m';
+  }
+
+  static String _size(num mb) {
+    if (mb >= 1024) {
+      final gb = mb / 1024;
+      return '${gb.toStringAsFixed(gb == gb.roundToDouble() ? 0 : 1)} GB';
+    }
+    return '${mb.round()} MB';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final l10n = context.l10n;
+    return BlocBuilder<PassesCubit, PassesState>(
+      builder: (context, state) {
+        final current =
+            state.passes
+                .where((p) => p.status == PassStatus.active)
+                .firstOrNull ??
+            state.passes
+                .where((p) => p.status == PassStatus.scheduled)
+                .firstOrNull;
+        return Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            border: Border.all(color: theme.colorScheme.outlineVariant),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (state.status == PassesStatus.loading && current == null)
+                const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(8),
+                    child: CircularProgressIndicator(),
+                  ),
+                )
+              else if (current == null) ...[
+                Text(l10n.dashboardNoPass, style: theme.textTheme.titleMedium),
+                Text(
+                  l10n.dashboardNoPassHint,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ] else ...[
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        current.productName,
+                        style: theme.textTheme.titleMedium,
+                      ),
+                    ),
+                    Text(
+                      current.status == PassStatus.active
+                          ? l10n.passesStatusActive
+                          : l10n.passesStatusScheduled,
+                      style: theme.textTheme.labelLarge?.copyWith(
+                        color: theme.colorScheme.primary,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  current.status == PassStatus.active
+                      ? l10n.dashboardTimeLeft(
+                          _duration(
+                            current.expiresAt.difference(
+                              DateTime.now().toUtc(),
+                            ),
+                          ),
+                        )
+                      : l10n.passesStarts(
+                          DateFormat.MMMd(
+                            Localizations.localeOf(context).toLanguageTag(),
+                          ).add_Hm().format(current.startsAt.toLocal()),
+                        ),
+                  style: theme.textTheme.bodyMedium,
+                ),
+                if (current.dataMb case final cap?) ...[
+                  Text(
+                    l10n.dashboardDataLeft(
+                      _size(cap - current.usedBytes / (1024 * 1024)),
+                      _size(cap),
+                    ),
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  LinearProgressIndicator(value: current.dataUsedFraction),
+                ] else
+                  Text(
+                    l10n.dashboardUncapped,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+              ],
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: onBuyPass,
+                      child: Text(l10n.dashboardBuyPass),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: onOpenPasses,
+                      child: Text(l10n.dashboardMyPasses),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

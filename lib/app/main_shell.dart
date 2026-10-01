@@ -9,6 +9,7 @@ import 'package:sentech_connect_app/features/catalog_checkout/domain/entities/pl
 import 'package:sentech_connect_app/features/catalog_checkout/presentation/bloc/catalog_cubit.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/presentation/bloc/order_cubit.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/presentation/pages/catalog_page.dart';
+import 'package:sentech_connect_app/features/passes/presentation/bloc/passes_cubit.dart';
 import 'package:sentech_connect_app/features/support/presentation/bloc/support_cubit.dart';
 import 'package:sentech_connect_app/features/support/presentation/pages/support_page.dart';
 import 'package:sentech_connect_app/features/voucher_scanner/presentation/pages/voucher_scanner_page.dart';
@@ -25,6 +26,8 @@ class MainShell extends StatefulWidget {
     required this.onResumeOrder,
     required this.onOpenPromotions,
     required this.onFindHotspots,
+    this.onOpenPasses,
+    this.showRouterCard = true,
     this.onChangeProvider,
     this.providerName,
   });
@@ -33,6 +36,10 @@ class MainShell extends StatefulWidget {
   final void Function(Order order) onResumeOrder;
   final VoidCallback onOpenPromotions;
   final VoidCallback onFindHotspots;
+  final VoidCallback? onOpenPasses;
+
+  /// The tenant's `cpe` flag: router and fixed-plan content is hidden when off.
+  final bool showRouterCard;
   final VoidCallback? onChangeProvider;
   final String? providerName;
 
@@ -51,16 +58,21 @@ class _MainShellState extends State<MainShell> {
   /// Unpaid order shown as a "finish your order" banner on the dashboard.
   late final OpenOrderCubit _openOrderCubit = OpenOrderCubit(locator());
 
+  /// The customer's current hotspot pass, shown first on the dashboard.
+  late final PassesCubit _passesCubit = PassesCubit(locator());
+
   @override
   void didUpdateWidget(MainShell oldWidget) {
     super.didUpdateWidget(oldWidget);
     // go_router reuses this shell when a checkout flow returns to /main, so
     // pick up an order that was just completed (or created) in the meantime.
     _openOrderCubit.refresh();
+    _passesCubit.load();
   }
 
   @override
   void dispose() {
+    _passesCubit.close();
     _catalogCubit.close();
     _openOrderCubit.close();
     super.dispose();
@@ -78,42 +90,82 @@ class _MainShellState extends State<MainShell> {
         providers: [
           BlocProvider(create: (_) => AccountCubit(locator())),
           BlocProvider.value(value: _openOrderCubit),
+          BlocProvider.value(value: _passesCubit),
         ],
         child: DashboardPage(
+          onBuyPass: () => _goToShop(ProductCategory.hotspotPass),
           onTopUp: () => _goToShop(ProductCategory.voucher),
           onUpgrade: () => _goToShop(ProductCategory.home5g),
-          onReportIssue: () => submitSupportTicket(context, initialCategory: TicketCategory.technical),
+          onReportIssue: () => submitSupportTicket(
+            context,
+            initialCategory: TicketCategory.technical,
+          ),
           onOpenPromotions: widget.onOpenPromotions,
           onResumeOrder: widget.onResumeOrder,
+          onOpenPasses: widget.onOpenPasses,
+          showRouterCard: widget.showRouterCard,
         ),
       ),
       BlocProvider.value(
         value: _catalogCubit,
-        child: CatalogPage(onOpenCart: widget.onOpenCart, onFindHotspots: widget.onFindHotspots),
+        child: CatalogPage(
+          onOpenCart: widget.onOpenCart,
+          onFindHotspots: widget.onFindHotspots,
+        ),
       ),
       const VoucherScannerPage(),
-      BlocProvider(create: (_) => SupportCubit(locator()), child: const SupportPage()),
-      AccountPage(onChangeProvider: widget.onChangeProvider, providerName: widget.providerName),
+      BlocProvider(
+        create: (_) => SupportCubit(locator()),
+        child: const SupportPage(),
+      ),
+      AccountPage(
+        onChangeProvider: widget.onChangeProvider,
+        providerName: widget.providerName,
+      ),
     ];
     return Scaffold(
       body: IndexedStack(
         index: _index,
         children: [
-          for (var i = 0; i < pages.length; i++) TickerMode(enabled: i == _index, child: pages[i]),
+          for (var i = 0; i < pages.length; i++)
+            TickerMode(enabled: i == _index, child: pages[i]),
         ],
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
         onDestinationSelected: (i) {
-          if (i == 0) _openOrderCubit.refresh();
+          if (i == 0) {
+            _openOrderCubit.refresh();
+            _passesCubit.load();
+          }
           setState(() => _index = i);
         },
         destinations: const [
-          NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home), label: 'Home'),
-          NavigationDestination(icon: Icon(Icons.shopping_bag_outlined), selectedIcon: Icon(Icons.shopping_bag), label: 'Shop'),
-          NavigationDestination(icon: Icon(Icons.qr_code_scanner_outlined), selectedIcon: Icon(Icons.qr_code_scanner), label: 'Scan'),
-          NavigationDestination(icon: Icon(Icons.support_agent_outlined), selectedIcon: Icon(Icons.support_agent), label: 'Support'),
-          NavigationDestination(icon: Icon(Icons.person_outline), selectedIcon: Icon(Icons.person), label: 'Account'),
+          NavigationDestination(
+            icon: Icon(Icons.home_outlined),
+            selectedIcon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.shopping_bag_outlined),
+            selectedIcon: Icon(Icons.shopping_bag),
+            label: 'Shop',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.qr_code_scanner_outlined),
+            selectedIcon: Icon(Icons.qr_code_scanner),
+            label: 'Scan',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.support_agent_outlined),
+            selectedIcon: Icon(Icons.support_agent),
+            label: 'Support',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.person_outline),
+            selectedIcon: Icon(Icons.person),
+            label: 'Account',
+          ),
         ],
       ),
     );

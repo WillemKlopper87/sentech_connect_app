@@ -76,13 +76,13 @@ void main() {
       ));
       await tester.pump(const Duration(seconds: 1));
       expect(find.textContaining("You're offline"), findsOneWidget);
-      expect(find.text('Home 100'), findsNothing);
+      expect(find.text('Day Pass'), findsNothing);
 
       network.offline = false;
       await tester.tap(find.text('Retry'));
       await tester.pump();
       await tester.pump(const Duration(seconds: 1));
-      expect(find.text('Home 100'), findsOneWidget);
+      expect(find.text('Day Pass'), findsOneWidget);
       expect(find.text('Retry'), findsNothing);
     });
 

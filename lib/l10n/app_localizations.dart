@@ -927,6 +927,120 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Change provider'**
   String get accountChangeProvider;
+
+  /// No description provided for @passesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My passes'**
+  String get passesTitle;
+
+  /// No description provided for @passesEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'You have no active passes. Buy one in Shop.'**
+  String get passesEmpty;
+
+  /// No description provided for @passesShowExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'Show expired passes'**
+  String get passesShowExpired;
+
+  /// No description provided for @passesStatusActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get passesStatusActive;
+
+  /// No description provided for @passesStatusScheduled.
+  ///
+  /// In en, this message translates to:
+  /// **'Starts later'**
+  String get passesStatusScheduled;
+
+  /// No description provided for @passesStatusExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'Expired'**
+  String get passesStatusExpired;
+
+  /// No description provided for @passesStatusExhausted.
+  ///
+  /// In en, this message translates to:
+  /// **'Used up'**
+  String get passesStatusExhausted;
+
+  /// No description provided for @passesStatusRevoked.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get passesStatusRevoked;
+
+  /// No description provided for @passesExpires.
+  ///
+  /// In en, this message translates to:
+  /// **'Expires {date}'**
+  String passesExpires(String date);
+
+  /// No description provided for @passesStarts.
+  ///
+  /// In en, this message translates to:
+  /// **'Starts {date}'**
+  String passesStarts(String date);
+
+  /// No description provided for @passesDevices.
+  ///
+  /// In en, this message translates to:
+  /// **'Up to {count} devices'**
+  String passesDevices(int count);
+
+  /// No description provided for @dashboardMyPasses.
+  ///
+  /// In en, this message translates to:
+  /// **'My passes'**
+  String get dashboardMyPasses;
+
+  /// No description provided for @dashboardBuyPass.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy a pass'**
+  String get dashboardBuyPass;
+
+  /// No description provided for @dashboardNoPass.
+  ///
+  /// In en, this message translates to:
+  /// **'No active pass'**
+  String get dashboardNoPass;
+
+  /// No description provided for @dashboardNoPassHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy a Wi-Fi pass to get online.'**
+  String get dashboardNoPassHint;
+
+  /// No description provided for @dashboardTimeLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{time} left'**
+  String dashboardTimeLeft(String time);
+
+  /// No description provided for @dashboardDataLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{left} of {total} left'**
+  String dashboardDataLeft(String left, String total);
+
+  /// No description provided for @dashboardUncapped.
+  ///
+  /// In en, this message translates to:
+  /// **'Uncapped data'**
+  String get dashboardUncapped;
+
+  /// No description provided for @confirmationViewPasses.
+  ///
+  /// In en, this message translates to:
+  /// **'View my passes'**
+  String get confirmationViewPasses;
 }
 
 class _AppLocalizationsDelegate
