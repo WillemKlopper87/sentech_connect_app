@@ -192,5 +192,8 @@
   "sizeMegabytes": "{amount} MB",
   "@sizeMegabytes": {"placeholders": {"amount": {"type": "String"}}},
   "sizeGigabytes": "{amount} GB",
-  "@sizeGigabytes": {"placeholders": {"amount": {"type": "String"}}}
+  "@sizeGigabytes": {"placeholders": {"amount": {"type": "String"}}},
+  "dashboardTopUp": "Top up",
+  "dashboardUpgrade": "Upgrade",
+  "dashboardReportIssue": "Report issue"
 }

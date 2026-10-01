@@ -576,4 +576,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String sizeGigabytes(String amount) {
     return '$amount GB';
   }
+
+  @override
+  String get dashboardTopUp => 'Top up';
+
+  @override
+  String get dashboardUpgrade => 'Upgrade';
+
+  @override
+  String get dashboardReportIssue => 'Report issue';
 }

@@ -92,7 +92,7 @@ Nothing below contains a real secret; each item needs an input from the owner be
 
 ### Localisation
 
-`flutter_localizations` + gen-l10n (`l10n.yaml`). Strings live in `lib/l10n/app_{en,zu,af}.arb`; generated Dart is committed (run `flutter gen-l10n` after editing an ARB — CI fails if it is stale). Login, registration, account, support and the consent/notification sheets are migrated; the rest of the app is still English (follow-up). Afrikaans and isiZulu are first drafts and **need review by native speakers**. Users switch language in Account; the choice is stored in SharedPreferences. Use `context.l10n.someKey` in widgets.
+`flutter_localizations` + gen-l10n (`l10n.yaml`). Strings live in `lib/l10n/app_{en,zu,af}.arb`; generated Dart is committed (run `flutter gen-l10n` after editing an ARB — CI fails if it is stale). Login, registration, account, support and the consent/notification sheets are migrated; the rest of the app is still English (follow-up). Afrikaans and isiZulu are first drafts and **need review by native speakers**. Users switch language in Account; the choice is stored in SharedPreferences. Use `context.l10n.someKey` in widgets. Strings added for the platform integration (provider picker, OTP sign-in, profile completion, data export, My passes, payment hand-off copy, time/size units, dashboard quick actions) are present in `app_zu.arb` and `app_af.arb` **in English** so every key exists (`test/l10n_parity_test.dart` enforces this); they need translation and review by native isiZulu and Afrikaans speakers before release. Payment, checkout and confirmation screens are still largely hard-coded English (pre-existing follow-up).
 
 ### Security and privacy notes
 

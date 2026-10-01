@@ -1089,6 +1089,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{amount} GB'**
   String sizeGigabytes(String amount);
+
+  /// No description provided for @dashboardTopUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Top up'**
+  String get dashboardTopUp;
+
+  /// No description provided for @dashboardUpgrade.
+  ///
+  /// In en, this message translates to:
+  /// **'Upgrade'**
+  String get dashboardUpgrade;
+
+  /// No description provided for @dashboardReportIssue.
+  ///
+  /// In en, this message translates to:
+  /// **'Report issue'**
+  String get dashboardReportIssue;
 }
 
 class _AppLocalizationsDelegate

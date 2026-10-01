@@ -135,20 +135,20 @@ class DashboardPage extends StatelessWidget {
                 child: _QuickAction(
                   label: onBuyPass != null
                       ? context.l10n.dashboardBuyPass
-                      : 'Top up',
+                      : context.l10n.dashboardTopUp,
                   onTap: onBuyPass ?? onTopUp,
                 ),
               ),
               const SizedBox(width: 8),
               if (showRouterCard) ...[
                 Expanded(
-                  child: _QuickAction(label: 'Upgrade', onTap: onUpgrade),
+                  child: _QuickAction(label: context.l10n.dashboardUpgrade, onTap: onUpgrade),
                 ),
                 const SizedBox(width: 8),
               ],
               Expanded(
                 child: _QuickAction(
-                  label: 'Report issue',
+                  label: context.l10n.dashboardReportIssue,
                   onTap: onReportIssue,
                 ),
               ),
