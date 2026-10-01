@@ -7,6 +7,8 @@ import 'package:sentech_connect_app/features/catalog_checkout/domain/entities/pl
 import 'package:sentech_connect_app/features/catalog_checkout/domain/repositories/checkout_repository.dart';
 
 enum PaymentStatus {
+  /// Expired or cancelled; cannot start another payment.
+  closed,
   loading,
 
   /// Order not found / could not be loaded — see [PaymentState.failure].
@@ -35,7 +37,12 @@ class PaymentState extends Equatable {
   final PaymentMethod method;
   final Failure? failure;
 
-  PaymentState copyWith({PaymentStatus? status, Order? order, PaymentMethod? method, Failure? failure}) {
+  PaymentState copyWith({
+    PaymentStatus? status,
+    Order? order,
+    PaymentMethod? method,
+    Failure? failure,
+  }) {
     return PaymentState(
       status: status ?? this.status,
       order: order ?? this.order,
@@ -52,7 +59,8 @@ class PaymentState extends Equatable {
 /// The order comes from the repository (by id from the route), never from
 /// navigation `extra`, so this works after process death and deep links.
 class PaymentCubit extends Cubit<PaymentState> {
-  PaymentCubit(this._repository, this._cartCubit, this.orderId) : super(const PaymentState()) {
+  PaymentCubit(this._repository, this._cartCubit, this.orderId)
+    : super(const PaymentState()) {
     load();
   }
 
@@ -65,29 +73,45 @@ class PaymentCubit extends Cubit<PaymentState> {
     final result = await _repository.getOrder(orderId);
     if (isClosed) return;
     result.match(
-      (failure) => emit(state.copyWith(status: PaymentStatus.loadFailed, failure: failure)),
+      (failure) => emit(
+        state.copyWith(status: PaymentStatus.loadFailed, failure: failure),
+      ),
       (order) => emit(state.copyWith(status: _statusFor(order), order: order)),
     );
   }
 
   PaymentStatus _statusFor(Order order) => switch (order.status) {
-        OrderStatus.pendingVerification => PaymentStatus.needsVerification,
-        OrderStatus.awaitingPayment => PaymentStatus.ready,
-        OrderStatus.paid => PaymentStatus.paid,
-      };
+    OrderStatus.pendingVerification => PaymentStatus.needsVerification,
+    OrderStatus.awaitingPayment ||
+    OrderStatus.paymentFailed => PaymentStatus.ready,
+    OrderStatus.expired || OrderStatus.cancelled => PaymentStatus.closed,
+    OrderStatus.paid => PaymentStatus.paid,
+  };
 
-  void selectMethod(PaymentMethod method) => emit(state.copyWith(method: method));
+  void selectMethod(PaymentMethod method) =>
+      emit(state.copyWith(method: method));
 
   Future<void> pay() async {
-    if (state.status == PaymentStatus.paying) return; // double-tap guard
+    if (state.status == PaymentStatus.paying ||
+        state.status == PaymentStatus.closed ||
+        state.status == PaymentStatus.loading ||
+        state.status == PaymentStatus.loadFailed ||
+        state.status == PaymentStatus.paid) {
+      return;
+    }
     emit(state.copyWith(status: PaymentStatus.paying));
-    final result = await _repository.pay(orderId: orderId, method: state.method);
+    final result = await _repository.pay(
+      orderId: orderId,
+      method: state.method,
+    );
     if (isClosed) return;
     result.match(
-      (failure) => emit(state.copyWith(status: PaymentStatus.payFailed, failure: failure)),
+      (failure) => emit(
+        state.copyWith(status: PaymentStatus.payFailed, failure: failure),
+      ),
       (order) {
-        _cartCubit.clear();
-        emit(state.copyWith(status: PaymentStatus.paid, order: order));
+        if (order.status == OrderStatus.paid) _cartCubit.clear();
+        emit(state.copyWith(status: _statusFor(order), order: order));
       },
     );
   }

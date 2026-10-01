@@ -10,7 +10,13 @@ import 'package:sentech_connect_app/shared/widgets/failure_view.dart';
 /// charged after RICA succeeds (see `PaymentPage`), so this screen creates
 /// the order and hands off to verification rather than taking payment.
 class CheckoutPage extends StatelessWidget {
-  const CheckoutPage({super.key, required this.onOrderCreated});
+  const CheckoutPage({
+    super.key,
+    required this.onOrderCreated,
+    this.requiresIdentityCheck = true,
+  });
+
+  final bool requiresIdentityCheck;
 
   final void Function(Order order) onOrderCreated;
 
@@ -36,22 +42,36 @@ class CheckoutPage extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        _SummaryCard(items: state.items, totalCents: state.totalCents),
+                        _SummaryCard(
+                          items: state.items,
+                          totalCents: state.totalCents,
+                          dueLabel: requiresIdentityCheck
+                              ? 'Due after verification'
+                              : 'Total due',
+                        ),
                         const SizedBox(height: 18),
                         Container(
                           padding: const EdgeInsets.all(14),
                           decoration: BoxDecoration(
-                            color: theme.colorScheme.primary.withValues(alpha: 0.06),
+                            color: theme.colorScheme.primary.withValues(
+                              alpha: 0.06,
+                            ),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Icon(Icons.verified_user_outlined, size: 20, color: theme.colorScheme.primary),
+                              Icon(
+                                Icons.verified_user_outlined,
+                                size: 20,
+                                color: theme.colorScheme.primary,
+                              ),
                               const SizedBox(width: 10),
                               Expanded(
                                 child: Text(
-                                  'Next we verify your identity (required by RICA). You are only charged after that succeeds.',
+                                  requiresIdentityCheck
+                                      ? 'Next we verify your identity (required by RICA). You are only charged after that succeeds.'
+                                      : 'You pay on a secure payment page. Your pass starts as soon as the payment is confirmed.',
                                   style: theme.textTheme.bodyMedium,
                                 ),
                               ),
@@ -63,7 +83,8 @@ class CheckoutPage extends StatelessWidget {
                           FailureView(
                             failure: state.failure,
                             compact: true,
-                            onRetry: () => context.read<CheckoutCubit>().createOrder(),
+                            onRetry: () =>
+                                context.read<CheckoutCubit>().createOrder(),
                           ),
                         ],
                       ],
@@ -73,14 +94,23 @@ class CheckoutPage extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.all(20),
                   child: ElevatedButton(
-                    onPressed: (creating || state.items.isEmpty) ? null : () => context.read<CheckoutCubit>().createOrder(),
+                    onPressed: (creating || state.items.isEmpty)
+                        ? null
+                        : () => context.read<CheckoutCubit>().createOrder(),
                     child: creating
                         ? const SizedBox(
                             width: 20,
                             height: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
                           )
-                        : const Text('Verify identity to continue'),
+                        : Text(
+                            requiresIdentityCheck
+                                ? 'Verify identity to continue'
+                                : 'Continue to payment',
+                          ),
                   ),
                 ),
               ],
@@ -93,7 +123,13 @@ class CheckoutPage extends StatelessWidget {
 }
 
 class _SummaryCard extends StatelessWidget {
-  const _SummaryCard({required this.items, required this.totalCents});
+  const _SummaryCard({
+    required this.items,
+    required this.totalCents,
+    required this.dueLabel,
+  });
+
+  final String dueLabel;
 
   final List<CartItem> items;
   final int totalCents;
@@ -102,17 +138,27 @@ class _SummaryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     Widget row(String label, String value, {bool total = false}) => Padding(
-          padding: const EdgeInsets.symmetric(vertical: 4),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Text(label, style: total ? theme.textTheme.titleMedium : theme.textTheme.bodyMedium),
-              ),
-              Text(value, style: total ? theme.textTheme.titleMedium : theme.textTheme.bodyMedium),
-            ],
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Text(
+              label,
+              style: total
+                  ? theme.textTheme.titleMedium
+                  : theme.textTheme.bodyMedium,
+            ),
           ),
-        );
+          Text(
+            value,
+            style: total
+                ? theme.textTheme.titleMedium
+                : theme.textTheme.bodyMedium,
+          ),
+        ],
+      ),
+    );
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -123,11 +169,16 @@ class _SummaryCard extends StatelessWidget {
         children: [
           for (final item in items)
             row(
-              item.quantity > 1 ? '${item.plan.name} × ${item.quantity}' : item.plan.name,
+              item.quantity > 1
+                  ? '${item.plan.name} × ${item.quantity}'
+                  : item.plan.name,
               formatRands(item.lineTotalCents),
             ),
-          const Padding(padding: EdgeInsets.symmetric(vertical: 6), child: Divider(height: 1)),
-          row('Due after verification', formatRands(totalCents), total: true),
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 6),
+            child: Divider(height: 1),
+          ),
+          row(dueLabel, formatRands(totalCents), total: true),
         ],
       ),
     );

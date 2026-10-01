@@ -19,6 +19,10 @@ class CatalogState extends Equatable {
   final ProductCategory selectedCategory;
   final Failure? failure;
 
+  List<ProductCategory> get availableCategories => ProductCategory.values
+      .where((c) => allProducts.any((p) => p.category == c))
+      .toList();
+
   List<Plan> get visibleProducts =>
       allProducts.where((p) => p.category == selectedCategory).toList();
 
@@ -53,10 +57,28 @@ class CatalogCubit extends Cubit<CatalogState> {
     final result = await _repository.getProducts();
     if (isClosed) return;
     result.match(
-      (failure) => emit(state.copyWith(status: CatalogStatus.failure, failure: failure)),
-      (products) => emit(state.copyWith(status: CatalogStatus.loaded, allProducts: products)),
+      (failure) =>
+          emit(state.copyWith(status: CatalogStatus.failure, failure: failure)),
+      (products) {
+        final loaded = state.copyWith(
+          status: CatalogStatus.loaded,
+          allProducts: products,
+        );
+        final categories = loaded.availableCategories;
+        final selected =
+            categories.isEmpty || categories.contains(state.selectedCategory)
+            ? state.selectedCategory
+            : categories.first;
+        emit(loaded.copyWith(selectedCategory: selected));
+      },
     );
   }
 
-  void selectCategory(ProductCategory category) => emit(state.copyWith(selectedCategory: category));
+  void selectCategory(ProductCategory category) {
+    if (state.status == CatalogStatus.loaded &&
+        !state.availableCategories.contains(category)) {
+      return;
+    }
+    emit(state.copyWith(selectedCategory: category));
+  }
 }

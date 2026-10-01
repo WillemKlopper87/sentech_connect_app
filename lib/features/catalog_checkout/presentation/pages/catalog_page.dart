@@ -11,7 +11,11 @@ import 'package:sentech_connect_app/features/wifi_voucher/presentation/pages/fre
 import 'package:sentech_connect_app/shared/widgets/failure_view.dart';
 
 class CatalogPage extends StatelessWidget {
-  const CatalogPage({super.key, required this.onOpenCart, required this.onFindHotspots});
+  const CatalogPage({
+    super.key,
+    required this.onOpenCart,
+    required this.onFindHotspots,
+  });
 
   final VoidCallback onOpenCart;
   final VoidCallback onFindHotspots;
@@ -20,13 +24,19 @@ class CatalogPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => FreeWifiCubit(locator()),
-      child: _CatalogScaffold(onOpenCart: onOpenCart, onFindHotspots: onFindHotspots),
+      child: _CatalogScaffold(
+        onOpenCart: onOpenCart,
+        onFindHotspots: onFindHotspots,
+      ),
     );
   }
 }
 
 class _CatalogScaffold extends StatelessWidget {
-  const _CatalogScaffold({required this.onOpenCart, required this.onFindHotspots});
+  const _CatalogScaffold({
+    required this.onOpenCart,
+    required this.onFindHotspots,
+  });
 
   final VoidCallback onOpenCart;
   final VoidCallback onFindHotspots;
@@ -55,12 +65,22 @@ class _CatalogScaffold extends StatelessWidget {
                         top: 4,
                         child: Container(
                           padding: const EdgeInsets.all(3),
-                          decoration: const BoxDecoration(color: Color(0xFFED1C24), shape: BoxShape.circle),
-                          constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                          decoration: const BoxDecoration(
+                            color: Color(0xFFED1C24),
+                            shape: BoxShape.circle,
+                          ),
+                          constraints: const BoxConstraints(
+                            minWidth: 16,
+                            minHeight: 16,
+                          ),
                           child: Text(
                             '${cartState.itemCount}',
                             textAlign: TextAlign.center,
-                            style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w800),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.w800,
+                            ),
                           ),
                         ),
                       ),
@@ -73,19 +93,26 @@ class _CatalogScaffold extends StatelessWidget {
       ),
       body: BlocBuilder<CatalogCubit, CatalogState>(
         builder: (context, state) {
-          if (state.status == CatalogStatus.loading || state.status == CatalogStatus.initial) {
+          if (state.status == CatalogStatus.loading ||
+              state.status == CatalogStatus.initial) {
             return const Center(child: CircularProgressIndicator());
           }
           if (state.status == CatalogStatus.failure) {
-            return FailureView(failure: state.failure, onRetry: () => context.read<CatalogCubit>().load());
+            return FailureView(
+              failure: state.failure,
+              onRetry: () => context.read<CatalogCubit>().load(),
+            );
           }
           return ListView(
             padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
             children: [
-              _SegmentedRow(
-                selected: state.selectedCategory,
-                onSelect: (c) => context.read<CatalogCubit>().selectCategory(c),
-              ),
+              if (state.availableCategories.length > 1)
+                _SegmentedRow(
+                  categories: state.availableCategories,
+                  selected: state.selectedCategory,
+                  onSelect: (c) =>
+                      context.read<CatalogCubit>().selectCategory(c),
+                ),
               const SizedBox(height: 16),
               if (state.selectedCategory == ProductCategory.voucher) ...[
                 FreeWifiCard(onFindHotspots: onFindHotspots),
@@ -99,7 +126,10 @@ class _CatalogScaffold extends StatelessWidget {
                     ScaffoldMessenger.of(context)
                       ..hideCurrentSnackBar()
                       ..showSnackBar(
-                        SnackBar(content: Text('${plan.name} added to cart'), duration: const Duration(seconds: 3)),
+                        SnackBar(
+                          content: Text('${plan.name} added to cart'),
+                          duration: const Duration(seconds: 3),
+                        ),
                       );
                   },
                 ),
@@ -114,7 +144,13 @@ class _CatalogScaffold extends StatelessWidget {
 }
 
 class _SegmentedRow extends StatelessWidget {
-  const _SegmentedRow({required this.selected, required this.onSelect});
+  const _SegmentedRow({
+    required this.categories,
+    required this.selected,
+    required this.onSelect,
+  });
+
+  final List<ProductCategory> categories;
 
   final ProductCategory selected;
   final void Function(ProductCategory) onSelect;
@@ -139,7 +175,9 @@ class _SegmentedRow extends StatelessWidget {
               decoration: BoxDecoration(
                 color: active ? theme.colorScheme.surface : null,
                 borderRadius: BorderRadius.circular(9),
-                boxShadow: active ? [const BoxShadow(blurRadius: 4, color: Colors.black12)] : null,
+                boxShadow: active
+                    ? [const BoxShadow(blurRadius: 4, color: Colors.black12)]
+                    : null,
               ),
               child: Text(
                 category.label,
@@ -147,7 +185,9 @@ class _SegmentedRow extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
-                  color: active ? theme.colorScheme.primary : theme.colorScheme.onSurfaceVariant,
+                  color: active
+                      ? theme.colorScheme.primary
+                      : theme.colorScheme.onSurfaceVariant,
                 ),
               ),
             ),
@@ -162,7 +202,7 @@ class _SegmentedRow extends StatelessWidget {
         color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Row(children: ProductCategory.values.map(seg).toList()),
+      child: Row(children: categories.map(seg).toList()),
     );
   }
 }
@@ -181,7 +221,9 @@ class _PlanCard extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: plan.isFeatured ? theme.colorScheme.primary : theme.colorScheme.outlineVariant,
+          color: plan.isFeatured
+              ? theme.colorScheme.primary
+              : theme.colorScheme.outlineVariant,
           width: plan.isFeatured ? 1.6 : 1,
         ),
       ),
@@ -193,11 +235,21 @@ class _PlanCard extends StatelessWidget {
               top: -22,
               right: 8,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(color: const Color(0xFFFAA61A), borderRadius: BorderRadius.circular(999)),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFAA61A),
+                  borderRadius: BorderRadius.circular(999),
+                ),
                 child: const Text(
                   'MOST POPULAR',
-                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: Color(0xFF3A2400)),
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF3A2400),
+                  ),
                 ),
               ),
             ),
@@ -208,16 +260,26 @@ class _PlanCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Expanded(child: Text(plan.name, style: theme.textTheme.titleMedium)),
+                  Expanded(
+                    child: Text(plan.name, style: theme.textTheme.titleMedium),
+                  ),
                   const SizedBox(width: 8),
                   RichText(
                     text: TextSpan(
                       style: theme.textTheme.titleMedium,
                       children: [
-                        TextSpan(text: formatRands(plan.priceCents, wholeRands: true)),
                         TextSpan(
-                          text: plan.category == ProductCategory.voucher ? '' : '/mo',
-                          style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                          text: formatRands(plan.priceCents, wholeRands: true),
+                        ),
+                        TextSpan(
+                          text:
+                              plan.category == ProductCategory.home5g ||
+                                  plan.category == ProductCategory.mifi
+                              ? '/mo'
+                              : '',
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
                         ),
                       ],
                     ),
@@ -226,13 +288,23 @@ class _PlanCard extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                '${plan.dataDescription} · up to ${plan.speedMbps} Mbps',
-                style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                plan.speedMbps > 0
+                    ? '${plan.dataDescription} · up to ${plan.speedMbps} Mbps'
+                    : plan.dataDescription,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
               ),
               const SizedBox(height: 12),
               plan.isFeatured
-                  ? ElevatedButton(onPressed: onSelect, child: const Text('Add to cart'))
-                  : OutlinedButton(onPressed: onSelect, child: const Text('Add to cart')),
+                  ? ElevatedButton(
+                      onPressed: onSelect,
+                      child: const Text('Add to cart'),
+                    )
+                  : OutlinedButton(
+                      onPressed: onSelect,
+                      child: const Text('Add to cart'),
+                    ),
             ],
           ),
         ],

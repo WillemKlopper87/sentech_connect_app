@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:sentech_connect_app/core/network/idempotency.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sentech_connect_app/core/error/failure.dart';
 import 'package:sentech_connect_app/features/cart/domain/entities/cart_item.dart';
@@ -25,7 +26,11 @@ class CheckoutState extends Equatable {
 
   int get totalCents => items.fold(0, (sum, i) => sum + i.lineTotalCents);
 
-  CheckoutState copyWith({CheckoutStatus? status, Order? order, Failure? failure}) {
+  CheckoutState copyWith({
+    CheckoutStatus? status,
+    Order? order,
+    Failure? failure,
+  }) {
     return CheckoutState(
       items: items,
       status: status ?? this.status,
@@ -39,19 +44,31 @@ class CheckoutState extends Equatable {
 }
 
 class CheckoutCubit extends Cubit<CheckoutState> {
-  CheckoutCubit(this._repository, CartCubit cartCubit)
-      : super(CheckoutState(items: cartCubit.state.items));
+  CheckoutCubit(
+    this._repository,
+    CartCubit cartCubit, {
+    String Function()? newKey,
+  }) : _idempotencyKey = (newKey ?? newIdempotencyKey)(),
+       super(CheckoutState(items: List.unmodifiable(cartCubit.state.items)));
 
   final CheckoutRepository _repository;
+  /// One key for this immutable cart review, including all network retries.
+  final String _idempotencyKey;
 
   Future<void> createOrder() async {
     if (state.status == CheckoutStatus.creating) return; // double-tap guard
     emit(state.copyWith(status: CheckoutStatus.creating));
-    final result = await _repository.createOrder(items: state.items);
+    final result = await _repository.createOrder(
+      items: state.items,
+      idempotencyKey: _idempotencyKey,
+    );
     if (isClosed) return;
     result.match(
-      (failure) => emit(state.copyWith(status: CheckoutStatus.failure, failure: failure)),
-      (order) => emit(state.copyWith(status: CheckoutStatus.created, order: order)),
+      (failure) => emit(
+        state.copyWith(status: CheckoutStatus.failure, failure: failure),
+      ),
+      (order) =>
+          emit(state.copyWith(status: CheckoutStatus.created, order: order)),
     );
   }
 }

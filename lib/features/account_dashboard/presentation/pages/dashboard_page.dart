@@ -39,12 +39,20 @@ class DashboardPage extends StatelessWidget {
             const Text('Dashboard'),
           ],
         ),
-        actions: const [Padding(padding: EdgeInsets.only(right: 16), child: Icon(Icons.notifications_none))],
+        actions: const [
+          Padding(
+            padding: EdgeInsets.only(right: 16),
+            child: Icon(Icons.notifications_none),
+          ),
+        ],
       ),
       body: BlocBuilder<AccountCubit, AccountState>(
         builder: (context, state) {
           if (state.status == AccountStatus.failure) {
-            return FailureView(failure: state.failure, onRetry: () => context.read<AccountCubit>().load());
+            return FailureView(
+              failure: state.failure,
+              onRetry: () => context.read<AccountCubit>().load(),
+            );
           }
           if (state.status != AccountStatus.loaded || state.summary == null) {
             return const Center(child: CircularProgressIndicator());
@@ -58,7 +66,10 @@ class DashboardPage extends StatelessWidget {
                   if (order == null) return const SizedBox.shrink();
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 16),
-                    child: _ResumeOrderBanner(order: order, onTap: () => onResumeOrder(order)),
+                    child: _ResumeOrderBanner(
+                      order: order,
+                      onTap: () => onResumeOrder(order),
+                    ),
                   );
                 },
               ),
@@ -70,11 +81,20 @@ class DashboardPage extends StatelessWidget {
               const SizedBox(height: 16),
               Row(
                 children: [
-                  Expanded(child: _QuickAction(label: 'Top up', onTap: onTopUp)),
+                  Expanded(
+                    child: _QuickAction(label: 'Top up', onTap: onTopUp),
+                  ),
                   const SizedBox(width: 8),
-                  Expanded(child: _QuickAction(label: 'Upgrade', onTap: onUpgrade)),
+                  Expanded(
+                    child: _QuickAction(label: 'Upgrade', onTap: onUpgrade),
+                  ),
                   const SizedBox(width: 8),
-                  Expanded(child: _QuickAction(label: 'Report issue', onTap: onReportIssue)),
+                  Expanded(
+                    child: _QuickAction(
+                      label: 'Report issue',
+                      onTap: onReportIssue,
+                    ),
+                  ),
                 ],
               ),
             ],
@@ -108,16 +128,32 @@ class _ResumeOrderBanner extends StatelessWidget {
           padding: const EdgeInsets.all(14),
           child: Row(
             children: [
-              Icon(needsVerification ? Icons.verified_user_outlined : Icons.payment, color: theme.colorScheme.primary),
+              Icon(
+                needsVerification
+                    ? Icons.verified_user_outlined
+                    : Icons.payment,
+                color: theme.colorScheme.primary,
+              ),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Finish your order #${order.orderNumber}', style: theme.textTheme.titleMedium),
                     Text(
-                      needsVerification ? 'Verify your identity to continue' : 'Identity verified — complete payment',
-                      style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                      'Finish your order #${order.orderNumber}',
+                      style: theme.textTheme.titleMedium,
+                    ),
+                    Text(
+                      switch (order.status) {
+                        OrderStatus.pendingVerification =>
+                          'Verify your identity to continue',
+                        OrderStatus.paymentFailed =>
+                          'Your last payment did not go through. Try again.',
+                        _ => 'Complete your payment',
+                      },
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
                     ),
                   ],
                 ),
@@ -159,15 +195,22 @@ class _UsageCard extends StatelessWidget {
                   child: CircularProgressIndicator(
                     value: summary.usageFraction,
                     strokeWidth: 8,
-                    backgroundColor: theme.colorScheme.outlineVariant.withValues(alpha: 0.4),
+                    backgroundColor: theme.colorScheme.outlineVariant
+                        .withValues(alpha: 0.4),
                     color: theme.colorScheme.primary,
                   ),
                 ),
                 Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text('${(summary.usageFraction * 100).round()}%', style: theme.textTheme.titleMedium),
-                    Text('USED', style: theme.textTheme.bodyMedium?.copyWith(fontSize: 9)),
+                    Text(
+                      '${(summary.usageFraction * 100).round()}%',
+                      style: theme.textTheme.titleMedium,
+                    ),
+                    Text(
+                      'USED',
+                      style: theme.textTheme.bodyMedium?.copyWith(fontSize: 9),
+                    ),
                   ],
                 ),
               ],
@@ -178,10 +221,16 @@ class _UsageCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('${summary.usedGB.toStringAsFixed(0)}GB of ${summary.totalGB.toStringAsFixed(0)}GB',
-                    style: theme.textTheme.titleMedium),
-                Text('${summary.planName} · renews ${summary.renewsOn}',
-                    style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+                Text(
+                  '${summary.usedGB.toStringAsFixed(0)}GB of ${summary.totalGB.toStringAsFixed(0)}GB',
+                  style: theme.textTheme.titleMedium,
+                ),
+                Text(
+                  '${summary.planName} · renews ${summary.renewsOn}',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
               ],
             ),
           ),
@@ -207,15 +256,23 @@ class _CpeCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Icon(Icons.router_outlined, color: theme.colorScheme.primary, size: 28),
+          Icon(
+            Icons.router_outlined,
+            color: theme.colorScheme.primary,
+            size: 28,
+          ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(summary.routerName, style: theme.textTheme.titleMedium),
-                Text('MAC •• •• ${summary.macAddressSuffix}',
-                    style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+                Text(
+                  'MAC •• •• ${summary.macAddressSuffix}',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
               ],
             ),
           ),
@@ -228,7 +285,9 @@ class _CpeCard extends StatelessWidget {
                 height: 6.0 + i * 3,
                 margin: const EdgeInsets.only(left: 2),
                 decoration: BoxDecoration(
-                  color: active ? theme.colorScheme.primary : theme.colorScheme.outlineVariant,
+                  color: active
+                      ? theme.colorScheme.primary
+                      : theme.colorScheme.outlineVariant,
                   borderRadius: BorderRadius.circular(1),
                 ),
               );
@@ -253,17 +312,27 @@ class _PromoBanner extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          gradient: const LinearGradient(colors: [Color(0xFF00335C), Color(0xFF00ACC6)]),
+          gradient: const LinearGradient(
+            colors: [Color(0xFF00335C), Color(0xFF00ACC6)],
+          ),
           borderRadius: BorderRadius.circular(14),
         ),
         child: const Row(
           children: [
-            Icon(Icons.workspace_premium_outlined, color: Colors.white, size: 24),
+            Icon(
+              Icons.workspace_premium_outlined,
+              color: Colors.white,
+              size: 24,
+            ),
             SizedBox(width: 12),
             Expanded(
               child: Text(
                 'Promotions & loyalty — see what\'s on offer',
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 13),
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 13,
+                ),
               ),
             ),
             Icon(Icons.chevron_right, color: Colors.white70, size: 20),
@@ -295,7 +364,11 @@ class _QuickAction extends StatelessWidget {
           border: Border.all(color: theme.colorScheme.outlineVariant),
           borderRadius: BorderRadius.circular(10),
         ),
-        child: Text(label, textAlign: TextAlign.center, style: theme.textTheme.labelLarge),
+        child: Text(
+          label,
+          textAlign: TextAlign.center,
+          style: theme.textTheme.labelLarge,
+        ),
       ),
     );
   }

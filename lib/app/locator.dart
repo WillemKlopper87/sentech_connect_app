@@ -1,3 +1,5 @@
+import 'package:sentech_connect_app/features/catalog_checkout/data/repositories/http_catalog_repository.dart';
+import 'package:sentech_connect_app/features/catalog_checkout/data/repositories/http_checkout_repository.dart';
 import 'package:get_it/get_it.dart';
 import 'package:sentech_connect_app/app/default_personal_data_wiper.dart';
 import 'package:sentech_connect_app/core/biometrics/biometric_authenticator.dart';
@@ -75,14 +77,14 @@ const stillMockInProd = <Type>[
 /// beside each one swaps in its HTTP implementation. A later task must remove
 /// the entry in the same change (test/locator_test.dart fails otherwise, in
 /// both directions).
-const mockUntilLaterTasks = <Type>[
-  CatalogRepository, // Task 9: hotspot-pass catalogue
-  CheckoutRepository, // Task 9: orders (hosted payment follows in Task 10)
-];
+const mockUntilLaterTasks = <Type>[];
 
 /// [environment] comes from `AppEnvironment.fromDefines()` in main.dart;
 /// tests use the default (demo), which never creates an [ApiClient].
-void setupLocator({CrashReporter? crashReporter, AppEnvironment environment = AppEnvironment.demo}) {
+void setupLocator({
+  CrashReporter? crashReporter,
+  AppEnvironment environment = AppEnvironment.demo,
+}) {
   // Validate before registering anything, so a bad environment leaves no
   // half-built container. A prod flavor must never fall back to mocks: that
   // would ship fake data as if it were real.
@@ -102,16 +104,28 @@ void setupLocator({CrashReporter? crashReporter, AppEnvironment environment = Ap
 
 void _registerPlatformServices(CrashReporter? crashReporter) {
   // Tests re-register these with fakes (see test/helpers/test_setup.dart).
-  locator.registerLazySingleton<ConnectivityService>(() => ConnectivityPlusService());
+  locator.registerLazySingleton<ConnectivityService>(
+    () => ConnectivityPlusService(),
+  );
   locator.registerLazySingleton<SimulatedNetwork>(() => SimulatedNetwork());
-  locator.registerSingleton<CrashReporter>(crashReporter ?? ConsoleCrashReporter());
+  locator.registerSingleton<CrashReporter>(
+    crashReporter ?? ConsoleCrashReporter(),
+  );
   locator.registerLazySingleton<PlatformClock>(() => SystemPlatformClock());
   locator.registerLazySingleton<SecureStore>(() => FlutterSecureStore());
-  locator.registerLazySingleton<BiometricAuthenticator>(() => LocalAuthBiometricAuthenticator());
-  locator.registerLazySingleton<SessionStore>(() => SecureSessionStore(locator()));
-  locator.registerLazySingleton<NotificationService>(() => PermissionNotificationService());
+  locator.registerLazySingleton<BiometricAuthenticator>(
+    () => LocalAuthBiometricAuthenticator(),
+  );
+  locator.registerLazySingleton<SessionStore>(
+    () => SecureSessionStore(locator()),
+  );
+  locator.registerLazySingleton<NotificationService>(
+    () => PermissionNotificationService(),
+  );
   locator.registerLazySingleton<TenantContext>(() => TenantContext());
-  locator.registerLazySingleton<TenantPreferences>(() => SharedPrefsTenantPreferences());
+  locator.registerLazySingleton<TenantPreferences>(
+    () => SharedPrefsTenantPreferences(),
+  );
   locator.registerLazySingleton<SessionEvents>(() => SessionEvents());
   locator.registerLazySingleton<PersonalDataWiper>(
     () => DefaultPersonalDataWiper(
@@ -124,42 +138,90 @@ void _registerPlatformServices(CrashReporter? crashReporter) {
 }
 
 void _registerStillMockRepositories() {
-  locator.registerLazySingleton<CoverageRepository>(() => MockCoverageRepository(locator()));
-  locator.registerLazySingleton<LivenessRepository>(() => MockLivenessRepository());
-  locator.registerLazySingleton<AccountRepository>(() => MockAccountRepository(locator()));
-  locator.registerLazySingleton<SupportRepository>(() => MockSupportRepository());
-  locator.registerLazySingleton<PromotionsRepository>(() => MockPromotionsRepository());
-  locator.registerLazySingleton<VoucherRepository>(() => MockVoucherRepository(locator(), network: locator()));
-  locator.registerLazySingleton<FreeWifiRepository>(() => MockFreeWifiRepository(locator(), clock: locator()));
-  locator.registerLazySingleton<WifiHotspotsRepository>(() => MockWifiHotspotsRepository());
+  locator.registerLazySingleton<CoverageRepository>(
+    () => MockCoverageRepository(locator()),
+  );
+  locator.registerLazySingleton<LivenessRepository>(
+    () => MockLivenessRepository(),
+  );
+  locator.registerLazySingleton<AccountRepository>(
+    () => MockAccountRepository(locator()),
+  );
+  locator.registerLazySingleton<SupportRepository>(
+    () => MockSupportRepository(),
+  );
+  locator.registerLazySingleton<PromotionsRepository>(
+    () => MockPromotionsRepository(),
+  );
+  locator.registerLazySingleton<VoucherRepository>(
+    () => MockVoucherRepository(locator(), network: locator()),
+  );
+  locator.registerLazySingleton<FreeWifiRepository>(
+    () => MockFreeWifiRepository(locator(), clock: locator()),
+  );
+  locator.registerLazySingleton<WifiHotspotsRepository>(
+    () => MockWifiHotspotsRepository(),
+  );
 }
 
 void _registerDemoRepositories() {
-  locator.registerLazySingleton<TenantRepository>(() => MockTenantRepository(locator()));
-  locator.registerLazySingleton<ConsentRepository>(() => LocalConsentRepository(locator()));
-  locator.registerLazySingleton<PrivacyRepository>(() => MockPrivacyRepository(locator()));
+  locator.registerLazySingleton<TenantRepository>(
+    () => MockTenantRepository(locator()),
+  );
+  locator.registerLazySingleton<ConsentRepository>(
+    () => LocalConsentRepository(locator()),
+  );
+  locator.registerLazySingleton<PrivacyRepository>(
+    () => MockPrivacyRepository(locator()),
+  );
   locator.registerLazySingleton<AuthRepository>(() => MockAuthRepository());
-  locator.registerLazySingleton<CatalogRepository>(() => MockCatalogRepository(locator()));
-  locator.registerLazySingleton<CheckoutRepository>(() => MockCheckoutRepository(locator(), network: locator()));
-  locator.registerLazySingleton<RegistrationRepository>(() => LocalRegistrationRepository(locator()));
+  locator.registerLazySingleton<CatalogRepository>(
+    () => MockCatalogRepository(locator()),
+  );
+  locator.registerLazySingleton<CheckoutRepository>(
+    () => MockCheckoutRepository(locator(), network: locator()),
+  );
+  locator.registerLazySingleton<RegistrationRepository>(
+    () => LocalRegistrationRepository(locator()),
+  );
 }
 
 void _registerProdRepositories(Uri baseUrl) {
   locator.registerLazySingleton<TokenStore>(() => SecureTokenStore(locator()));
   locator.registerLazySingleton<ApiClient>(
-    () => ApiClient(baseUrl: baseUrl, tokens: locator(), tenant: locator(), sessionEvents: locator()),
+    () => ApiClient(
+      baseUrl: baseUrl,
+      tokens: locator(),
+      tenant: locator(),
+      sessionEvents: locator(),
+    ),
   );
-  locator.registerLazySingleton<TenantRepository>(() => HttpTenantRepository(locator(), crashReporter: locator()));
+  locator.registerLazySingleton<TenantRepository>(
+    () => HttpTenantRepository(locator(), crashReporter: locator()),
+  );
   locator.registerLazySingleton<ConsentRepository>(
-    () => HttpConsentRepository(locator(), local: LocalConsentRepository(locator()), tenant: locator()),
+    () => HttpConsentRepository(
+      locator(),
+      local: LocalConsentRepository(locator()),
+      tenant: locator(),
+    ),
   );
-  locator.registerLazySingleton<PrivacyRepository>(() => HttpPrivacyRepository(locator()));
+  locator.registerLazySingleton<PrivacyRepository>(
+    () => HttpPrivacyRepository(locator()),
+  );
   locator.registerLazySingleton<AuthRepository>(
     () => HttpAuthRepository(locator(), tokens: locator(), tenant: locator()),
   );
-  locator.registerLazySingleton<CatalogRepository>(() => MockCatalogRepository(locator()));
-  locator.registerLazySingleton<CheckoutRepository>(() => MockCheckoutRepository(locator(), network: locator()));
+  locator.registerLazySingleton<CatalogRepository>(
+    () => HttpCatalogRepository(locator(), locator()),
+  );
+  locator.registerLazySingleton<CheckoutRepository>(
+    () => HttpCheckoutRepository(locator()),
+  );
   locator.registerLazySingleton<RegistrationRepository>(
-    () => HttpRegistrationRepository(locator(), local: LocalRegistrationRepository(locator())),
+    () => HttpRegistrationRepository(
+      locator(),
+      local: LocalRegistrationRepository(locator()),
+    ),
   );
 }

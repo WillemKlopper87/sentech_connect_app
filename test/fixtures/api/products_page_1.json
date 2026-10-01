@@ -1,0 +1,7 @@
+{
+  "items": [
+    {"id": "0b0c3a52-6f43-4c39-9a8e-0d6f2f0e1a01", "sku": "PASS-1H", "name": "1 Hour Pass", "description": "Quick browsing", "price": {"amount_cents": 1500, "currency": "ZAR"}, "duration_minutes": 60, "data_mb": 1024, "speed_kbps": 10240, "max_devices": 1},
+    {"id": "0b0c3a52-6f43-4c39-9a8e-0d6f2f0e1a02", "sku": "PASS-1D", "name": "Day Pass", "description": "All day", "price": {"amount_cents": 4900, "currency": "ZAR"}, "duration_minutes": 1440, "data_mb": 5120, "speed_kbps": null, "max_devices": 2}
+  ],
+  "next_cursor": "WzEsIjBiMGMiXQ"
+}

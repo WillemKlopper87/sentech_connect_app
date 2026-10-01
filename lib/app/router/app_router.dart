@@ -59,10 +59,13 @@ abstract class AppRoutes {
 
   /// Where an order should be picked up, given how far it got.
   static String forOrder(Order order) => switch (order.status) {
-        OrderStatus.pendingVerification => ricaFor(order.id),
-        OrderStatus.awaitingPayment => paymentFor(order.id),
-        OrderStatus.paid => confirmationFor(order.id),
-      };
+    OrderStatus.pendingVerification => ricaFor(order.id),
+    OrderStatus.awaitingPayment ||
+    OrderStatus.paymentFailed => paymentFor(order.id),
+    OrderStatus.paid ||
+    OrderStatus.expired ||
+    OrderStatus.cancelled => confirmationFor(order.id),
+  };
 
   /// Query parameter on `/login` holding the route the user originally asked for.
   static const fromParam = 'from';
@@ -106,7 +109,10 @@ String? authRedirect(AuthState auth, Uri uri) {
     if (!AppRoutes.isProtected(location)) return null;
     final target = uri.toString();
     if (location == AppRoutes.main) return AppRoutes.login;
-    return Uri(path: AppRoutes.login, queryParameters: {AppRoutes.fromParam: target}).toString();
+    return Uri(
+      path: AppRoutes.login,
+      queryParameters: {AppRoutes.fromParam: target},
+    ).toString();
   }
   // Steps every signed-in session passes first, whatever began it (SMS code,
   // biometric unlock, restore at launch): new customers (no name yet)
@@ -117,11 +123,17 @@ String? authRedirect(AuthState auth, Uri uri) {
       ? AppRoutes.register
       : (auth.legal == LegalStatus.accepted ? null : AppRoutes.consent);
   if (gate != null) {
-    const ownFlow = {AppRoutes.splash, AppRoutes.tenantPicker, AppRoutes.updateRequired};
+    const ownFlow = {
+      AppRoutes.splash,
+      AppRoutes.tenantPicker,
+      AppRoutes.updateRequired,
+    };
     if (location == gate || ownFlow.contains(location)) return null;
     return _towards(gate, uri);
   }
-  if (location == AppRoutes.login || location == AppRoutes.register || location == AppRoutes.consent) {
+  if (location == AppRoutes.login ||
+      location == AppRoutes.register ||
+      location == AppRoutes.consent) {
     final from = safeFrom(uri.queryParameters[AppRoutes.fromParam]);
     if (from != null) return from;
     return auth.freshSignIn ? AppRoutes.coverage : AppRoutes.main;
@@ -132,9 +144,16 @@ String? authRedirect(AuthState auth, Uri uri) {
 /// [gate] with the route the customer was after kept as `from`, so the
 /// deep link survives the profile / consent step.
 String _towards(String gate, Uri uri) {
-  final candidate = uri.queryParameters[AppRoutes.fromParam] ?? (uri.path == AppRoutes.main ? null : uri.toString());
+  final candidate =
+      uri.queryParameters[AppRoutes.fromParam] ??
+      (uri.path == AppRoutes.main ? null : uri.toString());
   final from = safeFrom(candidate);
-  return from == null ? gate : Uri(path: gate, queryParameters: {AppRoutes.fromParam: from}).toString();
+  return from == null
+      ? gate
+      : Uri(
+          path: gate,
+          queryParameters: {AppRoutes.fromParam: from},
+        ).toString();
 }
 
 /// Tenant rules run before the auth rules: no screen is usable until a
@@ -147,18 +166,30 @@ String? tenantRedirect(TenantState tenant, Uri uri) {
     case TenantStatus.needsSelection || TenantStatus.failure:
       return location == AppRoutes.tenantPicker ? null : AppRoutes.tenantPicker;
     case TenantStatus.updateRequired:
-      return location == AppRoutes.updateRequired ? null : AppRoutes.updateRequired;
+      return location == AppRoutes.updateRequired
+          ? null
+          : AppRoutes.updateRequired;
     case TenantStatus.ready:
-      return location == AppRoutes.tenantPicker || location == AppRoutes.updateRequired ? AppRoutes.main : null;
+      return location == AppRoutes.tenantPicker ||
+              location == AppRoutes.updateRequired
+          ? AppRoutes.main
+          : null;
   }
 }
 
 /// Accepts only in-app absolute paths to protected routes, so a crafted
 /// `from` value can never redirect somewhere unexpected.
 String? safeFrom(String? from) {
-  if (from == null || !from.startsWith('/') || from.startsWith('//')) return null;
+  if (from == null || !from.startsWith('/') || from.startsWith('//')) {
+    return null;
+  }
   final path = Uri.tryParse(from)?.path;
-  if (path == null || !AppRoutes.isProtected(path) || path == AppRoutes.register || path == AppRoutes.consent) return null;
+  if (path == null ||
+      !AppRoutes.isProtected(path) ||
+      path == AppRoutes.register ||
+      path == AppRoutes.consent) {
+    return null;
+  }
   return from;
 }
 
@@ -166,8 +197,11 @@ String? safeFrom(String? from) {
 /// when the auth or tenant state changes. Pass the app-root cubits; the
 /// router does not own them.
 class AppRouter {
-  AppRouter(AuthCubit authCubit, {TenantCubit? tenantCubit, String initialLocation = AppRoutes.splash})
-      : _refresh = _GuardRefresh(authCubit, tenantCubit) {
+  AppRouter(
+    AuthCubit authCubit, {
+    TenantCubit? tenantCubit,
+    String initialLocation = AppRoutes.splash,
+  }) : _refresh = _GuardRefresh(authCubit, tenantCubit) {
     router = _buildRouter(authCubit, tenantCubit, _refresh, initialLocation);
   }
 
@@ -180,12 +214,20 @@ class AppRouter {
   }
 }
 
-GoRouter _buildRouter(AuthCubit authCubit, TenantCubit? tenantCubit, Listenable refresh, String initialLocation) {
+GoRouter _buildRouter(
+  AuthCubit authCubit,
+  TenantCubit? tenantCubit,
+  Listenable refresh,
+  String initialLocation,
+) {
   return GoRouter(
     initialLocation: initialLocation,
     refreshListenable: refresh,
     redirect: (context, state) =>
-        (tenantCubit == null ? null : tenantRedirect(tenantCubit.state, state.uri)) ?? authRedirect(authCubit.state, state.uri),
+        (tenantCubit == null
+            ? null
+            : tenantRedirect(tenantCubit.state, state.uri)) ??
+        authRedirect(authCubit.state, state.uri),
     errorBuilder: (context, state) => Scaffold(
       appBar: AppBar(title: const Text('Page not found')),
       body: Center(
@@ -203,19 +245,31 @@ GoRouter _buildRouter(AuthCubit authCubit, TenantCubit? tenantCubit, Listenable 
             final tenant = tenantCubit;
             if (tenant != null && !tenant.state.isSettled) {
               // `orElse`: a closed cubit ends the stream, which must not throw here.
-              await tenant.stream.firstWhere((s) => s.isSettled, orElse: () => tenant.state);
+              await tenant.stream.firstWhere(
+                (s) => s.isSettled,
+                orElse: () => tenant.state,
+              );
             }
             if (!context.mounted) return;
             // A restored session skips login and the first-time coverage step.
-            context.go(authCubit.state.isSignedIn ? AppRoutes.main : AppRoutes.login);
+            context.go(
+              authCubit.state.isSignedIn ? AppRoutes.main : AppRoutes.login,
+            );
           },
         ),
       ),
-      GoRoute(path: AppRoutes.tenantPicker, builder: (context, state) => const TenantPickerPage()),
-      GoRoute(path: AppRoutes.updateRequired, builder: (context, state) => const UpdateRequiredPage()),
+      GoRoute(
+        path: AppRoutes.tenantPicker,
+        builder: (context, state) => const TenantPickerPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.updateRequired,
+        builder: (context, state) => const UpdateRequiredPage(),
+      ),
       GoRoute(
         path: AppRoutes.login,
-        builder: (context, state) => LoginPage(demoMode: locator<AppEnvironment>().isDemo),
+        builder: (context, state) =>
+            LoginPage(demoMode: locator<AppEnvironment>().isDemo),
       ),
       GoRoute(
         path: AppRoutes.register,
@@ -259,9 +313,8 @@ GoRouter _buildRouter(AuthCubit authCubit, TenantCubit? tenantCubit, Listenable 
       ),
       GoRoute(
         path: AppRoutes.cart,
-        builder: (context, state) => CartPage(
-          onCheckout: () => context.push(AppRoutes.checkout),
-        ),
+        builder: (context, state) =>
+            CartPage(onCheckout: () => context.push(AppRoutes.checkout)),
       ),
       GoRoute(
         path: AppRoutes.checkout,
@@ -269,7 +322,10 @@ GoRouter _buildRouter(AuthCubit authCubit, TenantCubit? tenantCubit, Listenable 
           return BlocProvider(
             create: (_) => CheckoutCubit(locator(), context.read<CartCubit>()),
             child: CheckoutPage(
-              onOrderCreated: (order) => context.push(AppRoutes.ricaFor(order.id)),
+              requiresIdentityCheck:
+                  tenantCubit?.state.featureFlags.rica ?? true,
+              onOrderCreated: (order) =>
+                  context.push(AppRoutes.forOrder(order)),
             ),
           );
         },
@@ -291,10 +347,13 @@ GoRouter _buildRouter(AuthCubit authCubit, TenantCubit? tenantCubit, Listenable 
         builder: (context, state) {
           final orderId = state.pathParameters['orderId']!;
           return BlocProvider(
-            create: (_) => PaymentCubit(locator(), context.read<CartCubit>(), orderId),
+            create: (_) =>
+                PaymentCubit(locator(), context.read<CartCubit>(), orderId),
             child: PaymentPage(
-              onPaid: (order) => context.go(AppRoutes.confirmationFor(order.id)),
-              onNeedsVerification: (order) => context.push(AppRoutes.ricaFor(order.id)),
+              onPaid: (order) =>
+                  context.go(AppRoutes.confirmationFor(order.id)),
+              onNeedsVerification: (order) =>
+                  context.push(AppRoutes.ricaFor(order.id)),
             ),
           );
         },
@@ -315,4 +374,3 @@ GoRouter _buildRouter(AuthCubit authCubit, TenantCubit? tenantCubit, Listenable 
     ],
   );
 }
-

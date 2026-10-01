@@ -7,7 +7,11 @@ import 'package:sentech_connect_app/shared/widgets/failure_view.dart';
 /// Loads the order by id (from the route) via [OrderCubit]; never relies on
 /// an object passed through navigation.
 class ConfirmationPage extends StatelessWidget {
-  const ConfirmationPage({super.key, required this.onDone, required this.onResume});
+  const ConfirmationPage({
+    super.key,
+    required this.onDone,
+    required this.onResume,
+  });
 
   final VoidCallback onDone;
   final void Function(Order order) onResume;
@@ -17,18 +21,33 @@ class ConfirmationPage extends StatelessWidget {
     return BlocBuilder<OrderCubit, OrderState>(
       builder: (context, state) {
         if (state.status == OrderLoadStatus.loading) {
-          return const Scaffold(body: Center(child: CircularProgressIndicator()));
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
         }
         final order = state.order;
         if (order == null) {
           return Scaffold(
             appBar: AppBar(),
-            body: FailureView(failure: state.failure, onRetry: () => context.read<OrderCubit>().load()),
+            body: FailureView(
+              failure: state.failure,
+              onRetry: () => context.read<OrderCubit>().load(),
+            ),
           );
         }
         if (order.status != OrderStatus.paid) {
           // Deep link / restored state pointing at an order that is not
           // complete: never claim "connected" for an unpaid order.
+          final closed =
+              order.status == OrderStatus.expired ||
+              order.status == OrderStatus.cancelled;
+          final message = switch (order.status) {
+            OrderStatus.expired =>
+              'Order #${order.orderNumber} expired before payment was confirmed.',
+            OrderStatus.cancelled =>
+              'Order #${order.orderNumber} was cancelled.',
+            _ => 'Order #${order.orderNumber} is not complete yet.',
+          };
           return Scaffold(
             appBar: AppBar(title: const Text('Order')),
             body: Center(
@@ -37,9 +56,17 @@ class ConfirmationPage extends StatelessWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text('Order #${order.orderNumber} is not complete yet.', textAlign: TextAlign.center),
+                    Text(message, textAlign: TextAlign.center),
                     const SizedBox(height: 16),
-                    ElevatedButton(onPressed: () => onResume(order), child: const Text('Continue your order')),
+                    closed
+                        ? ElevatedButton(
+                            onPressed: onDone,
+                            child: const Text('Back to dashboard'),
+                          )
+                        : ElevatedButton(
+                            onPressed: () => onResume(order),
+                            child: const Text('Continue your order'),
+                          ),
                   ],
                 ),
               ),
@@ -77,23 +104,39 @@ class _ConfirmationView extends StatelessWidget {
                     shape: BoxShape.circle,
                     color: const Color(0xFF8EAF3F).withValues(alpha: 0.16),
                   ),
-                  child: const Icon(Icons.check, color: Color(0xFF6F9126), size: 32),
+                  child: const Icon(
+                    Icons.check,
+                    color: Color(0xFF6F9126),
+                    size: 32,
+                  ),
                 ),
               ),
               const SizedBox(height: 14),
-              Text("You're connected!", textAlign: TextAlign.center, style: theme.textTheme.headlineMedium),
+              Text(
+                "You're connected!",
+                textAlign: TextAlign.center,
+                style: theme.textTheme.headlineMedium,
+              ),
               const SizedBox(height: 4),
               Text(
                 'Order #${order.orderNumber}',
                 textAlign: TextAlign.center,
-                style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
               ),
               const SizedBox(height: 28),
               const _Timeline(),
               const Spacer(),
-              ElevatedButton(onPressed: onDone, child: const Text('Track my installation')),
+              ElevatedButton(
+                onPressed: onDone,
+                child: const Text('Track my installation'),
+              ),
               const SizedBox(height: 8),
-              TextButton(onPressed: onDone, child: const Text('Back to dashboard')),
+              TextButton(
+                onPressed: onDone,
+                child: const Text('Back to dashboard'),
+              ),
             ],
           ),
         ),
@@ -151,8 +194,8 @@ class _TimelineItem extends StatelessWidget {
     final dotColor = done
         ? const Color(0xFF6F9126)
         : current
-            ? theme.colorScheme.primary
-            : theme.colorScheme.outlineVariant;
+        ? theme.colorScheme.primary
+        : theme.colorScheme.outlineVariant;
     return IntrinsicHeight(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -163,9 +206,18 @@ class _TimelineItem extends StatelessWidget {
                 width: 10,
                 height: 10,
                 margin: const EdgeInsets.only(top: 4),
-                decoration: BoxDecoration(shape: BoxShape.circle, color: dotColor),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: dotColor,
+                ),
               ),
-              if (!isLast) Expanded(child: Container(width: 2, color: theme.colorScheme.outlineVariant)),
+              if (!isLast)
+                Expanded(
+                  child: Container(
+                    width: 2,
+                    color: theme.colorScheme.outlineVariant,
+                  ),
+                ),
             ],
           ),
           const SizedBox(width: 12),
@@ -176,7 +228,12 @@ class _TimelineItem extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(title, style: theme.textTheme.titleMedium),
-                  Text(subtitle, style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+                  Text(
+                    subtitle,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
                 ],
               ),
             ),

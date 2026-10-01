@@ -15,6 +15,10 @@ enum OrderStatus {
 
   /// Paid — service fulfilment can start.
   paid,
+
+  paymentFailed,
+  expired,
+  cancelled,
 }
 
 class Order extends Equatable {
@@ -36,34 +40,37 @@ class Order extends Equatable {
   final int totalCents;
   final OrderStatus status;
 
-  bool get isOpen => status != OrderStatus.paid;
+  bool get isOpen =>
+      status == OrderStatus.pendingVerification ||
+      status == OrderStatus.awaitingPayment ||
+      status == OrderStatus.paymentFailed;
 
   Order copyWith({OrderStatus? status}) => Order(
-        id: id,
-        orderNumber: orderNumber,
-        planName: planName,
-        totalCents: totalCents,
-        status: status ?? this.status,
-      );
+    id: id,
+    orderNumber: orderNumber,
+    planName: planName,
+    totalCents: totalCents,
+    status: status ?? this.status,
+  );
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'orderNumber': orderNumber,
-        'planName': planName,
-        'totalCents': totalCents,
-        'status': status.name,
-      };
+    'id': id,
+    'orderNumber': orderNumber,
+    'planName': planName,
+    'totalCents': totalCents,
+    'status': status.name,
+  };
 
   factory Order.fromJson(Map<String, dynamic> json) => Order(
-        id: json['id'] as String,
-        orderNumber: json['orderNumber'] as String,
-        planName: json['planName'] as String,
-        totalCents: _centsFrom(json),
-        status: OrderStatus.values.firstWhere(
-          (s) => s.name == json['status'],
-          orElse: () => OrderStatus.pendingVerification,
-        ),
-      );
+    id: json['id'] as String,
+    orderNumber: json['orderNumber'] as String,
+    planName: json['planName'] as String,
+    totalCents: _centsFrom(json),
+    status: OrderStatus.values.firstWhere(
+      (s) => s.name == json['status'],
+      orElse: () => OrderStatus.pendingVerification,
+    ),
+  );
 
   /// Builds before integer cents stored `totalRands` as a double. A record with
   /// neither field is corrupt: throwing lets the caller discard it rather than

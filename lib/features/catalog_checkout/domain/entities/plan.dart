@@ -1,13 +1,14 @@
 import 'package:equatable/equatable.dart';
 
-enum ProductCategory { home5g, mifi, voucher }
+enum ProductCategory { home5g, mifi, voucher, hotspotPass }
 
 extension ProductCategoryLabel on ProductCategory {
   String get label => switch (this) {
-        ProductCategory.home5g => 'Home 5G',
-        ProductCategory.mifi => 'MiFi',
-        ProductCategory.voucher => 'Vouchers',
-      };
+    ProductCategory.home5g => 'Home 5G',
+    ProductCategory.mifi => 'MiFi',
+    ProductCategory.voucher => 'Vouchers',
+    ProductCategory.hotspotPass => 'Wi-Fi passes',
+  };
 }
 
 class Plan extends Equatable {
@@ -23,6 +24,7 @@ class Plan extends Equatable {
 
   final String id;
   final String name;
+
   /// Price in integer cents (ZAR). The server is the authority for prices.
   final int priceCents;
   final String dataDescription;
@@ -31,16 +33,23 @@ class Plan extends Equatable {
   final bool isFeatured;
 
   @override
-  List<Object?> get props =>
-      [id, name, priceCents, dataDescription, speedMbps, category, isFeatured];
+  List<Object?> get props => [
+    id,
+    name,
+    priceCents,
+    dataDescription,
+    speedMbps,
+    category,
+    isFeatured,
+  ];
 }
 
 enum PaymentMethod { card, ozow, payshap }
 
 extension PaymentMethodLabel on PaymentMethod {
   String get label => switch (this) {
-        PaymentMethod.card => 'Card',
-        PaymentMethod.ozow => 'Instant EFT · Ozow',
-        PaymentMethod.payshap => 'PayShap',
-      };
+    PaymentMethod.card => 'Card',
+    PaymentMethod.ozow => 'Instant EFT · Ozow',
+    PaymentMethod.payshap => 'PayShap',
+  };
 }

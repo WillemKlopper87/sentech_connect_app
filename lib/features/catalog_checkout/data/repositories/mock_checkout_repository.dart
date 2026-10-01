@@ -14,13 +14,17 @@ import 'package:sentech_connect_app/features/catalog_checkout/domain/repositorie
 /// order numbers are unique, payment requires a verified identity and is
 /// idempotent. A backend implementation replaces this class only.
 class MockCheckoutRepository implements CheckoutRepository {
-  MockCheckoutRepository(this._store, {SimulatedNetwork? network, this._latency = const Duration(milliseconds: 900)})
-      : _network = network ?? SimulatedNetwork();
+  MockCheckoutRepository(
+    this._store, {
+    SimulatedNetwork? network,
+    this._latency = const Duration(milliseconds: 900),
+  }) : _network = network ?? SimulatedNetwork();
 
   static const _ordersKey = 'orders';
   static const _counterKey = 'order_counter';
   static const _firstOrderNumber = 48213;
 
+  final _ordersByKey = <String, String>{};
   final SecureStore _store;
   final SimulatedNetwork _network;
   final Duration _latency;
@@ -50,8 +54,10 @@ class MockCheckoutRepository implements CheckoutRepository {
     return orders;
   }
 
-  Future<void> _save(List<Order> orders) =>
-      _store.write(_ordersKey, jsonEncode(orders.map((o) => o.toJson()).toList()));
+  Future<void> _save(List<Order> orders) => _store.write(
+    _ordersKey,
+    jsonEncode(orders.map((o) => o.toJson()).toList()),
+  );
 
   Future<int> _nextCounter() async {
     final current = int.tryParse(await _store.read(_counterKey) ?? '') ?? 0;
@@ -60,14 +66,28 @@ class MockCheckoutRepository implements CheckoutRepository {
   }
 
   @override
-  Future<Either<Failure, Order>> createOrder({required List<CartItem> items}) async {
+  Future<Either<Failure, Order>> createOrder({
+    required List<CartItem> items,
+    String? idempotencyKey,
+  }) async {
     await Future.delayed(_latency ~/ 3);
     if (_network.failure case final failure?) return Left(failure);
-    if (items.isEmpty) return const Left(ValidationFailure('Your cart is empty.'));
+    if (items.isEmpty) {
+      return const Left(ValidationFailure('Your cart is empty.'));
+    }
 
+    if (idempotencyKey != null) {
+      final existingId = _ordersByKey[idempotencyKey];
+      final existing = (await _load())
+          .where((o) => o.id == existingId)
+          .firstOrNull;
+      if (existing != null) return Right(existing);
+    }
     final n = await _nextCounter();
     final total = items.fold(0, (sum, i) => sum + i.lineTotalCents);
-    final summary = items.length == 1 ? items.first.plan.name : '${items.length} items';
+    final summary = items.length == 1
+        ? items.first.plan.name
+        : '${items.length} items';
     final order = Order(
       id: 'ord_${DateTime.now().microsecondsSinceEpoch}_$n',
       orderNumber: 'SEN-${_firstOrderNumber + n}',
@@ -77,6 +97,7 @@ class MockCheckoutRepository implements CheckoutRepository {
     // One open order at a time: a new cart supersedes any unpaid one.
     final kept = (await _load()).where((o) => !o.isOpen).toList();
     await _save([...kept, order]);
+    if (idempotencyKey != null) _ordersByKey[idempotencyKey] = order.id;
     return Right(order);
   }
 
@@ -84,7 +105,9 @@ class MockCheckoutRepository implements CheckoutRepository {
   Future<Either<Failure, Order>> getOrder(String orderId) async {
     if (_network.failure case final failure?) return Left(failure);
     final order = (await _load()).where((o) => o.id == orderId).firstOrNull;
-    if (order == null) return const Left(ServerFailure('We could not find that order.'));
+    if (order == null) {
+      return const Left(ServerFailure('We could not find that order.'));
+    }
     return Right(order);
   }
 
@@ -99,29 +122,48 @@ class MockCheckoutRepository implements CheckoutRepository {
     if (_network.failure case final failure?) return Left(failure);
     final orders = await _load();
     final index = orders.indexWhere((o) => o.id == orderId);
-    if (index == -1) return const Left(ServerFailure('We could not find that order.'));
+    if (index == -1) {
+      return const Left(ServerFailure('We could not find that order.'));
+    }
     if (orders[index].status == OrderStatus.pendingVerification) {
-      orders[index] = orders[index].copyWith(status: OrderStatus.awaitingPayment);
+      orders[index] = orders[index].copyWith(
+        status: OrderStatus.awaitingPayment,
+      );
       await _save(orders);
     }
     return Right(orders[index]);
   }
 
   @override
-  Future<Either<Failure, Order>> pay({required String orderId, required PaymentMethod method}) async {
+  Future<Either<Failure, Order>> pay({
+    required String orderId,
+    required PaymentMethod method,
+  }) async {
     await Future.delayed(_latency);
     if (_network.failure case final failure?) return Left(failure);
     final orders = await _load();
     final index = orders.indexWhere((o) => o.id == orderId);
-    if (index == -1) return const Left(ServerFailure('We could not find that order.'));
+    if (index == -1) {
+      return const Left(ServerFailure('We could not find that order.'));
+    }
     final order = orders[index];
     if (order.status == OrderStatus.paid) return Right(order); // idempotent
+    if (order.status == OrderStatus.expired ||
+        order.status == OrderStatus.cancelled) {
+      return const Left(ValidationFailure('This order can no longer be paid.'));
+    }
     if (order.status == OrderStatus.pendingVerification) {
-      return const Left(ValidationFailure('Verify your identity before paying.'));
+      return const Left(
+        ValidationFailure('Verify your identity before paying.'),
+      );
     }
     if (failNextPayment) {
       failNextPayment = false;
-      return const Left(ServerFailure('The payment was not completed. You have not been charged.'));
+      return const Left(
+        ServerFailure(
+          'The payment was not completed. You have not been charged.',
+        ),
+      );
     }
     orders[index] = order.copyWith(status: OrderStatus.paid);
     await _save(orders);
@@ -130,6 +172,7 @@ class MockCheckoutRepository implements CheckoutRepository {
 
   @override
   Future<void> clearLocalOrders() async {
+    _ordersByKey.clear();
     await _store.delete(_ordersKey);
     await _store.delete(_counterKey);
   }

@@ -1,0 +1,6 @@
+{
+  "items": [
+    {"id": "0b0c3a52-6f43-4c39-9a8e-0d6f2f0e1a03", "sku": "PASS-7D", "name": "Week Pass", "description": "", "price": {"amount_cents": 14900, "currency": "ZAR"}, "duration_minutes": 10080, "data_mb": null, "speed_kbps": 20480, "max_devices": 3}
+  ],
+  "next_cursor": null
+}
