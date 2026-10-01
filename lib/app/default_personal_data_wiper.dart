@@ -17,20 +17,38 @@ class DefaultPersonalDataWiper implements PersonalDataWiper {
   final ConsentRepository _consent;
 
   @override
-  Future<void> wipeOnLogout() async {
-    await _registration.clear();
-    await _checkout.clearLocalOrders();
-    // Drops the active grant but keeps the daily ad counter, so logging out
-    // and back in cannot be used to reset the free-WiFi cap.
-    await _freeWifi.reset();
-  }
+  Future<void> wipeOnLogout() => _runAll([
+        _registration.clear,
+        _checkout.clearLocalOrders,
+        // Drops the active grant but keeps the daily ad counter, so logging
+        // out and back in cannot be used to reset the free-WiFi cap.
+        () => _freeWifi.reset(),
+      ]);
 
   @override
-  Future<void> wipeEverything() async {
-    await wipeOnLogout();
-    await _freeWifi.reset(includeDailyCounter: true);
-    // Consent records are kept on logout (they hold no personal data beyond
-    // purpose/version/time and avoid re-prompting), but go on account deletion.
-    await _consent.clear();
+  Future<void> wipeEverything() => _runAll([
+        wipeOnLogout,
+        () => _freeWifi.reset(includeDailyCounter: true),
+        // Consent records are kept on logout (they hold no personal data
+        // beyond purpose/version/time and avoid re-prompting), but go on
+        // account deletion.
+        _consent.clear,
+      ]);
+
+  /// Every step runs even if an earlier one throws (one failing store must
+  /// not leave the others' personal data behind); the first error is
+  /// rethrown at the end.
+  static Future<void> _runAll(List<Future<void> Function()> steps) async {
+    Object? firstError;
+    StackTrace? firstStack;
+    for (final step in steps) {
+      try {
+        await step();
+      } catch (error, stack) {
+        firstError ??= error;
+        firstStack ??= stack;
+      }
+    }
+    if (firstError != null) Error.throwWithStackTrace(firstError, firstStack!);
   }
 }

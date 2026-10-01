@@ -2,11 +2,14 @@
 /// root (`lib/app/default_personal_data_wiper.dart`) because it has to reach
 /// across features (session, registration, consent, free-WiFi state).
 abstract class PersonalDataWiper {
-  /// Logout: session, registration details and any active free-WiFi grant.
-  /// Keeps the opaque biometric credential and the consent record.
+  /// Logout: registration details, local orders and any active free-WiFi
+  /// grant. Keeps the consent record. (The session and the biometric
+  /// credential are forgotten by `AuthCubit` through `SessionStore`.)
+  /// Every step runs even if one fails; the first error is rethrown.
   Future<void> wipeOnLogout();
 
-  /// Account deletion: everything above plus the biometric credential and
-  /// consent record — the device holds nothing about the customer afterwards.
+  /// Account deletion: everything above plus the consent record and the free-
+  /// WiFi daily counter; with `AuthCubit`'s session wipe the device holds
+  /// nothing about the customer afterwards.
   Future<void> wipeEverything();
 }

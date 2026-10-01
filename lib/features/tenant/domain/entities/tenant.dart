@@ -1,6 +1,7 @@
 import 'dart:ui' show Color;
 
 import 'package:equatable/equatable.dart';
+import 'package:sentech_connect_app/core/utils/tenant_slug.dart';
 
 /// Public, per-tenant look (spec §12: branding is public and never holds
 /// secrets). Only `primary_color` (#RRGGBB) and `logo_url` (https) are read
@@ -65,8 +66,9 @@ class Tenant extends Equatable {
     );
   }
 
-  /// Tenant slugs are lowercase letters, digits and hyphens (2-40 chars).
-  static final slugPattern = RegExp(r'^[a-z0-9-]{2,40}$');
+  /// Tenant slugs are lowercase letters, digits and hyphens (2-40 chars);
+  /// the one regex lives in core (`tenantSlugPattern`).
+  static final slugPattern = tenantSlugPattern;
 
   /// Longest accepted `name` / `type`.
   static const maxTextLength = 80;
