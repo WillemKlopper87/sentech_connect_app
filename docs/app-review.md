@@ -110,7 +110,8 @@ What the mobile app can do alone is done; items marked "backend" need a server, 
 |---|---|
 | S1 fake biometrics | Done. `local_auth` behind `BiometricAuthenticator`; button hidden unless a session was established on the device and a biometric is enrolled; label "Use biometrics"; handles cancelled / not enrolled / unavailable / lockout. |
 | S2 plaintext PII | Done. `SecureStore` (`flutter_secure_storage`) + `SessionStore`; GPS no longer persisted; logout/delete wipe session, registration, orders, free-WiFi grant and cart. `AuthCubit` no longer touches static prefs. |
-| S3 real session/tokens | Backend (OIDC). `SessionStore` is the seam. |
+| S3 real session/tokens | Done (M4-lite). API-issued tokens in secure storage, single-flight refresh, server-side revocation on logout; biometrics only unlock a stored session. |
+| C1 money | Done (M4-lite): integer cents end to end. |
 | S4 pay before RICA | Done by reversing the order: create order -> RICA -> pay -> confirmation, persisted and resumable (dashboard banner, retry on RICA/payment failure). |
 | S5 fake voucher redeem | Client side done (format validation, typed outcomes, masked code, scan paused until dismissed). Real validation/idempotency: backend. |
 | S6 free-WiFi bypass | Mitigated only (monotonic + anchored clock, backwards-clock detection, cap checked before increment). Cannot be fixed client-side: needs a server entitlement API. |
@@ -126,4 +127,4 @@ What the mobile app can do alone is done; items marked "backend" need a server, 
 | C3/C5/C6 | Offline retry UI on checkout, coverage, catalog, dashboard; `isClosed` guards on new async work; double-submit guards and unique order numbers. |
 | Mobile gaps | Offline banner, notification permission flow (FCM needs Firebase config: owner), localisation pipeline (en/zu/af for login, registration, account, support; rest is follow-up; zu/af need native review), accessibility pass, iOS project generated (owner: Apple team id and bundle id). |
 
-Not done client-side: money as integer cents (C1), input validators (C2), location timeout/settings routing (C4), full string migration, APK build verification (no Android SDK on the build machine that produced this change).
+Not done client-side: input validators (C2), location timeout/settings routing (C4), full string migration, APK build verification (no Android SDK on the build machine that produced this change).

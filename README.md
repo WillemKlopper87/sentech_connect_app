@@ -10,7 +10,12 @@ See also:
 
 ## What phase this is
 
-Every business-data repository (plans, coverage, RICA, promotions, etc.) is **mock-backed** — real network calls, camera capture, GPS, and maps *are* wired up and functional, but the data they read/write about products, orders, and coverage is fake. The point of this phase is a fully navigable, architecturally real app that a backend team can plug into by swapping mock repository implementations for real ones, without touching anything above the repository layer. See "Swapping a mock for a real backend" below.
+The app has two flavors (`--dart-define=APP_FLAVOR=demo|prod`):
+
+- **`demo`** (default in debug/profile): every repository is a mock; works fully offline. All tests run in this flavor.
+- **`prod`**: tenants, sign-in (SMS one-time code), catalogue (hotspot passes), orders, payment hand-off, "My passes", profile, consents, data export and account deletion use the Sentech Connect platform API. It **requires** `--dart-define=API_BASE_URL=https://...` (an origin only; https, except cleartext to local dev hosts in debug builds). **Release builds must set `APP_FLAVOR` explicitly** (`demo` or `prod`); a release build without it stops at startup.
+
+Still mock in **both** flavors because the platform has no API for them yet (listed in `stillMockInProd`, `lib/app/locator.dart`): coverage, free Wi-Fi, hotspot map, voucher redemption, account usage/router summary, promotions, support and RICA liveness. A prod build shows their demo data.
 
 ## Quick start
 
@@ -29,6 +34,46 @@ flutter build apk --release --obfuscate --split-debug-info=build/debug-info
 
 Requires the Android SDK (platform 36, build-tools) and **JDK 17** (Flutter's own Gradle template targets Java/Kotlin 17, and so does this project) — see `flutter doctor` if either is missing. Gradle will prompt to auto-install missing SDK components on first build if `cmdline-tools` is present.
 
+## Running against the local platform stack
+
+Prerequisites: Docker, and a checkout of `sentech_connect_platform`.
+
+1. Start the stack (platform repo, Git Bash): `scripts/dev-up.sh`. Caddy listens on `127.0.0.1:8088`. Make sure the `sentech` tenant has at least one active hotspot pass: run `docker compose --env-file .env -f infra/docker-compose.yml -f infra/docker-compose.observability.yml -f infra/docker-compose.dev.yml exec -T api python -m sentech_api.devseed sentech` once the platform ships that seed module, or create products with `POST /v1/admin/products` using a token from `scripts/dev-token.sh` (`DEV_ROLE=tenant_admin`).
+2. Run the app in the prod flavor (debug build):
+   - Android emulator: `flutter run --dart-define=APP_FLAVOR=prod --dart-define=API_BASE_URL=http://10.0.2.2:8088` (`10.0.2.2` is the emulator's alias for the host).
+   - iOS simulator, desktop or web: `flutter run --dart-define=APP_FLAVOR=prod --dart-define=API_BASE_URL=http://localhost:8088` (`127.0.0.1` also works).
+   - Physical Android device over USB: `adb reverse tcp:8088 tcp:8088`, then use `http://127.0.0.1:8088`.
+
+   Cleartext HTTP is accepted **only in debug builds and only to `localhost`, `127.0.0.1` or `10.0.2.2`** (`android/app/src/debug/res/xml/network_security_config.xml` plus the check in `AppEnvironment`); any other `http://` URL, or any `http://` in a release build, stops the app at startup. Use `https://` for every real environment.
+3. Sign in with a South African mobile number. The fake SMS provider writes the code to Postgres instead of sending it (platform repo): `docker compose --env-file .env -f infra/docker-compose.yml -f infra/docker-compose.observability.yml -f infra/docker-compose.dev.yml exec -T postgres psql -U sentech -d sentech -tAc "SELECT body FROM sms_outbox ORDER BY created_at DESC LIMIT 1"`.
+4. Buy a pass. The local stack uses the platform's fake payment gateway: debug builds show an "Approve / Decline test payment" sheet that calls the dev-only `POST /v1/dev/payments/{id}/simulate` (registered by the API only in env dev/test). With a real gateway (Netcash) the payment page opens in a locked-down web view and the app polls the order until the gateway's server-to-server notification marks it paid.
+
+### Flutter and the pub cache
+
+If the global pub cache is locked down or shared, keep the dependencies local to the repository: `export PUB_CACHE="$(pwd -W)/.dart_tool/pub-cache"` (Git Bash on Windows; PowerShell: `$env:PUB_CACHE = "$PWD\.dart_tool\pub-cache"`) before `flutter pub get`, `flutter analyze` and `flutter test`. `.dart_tool/` is git-ignored.
+
+### Web demo build (screenshots)
+
+`flutter build web --dart-define=APP_FLAVOR=demo` (serve `build/web` with any static server). The demo flavor is fully mock-backed and offline, so it is the easiest way to capture screens without a stack; it is not a supported production web target.
+
+### What is stubbed or fake
+
+- **SMS**: the platform's fake sender stores OTP messages in `sms_outbox`; nothing is sent. Staging and production refuse it.
+- **Payments**: the local stack uses the platform's fake gateway (dev simulate endpoint). Netcash is implemented as a request/notification **shape only**: no merchant account has been exercised, so there is no real-money path yet.
+- **Maps**: no tile provider is configured; debug/demo builds use public OSM tiles, release builds show a placeholder until `TILE_URL_TEMPLATE`/`TILE_API_KEY` are set.
+- **Languages**: Afrikaans and isiZulu cover only the migrated screens; every other string falls back to English. The translations are first drafts that need native review.
+- **Mock in both flavors**: see `stillMockInProd` above.
+
+### Live integration test
+
+`test/integration/live_api_flow_test.dart` (tag `integration`) runs OTP sign-in, consent, catalogue, order, fake-gateway checkout, `simulate accepted`, polling to `paid` and the entitlement check against a running stack. It is **skipped unless both variables are set**, so `flutter test` stays green offline. It reads the OTP via `docker compose` in the platform checkout, uses a fresh random phone number per run, and needs a seeded `sentech` catalogue:
+
+```powershell
+$env:INTEGRATION_API_BASE_URL = "http://127.0.0.1:8088"
+$env:INTEGRATION_PLATFORM_DIR = "C:\Users\Wille\Downloads\applications\sentech_connect_platform"
+flutter test test/integration/live_api_flow_test.dart
+```
+
 ## Build configuration and owner decisions
 
 Nothing below contains a real secret; each item needs an input from the owner before a production release.
@@ -42,7 +87,8 @@ Nothing below contains a real secret; each item needs an input from the owner be
 | **Crash reporting** | `CrashReporter` interface + global handlers (`FlutterError.onError`, `PlatformDispatcher.onError`, `runZonedGuarded`); reports are PII-scrubbed. Console implementation only; Sentry/Crashlytics plug-in notes are on `CrashReporter`. | Sentry DSN or Firebase project |
 | **iOS** | `ios/` generated with `--org za.co.sentech` (bundle id `za.co.sentech.sentechConnectApp`); Info.plist has camera, location-when-in-use and Face ID descriptions. Not built or signed. `permission_handler` needs the `PERMISSION_NOTIFICATIONS=1` macro in the Podfile once it exists. | Apple team id, final bundle id, signing, APNs key |
 | **Privacy policy** | `privacyPolicyUrl` placeholder in `lib/core/privacy/privacy_constants.dart` | Published policy URL |
-| **Free WiFi / vouchers / orders / account deletion** | Mock repositories behind interfaces; the client cannot enforce these rules. | Backend entitlement, voucher, order and privacy (delete/export) APIs |
+| **Platform API** | `--dart-define=APP_FLAVOR=prod --dart-define=API_BASE_URL=https://…`; tenants, OTP sign-in, passes, orders, payments, entitlements, profile/consents/export/delete. | Production API hostname (then certificate pinning with a backup pin), SMS provider, Netcash merchant account per tenant |
+| **Still mock** | Coverage, free Wi-Fi, hotspots, vouchers, usage/router, promotions, support, RICA liveness (`stillMockInProd`). | Backend APIs for each |
 
 ### Localisation
 
@@ -50,7 +96,7 @@ Nothing below contains a real secret; each item needs an input from the owner be
 
 ### Security and privacy notes
 
-- Personal data (session, registration details, consent records, orders) is stored through `SecureStore` (Android Keystore / iOS Keychain via `flutter_secure_storage`), never SharedPreferences; GPS coordinates are not persisted. Logout wipes session, registration details, orders, the free-WiFi grant and the in-memory cart; account deletion wipes everything.
+- Personal data (session, registration details, consent records, orders) is stored through `SecureStore` (Android Keystore / iOS Keychain via `flutter_secure_storage`), never SharedPreferences; GPS coordinates are not persisted. Logout revokes the session on the server, forgets the tokens and the biometric unlock, and wipes registration details, local orders, the free-WiFi grant and the in-memory cart; account deletion (`DELETE /v1/me`) wipes everything. On a cold start with a stored session and an enrolled biometric the app starts locked and "Use biometrics" unlocks it. Switching provider (Account > Change provider) signs the customer out first.
 - The RICA and Account screens set `FLAG_SECURE` (no screenshots/recents preview) through a small MethodChannel in `MainActivity.kt`. Cleartext HTTP is disabled (`network_security_config.xml`; debug builds allow localhost only). Certificate pinning is deferred until real endpoints exist.
 - Order flow is **create order -> RICA identity check -> payment -> confirmation**: the customer is only charged after verification succeeds, and the order is persisted so it can be resumed from the dashboard after a failure or an app restart.
 

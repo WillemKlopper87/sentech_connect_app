@@ -1,0 +1,3 @@
+tags:
+  integration:
+    description: Talks to a running platform stack; skipped unless INTEGRATION_API_BASE_URL and INTEGRATION_PLATFORM_DIR are set.
