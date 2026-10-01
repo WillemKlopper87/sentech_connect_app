@@ -11,6 +11,7 @@ import 'package:sentech_connect_app/core/local/tenant_preferences.dart';
 import 'package:sentech_connect_app/core/network/tenant_context.dart';
 import 'package:sentech_connect_app/features/tenant/domain/entities/app_config.dart';
 import 'package:sentech_connect_app/features/tenant/domain/entities/tenant.dart';
+import 'package:sentech_connect_app/features/tenant/domain/entities/tenant_directory.dart';
 import 'package:sentech_connect_app/features/tenant/domain/repositories/tenant_repository.dart';
 import 'package:sentech_connect_app/features/tenant/presentation/bloc/tenant_cubit.dart';
 import 'package:sentech_connect_app/features/tenant/presentation/pages/tenant_picker_page.dart';
@@ -26,7 +27,7 @@ const _acme = Tenant(
 
 class _TwoTenants implements TenantRepository {
   @override
-  Future<Either<Failure, List<Tenant>>> listTenants() async => const Right([_sentech, _acme]);
+  Future<Either<Failure, TenantDirectory>> listTenants() async => const Right(TenantDirectory([_sentech, _acme]));
 
   @override
   Future<Either<Failure, AppConfig>> getAppConfig(String slug) async => Right(AppConfig(

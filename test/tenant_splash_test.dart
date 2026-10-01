@@ -7,6 +7,7 @@ import 'package:sentech_connect_app/app/locator.dart';
 import 'package:sentech_connect_app/core/error/failure.dart';
 import 'package:sentech_connect_app/features/tenant/domain/entities/app_config.dart';
 import 'package:sentech_connect_app/features/tenant/domain/entities/tenant.dart';
+import 'package:sentech_connect_app/features/tenant/domain/entities/tenant_directory.dart';
 import 'package:sentech_connect_app/features/tenant/domain/repositories/tenant_repository.dart';
 
 import 'helpers/test_setup.dart';
@@ -20,10 +21,10 @@ class _SlowRepository implements TenantRepository {
   final gate = Completer<void>();
 
   @override
-  Future<Either<Failure, List<Tenant>>> listTenants() async {
+  Future<Either<Failure, TenantDirectory>> listTenants() async {
     await gate.future;
     final failure = this.failure;
-    return failure == null ? const Right([_sentech]) : Left(failure);
+    return failure == null ? const Right(TenantDirectory([_sentech])) : Left(failure);
   }
 
   @override

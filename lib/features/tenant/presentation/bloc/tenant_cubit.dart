@@ -157,9 +157,12 @@ class TenantCubit extends Cubit<TenantState> {
         _directoryFailed = true;
         _restoreContext();
         emit(state.copyWith(status: TenantStatus.failure, failure: failure));
-      case Right(value: final tenants):
+      case Right(value: final directory):
         _directoryFailed = false;
-        if (autoSelectSingle && tenants.length == 1) {
+        final tenants = directory.tenants;
+        // Never pick for the customer from an incomplete directory: the one
+        // usable entry may not be the provider they meant.
+        if (autoSelectSingle && tenants.length == 1 && !directory.isIncomplete) {
           await _activate(tenants.single.slug);
           return;
         }

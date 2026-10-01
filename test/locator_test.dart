@@ -13,6 +13,26 @@ import 'package:sentech_connect_app/features/tenant/domain/repositories/tenant_r
 
 import 'helpers/test_setup.dart';
 
+/// Every `register...<Interface>(...)` call (lazy/eager singleton, factory,
+/// closure or instance, arrow or block closure, `const`, named constructors)
+/// -> the implementation class it builds. A registration this pattern cannot
+/// read FAILS the test instead of being silently ignored, so a new style of
+/// registration means extending [_registration] here, never a hole.
+final _registration = RegExp(
+  r'\bregister\w*<(\w+)>\(\s*(?:\(\)\s*(?:async\s*)?(?:=>|\{\s*return)\s*)?(?:(?:const|new)\s+)?(\w+)',
+);
+final _anyRegistration = RegExp(r'\bregister\w*\s*[<(]');
+
+Map<String, String> parseRegistrations(String source) {
+  final matches = _registration.allMatches(source).toList();
+  expect(
+    matches.length,
+    _anyRegistration.allMatches(source).length,
+    reason: 'a registration in locator.dart is not readable by the allow-list test (extend _registration)',
+  );
+  return {for (final m in matches) m.group(1)!: m.group(2)!};
+}
+
 void main() {
   final prod = AppEnvironment.resolve(flavor: 'prod', apiBaseUrl: 'https://api.example.test', isDebug: false);
 
@@ -63,6 +83,71 @@ void main() {
     expect(locator.isRegistered<TenantRepository>(), isFalse);
   });
 
+  group('registration parsing (the allow-list must not be bypassable by style)', () {
+    const supported = '''
+      locator.registerLazySingleton<A>(() => MockA(locator()));
+      locator.registerLazySingleton<B>(
+        () => MockB(
+          locator(),
+        ),
+      );
+      locator.registerLazySingleton<C>(() =>
+          MockC());
+      locator.registerLazySingleton<D>(() => const MockD());
+      locator.registerLazySingleton<E>(() => MockE.named(locator()));
+      locator.registerFactory<F>(() => MockF());
+      locator.registerSingleton<G>(MockG(locator()));
+      locator.registerSingleton<H>(const MockH());
+      locator.registerLazySingleton<I>(() { return MockI(); });
+      locator.registerLazySingleton<J>(() async => LocalJ());
+    ''';
+
+    test('reads lazy singletons, factories and instances in every common form', () {
+      expect(parseRegistrations(supported), {
+        'A': 'MockA',
+        'B': 'MockB',
+        'C': 'MockC',
+        'D': 'MockD',
+        'E': 'MockE',
+        'F': 'MockF',
+        'G': 'MockG',
+        'H': 'MockH',
+        'I': 'MockI',
+        'J': 'LocalJ',
+      });
+    });
+
+    test('a registration without an explicit interface type is flagged, not skipped', () {
+      expect(
+        () => parseRegistrations('locator.registerLazySingleton(() => MockX());'),
+        throwsA(isA<TestFailure>()),
+      );
+    });
+
+    test('an unsupported shape (generic factory with parameters) is flagged, not skipped', () {
+      expect(
+        () => parseRegistrations('locator.registerFactoryParam<K, String, void>((p, _) => MockK(p));'),
+        throwsA(isA<TestFailure>()),
+      );
+    });
+
+    test('a swap to an Http implementation with multi-line arguments stays trivial', () {
+      expect(
+        parseRegistrations('''
+          locator.registerLazySingleton<AuthRepository>(
+            () => HttpAuthRepository(locator(), tokens: locator(), tenant: locator()),
+          );
+        '''),
+        {'AuthRepository': 'HttpAuthRepository'},
+      );
+    });
+
+    test('the real locator source is fully readable', () {
+      final source = File('lib/app/locator.dart').readAsStringSync();
+      expect(parseRegistrations(source).length, greaterThan(15));
+    });
+  });
+
   group('prod allow-list of mocks', () {
     // The (interface, implementation) pairs registered for prod, read from
     // the source so a newly added Mock*/Local* registration cannot slip past.
@@ -75,8 +160,7 @@ void main() {
       expect(demoStart, greaterThan(stillMockStart));
       expect(prodStart, greaterThan(demoStart));
       final relevant = source.substring(stillMockStart, demoStart) + source.substring(prodStart);
-      final pattern = RegExp(r'registerLazySingleton<(\w+)>\(\s*\(\) => (\w+)\(');
-      return {for (final m in pattern.allMatches(relevant)) m.group(1)!: m.group(2)!};
+      return parseRegistrations(relevant);
     }
 
     bool isMockLike(String implementation) => implementation.startsWith('Mock') || implementation.startsWith('Local');

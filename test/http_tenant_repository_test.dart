@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sentech_connect_app/core/diagnostics/crash_reporter.dart';
 import 'package:sentech_connect_app/core/error/failure.dart';
 import 'package:sentech_connect_app/features/tenant/data/repositories/http_tenant_repository.dart';
 import 'package:sentech_connect_app/features/tenant/domain/entities/app_config.dart';
@@ -10,20 +11,29 @@ import 'helpers/api_harness.dart';
 import 'helpers/fake_http_adapter.dart';
 import 'helpers/fixtures.dart';
 
+class _RecordingReporter extends CrashReporter {
+  final reports = <CrashReport>[];
+
+  @override
+  Future<void> report(CrashReport report) async => reports.add(report);
+}
+
 void main() {
   late ApiHarness h;
   late HttpTenantRepository repo;
   late List<String> logLines;
+  late _RecordingReporter reporter;
 
   setUp(() {
     h = ApiHarness();
     logLines = [];
-    repo = HttpTenantRepository(h.api, log: logLines.add);
+    reporter = _RecordingReporter();
+    repo = HttpTenantRepository(h.api, log: logLines.add, crashReporter: reporter, isRelease: true);
   });
 
   test('lists the ISP directory without authentication', () async {
     h.adapter.on('GET', '/v1/tenants', (_) => FakeReply(200, fixture('tenants.json')));
-    final tenants = (await repo.listTenants()).getOrElse((f) => throw StateError(f.message));
+    final tenants = (await repo.listTenants()).getOrElse((f) => throw StateError(f.message)).tenants;
     expect(tenants.map((t) => t.slug), ['sentech', 'acme-wifi']);
     expect(tenants[1].isReseller, isTrue);
     expect(tenants[1].branding.primaryColor, const Color(0xFF123456));
@@ -132,10 +142,40 @@ void main() {
           ],
         }),
       );
-      final tenants = (await repo.listTenants()).getOrElse((f) => throw StateError(f.message));
-      expect(tenants.map((t) => t.slug), ['sentech', 'acme-wifi']);
+      final directory = (await repo.listTenants()).getOrElse((f) => throw StateError(f.message));
+      expect(directory.tenants.map((t) => t.slug), ['sentech', 'acme-wifi']);
+      expect(directory.skipped, 3);
+      expect(directory.isIncomplete, isTrue);
       // A count only: never the skipped entries themselves.
       expect(logLines, ['tenant directory: skipped 3 malformed entries']);
+    });
+
+    Future<void> listWithOneBadEntry(HttpTenantRepository repo) async {
+      final good = (fixtureMap('tenants.json')['tenants']! as List).cast<Map<String, Object?>>();
+      h.adapter.on('GET', '/v1/tenants', (_) => FakeReply(200, {'tenants': [good[0], {'slug': 'Secret Bad Slug', 'name': 'Evil', 'type': 'x'}]}));
+      await repo.listTenants();
+    }
+
+    test('in release the skipped count is reported as a NON-fatal crash report (count only)', () async {
+      await listWithOneBadEntry(repo);
+      expect(reporter.reports, hasLength(1));
+      final report = reporter.reports.single;
+      expect(report.fatal, isFalse);
+      expect(report.message, contains('skipped 1'));
+      expect('${report.message} ${report.reason}', isNot(contains('Secret')));
+    });
+
+    test('outside release nothing is sent to the crash reporter', () async {
+      await listWithOneBadEntry(HttpTenantRepository(h.api, log: logLines.add, crashReporter: reporter, isRelease: false));
+      expect(reporter.reports, isEmpty);
+    });
+
+    test('a clean directory is not reported and is complete', () async {
+      h.adapter.on('GET', '/v1/tenants', (_) => FakeReply(200, fixture('tenants.json')));
+      final directory = (await repo.listTenants()).getOrElse((f) => throw StateError(f.message));
+      expect(directory.skipped, 0);
+      expect(directory.isIncomplete, isFalse);
+      expect(reporter.reports, isEmpty);
     });
 
     test('a directory where nothing is usable is a ServerFailure', () async {
@@ -145,7 +185,7 @@ void main() {
 
     test('an empty directory is an empty list, not an error', () async {
       h.adapter.on('GET', '/v1/tenants', (_) => FakeReply(200, {'tenants': <Object?>[]}));
-      expect((await repo.listTenants()).getOrElse((f) => throw StateError(f.message)), isEmpty);
+      expect((await repo.listTenants()).getOrElse((f) => throw StateError(f.message)).tenants, isEmpty);
     });
 
     test('a wrong-shaped directory body is a ServerFailure', () async {

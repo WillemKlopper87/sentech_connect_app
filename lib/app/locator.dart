@@ -149,7 +149,7 @@ void _registerProdRepositories(Uri baseUrl) {
   locator.registerLazySingleton<ApiClient>(
     () => ApiClient(baseUrl: baseUrl, tokens: locator(), tenant: locator(), sessionEvents: locator()),
   );
-  locator.registerLazySingleton<TenantRepository>(() => HttpTenantRepository(locator()));
+  locator.registerLazySingleton<TenantRepository>(() => HttpTenantRepository(locator(), crashReporter: locator()));
   locator.registerLazySingleton<ConsentRepository>(() => LocalConsentRepository(locator()));
   locator.registerLazySingleton<PrivacyRepository>(() => MockPrivacyRepository(locator()));
   locator.registerLazySingleton<AuthRepository>(

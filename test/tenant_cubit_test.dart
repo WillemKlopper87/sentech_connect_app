@@ -8,6 +8,7 @@ import 'package:sentech_connect_app/core/local/tenant_preferences.dart';
 import 'package:sentech_connect_app/core/network/tenant_context.dart';
 import 'package:sentech_connect_app/features/tenant/domain/entities/app_config.dart';
 import 'package:sentech_connect_app/features/tenant/domain/entities/tenant.dart';
+import 'package:sentech_connect_app/features/tenant/domain/entities/tenant_directory.dart';
 import 'package:sentech_connect_app/features/tenant/domain/repositories/tenant_repository.dart';
 import 'package:sentech_connect_app/features/tenant/presentation/bloc/tenant_cubit.dart';
 
@@ -23,6 +24,7 @@ AppConfig configFor(Tenant tenant, {String min = '1.0.0'}) => AppConfig(
 
 class _FakeTenantRepository implements TenantRepository {
   List<Tenant> tenants = const [_sentech];
+  int skipped = 0;
   Failure? listFailure;
   final configs = <String, Either<Failure, AppConfig>>{
     'sentech': Right(configFor(_sentech)),
@@ -31,10 +33,10 @@ class _FakeTenantRepository implements TenantRepository {
   final calls = <String>[];
 
   @override
-  Future<Either<Failure, List<Tenant>>> listTenants() async {
+  Future<Either<Failure, TenantDirectory>> listTenants() async {
     calls.add('list');
     final failure = listFailure;
-    return failure == null ? Right(tenants) : Left(failure);
+    return failure == null ? Right(TenantDirectory(tenants, skipped: skipped)) : Left(failure);
   }
 
   @override
@@ -63,7 +65,7 @@ class _GatedRepository implements TenantRepository {
   final gate = Completer<void>();
 
   @override
-  Future<Either<Failure, List<Tenant>>> listTenants() async => const Right([_sentech]);
+  Future<Either<Failure, TenantDirectory>> listTenants() async => const Right(TenantDirectory([_sentech]));
 
   @override
   Future<Either<Failure, AppConfig>> getAppConfig(String slug) async {
@@ -101,6 +103,17 @@ void main() {
     expect(context.privacyVersion, '2026-09-29');
     expect(prefs.slug, 'sentech');
     expect(prefs.configJson, isNotNull);
+    await cubit.close();
+  });
+
+  test('a single usable tenant is NOT auto-selected when other directory entries were skipped', () async {
+    repo.skipped = 1; // the skipped entry might be the one the customer wants
+    final cubit = build();
+    await cubit.bootstrap();
+    expect(cubit.state.status, TenantStatus.needsSelection);
+    expect(cubit.state.tenants, [_sentech]);
+    expect(repo.calls, ['list'], reason: 'no app-config was loaded for a guessed tenant');
+    expect(prefs.slug, isNull);
     await cubit.close();
   });
 

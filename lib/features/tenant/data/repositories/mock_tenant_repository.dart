@@ -3,6 +3,7 @@ import 'package:sentech_connect_app/core/error/failure.dart';
 import 'package:sentech_connect_app/core/network/simulated_network.dart';
 import 'package:sentech_connect_app/features/tenant/domain/entities/app_config.dart';
 import 'package:sentech_connect_app/features/tenant/domain/entities/tenant.dart';
+import 'package:sentech_connect_app/features/tenant/domain/entities/tenant_directory.dart';
 import 'package:sentech_connect_app/features/tenant/domain/repositories/tenant_repository.dart';
 
 /// Demo flavor: Sentech is the only tenant and every feature flag is on.
@@ -20,9 +21,9 @@ class MockTenantRepository implements TenantRepository {
   final SimulatedNetwork _network;
 
   @override
-  Future<Either<Failure, List<Tenant>>> listTenants() async {
+  Future<Either<Failure, TenantDirectory>> listTenants() async {
     if (_network.failure case final failure?) return Left(failure);
-    return const Right([sentech]);
+    return const Right(TenantDirectory([sentech]));
   }
 
   @override
