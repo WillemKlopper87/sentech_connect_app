@@ -5,6 +5,7 @@ import 'package:fpdart/fpdart.dart';
 import 'package:sentech_connect_app/app/router/app_router.dart';
 import 'package:sentech_connect_app/app/theme/app_colors.dart';
 import 'package:sentech_connect_app/app/theme/app_theme.dart';
+import 'package:sentech_connect_app/app/theme/color_contrast.dart';
 import 'package:sentech_connect_app/core/error/failure.dart';
 import 'package:sentech_connect_app/core/local/tenant_preferences.dart';
 import 'package:sentech_connect_app/core/network/tenant_context.dart';
@@ -92,8 +93,68 @@ void main() {
     expect(AppTheme.light().colorScheme.onPrimary, Colors.white);
     expect(AppTheme.dark().colorScheme.onPrimary, AppColors.darkBlue);
     expect(AppTheme.light(primary: const Color(0xFF123456)).colorScheme.primary, const Color(0xFF123456));
-    expect(AppTheme.light(primary: const Color(0xFFFFEE88)).colorScheme.onPrimary, Colors.black);
     expect(AppTheme.dark(primary: const Color(0xFF123456)).colorScheme.primary, isNot(const Color(0xFF123456)));
+  });
+
+  group('server colours are made legible (R-m5)', () {
+    test('every light primary reaches 4.5:1 on the page and has legible text on it', () {
+      for (final colour in const [
+        Color(0xFFFFFF00),
+        Color(0xFFFFFFFF),
+        Color(0xFF000000),
+        Color(0xFF808080),
+        Color(0xFF777777),
+        Color(0xFFFFEE88),
+        Color(0xFF00CC66),
+        Color(0xFFFF7700),
+      ]) {
+        final scheme = AppTheme.light(primary: colour).colorScheme;
+        expect(ColorContrast.ratio(scheme.primary, AppColors.lightBg), greaterThanOrEqualTo(4.5), reason: '$colour');
+        expect(ColorContrast.ratio(scheme.onPrimary, scheme.primary), greaterThanOrEqualTo(4.5), reason: '$colour');
+      }
+    });
+
+    test('every dark primary reaches 4.5:1 on navy and has legible text on it', () {
+      for (final colour in const [
+        Color(0xFFFFFF00),
+        Color(0xFFFFFFFF),
+        Color(0xFF000000),
+        Color(0xFF808080),
+        Color(0xFF123456),
+      ]) {
+        final scheme = AppTheme.dark(primary: colour).colorScheme;
+        expect(ColorContrast.ratio(scheme.primary, AppColors.darkBlue), greaterThanOrEqualTo(4.5), reason: '$colour');
+        expect(ColorContrast.ratio(scheme.onPrimary, scheme.primary), greaterThanOrEqualTo(4.5), reason: '$colour');
+      }
+    });
+
+    test('a colour that is already legible is kept as is', () {
+      expect(AppTheme.light(primary: const Color(0xFF123456)).colorScheme.primary, const Color(0xFF123456));
+    });
+  });
+
+  testWidgets('Android back closes the picker and keeps the current provider', (tester) async {
+    final c = cubit(savedSlug: 'sentech');
+    addTearDown(c.close);
+    await c.bootstrap();
+    await c.openPicker();
+    await pump(tester, c, const TenantPickerPage());
+    expect(c.state.status, TenantStatus.needsSelection);
+
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+    expect(c.state.status, TenantStatus.ready);
+    expect(c.state.config!.tenant.slug, 'sentech');
+  });
+
+  testWidgets('the current provider is marked selected', (tester) async {
+    final c = cubit(savedSlug: 'sentech');
+    addTearDown(c.close);
+    await c.bootstrap();
+    await c.openPicker();
+    await pump(tester, c, const TenantPickerPage());
+    expect(tester.widget<ListTile>(find.widgetWithText(ListTile, 'Sentech')).selected, isTrue);
+    expect(tester.widget<ListTile>(find.widgetWithText(ListTile, 'Acme Wi-Fi')).selected, isFalse);
   });
 
   group('tenantRedirect', () {

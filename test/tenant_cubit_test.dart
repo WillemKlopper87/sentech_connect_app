@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -40,6 +41,34 @@ class _FakeTenantRepository implements TenantRepository {
   Future<Either<Failure, AppConfig>> getAppConfig(String slug) async {
     calls.add('config:$slug');
     return configs[slug] ?? const Left(NotFoundFailure());
+  }
+}
+
+class _ThrowingPrefs extends InMemoryTenantPreferences {
+  _ThrowingPrefs({this.throwOnLoad = false, this.throwOnSave = false});
+
+  final bool throwOnLoad;
+  final bool throwOnSave;
+
+  @override
+  Future<String?> loadSlug() async => throwOnLoad ? throw StateError('prefs unavailable') : super.loadSlug();
+
+  @override
+  Future<void> saveSlug(String value) async =>
+      throwOnSave ? throw StateError('prefs unavailable') : super.saveSlug(value);
+}
+
+/// Answers `getAppConfig` only when told to, to test closing mid-flight.
+class _GatedRepository implements TenantRepository {
+  final gate = Completer<void>();
+
+  @override
+  Future<Either<Failure, List<Tenant>>> listTenants() async => const Right([_sentech]);
+
+  @override
+  Future<Either<Failure, AppConfig>> getAppConfig(String slug) async {
+    await gate.future;
+    return Right(configFor(_sentech));
   }
 }
 
@@ -173,5 +202,176 @@ void main() {
     expect(cubit.state.status, TenantStatus.ready);
     expect(cubit.state.config!.tenant, _sentech);
     await cubit.close();
+  });
+
+  group('every tenant change signs out first (R-m5)', () {
+    test('a saved tenant that disappears signs out before the replacement is auto-selected', () async {
+      prefs.slug = 'gone-isp';
+      final cubit = build(onChanging: () async => repo.calls.add('sign-out'));
+      await cubit.bootstrap();
+      expect(repo.calls, ['config:gone-isp', 'sign-out', 'list', 'config:sentech']);
+      expect(cubit.state.config!.tenant, _sentech);
+      await cubit.close();
+    });
+
+    test('retry() from the update gate signs out when the tenant has since disappeared', () async {
+      repo.tenants = [_acme];
+      prefs.slug = 'sentech';
+      repo.configs['sentech'] = Right(configFor(_sentech, min: '2.0.0'));
+      final cubit = build(onChanging: () async => repo.calls.add('sign-out'));
+      await cubit.bootstrap();
+      expect(cubit.state.status, TenantStatus.updateRequired);
+      repo.calls.clear();
+
+      repo.configs['sentech'] = const Left(NotFoundFailure());
+      await cubit.retry();
+      expect(repo.calls, ['config:sentech', 'sign-out', 'list', 'config:acme-wifi']);
+      expect(cubit.state.config!.tenant, _acme);
+      await cubit.close();
+    });
+
+    test('retry() of the same tenant does not sign out', () async {
+      var signOuts = 0;
+      prefs.slug = 'sentech';
+      repo.configs['sentech'] = Right(configFor(_sentech, min: '2.0.0'));
+      final cubit = build(onChanging: () async => signOuts++);
+      await cubit.bootstrap();
+      repo.configs['sentech'] = Right(configFor(_sentech));
+      await cubit.retry();
+      expect(cubit.state.status, TenantStatus.ready);
+      expect(signOuts, 0);
+      await cubit.close();
+    });
+
+    test('retrying a failed switch signs out once, not again', () async {
+      var signOuts = 0;
+      final cubit = build(onChanging: () async => signOuts++);
+      await cubit.bootstrap();
+      repo.configs['acme-wifi'] = const Left(NetworkFailure());
+      await cubit.select(_acme);
+      expect(cubit.state.status, TenantStatus.failure);
+      repo.configs['acme-wifi'] = Right(configFor(_acme));
+      await cubit.retry();
+      expect(cubit.state.config!.tenant, _acme);
+      expect(signOuts, 1);
+      await cubit.close();
+    });
+
+    test('a failed switch keeps slug, config and legal versions consistent', () async {
+      final cubit = build(onChanging: () async {});
+      await cubit.bootstrap();
+      repo.configs['acme-wifi'] = const Left(NetworkFailure());
+      await cubit.select(_acme);
+      expect(cubit.state.status, TenantStatus.failure);
+      expect(cubit.state.config!.tenant, _sentech);
+      expect(context.slug, 'sentech');
+      expect(context.termsVersion, '2026-09-30');
+      await cubit.close();
+    });
+
+    test('a failing sign-out blocks the switch and shows a failure instead of throwing', () async {
+      final cubit = build(onChanging: () async => throw StateError('keystore'));
+      await cubit.bootstrap();
+      repo.calls.clear();
+      await cubit.select(_acme);
+      expect(cubit.state.status, TenantStatus.failure);
+      expect(cubit.state.config!.tenant, _sentech);
+      expect(context.slug, 'sentech');
+      expect(repo.calls, isEmpty, reason: 'the new tenant must not be loaded');
+      await cubit.close();
+    });
+
+    test('a second tap while switching is ignored', () async {
+      var signOuts = 0;
+      final cubit = build(onChanging: () async => signOuts++);
+      await cubit.bootstrap();
+      repo.calls.clear();
+      await Future.wait([cubit.select(_acme), cubit.select(_acme)]);
+      expect(signOuts, 1);
+      expect(repo.calls, ['config:acme-wifi']);
+      await cubit.close();
+    });
+  });
+
+  group('untrusted and failing storage (R-m5)', () {
+    test('a tampered saved slug is dropped, the customer is signed out and the directory is used', () async {
+      var signOuts = 0;
+      prefs.slug = 'Bad Slug/../';
+      final cubit = build(onChanging: () async => signOuts++);
+      await cubit.bootstrap();
+      expect(cubit.state.status, TenantStatus.ready);
+      expect(cubit.state.config!.tenant, _sentech);
+      expect(signOuts, 1);
+      expect(prefs.slug, 'sentech');
+      await cubit.close();
+    });
+
+    test('preferences that throw on read end in a failure, never a hang', () async {
+      final cubit = TenantCubit(repository: repo, context: context, preferences: _ThrowingPrefs(throwOnLoad: true));
+      await cubit.bootstrap();
+      expect(cubit.state.status, TenantStatus.failure);
+      expect(cubit.state.isSettled, isTrue);
+      await cubit.close();
+    });
+
+    test('preferences that throw on write do not stop a loaded config', () async {
+      final cubit = TenantCubit(repository: repo, context: context, preferences: _ThrowingPrefs(throwOnSave: true));
+      await cubit.bootstrap();
+      expect(cubit.state.status, TenantStatus.ready);
+      await cubit.close();
+    });
+
+    test('a cached config for a different tenant is rejected', () async {
+      prefs
+        ..slug = 'acme-wifi'
+        ..configJson = jsonEncode(configFor(_sentech).toJson());
+      repo.configs['acme-wifi'] = const Left(NetworkFailure());
+      final cubit = build();
+      await cubit.bootstrap();
+      expect(cubit.state.status, TenantStatus.failure);
+      expect(cubit.state.config, isNull);
+      await cubit.close();
+    });
+
+    test('malformed cached config is ignored', () async {
+      for (final raw in ['not json', '[1,2]', '{"a":1}', '{"tenant":{"slug":5}}']) {
+        prefs
+          ..slug = 'sentech'
+          ..configJson = raw;
+        repo.configs['sentech'] = const Left(NetworkFailure());
+        final cubit = build();
+        await cubit.bootstrap();
+        expect(cubit.state.status, TenantStatus.failure, reason: raw);
+        await cubit.close();
+      }
+    });
+
+    test('nothing is applied or saved once the cubit is closed mid-load', () async {
+      final gated = _GatedRepository();
+      prefs.slug = 'sentech';
+      final cubit = TenantCubit(repository: gated, context: context, preferences: prefs);
+      final pending = cubit.bootstrap();
+      await cubit.close();
+      gated.gate.complete();
+      await pending;
+      expect(prefs.configJson, isNull);
+      expect(context.termsVersion, isNull);
+    });
+
+    test('Retry after a failed directory reload reloads the directory, not the current tenant', () async {
+      repo.tenants = [_sentech, _acme];
+      prefs.slug = 'sentech';
+      final cubit = build();
+      await cubit.bootstrap();
+      repo.listFailure = const NetworkFailure();
+      await cubit.openPicker();
+      expect(cubit.state.status, TenantStatus.failure);
+
+      repo.listFailure = null;
+      await cubit.retry();
+      expect(cubit.state.status, TenantStatus.needsSelection);
+      expect(cubit.state.tenants, [_sentech, _acme]);
+      await cubit.close();
+    });
   });
 }

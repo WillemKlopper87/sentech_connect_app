@@ -5,6 +5,8 @@ import 'package:sentech_connect_app/l10n/l10n.dart';
 
 /// Shown instead of every screen when app-config's min_app_version is newer
 /// than this build. "Retry" re-reads the config (the minimum may be lowered).
+/// There is no "open store" button yet: it needs the app's store listing URL,
+/// which does not exist until the app is published.
 class UpdateRequiredPage extends StatelessWidget {
   const UpdateRequiredPage({super.key});
 

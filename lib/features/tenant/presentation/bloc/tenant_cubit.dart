@@ -28,7 +28,8 @@ class TenantState extends Equatable {
 
   bool get isSettled => status != TenantStatus.initial && status != TenantStatus.loading;
 
-  TenantState copyWith({TenantStatus? status, List<Tenant>? tenants, AppConfig? config, Failure? failure}) => TenantState(
+  TenantState copyWith({TenantStatus? status, List<Tenant>? tenants, AppConfig? config, Failure? failure}) =>
+      TenantState(
         status: status ?? this.status,
         tenants: tenants ?? this.tenants,
         config: config ?? this.config,
@@ -49,34 +50,47 @@ class TenantCubit extends Cubit<TenantState> {
     required this._preferences,
     String currentAppVersion = appVersion,
     this._onTenantChanging,
-  })  : _appVersion = currentAppVersion,
-        super(const TenantState());
+  }) : _appVersion = currentAppVersion,
+       super(const TenantState());
 
   final TenantRepository _repository;
   final TenantContext _context;
   final TenantPreferences _preferences;
   final String _appVersion;
 
-  /// Signs the customer out before a different tenant is loaded: tokens,
+  /// Signs the customer out before a different tenant becomes active: tokens,
   /// session and personal data belong to exactly one tenant.
   final Future<void> Function()? _onTenantChanging;
+
+  /// The tenant whose session/personal data may be on this device (the saved
+  /// or last applied one); null once signed out or before any choice. EVERY
+  /// path that activates a different slug signs out first (see `_activate`).
+  String? _committedSlug;
   String? _targetSlug;
 
-  Future<void> bootstrap() async {
+  /// True when the last failure was loading the directory (retry reloads it)
+  /// rather than activating a tenant.
+  bool _directoryFailed = false;
+  bool _selecting = false;
+
+  static const _unexpected = ServerFailure('Something went wrong. Please try again.');
+
+  Future<void> bootstrap() => _guard(() async {
     emit(state.copyWith(status: TenantStatus.loading));
-    final saved = await _preferences.loadSlug();
+    final saved = await _loadSavedSlug();
+    _committedSlug = saved;
     if (saved != null) {
       await _activate(saved);
     } else {
       await _loadDirectory();
     }
-  }
+  });
 
   /// "Change provider" from Account.
-  Future<void> openPicker() async {
+  Future<void> openPicker() => _guard(() async {
     emit(state.copyWith(status: TenantStatus.loading));
     await _loadDirectory(autoSelectSingle: false);
-  }
+  });
 
   void cancelPicker() {
     final config = state.config;
@@ -84,18 +98,55 @@ class TenantCubit extends Cubit<TenantState> {
   }
 
   Future<void> select(Tenant tenant) async {
-    final current = state.config?.tenant.slug;
-    if (current != null && current != tenant.slug) await _onTenantChanging?.call();
-    if (isClosed) return;
-    emit(state.copyWith(status: TenantStatus.loading));
-    await _activate(tenant.slug);
+    // Ignore a second tap while a switch (sign-out + load) is in flight.
+    if (_selecting || state.status == TenantStatus.loading) return;
+    _selecting = true;
+    try {
+      await _guard(() async {
+        emit(state.copyWith(status: TenantStatus.loading));
+        await _activate(tenant.slug);
+      });
+    } finally {
+      _selecting = false;
+    }
   }
 
-  Future<void> retry() async {
-    final target = _targetSlug;
-    if (target == null) return bootstrap();
+  Future<void> retry() => _guard(() async {
     emit(state.copyWith(status: TenantStatus.loading));
-    await _activate(target);
+    final target = _targetSlug;
+    if (_directoryFailed || target == null) {
+      await _loadDirectory(autoSelectSingle: state.config == null);
+    } else {
+      await _activate(target);
+    }
+  });
+
+  /// Any unexpected throw (storage, parsing, sign-out) ends in a retryable
+  /// failure state instead of leaving the app on `loading` forever.
+  Future<void> _guard(Future<void> Function() body) async {
+    try {
+      await body();
+    } catch (_) {
+      if (isClosed) return;
+      _restoreContext();
+      emit(state.copyWith(status: TenantStatus.failure, failure: _unexpected));
+    }
+  }
+
+  /// A persisted slug is untrusted (tampered prefs, backup restore): an
+  /// invalid one is dropped, and because the tenant of any stored session is
+  /// then unknown, the customer is signed out.
+  Future<String?> _loadSavedSlug() async {
+    final raw = await _preferences.loadSlug();
+    if (raw == null) return null;
+    try {
+      TenantContext(slug: raw);
+      return raw;
+    } on ArgumentError {
+      await _preferences.clear();
+      await _onTenantChanging?.call();
+      return null;
+    }
   }
 
   Future<void> _loadDirectory({bool autoSelectSingle = true}) async {
@@ -103,8 +154,11 @@ class TenantCubit extends Cubit<TenantState> {
     if (isClosed) return;
     switch (result) {
       case Left(value: final failure):
+        _directoryFailed = true;
+        _restoreContext();
         emit(state.copyWith(status: TenantStatus.failure, failure: failure));
       case Right(value: final tenants):
+        _directoryFailed = false;
         if (autoSelectSingle && tenants.length == 1) {
           await _activate(tenants.single.slug);
           return;
@@ -113,18 +167,37 @@ class TenantCubit extends Cubit<TenantState> {
     }
   }
 
+  /// Signs out if a session of another tenant may exist. False (and a failure
+  /// state) when the sign-out itself failed: the tenant must not change then.
+  Future<bool> _signOutBeforeChange() async {
+    if (_committedSlug == null) return true;
+    try {
+      await _onTenantChanging?.call();
+    } catch (_) {
+      if (!isClosed) {
+        _restoreContext();
+        emit(state.copyWith(status: TenantStatus.failure, failure: _unexpected));
+      }
+      return false;
+    }
+    _committedSlug = null;
+    return !isClosed;
+  }
+
   Future<void> _activate(String slug) async {
     _targetSlug = slug;
-    _context.slug = slug;
+    _directoryFailed = false;
+    if (_committedSlug != null && _committedSlug != slug && !await _signOutBeforeChange()) return;
     final result = await _repository.getAppConfig(slug);
     if (isClosed) return;
     switch (result) {
       case Right(value: final config):
-        await _preferences.saveSlug(slug);
-        await _preferences.saveConfigJson(jsonEncode(config.toJson()));
+        await _persist(slug, config);
         _apply(config);
       case Left(value: NotFoundFailure()):
-        // The saved tenant was removed or suspended: choose again.
+        // The tenant was removed or suspended: its session must not outlive
+        // it, and the customer chooses again.
+        if (!await _signOutBeforeChange()) return;
         await _preferences.clear();
         _targetSlug = null;
         await _loadDirectory();
@@ -134,29 +207,55 @@ class TenantCubit extends Cubit<TenantState> {
         if (cached != null) {
           _apply(cached);
         } else {
+          _restoreContext();
           emit(state.copyWith(status: TenantStatus.failure, failure: failure));
         }
     }
   }
 
+  /// Remembering the choice is best effort: failing to write must not stop a
+  /// config that loaded fine (the customer is simply asked again next launch).
+  Future<void> _persist(String slug, AppConfig config) async {
+    try {
+      await _preferences.saveSlug(slug);
+      await _preferences.saveConfigJson(jsonEncode(config.toJson()));
+    } catch (_) {}
+  }
+
   void _apply(AppConfig config) {
+    _applyToContext(config);
+    _committedSlug = config.tenant.slug;
+    final status = isVersionAtLeast(_appVersion, config.minAppVersion)
+        ? TenantStatus.ready
+        : TenantStatus.updateRequired;
+    emit(TenantState(status: status, tenants: state.tenants, config: config));
+  }
+
+  void _applyToContext(AppConfig config) {
     _context
       ..slug = config.tenant.slug
       ..termsVersion = config.legal.terms
       ..privacyVersion = config.legal.privacy;
-    final status = isVersionAtLeast(_appVersion, config.minAppVersion) ? TenantStatus.ready : TenantStatus.updateRequired;
-    emit(TenantState(status: status, tenants: state.tenants, config: config));
   }
 
+  /// After a failed load/switch the context must still describe the config
+  /// shown in `state`, never a mix of two tenants.
+  void _restoreContext() {
+    final config = state.config;
+    if (config != null) _applyToContext(config);
+  }
+
+  /// The cache is untrusted storage: anything malformed, or for another
+  /// tenant, is ignored.
   Future<AppConfig?> _cachedConfig(String slug) async {
-    final raw = await _preferences.loadConfigJson();
-    if (raw == null) return null;
     try {
+      final raw = await _preferences.loadConfigJson();
+      if (raw == null) return null;
       final decoded = jsonDecode(raw);
       if (decoded is! Map) return null;
       final config = AppConfig.fromJson(Map<String, Object?>.from(decoded));
       return config.tenant.slug == slug ? config : null;
-    } on FormatException {
+    } catch (_) {
       return null;
     }
   }

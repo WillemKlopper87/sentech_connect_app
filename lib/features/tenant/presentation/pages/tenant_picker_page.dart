@@ -18,28 +18,46 @@ class TenantPickerPage extends StatelessWidget {
       builder: (context, state) {
         final cubit = context.read<TenantCubit>();
         final current = state.config?.tenant.slug;
-        return Scaffold(
-          appBar: AppBar(
-            title: Text(l10n.tenantPickerTitle),
-            automaticallyImplyLeading: false,
-            actions: [
-              if (current != null)
-                IconButton(tooltip: l10n.commonCancel, icon: const Icon(Icons.close), onPressed: cubit.cancelPicker),
-            ],
-          ),
-          body: switch (state.status) {
-            TenantStatus.initial || TenantStatus.loading => const Center(child: CircularProgressIndicator()),
-            TenantStatus.failure when state.tenants.isEmpty => FailureView(failure: state.failure, onRetry: cubit.retry),
-            _ => ListView(
+        // Android back closes the picker (keeping the current provider) when
+        // there is one; with no provider chosen yet it leaves the app.
+        return PopScope(
+          canPop: current == null,
+          onPopInvokedWithResult: (didPop, _) {
+            if (!didPop) cubit.cancelPicker();
+          },
+          child: Scaffold(
+            appBar: AppBar(
+              title: Text(l10n.tenantPickerTitle),
+              automaticallyImplyLeading: false,
+              actions: [
+                if (current != null)
+                  IconButton(tooltip: l10n.commonCancel, icon: const Icon(Icons.close), onPressed: cubit.cancelPicker),
+              ],
+            ),
+            body: switch (state.status) {
+              TenantStatus.initial || TenantStatus.loading => const Center(child: CircularProgressIndicator()),
+              TenantStatus.failure when state.tenants.isEmpty => FailureView(
+                failure: state.failure,
+                onRetry: cubit.retry,
+              ),
+              _ => ListView(
                 padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
                 children: [
+                  if (state.status == TenantStatus.failure) ...[
+                    FailureView(failure: state.failure, onRetry: cubit.retry, compact: true),
+                    const SizedBox(height: 16),
+                  ],
                   Text(l10n.tenantPickerSubtitle, style: Theme.of(context).textTheme.bodyMedium),
                   const SizedBox(height: 16),
                   for (final tenant in state.tenants) ...[
                     Card(
                       child: ListTile(
                         minTileHeight: 64,
-                        leading: SizedBox(width: 48, child: Center(child: TenantLogo(tenant: tenant))),
+                        selected: tenant.slug == current,
+                        leading: SizedBox(
+                          width: 48,
+                          child: Center(child: TenantLogo(tenant: tenant, decorative: true)),
+                        ),
                         title: Text(tenant.name),
                         subtitle: Text(tenant.isReseller ? l10n.tenantTypeReseller : l10n.tenantTypeOperator),
                         trailing: Icon(tenant.slug == current ? Icons.check_circle : Icons.chevron_right),
@@ -50,7 +68,8 @@ class TenantPickerPage extends StatelessWidget {
                   ],
                 ],
               ),
-          },
+            },
+          ),
         );
       },
     );

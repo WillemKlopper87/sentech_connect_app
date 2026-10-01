@@ -176,7 +176,8 @@ GoRouter _buildRouter(AuthCubit authCubit, TenantCubit? tenantCubit, Listenable 
           onFinished: () async {
             final tenant = tenantCubit;
             if (tenant != null && !tenant.state.isSettled) {
-              await tenant.stream.firstWhere((s) => s.isSettled);
+              // `orElse`: a closed cubit ends the stream, which must not throw here.
+              await tenant.stream.firstWhere((s) => s.isSettled, orElse: () => tenant.state);
             }
             if (!context.mounted) return;
             // A restored session skips login and the first-time coverage step.
