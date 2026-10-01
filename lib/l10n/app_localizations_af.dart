@@ -313,4 +313,40 @@ class AppLocalizationsAf extends AppLocalizations {
 
   @override
   String get a11yEnterCode => 'Voer kode handmatig in';
+
+  @override
+  String get tenantPickerTitle => 'Choose your internet provider';
+
+  @override
+  String get tenantPickerSubtitle =>
+      'Pick the provider you buy Wi-Fi passes from. You can change this later in Account.';
+
+  @override
+  String get tenantTypeOperator => 'Network operator';
+
+  @override
+  String get tenantTypeReseller => 'Reseller';
+
+  @override
+  String get tenantChangeTitle => 'Change provider?';
+
+  @override
+  String get tenantChangeBody =>
+      'Switching provider signs you out on this phone. Your account with the current provider is not affected.';
+
+  @override
+  String get tenantChangeConfirm => 'Switch';
+
+  @override
+  String get updateRequiredTitle => 'Update required';
+
+  @override
+  String get updateRequiredBody =>
+      'This version of the app is no longer supported. Install the latest version from your app store to continue.';
+
+  @override
+  String get accountProvider => 'PROVIDER';
+
+  @override
+  String get accountChangeProvider => 'Change provider';
 }

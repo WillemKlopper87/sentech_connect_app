@@ -17,7 +17,10 @@ import 'package:url_launcher/url_launcher.dart';
 /// the customer's name and mobile number, so the screen is capture-protected
 /// (FLAG_SECURE) while it is visible.
 class AccountPage extends StatelessWidget {
-  const AccountPage({super.key});
+  const AccountPage({super.key, this.onChangeProvider, this.providerName});
+
+  final VoidCallback? onChangeProvider;
+  final String? providerName;
 
   @override
   Widget build(BuildContext context) {
@@ -31,13 +34,16 @@ class AccountPage extends StatelessWidget {
           },
         ),
       ],
-      child: const SecureScreen(child: _AccountView()),
+      child: SecureScreen(child: _AccountView(onChangeProvider: onChangeProvider, providerName: providerName)),
     );
   }
 }
 
 class _AccountView extends StatelessWidget {
-  const _AccountView();
+  const _AccountView({this.onChangeProvider, this.providerName});
+
+  final VoidCallback? onChangeProvider;
+  final String? providerName;
 
   static const _languages = <(Locale?, String?)>[
     (null, null), // follow device (label localised)
@@ -142,6 +148,20 @@ class _AccountView extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 24),
+              if (onChangeProvider case final changeProvider?) ...[
+                Text(l10n.accountProvider, style: heading),
+                const SizedBox(height: 8),
+                _Bordered(
+                  child: ListTile(
+                    minTileHeight: 48,
+                    leading: const Icon(Icons.swap_horiz),
+                    title: Text(l10n.accountChangeProvider),
+                    subtitle: providerName == null ? null : Text(providerName!),
+                    onTap: changeProvider,
+                  ),
+                ),
+                const SizedBox(height: 24),
+              ],
               Text(l10n.accountNotifications, style: heading),
               const SizedBox(height: 8),
               const _NotificationsTile(),

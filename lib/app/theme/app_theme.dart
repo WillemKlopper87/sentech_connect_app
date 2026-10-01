@@ -14,10 +14,14 @@ import 'package:sentech_connect_app/app/theme/app_colors.dart';
 /// internal communiques) always use a coloured header band, not a
 /// colourless one.
 abstract class AppTheme {
-  static ThemeData light() {
-    const scheme = ColorScheme.light(
-      primary: AppColors.sentechBlue,
-      onPrimary: Colors.white,
+  /// [primary] is the tenant's branding colour (white-label, spec §12);
+  /// null keeps the Sentech brand.
+  static ThemeData light({Color? primary}) {
+    final brand = primary ?? AppColors.sentechBlue;
+    final onBrand = _onColor(brand);
+    final scheme = ColorScheme.light(
+      primary: brand,
+      onPrimary: onBrand,
       secondary: AppColors.lightBlue,
       onSecondary: Colors.white,
       surface: AppColors.lightSurface,
@@ -25,19 +29,15 @@ abstract class AppTheme {
       error: AppColors.red,
       onError: Colors.white,
     );
-    return _themeFrom(
-      scheme,
-      scaffoldBg: AppColors.lightBg,
-      appBarBg: AppColors.sentechBlue,
-      appBarFg: Colors.white,
-      navBarBg: Colors.white,
-    );
+    return _themeFrom(scheme, scaffoldBg: AppColors.lightBg, appBarBg: brand, appBarFg: onBrand, navBarBg: Colors.white);
   }
 
-  static ThemeData dark() {
-    const scheme = ColorScheme.dark(
-      primary: AppColors.lightBlue,
-      onPrimary: AppColors.darkBlue,
+  /// Dark mode lightens a tenant colour so it stays readable on navy.
+  static ThemeData dark({Color? primary}) {
+    final accent = primary == null ? AppColors.lightBlue : Color.lerp(primary, Colors.white, 0.35)!;
+    final scheme = ColorScheme.dark(
+      primary: accent,
+      onPrimary: primary == null ? AppColors.darkBlue : _onColor(accent),
       secondary: AppColors.orange,
       onSecondary: Colors.black,
       surface: AppColors.darkBlue,
@@ -45,14 +45,11 @@ abstract class AppTheme {
       error: AppColors.red,
       onError: Colors.white,
     );
-    return _themeFrom(
-      scheme,
-      scaffoldBg: AppColors.darkBg,
-      appBarBg: AppColors.darkBlue,
-      appBarFg: Colors.white,
-      navBarBg: AppColors.darkSurface,
-    );
+    return _themeFrom(scheme, scaffoldBg: AppColors.darkBg, appBarBg: AppColors.darkBlue, appBarFg: Colors.white, navBarBg: AppColors.darkSurface);
   }
+
+  static Color _onColor(Color background) =>
+      ThemeData.estimateBrightnessForColor(background) == Brightness.dark ? Colors.white : Colors.black;
 
   static ThemeData _themeFrom(
     ColorScheme scheme, {
@@ -71,9 +68,8 @@ abstract class AppTheme {
         foregroundColor: appBarFg,
         elevation: 0,
         centerTitle: false,
-        // Brand app bar (blue in light mode, navy in dark) is always dark
-        // enough for light status-bar icons in both themes.
-        systemOverlayStyle: SystemUiOverlayStyle.light,
+        // Light status-bar icons on a dark bar; dark icons on a light tenant colour.
+        systemOverlayStyle: appBarFg == Colors.white ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
         titleTextStyle: TextStyle(
           fontSize: 18,
           fontWeight: FontWeight.w800,

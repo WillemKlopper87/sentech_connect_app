@@ -663,6 +663,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Enter code manually'**
   String get a11yEnterCode;
+
+  /// No description provided for @tenantPickerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your internet provider'**
+  String get tenantPickerTitle;
+
+  /// No description provided for @tenantPickerSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick the provider you buy Wi-Fi passes from. You can change this later in Account.'**
+  String get tenantPickerSubtitle;
+
+  /// No description provided for @tenantTypeOperator.
+  ///
+  /// In en, this message translates to:
+  /// **'Network operator'**
+  String get tenantTypeOperator;
+
+  /// No description provided for @tenantTypeReseller.
+  ///
+  /// In en, this message translates to:
+  /// **'Reseller'**
+  String get tenantTypeReseller;
+
+  /// No description provided for @tenantChangeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Change provider?'**
+  String get tenantChangeTitle;
+
+  /// No description provided for @tenantChangeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Switching provider signs you out on this phone. Your account with the current provider is not affected.'**
+  String get tenantChangeBody;
+
+  /// No description provided for @tenantChangeConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch'**
+  String get tenantChangeConfirm;
+
+  /// No description provided for @updateRequiredTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Update required'**
+  String get updateRequiredTitle;
+
+  /// No description provided for @updateRequiredBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This version of the app is no longer supported. Install the latest version from your app store to continue.'**
+  String get updateRequiredBody;
+
+  /// No description provided for @accountProvider.
+  ///
+  /// In en, this message translates to:
+  /// **'PROVIDER'**
+  String get accountProvider;
+
+  /// No description provided for @accountChangeProvider.
+  ///
+  /// In en, this message translates to:
+  /// **'Change provider'**
+  String get accountChangeProvider;
 }
 
 class _AppLocalizationsDelegate

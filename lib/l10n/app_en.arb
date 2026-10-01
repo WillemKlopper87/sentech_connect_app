@@ -106,5 +106,16 @@
   "a11yDecreaseQuantity": "Decrease quantity",
   "a11yIncreaseQuantity": "Increase quantity",
   "a11yToggleTorch": "Toggle flashlight",
-  "a11yEnterCode": "Enter code manually"
+  "a11yEnterCode": "Enter code manually",
+  "tenantPickerTitle": "Choose your internet provider",
+  "tenantPickerSubtitle": "Pick the provider you buy Wi-Fi passes from. You can change this later in Account.",
+  "tenantTypeOperator": "Network operator",
+  "tenantTypeReseller": "Reseller",
+  "tenantChangeTitle": "Change provider?",
+  "tenantChangeBody": "Switching provider signs you out on this phone. Your account with the current provider is not affected.",
+  "tenantChangeConfirm": "Switch",
+  "updateRequiredTitle": "Update required",
+  "updateRequiredBody": "This version of the app is no longer supported. Install the latest version from your app store to continue.",
+  "accountProvider": "PROVIDER",
+  "accountChangeProvider": "Change provider"
 }

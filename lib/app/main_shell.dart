@@ -25,12 +25,16 @@ class MainShell extends StatefulWidget {
     required this.onResumeOrder,
     required this.onOpenPromotions,
     required this.onFindHotspots,
+    this.onChangeProvider,
+    this.providerName,
   });
 
   final VoidCallback onOpenCart;
   final void Function(Order order) onResumeOrder;
   final VoidCallback onOpenPromotions;
   final VoidCallback onFindHotspots;
+  final VoidCallback? onChangeProvider;
+  final String? providerName;
 
   @override
   State<MainShell> createState() => _MainShellState();
@@ -89,7 +93,7 @@ class _MainShellState extends State<MainShell> {
       ),
       const VoucherScannerPage(),
       BlocProvider(create: (_) => SupportCubit(locator()), child: const SupportPage()),
-      const AccountPage(),
+      AccountPage(onChangeProvider: widget.onChangeProvider, providerName: widget.providerName),
     ];
     return Scaffold(
       body: IndexedStack(

@@ -7,6 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sentech_connect_app/app/locator.dart';
 import 'package:sentech_connect_app/core/biometrics/biometric_authenticator.dart';
+import 'package:sentech_connect_app/core/local/tenant_preferences.dart';
 import 'package:sentech_connect_app/core/network/connectivity_service.dart';
 import 'package:sentech_connect_app/core/notifications/notification_service.dart';
 import 'package:sentech_connect_app/core/storage/secure_store.dart';
@@ -38,6 +39,7 @@ void registerTestFakes() {
   locator.registerLazySingleton<ConnectivityService>(() => FakeConnectivityService());
   locator.registerLazySingleton<NotificationService>(() => FakeNotificationService());
   locator.registerLazySingleton<BiometricAuthenticator>(() => MockBiometricAuthenticator());
+  locator.registerLazySingleton<TenantPreferences>(() => InMemoryTenantPreferences());
 }
 
 /// Shared setup for widget tests that boot the full app: fresh DI container,

@@ -5,6 +5,7 @@ import 'package:sentech_connect_app/core/biometrics/local_auth_biometric_authent
 import 'package:sentech_connect_app/core/config/app_environment.dart';
 import 'package:sentech_connect_app/core/diagnostics/crash_reporter.dart';
 import 'package:sentech_connect_app/core/local/personal_data_wiper.dart';
+import 'package:sentech_connect_app/core/local/tenant_preferences.dart';
 import 'package:sentech_connect_app/core/network/api_client.dart';
 import 'package:sentech_connect_app/core/network/auth_tokens.dart';
 import 'package:sentech_connect_app/core/network/connectivity_service.dart';
@@ -91,6 +92,7 @@ void _registerPlatformServices(CrashReporter? crashReporter) {
   locator.registerLazySingleton<SessionStore>(() => SecureSessionStore(locator()));
   locator.registerLazySingleton<NotificationService>(() => PermissionNotificationService());
   locator.registerLazySingleton<TenantContext>(() => TenantContext());
+  locator.registerLazySingleton<TenantPreferences>(() => SharedPrefsTenantPreferences());
   locator.registerLazySingleton<SessionEvents>(() => SessionEvents());
   locator.registerLazySingleton<PersonalDataWiper>(
     () => DefaultPersonalDataWiper(

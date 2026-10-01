@@ -9,6 +9,7 @@ import 'package:sentech_connect_app/app/theme/app_theme.dart';
 import 'package:sentech_connect_app/app/theme/theme_cubit.dart';
 import 'package:sentech_connect_app/features/auth/presentation/bloc/auth_cubit.dart';
 import 'package:sentech_connect_app/features/cart/presentation/bloc/cart_cubit.dart';
+import 'package:sentech_connect_app/features/tenant/presentation/bloc/tenant_cubit.dart';
 import 'package:sentech_connect_app/l10n/app_localizations.dart';
 
 /// App-lifetime state (auth session, cart contents, theme choice) is
@@ -41,11 +42,19 @@ class _SentechConnectAppState extends State<SentechConnectApp> {
     wiper: locator(),
     initial: widget.initialAuthState,
   );
-  late final AppRouter _appRouter = AppRouter(_authCubit);
+  // Switching ISP signs the customer out first (ruling: one session per tenant).
+  late final TenantCubit _tenantCubit = TenantCubit(
+    repository: locator(),
+    context: locator(),
+    preferences: locator(),
+    onTenantChanging: () => _authCubit.logOut(),
+  )..bootstrap();
+  late final AppRouter _appRouter = AppRouter(_authCubit, tenantCubit: _tenantCubit);
 
   @override
   void dispose() {
     _appRouter.dispose();
+    _tenantCubit.close();
     _authCubit.close();
     super.dispose();
   }
@@ -55,6 +64,7 @@ class _SentechConnectAppState extends State<SentechConnectApp> {
     return MultiBlocProvider(
       providers: [
         BlocProvider.value(value: _authCubit),
+        BlocProvider.value(value: _tenantCubit),
         BlocProvider(create: (_) => CartCubit()),
         BlocProvider(create: (_) => ConnectivityCubit(locator())),
         BlocProvider(create: (_) => ThemeCubit(initial: widget.initialThemeMode)),
@@ -69,11 +79,13 @@ class _SentechConnectAppState extends State<SentechConnectApp> {
         child: BlocBuilder<ThemeCubit, ThemeMode>(
           builder: (context, themeMode) {
             final locale = context.watch<LocaleCubit>().state;
+            final tenant = context.watch<TenantCubit>().state.config?.tenant;
+            final primary = tenant?.branding.primaryColor;
             return MaterialApp.router(
-              title: 'Sentech Connect',
+              title: tenant?.name ?? 'Sentech Connect',
               debugShowCheckedModeBanner: false,
-              theme: AppTheme.light(),
-              darkTheme: AppTheme.dark(),
+              theme: AppTheme.light(primary: primary),
+              darkTheme: AppTheme.dark(primary: primary),
               themeMode: themeMode,
               locale: locale,
               supportedLocales: AppLocalizations.supportedLocales,
