@@ -220,6 +220,20 @@ void main() {
       expect(failureFromDioException(_bad(429, _problem(429, 'rate_limited', detail: huge))).message.length, 300);
     });
 
+    test('an emoji straddling the cut is dropped whole, never split', () {
+      final detail = '${'x' * 298}\u{1F600}tail';
+      final message = failureFromDioException(_bad(422, _problem(422, 'c', detail: detail))).message;
+      expect(message, '${'x' * 298}…');
+      // No lone surrogate anywhere in the result.
+      expect(message.runes.every((r) => r < 0xD800 || r > 0xDFFF), isTrue);
+    });
+
+    test('an emoji that ends exactly at the cut is kept', () {
+      final detail = '${'x' * 297}\u{1F600}tail';
+      final message = failureFromDioException(_bad(422, _problem(422, 'c', detail: detail))).message;
+      expect(message, '${'x' * 297}\u{1F600}…');
+    });
+
     test('text at the limit is left alone', () {
       final exact = 'y' * 300;
       expect(failureFromDioException(_bad(422, _problem(422, 'c', detail: exact))).message, exact);

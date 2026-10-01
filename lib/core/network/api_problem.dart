@@ -46,8 +46,14 @@ const _maxUserText = 300;
 /// ask the app to wait forever (or a negative time).
 const _maxRetryAfter = Duration(hours: 1);
 
-String _capped(String text) =>
-    text.length <= _maxUserText ? text : '${text.substring(0, _maxUserText - 1)}\u2026';
+String _capped(String text) {
+  if (text.length <= _maxUserText) return text;
+  var end = _maxUserText - 1;
+  // Never split a UTF-16 surrogate pair: drop a trailing high surrogate.
+  final last = text.codeUnitAt(end - 1);
+  if (last >= 0xD800 && last <= 0xDBFF) end--;
+  return '${text.substring(0, end)}\u2026';
+}
 
 /// First value of a header, or null. Never `Headers.value()`: that throws when
 /// a proxy or CDN duplicates the header.
