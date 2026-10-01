@@ -592,6 +592,24 @@ abstract class AppLocalizations {
   /// **'South African law (RICA) requires us to verify your identity. We will process your face and ID information for verification only, under POPIA.'**
   String get consentRicaBody;
 
+  /// No description provided for @consentLegalBody.
+  ///
+  /// In en, this message translates to:
+  /// **'To use the app you need to accept the Terms of Service and the Privacy notice.'**
+  String get consentLegalBody;
+
+  /// No description provided for @dataExportTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your data'**
+  String get dataExportTitle;
+
+  /// No description provided for @dataExportBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This is the personal information we hold about you. Keep it private.'**
+  String get dataExportBody;
+
   /// No description provided for @consentPolicyLink.
   ///
   /// In en, this message translates to:

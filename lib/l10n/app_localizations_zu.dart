@@ -278,6 +278,17 @@ class AppLocalizationsZu extends AppLocalizations {
       'Umthetho waseNingizimu Afrika (i-RICA) udinga ukuthi siqinisekise ubunikazi bakho. Sizocubungula ubuso bakho nolwazi lwe-ID ukuze siqinisekise kuphela, ngokwe-POPIA.';
 
   @override
+  String get consentLegalBody =>
+      'To use the app you need to accept the Terms of Service and the Privacy notice.';
+
+  @override
+  String get dataExportTitle => 'Your data';
+
+  @override
+  String get dataExportBody =>
+      'This is the personal information we hold about you. Keep it private.';
+
+  @override
   String get consentPolicyLink => 'Funda inqubomgomo yethu yobumfihlo';
 
   @override

@@ -3,11 +3,31 @@ import 'package:equatable/equatable.dart';
 /// What the customer is consenting to. One record per purpose so each can be
 /// asked for (and later withdrawn) independently, as POPIA requires.
 enum ConsentPurpose {
-  /// One-off use of the device location for the coverage check.
+  /// One-off use of the device location for the coverage check (device-only).
   locationCapture,
 
-  /// Processing of face/ID data for RICA identity verification.
+  /// Processing of face/ID data for RICA identity verification (device-only).
   ricaCapture,
+
+  /// Terms of Service acceptance, held by the server (`/v1/me/consents`).
+  terms,
+
+  /// Privacy notice acknowledgement, held by the server.
+  privacy,
+
+  /// Marketing by SMS, held by the server.
+  marketingSms,
+}
+
+extension ConsentPurposeApi on ConsentPurpose {
+  /// The platform's purpose name, or null for consents that only exist on
+  /// this device (ruling R-M4-11).
+  String? get apiName => switch (this) {
+        ConsentPurpose.terms => 'terms',
+        ConsentPurpose.privacy => 'privacy',
+        ConsentPurpose.marketingSms => 'marketing_sms',
+        ConsentPurpose.locationCapture || ConsentPurpose.ricaCapture => null,
+      };
 }
 
 /// Proof that a customer agreed: which purpose, to which version of the

@@ -20,6 +20,7 @@ import 'package:sentech_connect_app/features/auth/data/repositories/secure_sessi
 import 'package:sentech_connect_app/features/auth/domain/repositories/session_store.dart';
 import 'package:sentech_connect_app/features/account_dashboard/data/repositories/mock_account_repository.dart';
 import 'package:sentech_connect_app/features/account_dashboard/domain/repositories/account_repository.dart';
+import 'package:sentech_connect_app/features/auth/data/repositories/http_registration_repository.dart';
 import 'package:sentech_connect_app/features/auth/data/repositories/local_registration_repository.dart';
 import 'package:sentech_connect_app/features/auth/data/repositories/http_auth_repository.dart';
 import 'package:sentech_connect_app/features/auth/data/repositories/mock_auth_repository.dart';
@@ -31,6 +32,8 @@ import 'package:sentech_connect_app/features/catalog_checkout/domain/repositorie
 import 'package:sentech_connect_app/features/catalog_checkout/domain/repositories/checkout_repository.dart';
 import 'package:sentech_connect_app/features/coverage/data/repositories/mock_coverage_repository.dart';
 import 'package:sentech_connect_app/features/coverage/domain/repositories/coverage_repository.dart';
+import 'package:sentech_connect_app/features/privacy/data/repositories/http_consent_repository.dart';
+import 'package:sentech_connect_app/features/privacy/data/repositories/http_privacy_repository.dart';
 import 'package:sentech_connect_app/features/privacy/data/repositories/local_consent_repository.dart';
 import 'package:sentech_connect_app/features/privacy/data/repositories/mock_privacy_repository.dart';
 import 'package:sentech_connect_app/features/privacy/domain/repositories/consent_repository.dart';
@@ -73,9 +76,6 @@ const stillMockInProd = <Type>[
 /// the entry in the same change (test/locator_test.dart fails otherwise, in
 /// both directions).
 const mockUntilLaterTasks = <Type>[
-  ConsentRepository, // Task 7: consent ledger over the API
-  PrivacyRepository, // Task 7: data export and account deletion
-  RegistrationRepository, // Task 7: profile completion
   CatalogRepository, // Task 9: hotspot-pass catalogue
   CheckoutRepository, // Task 9: orders (hosted payment follows in Task 10)
 ];
@@ -150,12 +150,16 @@ void _registerProdRepositories(Uri baseUrl) {
     () => ApiClient(baseUrl: baseUrl, tokens: locator(), tenant: locator(), sessionEvents: locator()),
   );
   locator.registerLazySingleton<TenantRepository>(() => HttpTenantRepository(locator(), crashReporter: locator()));
-  locator.registerLazySingleton<ConsentRepository>(() => LocalConsentRepository(locator()));
-  locator.registerLazySingleton<PrivacyRepository>(() => MockPrivacyRepository(locator()));
+  locator.registerLazySingleton<ConsentRepository>(
+    () => HttpConsentRepository(locator(), local: LocalConsentRepository(locator()), tenant: locator()),
+  );
+  locator.registerLazySingleton<PrivacyRepository>(() => HttpPrivacyRepository(locator()));
   locator.registerLazySingleton<AuthRepository>(
     () => HttpAuthRepository(locator(), tokens: locator(), tenant: locator()),
   );
   locator.registerLazySingleton<CatalogRepository>(() => MockCatalogRepository(locator()));
   locator.registerLazySingleton<CheckoutRepository>(() => MockCheckoutRepository(locator(), network: locator()));
-  locator.registerLazySingleton<RegistrationRepository>(() => LocalRegistrationRepository(locator()));
+  locator.registerLazySingleton<RegistrationRepository>(
+    () => HttpRegistrationRepository(locator(), local: LocalRegistrationRepository(locator())),
+  );
 }

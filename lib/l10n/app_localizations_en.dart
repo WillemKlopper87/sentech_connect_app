@@ -276,6 +276,17 @@ class AppLocalizationsEn extends AppLocalizations {
       'South African law (RICA) requires us to verify your identity. We will process your face and ID information for verification only, under POPIA.';
 
   @override
+  String get consentLegalBody =>
+      'To use the app you need to accept the Terms of Service and the Privacy notice.';
+
+  @override
+  String get dataExportTitle => 'Your data';
+
+  @override
+  String get dataExportBody =>
+      'This is the personal information we hold about you. Keep it private.';
+
+  @override
   String get consentPolicyLink => 'Read our privacy policy';
 
   @override

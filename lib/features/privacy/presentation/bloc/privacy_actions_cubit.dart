@@ -5,12 +5,13 @@ import 'package:sentech_connect_app/features/privacy/domain/repositories/privacy
 enum PrivacyActionStatus { idle, working, exportRequested, deleted, failed }
 
 class PrivacyActionsState extends Equatable {
-  const PrivacyActionsState({this.status = PrivacyActionStatus.idle});
+  const PrivacyActionsState({this.status = PrivacyActionStatus.idle, this.receipt});
 
   final PrivacyActionStatus status;
+  final PrivacyRequestReceipt? receipt;
 
   @override
-  List<Object?> get props => [status];
+  List<Object?> get props => [status, receipt];
 }
 
 /// Data-subject actions from the Account tab. [onAccountDeleted] runs only
@@ -27,8 +28,10 @@ class PrivacyActionsCubit extends Cubit<PrivacyActionsState> {
     emit(const PrivacyActionsState(status: PrivacyActionStatus.working));
     final result = await _repository.requestDataExport();
     if (isClosed) return;
+    final PrivacyRequestReceipt? receipt = result.match((_) => null, (r) => r);
     emit(PrivacyActionsState(
-      status: result.isRight() ? PrivacyActionStatus.exportRequested : PrivacyActionStatus.failed,
+      status: receipt != null ? PrivacyActionStatus.exportRequested : PrivacyActionStatus.failed,
+      receipt: receipt,
     ));
   }
 

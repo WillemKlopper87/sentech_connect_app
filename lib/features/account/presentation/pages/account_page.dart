@@ -8,6 +8,7 @@ import 'package:sentech_connect_app/core/notifications/notification_service.dart
 import 'package:sentech_connect_app/core/privacy/privacy_constants.dart';
 import 'package:sentech_connect_app/features/auth/presentation/bloc/auth_cubit.dart';
 import 'package:sentech_connect_app/features/privacy/presentation/bloc/privacy_actions_cubit.dart';
+import 'package:sentech_connect_app/features/privacy/presentation/pages/data_export_page.dart';
 import 'package:sentech_connect_app/l10n/l10n.dart';
 import 'package:sentech_connect_app/shared/widgets/notification_rationale_sheet.dart';
 import 'package:sentech_connect_app/shared/widgets/secure_screen.dart';
@@ -65,9 +66,14 @@ class _AccountView extends StatelessWidget {
       listener: (context, state) {
         final messenger = ScaffoldMessenger.of(context);
         if (state.status == PrivacyActionStatus.exportRequested) {
-          messenger
-            ..hideCurrentSnackBar()
-            ..showSnackBar(SnackBar(content: Text(l10n.accountDownloadDataDone)));
+          final json = state.receipt?.exportJson;
+          if (json != null) {
+            Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => DataExportPage(json: json)));
+          } else {
+            messenger
+              ..hideCurrentSnackBar()
+              ..showSnackBar(SnackBar(content: Text(l10n.accountDownloadDataDone)));
+          }
         } else if (state.status == PrivacyActionStatus.failed) {
           messenger
             ..hideCurrentSnackBar()

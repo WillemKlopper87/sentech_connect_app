@@ -278,6 +278,17 @@ class AppLocalizationsAf extends AppLocalizations {
       'Suid-Afrikaanse wetgewing (RICA) vereis dat ons jou identiteit verifieer. Ons verwerk jou gesig- en ID-inligting slegs vir verifikasie, ingevolge POPIA.';
 
   @override
+  String get consentLegalBody =>
+      'To use the app you need to accept the Terms of Service and the Privacy notice.';
+
+  @override
+  String get dataExportTitle => 'Your data';
+
+  @override
+  String get dataExportBody =>
+      'This is the personal information we hold about you. Keep it private.';
+
+  @override
   String get consentPolicyLink => 'Lees ons privaatheidsbeleid';
 
   @override

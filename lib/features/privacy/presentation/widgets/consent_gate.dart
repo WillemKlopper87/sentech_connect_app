@@ -41,6 +41,7 @@ class ConsentDialog extends StatelessWidget {
     final body = switch (purpose) {
       ConsentPurpose.locationCapture => l10n.consentLocationBody,
       ConsentPurpose.ricaCapture => l10n.consentRicaBody,
+      ConsentPurpose.terms || ConsentPurpose.privacy || ConsentPurpose.marketingSms => l10n.consentLegalBody,
     };
     return AlertDialog(
       title: Text(l10n.consentTitle),
