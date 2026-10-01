@@ -46,6 +46,14 @@ void main() {
       expect((await repo.getSaved()).getOrElse((_) => null)?.address, '12 Main Road, Soweto');
     });
 
+    test('an empty email is left out of the profile update (it would clear the stored one)', () async {
+      final repo = HttpRegistrationRepository(h.api, local: LocalRegistrationRepository(InMemorySecureStore()));
+      h.adapter.on('PATCH', '/v1/me/profile', (_) => FakeReply(200, fixture('profile_complete.json')));
+      const noEmail = RegistrationDetails(fullName: 'Thandi Mokoena', email: '  ', mobileNumber: '+27821234567', address: '12 Main Road');
+      expect((await repo.save(noEmail)).isRight(), isTrue);
+      expect(h.adapter.requestsTo('PATCH', '/v1/me/profile').single.data, {'display_name': 'Thandi Mokoena'});
+    });
+
     test('a rejected profile is not saved locally either', () async {
       final localStore = InMemorySecureStore();
       final repo = HttpRegistrationRepository(h.api, local: LocalRegistrationRepository(localStore));
@@ -60,14 +68,25 @@ void main() {
     late InMemorySecureStore localStore;
     late HttpConsentRepository repo;
 
+    Map<String, Object?> entry(String purpose, String version, {bool granted = true, String at = '2026-10-01T10:01:00Z'}) =>
+        {'purpose': purpose, 'version': version, 'granted': granted, 'recorded_at': at};
+
+    void ledger(List<Map<String, Object?>> items) =>
+        h.adapter.on('GET', '/v1/me/consents', (_) => FakeReply(200, {'items': items}));
+
+    void accepting() => h.adapter.on('POST', '/v1/me/consents', (options) {
+          final body = options.data as Map;
+          return FakeReply(201, {
+            'purpose': body['purpose'],
+            'version': body['version'],
+            'granted': body['granted'],
+            'recorded_at': '2026-10-01T10:02:00Z',
+          });
+        });
+
     setUp(() {
       localStore = InMemorySecureStore();
-      repo = HttpConsentRepository(
-        h.api,
-        local: LocalConsentRepository(localStore),
-        tenant: h.tenantContext,
-        newKey: () => 'app-consent-key-1',
-      );
+      repo = HttpConsentRepository(h.api, local: LocalConsentRepository(localStore), tenant: h.tenantContext);
     });
 
     test('server purposes count only for the CURRENT legal version', () async {
@@ -79,18 +98,149 @@ void main() {
       expect(privacy, isNull); // agreed to 2026-08-01, current is 2026-09-30
     });
 
-    test('granting posts purpose, current version and source with an Idempotency-Key', () async {
+    test('granting posts purpose, current version and source with a STABLE Idempotency-Key', () async {
+      h.adapter.on('GET', '/v1/me/consents', (_) => FakeReply(200, fixture('consents.json')));
       h.adapter.on('POST', '/v1/me/consents', (_) => FakeReply(201, fixture('consent_out.json')));
       final record = (await repo.grant(ConsentPurpose.privacy)).getOrElse((f) => throw StateError(f.message));
       final sent = h.adapter.requestsTo('POST', '/v1/me/consents').single;
       expect(sent.data, {'purpose': 'privacy', 'version': '2026-09-30', 'granted': true, 'source': 'app'});
-      expect(sent.headers['Idempotency-Key'], 'app-consent-key-1');
+      expect(sent.headers['Idempotency-Key'], 'app-consent-sentech-privacy-2026-09-30');
       expect(record.grantedAt, DateTime.utc(2026, 10, 1, 10, 2));
+    });
+
+    test('terms are recorded against the TERMS version, privacy against the privacy version', () async {
+      h.tenantContext
+        ..termsVersion = '2026-09-30'
+        ..privacyVersion = '2026-10-01';
+      ledger([]);
+      accepting();
+      await repo.grant(ConsentPurpose.terms);
+      await repo.grant(ConsentPurpose.privacy);
+      final sent = h.adapter.requestsTo('POST', '/v1/me/consents');
+      expect(sent[0].data, containsPair('purpose', 'terms'));
+      expect(sent[0].data, containsPair('version', '2026-09-30'));
+      expect(sent[1].data, containsPair('purpose', 'privacy'));
+      expect(sent[1].data, containsPair('version', '2026-10-01'));
+    });
+
+    test('SMS marketing is recorded as marketing_sms against the tenant privacy version', () async {
+      h.tenantContext.privacyVersion = '2026-10-01';
+      ledger([]);
+      accepting();
+      await repo.grant(ConsentPurpose.marketingSms);
+      final sent = h.adapter.requestsTo('POST', '/v1/me/consents').single;
+      expect(sent.data, {'purpose': 'marketing_sms', 'version': '2026-10-01', 'granted': true, 'source': 'app'});
+      expect(sent.headers['Idempotency-Key'], 'app-consent-sentech-marketing_sms-2026-10-01');
+    });
+
+    test('a double tap shares ONE operation: one read, one write', () async {
+      ledger([]);
+      accepting();
+      final results = await Future.wait([repo.grant(ConsentPurpose.terms), repo.grant(ConsentPurpose.terms)]);
+      expect(results.every((r) => r.isRight()), isTrue);
+      expect(h.adapter.requestsTo('POST', '/v1/me/consents'), hasLength(1));
+      expect(h.adapter.requestsTo('GET', '/v1/me/consents'), hasLength(1));
+    });
+
+    test('a retry after a lost response reuses the same key (the server replays, no second ledger row)', () async {
+      ledger([]);
+      var lost = true;
+      h.adapter.on('POST', '/v1/me/consents', (_) {
+        if (lost) {
+          lost = false;
+          return const FakeReply.error(DioExceptionType.receiveTimeout);
+        }
+        return FakeReply(201, fixture('consent_out.json'));
+      });
+      expect((await repo.grant(ConsentPurpose.privacy)).isLeft(), isTrue);
+      expect((await repo.grant(ConsentPurpose.privacy)).isRight(), isTrue);
+      final keys = h.adapter.requestsTo('POST', '/v1/me/consents').map((r) => r.headers['Idempotency-Key']).toSet();
+      expect(keys, {'app-consent-sentech-privacy-2026-09-30'});
+    });
+
+    test('a purpose already granted for the current version is not written again', () async {
+      ledger([entry('terms', '2026-09-30')]);
+      final record = (await repo.grant(ConsentPurpose.terms)).getOrElse((f) => throw StateError(f.message));
+      expect(record.grantedAt, DateTime.utc(2026, 10, 1, 10, 1));
+      expect(h.adapter.requestsTo('POST', '/v1/me/consents'), isEmpty);
+    });
+
+    test('a new legal version is a new operation with its own key', () async {
+      ledger([entry('terms', '2026-08-01')]);
+      accepting();
+      await repo.grant(ConsentPurpose.terms);
+      expect(h.adapter.requestsTo('POST', '/v1/me/consents').single.headers['Idempotency-Key'], 'app-consent-sentech-terms-2026-09-30');
+    });
+
+    test('withdrawing posts granted:false, keyed to the grant it ends', () async {
+      ledger([entry('marketing_sms', '2026-09-30', at: '2026-10-01T10:01:00Z')]);
+      accepting();
+      expect((await repo.withdraw(ConsentPurpose.marketingSms)).isRight(), isTrue);
+      final sent = h.adapter.requestsTo('POST', '/v1/me/consents').single;
+      expect(sent.data, {'purpose': 'marketing_sms', 'version': '2026-09-30', 'granted': false, 'source': 'app'});
+      expect(
+        sent.headers['Idempotency-Key'],
+        'app-consent-sentech-marketing_sms-2026-09-30-withdraw-${DateTime.utc(2026, 10, 1, 10, 1).millisecondsSinceEpoch}',
+      );
+    });
+
+    test('withdrawing something that is not granted writes nothing', () async {
+      ledger([entry('marketing_sms', '2026-09-30', granted: false)]);
+      expect((await repo.withdraw(ConsentPurpose.marketingSms)).isRight(), isTrue);
+      ledger([]);
+      expect((await repo.withdraw(ConsentPurpose.marketingSms)).isRight(), isTrue);
+      expect(h.adapter.requestsTo('POST', '/v1/me/consents'), isEmpty);
+    });
+
+    test('a withdrawn purpose no longer counts as consent', () async {
+      ledger([entry('marketing_sms', '2026-09-30', granted: false)]);
+      expect((await repo.currentConsent(ConsentPurpose.marketingSms)).getOrElse((_) => throw StateError('x')), isNull);
+    });
+
+    test('granting again after a withdrawal is a NEW operation (its key names the withdrawal), not a replay', () async {
+      ledger([entry('marketing_sms', '2026-09-30', granted: false, at: '2026-10-02T08:00:00Z')]);
+      accepting();
+      await repo.grant(ConsentPurpose.marketingSms);
+      expect(
+        h.adapter.requestsTo('POST', '/v1/me/consents').single.headers['Idempotency-Key'],
+        'app-consent-sentech-marketing_sms-2026-09-30-after-${DateTime.utc(2026, 10, 2, 8).millisecondsSinceEpoch}',
+      );
+    });
+
+    test('every key fits the server pattern, even for the longest tenant slug and purpose', () async {
+      h.tenantContext.slug = 'a' * 40;
+      await h.signIn(); // tokens belong to the active tenant
+      ledger([entry('marketing_sms', '2026-09-30', granted: false)]);
+      accepting();
+      await repo.grant(ConsentPurpose.marketingSms);
+      ledger([entry('marketing_sms', '2026-09-30')]);
+      await repo.withdraw(ConsentPurpose.marketingSms);
+      final posts = h.adapter.requestsTo('POST', '/v1/me/consents');
+      expect(posts, hasLength(2));
+      for (final request in posts) {
+        expect(request.headers['Idempotency-Key'], matches(RegExp(r'^[A-Za-z0-9_.:-]{8,128}$')));
+      }
+    });
+
+    test('a ledger that cannot be read blocks the write (nothing is guessed)', () async {
+      h.adapter.on('GET', '/v1/me/consents', (_) => const FakeReply.error(DioExceptionType.connectionError));
+      expect((await repo.grant(ConsentPurpose.terms)).isLeft(), isTrue);
+      expect((await repo.withdraw(ConsentPurpose.terms)).isLeft(), isTrue);
+      expect(h.adapter.requestsTo('POST', '/v1/me/consents'), isEmpty);
+    });
+
+    test('an outdated version is refused by the server and surfaces as a ValidationFailure', () async {
+      ledger([]);
+      h.adapter.on('POST', '/v1/me/consents', (_) => FakeReply.problem(422, 'consent_version_outdated', title: 'Outdated'));
+      final failure = (await repo.grant(ConsentPurpose.terms)).match((f) => f, (_) => null);
+      expect((failure! as ValidationFailure).code, 'consent_version_outdated');
     });
 
     test('device-only consents (location, RICA) never touch the network', () async {
       await repo.grant(ConsentPurpose.locationCapture);
       expect((await repo.currentConsent(ConsentPurpose.locationCapture)).getOrElse((_) => null), isNotNull);
+      expect((await repo.withdraw(ConsentPurpose.locationCapture)).isRight(), isTrue);
+      expect((await repo.currentConsent(ConsentPurpose.locationCapture)).getOrElse((_) => throw StateError('x')), isNull);
       expect(h.adapter.requests, isEmpty);
     });
 
@@ -99,6 +249,16 @@ void main() {
       final failure = (await repo.grant(ConsentPurpose.terms)).match((f) => f, (_) => null);
       expect((failure! as ValidationFailure).code, 'legal_versions_missing');
       expect(h.adapter.requests, isEmpty);
+    });
+
+    test('apiName maps the server purposes; device-only purposes have none', () {
+      expect({for (final p in ConsentPurpose.values) p: p.apiName}, {
+        ConsentPurpose.terms: 'terms',
+        ConsentPurpose.privacy: 'privacy',
+        ConsentPurpose.marketingSms: 'marketing_sms',
+        ConsentPurpose.locationCapture: null,
+        ConsentPurpose.ricaCapture: null,
+      });
     });
   });
 
@@ -109,6 +269,51 @@ void main() {
       final receipt = (await repo.requestAccountDeletion()).getOrElse((f) => throw StateError(f.message));
       expect(receipt.reference, startsWith('DEL-'));
       expect(h.adapter.requests.single.headers['Authorization'], 'Bearer access-1');
+    });
+
+    test('the export request carries the bearer token', () async {
+      final repo = HttpPrivacyRepository(h.api);
+      h.adapter.on('GET', '/v1/me/export', (_) => FakeReply(200, fixture('export.json')));
+      await repo.requestDataExport();
+      expect(h.adapter.requestsTo('GET', '/v1/me/export').single.headers['Authorization'], 'Bearer access-1');
+    });
+
+    group('refusals reach the screen with the server reason', () {
+      Future<PrivacyActionsCubit> failing(String method, String path, FakeReply reply) async {
+        h.adapter.on(method, path, (_) => reply);
+        var wiped = 0;
+        final cubit = PrivacyActionsCubit(HttpPrivacyRepository(h.api), onAccountDeleted: () async => wiped++);
+        addTearDown(cubit.close);
+        method == 'DELETE' ? await cubit.deleteAccount() : await cubit.requestDataExport();
+        expect(wiped, 0, reason: 'a refused request must not wipe anything');
+        return cubit;
+      }
+
+      test('delete: 409 keeps the problem detail as a ValidationFailure', () async {
+        final cubit = await failing('DELETE', '/v1/me', FakeReply.problem(409, 'open_orders', detail: 'Finish or cancel your open orders first.'));
+        expect(cubit.state.status, PrivacyActionStatus.failed);
+        expect(cubit.state.failure, isA<ValidationFailure>());
+        expect(cubit.state.failure!.message, 'Finish or cancel your open orders first.');
+      });
+
+      test('delete: 403 keeps the detail', () async {
+        final cubit = await failing('DELETE', '/v1/me', FakeReply.problem(403, 'forbidden', detail: 'Deletion is not allowed right now.'));
+        expect(cubit.state.failure!.message, 'Deletion is not allowed right now.');
+      });
+
+      test('export: 422 and 403 keep the detail', () async {
+        final unprocessable = await failing('GET', '/v1/me/export', FakeReply.problem(422, 'export_unavailable', detail: 'Add an email address first.'));
+        expect(unprocessable.state.failure!.message, 'Add an email address first.');
+        final forbidden = await failing('GET', '/v1/me/export', FakeReply.problem(403, 'forbidden', detail: 'Export is not allowed.'));
+        expect(forbidden.state.failure!.message, 'Export is not allowed.');
+      });
+
+      test('offline and 5xx carry a failure the screen maps to its own text', () async {
+        final offline = await failing('GET', '/v1/me/export', const FakeReply.error(DioExceptionType.connectionError));
+        expect(offline.state.failure, isA<NetworkFailure>());
+        final broken = await failing('DELETE', '/v1/me', FakeReply.problem(500, 'internal', detail: 'stack trace internals'));
+        expect(broken.state.failure, isA<ServerFailure>());
+      });
     });
 
     test('the export comes back in-app as pretty JSON', () async {

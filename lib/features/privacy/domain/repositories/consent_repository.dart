@@ -14,6 +14,10 @@ abstract class ConsentRepository {
   /// Records consent now, against the current policy version.
   Future<Either<Failure, ConsentRecord>> grant(ConsentPurpose purpose);
 
+  /// Records that the customer withdrew [purpose] (POPIA: as easy to withdraw
+  /// as to give). Succeeds when nothing was granted.
+  Future<Either<Failure, Unit>> withdraw(ConsentPurpose purpose);
+
   /// Records not yet delivered to the backend.
   Future<List<ConsentRecord>> unsyncedRecords();
 

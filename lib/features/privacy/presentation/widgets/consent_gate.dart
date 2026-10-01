@@ -10,12 +10,26 @@ import 'package:url_launcher/url_launcher.dart';
 /// showing the consent dialog first if they do not. Call this immediately
 /// BEFORE capturing location or starting RICA capture; if it returns false,
 /// do not proceed. Agreeing stores a versioned, timestamped record.
+///
+/// A second call for the same purpose while one is running (a double tap)
+/// joins it: one dialog, one record.
 Future<bool> ensureConsent(
   BuildContext context,
   ConsentPurpose purpose, {
   ConsentRepository? repository,
-}) async {
+}) {
   final repo = repository ?? locator<ConsentRepository>();
+  final key = (repo, purpose);
+  final running = _ensuring[key];
+  if (running != null) return running;
+  return _ensuring[key] = _ensureConsent(context, purpose, repo).whenComplete(() {
+    _ensuring.remove(key);
+  });
+}
+
+final _ensuring = <(ConsentRepository, ConsentPurpose), Future<bool>>{};
+
+Future<bool> _ensureConsent(BuildContext context, ConsentPurpose purpose, ConsentRepository repo) async {
   final existing = (await repo.currentConsent(purpose)).getOrElse((_) => null);
   if (existing != null) return true;
   if (!context.mounted) return false;

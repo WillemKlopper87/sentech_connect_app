@@ -59,6 +59,17 @@ class LocalConsentRepository implements ConsentRepository {
   }
 
   @override
+  Future<Either<Failure, Unit>> withdraw(ConsentPurpose purpose) async {
+    try {
+      final records = await _load();
+      if (records.remove(purpose) != null) await _save(records);
+      return const Right(unit);
+    } catch (_) {
+      return const Left(ServerFailure('Could not save your choice on this device.'));
+    }
+  }
+
+  @override
   Future<List<ConsentRecord>> unsyncedRecords() async =>
       (await _load()).values.where((r) => !r.synced).toList();
 

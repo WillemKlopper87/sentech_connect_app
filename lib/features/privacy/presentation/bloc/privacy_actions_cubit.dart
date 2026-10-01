@@ -1,17 +1,22 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sentech_connect_app/core/error/failure.dart';
 import 'package:sentech_connect_app/features/privacy/domain/repositories/privacy_repository.dart';
 
 enum PrivacyActionStatus { idle, working, exportRequested, deleted, failed }
 
 class PrivacyActionsState extends Equatable {
-  const PrivacyActionsState({this.status = PrivacyActionStatus.idle, this.receipt});
+  const PrivacyActionsState({this.status = PrivacyActionStatus.idle, this.receipt, this.failure});
 
   final PrivacyActionStatus status;
   final PrivacyRequestReceipt? receipt;
 
+  /// Why the last action failed (set with [PrivacyActionStatus.failed]); the
+  /// page maps it to a customer-facing message.
+  final Failure? failure;
+
   @override
-  List<Object?> get props => [status, receipt];
+  List<Object?> get props => [status, receipt, failure];
 }
 
 /// Data-subject actions from the Account tab. [onAccountDeleted] runs only
@@ -28,10 +33,9 @@ class PrivacyActionsCubit extends Cubit<PrivacyActionsState> {
     emit(const PrivacyActionsState(status: PrivacyActionStatus.working));
     final result = await _repository.requestDataExport();
     if (isClosed) return;
-    final PrivacyRequestReceipt? receipt = result.match((_) => null, (r) => r);
-    emit(PrivacyActionsState(
-      status: receipt != null ? PrivacyActionStatus.exportRequested : PrivacyActionStatus.failed,
-      receipt: receipt,
+    emit(result.match(
+      (failure) => PrivacyActionsState(status: PrivacyActionStatus.failed, failure: failure),
+      (receipt) => PrivacyActionsState(status: PrivacyActionStatus.exportRequested, receipt: receipt),
     ));
   }
 
@@ -39,8 +43,9 @@ class PrivacyActionsCubit extends Cubit<PrivacyActionsState> {
     if (state.status == PrivacyActionStatus.working) return;
     emit(const PrivacyActionsState(status: PrivacyActionStatus.working));
     final result = await _repository.requestAccountDeletion();
-    if (result.isLeft()) {
-      if (!isClosed) emit(const PrivacyActionsState(status: PrivacyActionStatus.failed));
+    final failure = result.match((f) => f, (_) => null);
+    if (failure != null) {
+      if (!isClosed) emit(PrivacyActionsState(status: PrivacyActionStatus.failed, failure: failure));
       return;
     }
     // Server accepted: now remove everything held on this device and sign out.
