@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:sentech_connect_app/app/app.dart';
 import 'package:sentech_connect_app/app/locator.dart';
 import 'package:sentech_connect_app/app/startup_error_app.dart';
+import 'package:sentech_connect_app/core/biometrics/biometric_authenticator.dart';
 import 'package:sentech_connect_app/core/config/app_environment.dart';
 import 'package:sentech_connect_app/core/diagnostics/crash_reporter.dart';
 import 'package:sentech_connect_app/core/diagnostics/error_handling.dart';
@@ -39,13 +40,20 @@ Future<void> _start(CrashReporter crashReporter) async {
 
   final savedThemeMode = await AppPreferences.loadThemeMode();
   final savedLocale = await AppPreferences.loadLocale();
-  final savedUser = await locator<SessionStore>().loadUser();
+  final sessionStore = locator<SessionStore>();
+  final savedUser = await sessionStore.loadUser();
+  final credential = await sessionStore.loadBiometricCredential();
+  final biometricsAvailable = savedUser != null &&
+      credential != null &&
+      await locator<BiometricAuthenticator>().availability() == BiometricAvailability.available;
 
   runApp(SentechConnectApp(
     initialThemeMode: savedThemeMode,
     initialLocale: savedLocale,
-    initialAuthState: savedUser == null
-        ? const AuthState()
-        : AuthState(status: AuthStatus.success, user: savedUser),
+    initialAuthState: AuthState.restore(
+      user: savedUser,
+      hasBiometricCredential: credential != null,
+      biometricsAvailable: biometricsAvailable,
+    ),
   ));
 }

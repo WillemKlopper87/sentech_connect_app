@@ -5,6 +5,8 @@ import 'package:sentech_connect_app/app/locator.dart';
 import 'package:sentech_connect_app/core/config/app_environment.dart';
 import 'package:sentech_connect_app/core/network/api_client.dart';
 import 'package:sentech_connect_app/core/network/auth_tokens.dart';
+import 'package:sentech_connect_app/features/auth/data/repositories/http_auth_repository.dart';
+import 'package:sentech_connect_app/features/auth/domain/repositories/auth_repository.dart';
 import 'package:sentech_connect_app/features/tenant/data/repositories/http_tenant_repository.dart';
 import 'package:sentech_connect_app/features/tenant/data/repositories/mock_tenant_repository.dart';
 import 'package:sentech_connect_app/features/tenant/domain/repositories/tenant_repository.dart';
@@ -31,6 +33,7 @@ void main() {
     registerTestFakes();
     expect(locator<ApiClient>(), isA<ApiClient>());
     expect(locator<TenantRepository>(), isA<HttpTenantRepository>());
+    expect(locator<AuthRepository>(), isA<HttpAuthRepository>());
   });
 
   test('repositories without a backend stay mock in prod (and are listed)', () {

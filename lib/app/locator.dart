@@ -21,6 +21,7 @@ import 'package:sentech_connect_app/features/auth/domain/repositories/session_st
 import 'package:sentech_connect_app/features/account_dashboard/data/repositories/mock_account_repository.dart';
 import 'package:sentech_connect_app/features/account_dashboard/domain/repositories/account_repository.dart';
 import 'package:sentech_connect_app/features/auth/data/repositories/local_registration_repository.dart';
+import 'package:sentech_connect_app/features/auth/data/repositories/http_auth_repository.dart';
 import 'package:sentech_connect_app/features/auth/data/repositories/mock_auth_repository.dart';
 import 'package:sentech_connect_app/features/auth/domain/repositories/auth_repository.dart';
 import 'package:sentech_connect_app/features/auth/domain/repositories/registration_repository.dart';
@@ -72,7 +73,6 @@ const stillMockInProd = <Type>[
 /// the entry in the same change (test/locator_test.dart fails otherwise, in
 /// both directions).
 const mockUntilLaterTasks = <Type>[
-  AuthRepository, // Task 6: OTP authentication
   ConsentRepository, // Task 7: consent ledger over the API
   PrivacyRepository, // Task 7: data export and account deletion
   RegistrationRepository, // Task 7: profile completion
@@ -152,7 +152,9 @@ void _registerProdRepositories(Uri baseUrl) {
   locator.registerLazySingleton<TenantRepository>(() => HttpTenantRepository(locator()));
   locator.registerLazySingleton<ConsentRepository>(() => LocalConsentRepository(locator()));
   locator.registerLazySingleton<PrivacyRepository>(() => MockPrivacyRepository(locator()));
-  locator.registerLazySingleton<AuthRepository>(() => MockAuthRepository());
+  locator.registerLazySingleton<AuthRepository>(
+    () => HttpAuthRepository(locator(), tokens: locator(), tenant: locator()),
+  );
   locator.registerLazySingleton<CatalogRepository>(() => MockCatalogRepository(locator()));
   locator.registerLazySingleton<CheckoutRepository>(() => MockCheckoutRepository(locator(), network: locator()));
   locator.registerLazySingleton<RegistrationRepository>(() => LocalRegistrationRepository(locator()));
