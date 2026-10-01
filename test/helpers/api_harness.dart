@@ -23,6 +23,7 @@ class ApiHarness {
       adapter: adapter,
       log: logLines.add,
       now: () => now,
+      refreshRetryBackoff: const [Duration.zero, Duration.zero], // keep failure tests fast
     );
   }
 

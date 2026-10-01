@@ -33,6 +33,7 @@ class ApiClient {
     DateTime Function()? now,
     Duration connectTimeout = const Duration(seconds: 10),
     Duration receiveTimeout = const Duration(seconds: 20),
+    List<Duration>? refreshRetryBackoff,
   }) {
     final options = BaseOptions(
       baseUrl: baseUrl.toString(),
@@ -51,7 +52,13 @@ class ApiClient {
       _dio.httpClientAdapter = adapter;
     }
     refreshDio.interceptors.addAll([RequestIdInterceptor(), SafeLogInterceptor(logger)]);
-    refresher = TokenRefresher(tokens: tokens, dio: refreshDio, sessionEvents: sessionEvents, now: now);
+    refresher = TokenRefresher(
+      tokens: tokens,
+      dio: refreshDio,
+      sessionEvents: sessionEvents,
+      now: now,
+      retryBackoff: refreshRetryBackoff ?? const [Duration(milliseconds: 500), Duration(seconds: 1)],
+    );
     _dio.interceptors.addAll([
       RequestIdInterceptor(),
       AuthInterceptor(baseUrl: baseUrl, tokens: tokens, tenant: tenant, refresher: refresher, dio: _dio, now: now),
