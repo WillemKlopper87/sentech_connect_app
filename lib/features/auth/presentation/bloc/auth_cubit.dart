@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sentech_connect_app/core/biometrics/biometric_authenticator.dart';
 import 'package:sentech_connect_app/core/error/failure.dart';
 import 'package:sentech_connect_app/core/local/personal_data_wiper.dart';
+import 'package:sentech_connect_app/core/network/tenant_context.dart';
 import 'package:sentech_connect_app/features/auth/domain/entities/user.dart';
 import 'package:sentech_connect_app/features/auth/domain/repositories/auth_repository.dart';
 import 'package:sentech_connect_app/features/auth/domain/repositories/session_store.dart';
@@ -87,7 +88,9 @@ class AuthCubit extends Cubit<AuthState> {
     required this._wiper,
     AuthState initial = const AuthState(),
     Stream<void>? sessionExpired,
-  }) : super(initial) {
+    String Function()? activeTenantSlug,
+  }) : _activeTenantSlug = activeTenantSlug ?? (() => TenantContext.defaultSlug),
+       super(initial) {
     _expiry = sessionExpired?.listen((_) => _onSessionExpired());
   }
 
@@ -95,6 +98,7 @@ class AuthCubit extends Cubit<AuthState> {
   final SessionStore _sessionStore;
   final BiometricAuthenticator _biometrics;
   final PersonalDataWiper _wiper;
+  final String Function() _activeTenantSlug;
   StreamSubscription<void>? _expiry;
 
   void _emitIfOpen(AuthState next) {
@@ -137,6 +141,9 @@ class AuthCubit extends Cubit<AuthState> {
       return;
     }
     final result = await _repository.resumeSession();
+    // Signed out (or closed) while the session was being re-opened: do not
+    // bring it back.
+    if (isClosed || state.status != AuthStatus.loading) return;
     await result.match(
       (failure) async {
         if (failure is UnauthorizedFailure) {
@@ -164,8 +171,14 @@ class AuthCubit extends Cubit<AuthState> {
       };
 
   /// After an interactive sign-in ([fresh]) or a biometric unlock.
+  ///
+  /// Signing in as a DIFFERENT customer than the one stored on this device
+  /// first wipes everything local that belonged to the previous one (orders,
+  /// registration details, free-WiFi grant), before the new session is saved.
   Future<void> signedIn(User user, {required bool fresh}) async {
-    await _sessionStore.saveUser(user);
+    final previous = state.user ?? await _sessionStore.loadUser();
+    if (previous != null && previous.id != user.id) await _wiper.wipeOnLogout();
+    await _sessionStore.saveUser(user, tenantSlug: _activeTenantSlug());
     await _sessionStore.saveBiometricCredential(user.id);
     _emitIfOpen(state.copyWith(status: AuthStatus.success, user: user, freshSignIn: fresh));
   }
@@ -176,8 +189,26 @@ class AuthCubit extends Cubit<AuthState> {
 
   /// After the customer completed or edited their profile.
   Future<void> profileUpdated(User user) async {
-    await _sessionStore.saveUser(user);
+    await _sessionStore.saveUser(user, tenantSlug: _activeTenantSlug());
     _emitIfOpen(state.copyWith(status: AuthStatus.success, user: user));
+  }
+
+  /// Signs out (full wipe) when the session held on this device does not
+  /// belong to what the app is serving: no API tokens, tokens for another
+  /// tenant or customer, or a stored record without a matching binding (a
+  /// mock-phase build, a keychain that outlived a reinstall, a tenant chosen
+  /// afresh). Called after every tenant activation and at launch, so a
+  /// customer is never shown another tenant's or customer's data with a
+  /// session that the server would reject on every call.
+  Future<void> ensureSessionMatches(String activeSlug) async {
+    final user = state.user;
+    if (user == null || isClosed) return;
+    final binding = await _sessionStore.loadBinding();
+    final matches = binding != null &&
+        binding.tenantSlug == activeSlug &&
+        binding.customerId == user.id &&
+        await _repository.sessionMatches(tenantSlug: activeSlug, user: user);
+    if (!matches && !isClosed && state.user != null) await logOut();
   }
 
   /// Revokes the session server-side, forgets it (incl. the biometric

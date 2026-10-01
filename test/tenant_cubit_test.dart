@@ -85,12 +85,18 @@ void main() {
     prefs = InMemoryTenantPreferences();
   });
 
-  TenantCubit build({String version = '1.0.0', Future<void> Function()? onChanging}) => TenantCubit(
+  TenantCubit build({
+    String version = '1.0.0',
+    Future<void> Function()? onChanging,
+    Future<void> Function(String slug)? onApplied,
+  }) =>
+      TenantCubit(
         repository: repo,
         context: context,
         preferences: prefs,
         currentAppVersion: version,
         onTenantChanging: onChanging,
+        onTenantApplied: onApplied,
       );
 
   test('a single listed tenant is selected automatically and applied', () async {
@@ -156,6 +162,52 @@ void main() {
     await cubit.close();
   });
 
+  group('the stored session is checked against EVERY activated tenant (R-m8)', () {
+    test('the very first activation reports its slug, before the app is ready', () async {
+      final applied = <String>[];
+      TenantStatus? statusWhenApplied;
+      late final TenantCubit cubit;
+      cubit = build(onApplied: (slug) async {
+        applied.add(slug);
+        statusWhenApplied = cubit.state.status;
+      });
+      await cubit.bootstrap();
+      expect(applied, ['sentech']);
+      expect(statusWhenApplied, TenantStatus.loading);
+      expect(cubit.state.status, TenantStatus.ready);
+      await cubit.close();
+    });
+
+    test('a saved tenant, a cached offline config and a cancelled picker all report too', () async {
+      prefs
+        ..slug = 'sentech'
+        ..configJson = jsonEncode(configFor(_sentech).toJson());
+      repo.configs['sentech'] = const Left(NetworkFailure());
+      repo.tenants = [_sentech, _acme];
+      final applied = <String>[];
+      final cubit = build(onApplied: (slug) async => applied.add(slug));
+      await cubit.bootstrap(); // offline: cached
+      repo.configs['sentech'] = Right(configFor(_sentech));
+      await cubit.openPicker();
+      await cubit.cancelPicker();
+      expect(applied, ['sentech', 'sentech']);
+      await cubit.close();
+    });
+
+    test('a failing check keeps the app out of ready (retryable) instead of showing a mismatched session', () async {
+      var fail = true;
+      final cubit = build(onApplied: (_) async {
+        if (fail) throw StateError('storage');
+      });
+      await cubit.bootstrap();
+      expect(cubit.state.status, TenantStatus.failure);
+      fail = false;
+      await cubit.retry();
+      expect(cubit.state.status, TenantStatus.ready);
+      await cubit.close();
+    });
+  });
+
   test('offline with nothing cached shows a retryable failure', () async {
     repo.listFailure = const NetworkFailure();
     final cubit = build();
@@ -211,7 +263,7 @@ void main() {
     await cubit.bootstrap();
     await cubit.openPicker();
     expect(cubit.state.status, TenantStatus.needsSelection);
-    cubit.cancelPicker();
+    await cubit.cancelPicker();
     expect(cubit.state.status, TenantStatus.ready);
     expect(cubit.state.config!.tenant, _sentech);
     await cubit.close();

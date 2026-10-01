@@ -42,6 +42,13 @@ class MockAuthRepository implements AuthRepository {
   @override
   Future<void> logOut() async {}
 
+  /// The demo flavor has no tokens: a stored demo session always matches.
+  @override
+  Future<bool> sessionMatches({required String tenantSlug, required User user}) async => true;
+
+  @override
+  Future<void> discardLocalSession() async {}
+
   @override
   Future<Either<Failure, User>> logIn({required String mobileNumber, required String password}) async {
     await Future<void>.delayed(latency);

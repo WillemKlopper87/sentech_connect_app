@@ -85,6 +85,11 @@ class AuthInterceptor extends Interceptor {
     }
     var tokens = stored;
     if (tokens == null || tokens.tenantSlug != _tenant.slug) {
+      // No session for THIS tenant: whatever the app still shows as signed in
+      // is a zombie (nothing it sends would ever be accepted), so end it
+      // instead of failing every call forever. Another tenant's tokens are
+      // never sent and are forgotten.
+      await _refresher.expireSession();
       handler.reject(DioException(requestOptions: options, error: const UnauthorizedFailure()));
       return;
     }

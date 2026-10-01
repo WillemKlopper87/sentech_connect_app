@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:sentech_connect_app/core/biometrics/biometric_authenticator.dart';
@@ -8,6 +10,7 @@ import 'package:sentech_connect_app/core/storage/secure_store.dart';
 import 'package:sentech_connect_app/features/auth/data/repositories/mock_auth_repository.dart';
 import 'package:sentech_connect_app/features/auth/data/repositories/secure_session_store.dart';
 import 'package:sentech_connect_app/features/auth/domain/entities/user.dart';
+import 'package:sentech_connect_app/features/auth/domain/repositories/session_store.dart';
 import 'package:sentech_connect_app/features/auth/presentation/bloc/auth_cubit.dart';
 
 const _user = User(id: 'c1', fullName: 'Lindiwe Khumalo', mobileNumber: '+27810000000');
@@ -16,8 +19,13 @@ class _RecordingWiper implements PersonalDataWiper {
   int logoutWipes = 0;
   int fullWipes = 0;
 
+  Future<void> Function()? onWipe;
+
   @override
-  Future<void> wipeOnLogout() async => logoutWipes++;
+  Future<void> wipeOnLogout() async {
+    logoutWipes++;
+    await onWipe?.call();
+  }
 
   @override
   Future<void> wipeEverything() async => fullWipes++;
@@ -28,14 +36,20 @@ class _FakeAuthRepository extends MockAuthRepository {
 
   int logOuts = 0;
   int resumes = 0;
+  bool matches = true;
+  Future<void>? resumeGate;
   Object? logOutError;
   Either<Failure, User> resumeResult = const Right(_user);
 
   @override
   Future<Either<Failure, User>> resumeSession() async {
     resumes++;
+    await resumeGate;
     return resumeResult;
   }
+
+  @override
+  Future<bool> sessionMatches({required String tenantSlug, required User user}) async => matches;
 
   @override
   Future<void> logOut() async {
@@ -72,7 +86,7 @@ void main() {
       );
 
   Future<AuthCubit> lockedCubit() async {
-    await sessionStore.saveUser(_user);
+    await sessionStore.saveUser(_user, tenantSlug: 'sentech');
     await sessionStore.saveBiometricCredential(_user.id);
     return build(initial: AuthState.restore(user: _user, hasBiometricCredential: true, biometricsAvailable: true));
   }
@@ -193,6 +207,132 @@ void main() {
     expect(await sessionStore.loadUser(), isNull);
     expect(await sessionStore.loadBiometricCredential(), isNull);
     expect(wiper.logoutWipes, 1);
+    await cubit.close();
+  });
+
+  group('a different customer signing in over a stored session (R-m9)', () {
+    const other = User(id: 'c2', fullName: 'Sipho Dlamini', mobileNumber: '+27820000000');
+
+    test("the previous customer's local data is wiped BEFORE the new session is stored", () async {
+      final cubit = await lockedCubit();
+      User? storedWhenWiped;
+      wiper.onWipe = () async => storedWhenWiped = await sessionStore.loadUser();
+      await cubit.signedIn(other, fresh: true);
+      expect(wiper.logoutWipes, 1);
+      expect(storedWhenWiped, _user, reason: 'wiped while the old record was still there, i.e. before saving the new one');
+      expect(await sessionStore.loadUser(), other);
+      expect(await sessionStore.loadBiometricCredential(), other.id);
+      expect(cubit.state.user, other);
+      await cubit.close();
+    });
+
+    test('the same customer unlocking again wipes nothing', () async {
+      final cubit = await lockedCubit();
+      await cubit.signedIn(_user, fresh: false);
+      expect(wiper.logoutWipes, 0);
+      await cubit.close();
+    });
+
+    test('a wipe failure stops the new sign-in (nothing of the old customer may carry over)', () async {
+      final cubit = await lockedCubit();
+      wiper.onWipe = () async => throw StateError('disk');
+      await expectLater(cubit.signedIn(other, fresh: true), throwsStateError);
+      expect(cubit.state.isSignedIn, isFalse);
+      expect(await sessionStore.loadUser(), _user);
+      await cubit.close();
+    });
+  });
+
+  group('ensureSessionMatches (tenant- and customer-bound session, R-m8)', () {
+    test('a matching session stays signed in', () async {
+      final cubit = build();
+      await cubit.signedIn(_user, fresh: true);
+      await cubit.ensureSessionMatches('sentech');
+      expect(cubit.state.isSignedIn, isTrue);
+      expect(wiper.logoutWipes, 0);
+      await cubit.close();
+    });
+
+    test('a different active tenant signs the customer out and wipes', () async {
+      final cubit = build();
+      await cubit.signedIn(_user, fresh: true);
+      await cubit.ensureSessionMatches('acme-wifi');
+      expect(cubit.state.isSignedIn, isFalse);
+      expect(cubit.state.user, isNull);
+      expect(wiper.logoutWipes, 1);
+      expect(repo.logOuts, 1);
+      expect(await sessionStore.loadUser(), isNull);
+      await cubit.close();
+    });
+
+    test('tokens that do not belong to this tenant/customer sign the customer out', () async {
+      final cubit = build();
+      await cubit.signedIn(_user, fresh: true);
+      repo.matches = false;
+      await cubit.ensureSessionMatches('sentech');
+      expect(cubit.state.isSignedIn, isFalse);
+      expect(wiper.logoutWipes, 1);
+      await cubit.close();
+    });
+
+    test('a stored user without a binding (mock-phase build) is signed out, also when locked', () async {
+      await secureStore.write('session_user', '{"id":"c1","fullName":"Lindiwe Khumalo","mobileNumber":"+27810000000"}');
+      final cubit = build(initial: AuthState.restore(user: _user, hasBiometricCredential: true, biometricsAvailable: true));
+      expect(cubit.state.status, AuthStatus.locked);
+      await cubit.ensureSessionMatches('sentech');
+      expect(cubit.state.status, AuthStatus.initial);
+      expect(cubit.state.user, isNull);
+      expect(wiper.logoutWipes, 1);
+      await cubit.close();
+    });
+
+    test('a record bound to another customer id is signed out', () async {
+      await secureStore.write(
+        'session_user',
+        '{"id":"c1","fullName":"x","mobileNumber":"y","tenantSlug":"sentech","customerId":"someone-else"}',
+      );
+      final cubit = build(initial: const AuthState(status: AuthStatus.success, user: _user));
+      await cubit.ensureSessionMatches('sentech');
+      expect(cubit.state.isSignedIn, isFalse);
+      await cubit.close();
+    });
+
+    test('nobody signed in: nothing to do', () async {
+      final cubit = build();
+      await cubit.ensureSessionMatches('acme-wifi');
+      expect(wiper.logoutWipes, 0);
+      expect(repo.logOuts, 0);
+      await cubit.close();
+    });
+
+    test('the session is recorded under the ACTIVE tenant', () async {
+      final cubit = AuthCubit(
+        repo,
+        sessionStore: sessionStore,
+        biometrics: biometrics,
+        wiper: wiper,
+        sessionExpired: events.expired,
+        activeTenantSlug: () => 'acme-wifi',
+      );
+      await cubit.signedIn(_user, fresh: true);
+      expect(await sessionStore.loadBinding(), const SessionBinding(tenantSlug: 'acme-wifi', customerId: 'c1'));
+      await cubit.close();
+    });
+  });
+
+  test('a logout that races the unlock is not undone when the session finally resumes', () async {
+    final gate = Completer<void>();
+    repo.resumeGate = gate.future;
+    final cubit = await lockedCubit();
+    final unlocking = cubit.logInWithBiometrics(reason: 'test');
+    for (var i = 0; i < 10; i++) {
+      await Future<void>.delayed(Duration.zero);
+    }
+    await cubit.logOut();
+    gate.complete();
+    await unlocking;
+    expect(cubit.state.isSignedIn, isFalse);
+    expect(await sessionStore.loadUser(), isNull, reason: 'the session must not be re-saved after logout');
     await cubit.close();
   });
 

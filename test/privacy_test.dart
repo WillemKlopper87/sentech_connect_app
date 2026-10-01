@@ -160,7 +160,7 @@ void main() {
     late InMemorySecureStore secureStore;
 
     Future<void> pumpAccount(WidgetTester tester) async {
-      await locator<SessionStore>().saveUser(const User(id: 'usr_001', fullName: 'Lindiwe Khumalo', mobileNumber: '081'));
+      await locator<SessionStore>().saveUser(const User(id: 'usr_001', fullName: 'Lindiwe Khumalo', mobileNumber: '081'), tenantSlug: 'sentech');
       await locator<SessionStore>().saveBiometricCredential('usr_001');
       secureStore = locator<SecureStore>() as InMemorySecureStore;
       auth = AuthCubit(

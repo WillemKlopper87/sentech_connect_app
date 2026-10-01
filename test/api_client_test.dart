@@ -109,15 +109,21 @@ void main() {
   test("tokens issued for another tenant are never sent (tenant switch can't leak a session)", () async {
     await h.signIn(tenant: 'sentech');
     h.tenantContext.slug = 'acme-wifi';
+    final expired = expectLater(h.events.expired, emits(null));
     final result = await h.api.get('/v1/orders', decode: id);
     expect(result.match((f) => f, (_) => null), isA<UnauthorizedFailure>());
     expect(h.adapter.requests, isEmpty);
+    // The mismatched session is a zombie: forgotten, and the app is told to sign out.
+    expect(await h.tokens.read(), isNull);
+    await expired;
   });
 
-  test('no stored session -> UnauthorizedFailure without touching the network', () async {
+  test('no stored session -> UnauthorizedFailure without touching the network (and a sign-out event)', () async {
+    final expired = expectLater(h.events.expired, emits(null));
     final result = await h.api.get('/v1/orders', decode: id);
     expect(result.match((f) => f, (_) => null), isA<UnauthorizedFailure>());
     expect(h.adapter.requests, isEmpty);
+    await expired;
   });
 
   test('the Idempotency-Key survives the 401 retry, so a replay cannot create a second order', () async {

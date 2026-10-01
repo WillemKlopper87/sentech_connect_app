@@ -30,19 +30,36 @@ class SecureSessionStore implements SessionStore {
   }
 
   @override
-  Future<void> saveUser(User user) => _store.write(
+  Future<void> saveUser(User user, {required String tenantSlug}) => _store.write(
         _userKey,
-        jsonEncode({'id': user.id, 'fullName': user.fullName, 'mobileNumber': user.mobileNumber}),
+        jsonEncode({
+          'id': user.id,
+          'fullName': user.fullName,
+          'mobileNumber': user.mobileNumber,
+          'tenantSlug': tenantSlug,
+          'customerId': user.id,
+        }),
       );
+
+  @override
+  Future<SessionBinding?> loadBinding() async {
+    final raw = await _store.read(_userKey);
+    if (raw == null) return null;
+    try {
+      final json = jsonDecode(raw) as Map<String, dynamic>;
+      final slug = json['tenantSlug'];
+      final customer = json['customerId'];
+      return slug is String && customer is String ? SessionBinding(tenantSlug: slug, customerId: customer) : null;
+    } catch (_) {
+      return null;
+    }
+  }
 
   @override
   Future<String?> loadBiometricCredential() => _store.read(_credentialKey);
 
   @override
   Future<void> saveBiometricCredential(String credential) => _store.write(_credentialKey, credential);
-
-  @override
-  Future<void> endSession() => _store.delete(_userKey);
 
   @override
   Future<void> clearAll() async {

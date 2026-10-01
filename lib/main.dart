@@ -3,14 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sentech_connect_app/app/app.dart';
 import 'package:sentech_connect_app/app/locator.dart';
+import 'package:sentech_connect_app/app/session_restore.dart';
 import 'package:sentech_connect_app/app/startup_error_app.dart';
-import 'package:sentech_connect_app/core/biometrics/biometric_authenticator.dart';
 import 'package:sentech_connect_app/core/config/app_environment.dart';
 import 'package:sentech_connect_app/core/diagnostics/crash_reporter.dart';
 import 'package:sentech_connect_app/core/diagnostics/error_handling.dart';
 import 'package:sentech_connect_app/core/local/app_preferences.dart';
-import 'package:sentech_connect_app/features/auth/domain/repositories/session_store.dart';
-import 'package:sentech_connect_app/features/auth/presentation/bloc/auth_cubit.dart';
+import 'package:sentech_connect_app/core/local/install_marker.dart';
 
 void main() {
   // To send crashes to Sentry/Crashlytics, construct that reporter here
@@ -40,20 +39,18 @@ Future<void> _start(CrashReporter crashReporter) async {
 
   final savedThemeMode = await AppPreferences.loadThemeMode();
   final savedLocale = await AppPreferences.loadLocale();
-  final sessionStore = locator<SessionStore>();
-  final savedUser = await sessionStore.loadUser();
-  final credential = await sessionStore.loadBiometricCredential();
-  final biometricsAvailable = savedUser != null &&
-      credential != null &&
-      await locator<BiometricAuthenticator>().availability() == BiometricAvailability.available;
+  final initialAuthState = await restoreAuthState(
+    sessionStore: locator(),
+    auth: locator(),
+    biometrics: locator(),
+    wiper: locator(),
+    secureStore: locator(),
+    installMarker: SharedPrefsInstallMarker(),
+  );
 
   runApp(SentechConnectApp(
     initialThemeMode: savedThemeMode,
     initialLocale: savedLocale,
-    initialAuthState: AuthState.restore(
-      user: savedUser,
-      hasBiometricCredential: credential != null,
-      biometricsAvailable: biometricsAvailable,
-    ),
+    initialAuthState: initialAuthState,
   ));
 }

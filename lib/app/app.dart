@@ -8,6 +8,7 @@ import 'package:sentech_connect_app/app/router/app_router.dart';
 import 'package:sentech_connect_app/app/theme/app_theme.dart';
 import 'package:sentech_connect_app/app/theme/theme_cubit.dart';
 import 'package:sentech_connect_app/core/network/session_events.dart';
+import 'package:sentech_connect_app/core/network/tenant_context.dart';
 import 'package:sentech_connect_app/features/auth/presentation/bloc/auth_cubit.dart';
 import 'package:sentech_connect_app/features/cart/presentation/bloc/cart_cubit.dart';
 import 'package:sentech_connect_app/features/tenant/presentation/bloc/tenant_cubit.dart';
@@ -43,6 +44,7 @@ class _SentechConnectAppState extends State<SentechConnectApp> {
     wiper: locator(),
     initial: widget.initialAuthState,
     sessionExpired: locator<SessionEvents>().expired,
+    activeTenantSlug: () => locator<TenantContext>().slug,
   );
   // Switching ISP signs the customer out first (ruling: one session per tenant).
   late final TenantCubit _tenantCubit = TenantCubit(
@@ -50,6 +52,7 @@ class _SentechConnectAppState extends State<SentechConnectApp> {
     context: locator(),
     preferences: locator(),
     onTenantChanging: () => _authCubit.logOut(),
+    onTenantApplied: _authCubit.ensureSessionMatches,
   )..bootstrap();
   late final AppRouter _appRouter = AppRouter(_authCubit, tenantCubit: _tenantCubit);
 

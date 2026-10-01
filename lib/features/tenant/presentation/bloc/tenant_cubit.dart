@@ -50,6 +50,7 @@ class TenantCubit extends Cubit<TenantState> {
     required this._preferences,
     String currentAppVersion = appVersion,
     this._onTenantChanging,
+    this._onTenantApplied,
   }) : _appVersion = currentAppVersion,
        super(const TenantState());
 
@@ -61,6 +62,13 @@ class TenantCubit extends Cubit<TenantState> {
   /// Signs the customer out before a different tenant becomes active: tokens,
   /// session and personal data belong to exactly one tenant.
   final Future<void> Function()? _onTenantChanging;
+
+  /// Called with the slug of EVERY tenant that becomes active (including the
+  /// first one after a launch or reinstall), before the app is shown for it:
+  /// the session stored on the device must belong to that tenant, or be ended
+  /// (see `AuthCubit.ensureSessionMatches`). A throw puts the cubit in a
+  /// retryable failure state rather than showing a mismatched session.
+  final Future<void> Function(String slug)? _onTenantApplied;
 
   /// The tenant whose session/personal data may be on this device (the saved
   /// or last applied one); null once signed out or before any choice. EVERY
@@ -92,10 +100,10 @@ class TenantCubit extends Cubit<TenantState> {
     await _loadDirectory(autoSelectSingle: false);
   });
 
-  void cancelPicker() {
+  Future<void> cancelPicker() => _guard(() async {
     final config = state.config;
-    if (config != null) _apply(config);
-  }
+    if (config != null) await _apply(config);
+  });
 
   Future<void> select(Tenant tenant) async {
     // Ignore a second tap while a switch (sign-out + load) is in flight.
@@ -196,7 +204,7 @@ class TenantCubit extends Cubit<TenantState> {
     switch (result) {
       case Right(value: final config):
         await _persist(slug, config);
-        _apply(config);
+        await _apply(config);
       case Left(value: NotFoundFailure()):
         // The tenant was removed or suspended: its session must not outlive
         // it, and the customer chooses again.
@@ -208,7 +216,7 @@ class TenantCubit extends Cubit<TenantState> {
         final cached = await _cachedConfig(slug);
         if (isClosed) return;
         if (cached != null) {
-          _apply(cached);
+          await _apply(cached);
         } else {
           _restoreContext();
           emit(state.copyWith(status: TenantStatus.failure, failure: failure));
@@ -225,8 +233,10 @@ class TenantCubit extends Cubit<TenantState> {
     } catch (_) {}
   }
 
-  void _apply(AppConfig config) {
+  Future<void> _apply(AppConfig config) async {
     _applyToContext(config);
+    await _onTenantApplied?.call(config.tenant.slug);
+    if (isClosed) return;
     _committedSlug = config.tenant.slug;
     final status = isVersionAtLeast(_appVersion, config.minAppVersion)
         ? TenantStatus.ready
