@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:fpdart/fpdart.dart';
+import 'package:sentech_connect_app/core/error/failure.dart';
 import 'package:sentech_connect_app/app/locale_cubit.dart';
 import 'package:sentech_connect_app/app/locator.dart';
 import 'package:sentech_connect_app/app/theme/theme_cubit.dart';
@@ -19,6 +21,18 @@ import 'package:sentech_connect_app/features/privacy/domain/entities/consent_rec
 import 'package:sentech_connect_app/features/privacy/presentation/bloc/privacy_actions_cubit.dart';
 import 'package:sentech_connect_app/features/privacy/presentation/widgets/consent_gate.dart';
 import 'helpers/test_setup.dart';
+
+class _GrantCountingConsent extends LocalConsentRepository {
+  _GrantCountingConsent(super.store);
+
+  int grants = 0;
+
+  @override
+  Future<Either<Failure, ConsentRecord>> grant(ConsentPurpose purpose) {
+    grants++;
+    return super.grant(purpose);
+  }
+}
 
 void main() {
   group('LocalConsentRepository', () {
@@ -114,6 +128,34 @@ void main() {
       await tester.pumpAndSettle();
       expect(result, isFalse);
       expect(store.snapshot, isEmpty);
+    });
+
+    testWidgets('a double tap shows ONE dialog and records ONE consent', (tester) async {
+      final counting = _GrantCountingConsent(store);
+      var results = <bool>[];
+      await tester.pumpWidget(MaterialApp(
+        home: Builder(
+          builder: (context) => Scaffold(
+            body: Center(
+              child: ElevatedButton(
+                // Two taps in the same frame (before any dialog can block the second).
+                onPressed: () async => results = await Future.wait([
+                  ensureConsent(context, ConsentPurpose.locationCapture, repository: counting),
+                  ensureConsent(context, ConsentPurpose.locationCapture, repository: counting),
+                ]),
+                child: const Text('capture'),
+              ),
+            ),
+          ),
+        ),
+      ));
+      await tester.tap(find.text('capture'));
+      await tester.pumpAndSettle();
+      expect(find.text('Your privacy'), findsOneWidget);
+      await tester.tap(find.text('I agree'));
+      await tester.pumpAndSettle();
+      expect(counting.grants, 1);
+      expect(results, [true, true], reason: 'both callers get the answer');
     });
 
     testWidgets('an existing valid consent skips the dialog', (tester) async {
