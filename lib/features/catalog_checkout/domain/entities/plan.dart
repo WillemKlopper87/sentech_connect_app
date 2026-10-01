@@ -43,13 +43,3 @@ class Plan extends Equatable {
     isFeatured,
   ];
 }
-
-enum PaymentMethod { card, ozow, payshap }
-
-extension PaymentMethodLabel on PaymentMethod {
-  String get label => switch (this) {
-    PaymentMethod.card => 'Card',
-    PaymentMethod.ozow => 'Instant EFT · Ozow',
-    PaymentMethod.payshap => 'PayShap',
-  };
-}

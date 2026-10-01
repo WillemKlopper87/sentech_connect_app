@@ -125,15 +125,17 @@ void main() {
         MaterialApp(
           home: BlocProvider.value(
             value: payment,
-            child: PaymentPage(onPaid: (_) {}, onNeedsVerification: (_) {}),
+            child: PaymentPage(
+              onPaid: (_) {},
+              onNeedsVerification: (_) {},
+              onClosed: () {},
+            ),
           ),
         ),
       );
       await tester.pumpAndSettle();
       expect(find.text('Identity verified'), findsOneWidget);
-      await tester.runAsync(
-        () => repo.pay(orderId: order.id, method: PaymentMethod.card),
-      );
+      await tester.runAsync(() => repo.startPayment(orderId: order.id));
       final confirmation = OrderCubit(repo, order.id);
       addTearDown(confirmation.close);
       await tester.pumpWidget(
@@ -168,6 +170,7 @@ void main() {
           child: PaymentPage(
             onPaid: (_) {},
             onNeedsVerification: (_) => fail('hotspot routed to RICA'),
+            onClosed: () {},
           ),
         ),
       ),
@@ -233,7 +236,11 @@ void main() {
           MaterialApp(
             home: BlocProvider.value(
               value: payment,
-              child: PaymentPage(onPaid: (_) {}, onNeedsVerification: (_) {}),
+              child: PaymentPage(
+                onPaid: (_) {},
+                onNeedsVerification: (_) {},
+                onClosed: () {},
+              ),
             ),
           ),
         );

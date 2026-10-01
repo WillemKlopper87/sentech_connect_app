@@ -1,31 +1,77 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sentech_connect_app/core/money/money.dart';
+import 'package:sentech_connect_app/features/catalog_checkout/data/dev_payment_simulator.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/domain/entities/order.dart';
-import 'package:sentech_connect_app/features/catalog_checkout/domain/entities/plan.dart';
+import 'package:sentech_connect_app/features/catalog_checkout/domain/entities/payment_handoff.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/presentation/bloc/payment_cubit.dart';
+import 'package:sentech_connect_app/features/catalog_checkout/presentation/payment/fake_gateway_sheet.dart';
+import 'package:sentech_connect_app/features/catalog_checkout/presentation/payment/payment_web_view_page.dart';
 import 'package:sentech_connect_app/shared/widgets/failure_view.dart';
 
-/// Step 3 of checkout: pay an order whose identity check has passed. Reached
-/// from RICA success, or later from the dashboard "finish your order" banner
-/// — a failed payment leaves the order intact so the customer can retry.
+/// Pay for an order on the gateway's hosted page, then wait for the server
+/// to confirm. Reached from checkout, RICA success or the dashboard banner.
 class PaymentPage extends StatelessWidget {
   const PaymentPage({
     super.key,
     required this.onPaid,
     required this.onNeedsVerification,
+    required this.onClosed,
+    this.showIdentityVerified = true,
+    this.devSimulator,
   });
 
   final void Function(Order order) onPaid;
   final void Function(Order order) onNeedsVerification;
+  final VoidCallback onClosed;
+
+  /// "Identity verified" header (only when the RICA flag is on). Hotspot
+  /// pass orders never show it, whatever this says: they have no identity
+  /// check.
+  final bool showIdentityVerified;
+
+  /// Local stack + debug only (ruling R-M4-13).
+  final DevPaymentSimulator? devSimulator;
+
+  Future<void> _handOff(BuildContext context, PaymentHandoff handoff) async {
+    final cubit = context.read<PaymentCubit>();
+    if (handoff.isDemo) {
+      await cubit.handoffFinished();
+      return;
+    }
+    final simulator = devSimulator;
+    if (handoff.isFakeGateway && kDebugMode && simulator != null) {
+      final approve = await showFakeGatewaySheet(context, handoff);
+      if (approve != null) {
+        await simulator.simulate(
+          paymentId: handoff.paymentId,
+          accepted: approve,
+        );
+      }
+      await cubit.handoffFinished();
+      return;
+    }
+    await Navigator.of(context).push<bool>(
+      MaterialPageRoute(
+        fullscreenDialog: true,
+        builder: (_) => PaymentWebViewPage(handoff: handoff),
+      ),
+    );
+    await cubit.handoffFinished();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Payment')),
       body: BlocConsumer<PaymentCubit, PaymentState>(
+        listenWhen: (previous, current) => previous.status != current.status,
         listener: (context, state) {
           final order = state.order;
+          if (state.status == PaymentStatus.handoff && state.handoff != null) {
+            _handOff(context, state.handoff!);
+          }
           if (order == null) return;
           if (state.status == PaymentStatus.paid) onPaid(order);
           if (state.status == PaymentStatus.needsVerification) {
@@ -33,30 +79,59 @@ class PaymentPage extends StatelessWidget {
           }
         },
         builder: (context, state) {
+          final cubit = context.read<PaymentCubit>();
           final theme = Theme.of(context);
-          if (state.status == PaymentStatus.loading) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (state.status == PaymentStatus.loadFailed) {
-            return FailureView(
-              failure: state.failure,
-              onRetry: () => context.read<PaymentCubit>().load(),
-            );
+          switch (state.status) {
+            case PaymentStatus.loading:
+              return const Center(child: CircularProgressIndicator());
+            case PaymentStatus.loadFailed:
+              return FailureView(failure: state.failure, onRetry: cubit.load);
+            case PaymentStatus.closed:
+              return _Message(
+                text:
+                    'This order can no longer be paid. If you already paid, '
+                    'it will still be applied once the payment provider '
+                    'confirms it.',
+                action: FilledButton(
+                  onPressed: onClosed,
+                  child: const Text('Back to dashboard'),
+                ),
+              );
+            case PaymentStatus.confirming:
+              return const _Message(
+                text:
+                    'Confirming your payment. This can take a minute; your order is saved if you leave this screen.',
+                action: CircularProgressIndicator(),
+              );
+            case PaymentStatus.stillPending:
+              return _Message(
+                text:
+                    'We have not received confirmation from the payment provider yet. '
+                    'If you completed the payment, check again in a moment. '
+                    'A payment that needs a manual check is applied once it is cleared.',
+                action: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    ElevatedButton(
+                      onPressed: cubit.checkAgain,
+                      child: const Text('Check again'),
+                    ),
+                    const SizedBox(height: 8),
+                    OutlinedButton(
+                      onPressed: cubit.pay,
+                      child: const Text('Pay again'),
+                    ),
+                  ],
+                ),
+              );
+            default:
+              break;
           }
           final order = state.order;
           if (order == null) return const SizedBox.shrink();
-          if (state.status == PaymentStatus.closed) {
-            return const Center(
-              child: Padding(
-                padding: EdgeInsets.all(24),
-                child: Text(
-                  'This order can no longer be paid. Start a new order from Shop.',
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            );
-          }
-          final paying = state.status == PaymentStatus.paying;
+          final busy =
+              state.status == PaymentStatus.starting ||
+              state.status == PaymentStatus.handoff;
           return SafeArea(
             child: Column(
               children: [
@@ -66,31 +141,35 @@ class PaymentPage extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        _OrderCard(order: order),
-                        const SizedBox(height: 22),
-                        Text(
-                          'PAYMENT METHOD',
-                          style: theme.textTheme.labelLarge?.copyWith(
-                            letterSpacing: 0.6,
-                          ),
+                        _OrderCard(
+                          order: order,
+                          showIdentityVerified:
+                              showIdentityVerified && !order.isHotspotPass,
                         ),
-                        const SizedBox(height: 10),
-                        for (final method in PaymentMethod.values) ...[
-                          _PayTile(
-                            method: method,
-                            selected: state.method == method,
-                            onTap: () => context
-                                .read<PaymentCubit>()
-                                .selectMethod(method),
-                          ),
-                          const SizedBox(height: 10),
-                        ],
+                        const SizedBox(height: 18),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Icon(
+                              Icons.payments_outlined,
+                              size: 20,
+                              color: theme.colorScheme.primary,
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Text(
+                                'You choose how to pay on the secure payment page.',
+                                style: theme.textTheme.bodyMedium,
+                              ),
+                            ),
+                          ],
+                        ),
                         if (state.status == PaymentStatus.payFailed) ...[
-                          const SizedBox(height: 8),
+                          const SizedBox(height: 16),
                           FailureView(
                             failure: state.failure,
                             compact: true,
-                            onRetry: () => context.read<PaymentCubit>().pay(),
+                            onRetry: cubit.pay,
                           ),
                         ],
                       ],
@@ -113,7 +192,7 @@ class PaymentPage extends StatelessWidget {
                           const SizedBox(width: 6),
                           Expanded(
                             child: Text(
-                              'Payments are tokenised and PCI-compliant — Sentech never stores your card details.',
+                              "You pay on the provider's secure page. We never see or store your card details.",
                               style: theme.textTheme.bodyMedium?.copyWith(
                                 fontSize: 11.5,
                                 color: theme.colorScheme.onSurfaceVariant,
@@ -124,10 +203,8 @@ class PaymentPage extends StatelessWidget {
                       ),
                       const SizedBox(height: 14),
                       ElevatedButton(
-                        onPressed: paying
-                            ? null
-                            : () => context.read<PaymentCubit>().pay(),
-                        child: paying
+                        onPressed: busy ? null : cubit.pay,
+                        child: busy
                             ? const SizedBox(
                                 width: 20,
                                 height: 20,
@@ -152,14 +229,47 @@ class PaymentPage extends StatelessWidget {
   }
 }
 
+class _Message extends StatelessWidget {
+  const _Message({required this.text, required this.action});
+
+  final String text;
+  final Widget action;
+
+  @override
+  Widget build(BuildContext context) => Center(
+    child: Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            text,
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodyLarge,
+          ),
+          const SizedBox(height: 20),
+          Center(child: action),
+        ],
+      ),
+    ),
+  );
+}
+
 class _OrderCard extends StatelessWidget {
-  const _OrderCard({required this.order});
+  const _OrderCard({required this.order, required this.showIdentityVerified});
 
   final Order order;
+  final bool showIdentityVerified;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final label = showIdentityVerified
+        ? 'Identity verified'
+        : order.isHotspotPass
+        ? 'Wi-Fi pass order'
+        : 'Your order';
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -170,16 +280,9 @@ class _OrderCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(Icons.verified, size: 18, color: const Color(0xFF6F9126)),
+              const Icon(Icons.verified, size: 18, color: Color(0xFF6F9126)),
               const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  order.isHotspotPass
-                      ? 'Wi-Fi pass order'
-                      : 'Identity verified',
-                  style: theme.textTheme.bodyMedium,
-                ),
-              ),
+              Expanded(child: Text(label, style: theme.textTheme.bodyMedium)),
               Text('#${order.orderNumber}', style: theme.textTheme.bodyMedium),
             ],
           ),
@@ -200,96 +303,6 @@ class _OrderCard extends StatelessWidget {
             ],
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _PayTile extends StatelessWidget {
-  const _PayTile({
-    required this.method,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final PaymentMethod method;
-  final bool selected;
-  final VoidCallback onTap;
-
-  IconData get _icon => switch (method) {
-    PaymentMethod.card => Icons.credit_card,
-    PaymentMethod.ozow => Icons.account_balance_outlined,
-    PaymentMethod.payshap => Icons.qr_code_2,
-  };
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final color = selected
-        ? theme.colorScheme.primary
-        : theme.colorScheme.onSurfaceVariant;
-    return Semantics(
-      button: true,
-      selected: selected,
-      label: method.label,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(10),
-        child: Container(
-          constraints: const BoxConstraints(minHeight: 48),
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(
-              color: selected
-                  ? theme.colorScheme.primary
-                  : theme.colorScheme.outlineVariant,
-              width: selected ? 1.4 : 1,
-            ),
-            color: selected
-                ? theme.colorScheme.primary.withValues(alpha: 0.06)
-                : null,
-          ),
-          child: Row(
-            children: [
-              Icon(_icon, size: 19, color: color),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  method.label,
-                  style: theme.textTheme.bodyLarge?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-              Container(
-                width: 16,
-                height: 16,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: selected
-                        ? theme.colorScheme.primary
-                        : theme.colorScheme.outlineVariant,
-                    width: 1.5,
-                  ),
-                ),
-                child: selected
-                    ? Center(
-                        child: Container(
-                          width: 8,
-                          height: 8,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: theme.colorScheme.primary,
-                          ),
-                        ),
-                      )
-                    : null,
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }

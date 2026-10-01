@@ -4,7 +4,7 @@ import 'package:sentech_connect_app/core/network/api_client.dart';
 import 'package:sentech_connect_app/core/network/idempotency.dart';
 import 'package:sentech_connect_app/features/cart/domain/entities/cart_item.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/domain/entities/order.dart';
-import 'package:sentech_connect_app/features/catalog_checkout/domain/entities/plan.dart';
+import 'package:sentech_connect_app/features/catalog_checkout/domain/entities/payment_handoff.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/domain/repositories/checkout_repository.dart';
 
 /// Orders on the platform (`/v1/orders`). The server owns prices, totals,
@@ -107,12 +107,15 @@ class HttpCheckoutRepository implements CheckoutRepository {
         ),
       );
 
-  /// Replaced by the hosted-payment hand-off in the next task.
   @override
-  Future<Either<Failure, Order>> pay({
+  Future<Either<Failure, PaymentHandoff>> startPayment({
     required String orderId,
-    required PaymentMethod method,
-  }) async => const Left(ServerFailure('Online payment is not available yet.'));
+  }) => _api.post<PaymentHandoff>(
+    '/v1/orders/${Uri.encodeComponent(orderId)}/checkout',
+    timeout: const Duration(seconds: 30),
+    decode: (data) =>
+        paymentHandoffFromJson(Map<String, Object?>.from(data! as Map)),
+  );
 
   @override
   Future<void> clearLocalOrders() async {}
@@ -151,5 +154,27 @@ Order orderFromJson(Map<String, Object?> json) {
     totalCents: total['amount_cents']! as int,
     isHotspotPass: true,
     status: orderStatusFromApi(json['status']! as String),
+  );
+}
+
+/// M1 `CheckoutOut` -> [PaymentHandoff].
+PaymentHandoff paymentHandoffFromJson(Map<String, Object?> json) {
+  final amount = json['amount']! as Map;
+  if (amount['currency'] != 'ZAR') {
+    throw FormatException('Unsupported currency ${amount['currency']}');
+  }
+  final method = switch (json['method']) {
+    'GET' => PaymentHandoffMethod.get,
+    'POST' => PaymentHandoffMethod.post,
+    final other => throw FormatException('Unknown checkout method $other'),
+  };
+  return PaymentHandoff(
+    paymentId: json['payment_id']! as String,
+    reference: json['reference']! as String,
+    gateway: json['gateway']! as String,
+    method: method,
+    url: Uri.parse(json['url']! as String),
+    fields: Map<String, String>.from(json['fields']! as Map),
+    amountCents: amount['amount_cents']! as int,
   );
 }

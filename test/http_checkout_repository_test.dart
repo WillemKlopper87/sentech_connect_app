@@ -3,6 +3,7 @@ import 'package:sentech_connect_app/core/error/failure.dart';
 import 'package:sentech_connect_app/features/cart/domain/entities/cart_item.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/data/repositories/http_checkout_repository.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/domain/entities/order.dart';
+import 'package:sentech_connect_app/features/catalog_checkout/domain/entities/payment_handoff.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/domain/entities/plan.dart';
 
 import 'helpers/api_harness.dart';
@@ -169,20 +170,71 @@ void main() {
     },
   );
 
+  test('RICA placeholder never mutates the server', () async {
+    expect((await repo.markIdentityVerified('test-order')).isLeft(), isTrue);
+    expect(h.adapter.requests, isEmpty);
+  });
+
   test(
-    'online payment and RICA placeholders never mutate the server',
+    'startPayment returns the hosted hand-off from /checkout (fake gateway, GET)',
     () async {
-      expect(
-        (await repo.pay(
-          orderId: 'test-order',
-          method: PaymentMethod.card,
-        )).isLeft(),
-        isTrue,
+      h.adapter.on(
+        'POST',
+        '/v1/orders/o1/checkout',
+        (_) => FakeReply(200, fixture('checkout_fake.json')),
       );
-      expect((await repo.markIdentityVerified('test-order')).isLeft(), isTrue);
-      expect(h.adapter.requests, isEmpty);
+      final handoff = (await repo.startPayment(
+        orderId: 'o1',
+      )).getOrElse((f) => throw StateError(f.message));
+      expect(handoff.isFakeGateway, isTrue);
+      expect(handoff.method, PaymentHandoffMethod.get);
+      expect(handoff.amountCents, 3000);
+      expect(handoff.fields['reference'], 'SC5E9B7C1A');
+      expect(
+        h.adapter.requests.single.headers['Authorization'],
+        'Bearer access-1',
+      );
     },
   );
+
+  test('startPayment supports the Netcash form POST shape', () async {
+    h.adapter.on(
+      'POST',
+      '/v1/orders/o1/checkout',
+      (_) => FakeReply(200, fixture('checkout_netcash.json')),
+    );
+    final handoff = (await repo.startPayment(
+      orderId: 'o1',
+    )).getOrElse((f) => throw StateError(f.message));
+    expect(handoff.method, PaymentHandoffMethod.post);
+    expect(handoff.url.host, 'paynow.netcash.co.za');
+  });
+
+  test('an order that can no longer be paid is a ValidationFailure', () async {
+    h.adapter.on(
+      'POST',
+      '/v1/orders/o1/checkout',
+      (_) => FakeReply.problem(
+        409,
+        'order_not_payable',
+        detail: 'An order that is expired cannot be paid.',
+      ),
+    );
+    final failure = (await repo.startPayment(
+      orderId: 'o1',
+    )).match((f) => f, (_) => null);
+    expect((failure! as ValidationFailure).code, 'order_not_payable');
+  });
+
+  test('a non-ZAR hand-off is a ServerFailure, never opened', () async {
+    final bad = fixtureMap('checkout_netcash.json')
+      ..['amount'] = {'amount_cents': 3000, 'currency': 'USD'};
+    h.adapter.on('POST', '/v1/orders/o1/checkout', (_) => FakeReply(200, bad));
+    expect(
+      (await repo.startPayment(orderId: 'o1')).match((f) => f, (_) => null),
+      isA<ServerFailure>(),
+    );
+  });
 
   test('an unknown order is a NotFoundFailure', () async {
     h.adapter.on(

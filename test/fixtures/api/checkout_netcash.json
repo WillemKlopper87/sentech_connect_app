@@ -1,0 +1,1 @@
+{"payment_id": "9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6e", "reference": "SC5E9B7C1A", "gateway": "netcash", "amount": {"amount_cents": 3000, "currency": "ZAR"}, "method": "POST", "url": "https://paynow.netcash.co.za/site/paynow.aspx", "fields": {"m1": "test-service-key", "p2": "SC5E9B7C1A", "p4": "30.00"}}

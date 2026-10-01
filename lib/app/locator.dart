@@ -1,6 +1,8 @@
 import 'package:sentech_connect_app/features/catalog_checkout/data/repositories/http_catalog_repository.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/data/repositories/http_checkout_repository.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
+import 'package:sentech_connect_app/features/catalog_checkout/data/dev_payment_simulator.dart';
 import 'package:sentech_connect_app/app/default_personal_data_wiper.dart';
 import 'package:sentech_connect_app/core/biometrics/biometric_authenticator.dart';
 import 'package:sentech_connect_app/core/biometrics/local_auth_biometric_authenticator.dart';
@@ -218,6 +220,13 @@ void _registerProdRepositories(Uri baseUrl) {
   locator.registerLazySingleton<CheckoutRepository>(
     () => HttpCheckoutRepository(locator()),
   );
+  // The dev simulate endpoint only exists on dev/test APIs; the app offers it
+  // only in debug builds talking to a local host (ruling R-M4-13).
+  if (kDebugMode && AppEnvironment.localDevHosts.contains(baseUrl.host)) {
+    locator.registerLazySingleton<DevPaymentSimulator>(
+      () => DevPaymentSimulator(locator()),
+    );
+  }
   locator.registerLazySingleton<RegistrationRepository>(
     () => HttpRegistrationRepository(
       locator(),

@@ -6,6 +6,7 @@ import 'package:sentech_connect_app/core/network/simulated_network.dart';
 import 'package:sentech_connect_app/core/storage/secure_store.dart';
 import 'package:sentech_connect_app/features/cart/domain/entities/cart_item.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/domain/entities/order.dart';
+import 'package:sentech_connect_app/features/catalog_checkout/domain/entities/payment_handoff.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/domain/entities/plan.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/domain/repositories/checkout_repository.dart';
 
@@ -30,7 +31,7 @@ class MockCheckoutRepository implements CheckoutRepository {
   final SimulatedNetwork _network;
   final Duration _latency;
 
-  /// Test hook: makes the next `pay` call fail once (provider declined).
+  /// Test hook: makes the next `startPayment` call fail once (provider declined).
   bool failNextPayment = false;
 
   Future<List<Order>> _load() async {
@@ -122,11 +123,19 @@ class MockCheckoutRepository implements CheckoutRepository {
   Future<Either<Failure, Order>> getOrder(String orderId) async {
     if (_network.failure case final failure?) return Left(failure);
     final order = (await _load()).where((o) => o.id == orderId).firstOrNull;
-    if (order == null) {
-      return const Left(ServerFailure('We could not find that order.'));
+    if (order != null) return Right(order);
+    // A replayed checkout returns its creation-time snapshot even after a
+    // newer order superseded it (the store no longer holds it). Resolve it,
+    // as closed: it can no longer be paid.
+    final snapshot = _replaySnapshot(orderId);
+    if (snapshot != null) {
+      return Right(snapshot.copyWith(status: OrderStatus.cancelled));
     }
-    return Right(order);
+    return const Left(ServerFailure('We could not find that order.'));
   }
+
+  Order? _replaySnapshot(String orderId) =>
+      _ordersByKey.values.where((o) => o.id == orderId).firstOrNull;
 
   @override
   Future<Either<Failure, Order?>> getOpenOrder() async {
@@ -151,23 +160,36 @@ class MockCheckoutRepository implements CheckoutRepository {
     return Right(orders[index]);
   }
 
+  /// Demo gateway: the charge is confirmed instantly (still verify-before-
+  /// charge, still idempotent), so the polling step finds the order paid.
   @override
-  Future<Either<Failure, Order>> pay({
+  Future<Either<Failure, PaymentHandoff>> startPayment({
     required String orderId,
-    required PaymentMethod method,
   }) async {
     await Future.delayed(_latency);
     if (_network.failure case final failure?) return Left(failure);
     final orders = await _load();
     final index = orders.indexWhere((o) => o.id == orderId);
     if (index == -1) {
+      if (_replaySnapshot(orderId) != null) {
+        return const Left(
+          ValidationFailure(
+            'This order was replaced by a newer one and can no longer be paid.',
+            'order_not_payable',
+          ),
+        );
+      }
       return const Left(ServerFailure('We could not find that order.'));
     }
     final order = orders[index];
-    if (order.status == OrderStatus.paid) return Right(order); // idempotent
     if (order.status == OrderStatus.expired ||
         order.status == OrderStatus.cancelled) {
-      return const Left(ValidationFailure('This order can no longer be paid.'));
+      return const Left(
+        ValidationFailure(
+          'This order can no longer be paid.',
+          'order_not_payable',
+        ),
+      );
     }
     if (order.status == OrderStatus.pendingVerification) {
       return const Left(
@@ -182,9 +204,20 @@ class MockCheckoutRepository implements CheckoutRepository {
         ),
       );
     }
-    orders[index] = order.copyWith(status: OrderStatus.paid);
-    await _save(orders);
-    return Right(orders[index]);
+    if (order.status != OrderStatus.paid) {
+      orders[index] = order.copyWith(status: OrderStatus.paid);
+      await _save(orders);
+    }
+    return Right(
+      PaymentHandoff(
+        paymentId: 'pay_${order.id}',
+        reference: order.orderNumber,
+        gateway: PaymentHandoff.demoGateway,
+        method: PaymentHandoffMethod.get,
+        url: Uri.parse('about:blank'),
+        amountCents: order.totalCents,
+      ),
+    );
   }
 
   @override

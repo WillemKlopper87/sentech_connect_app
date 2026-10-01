@@ -1,9 +1,11 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sentech_connect_app/app/locator.dart';
+import 'package:sentech_connect_app/features/catalog_checkout/data/dev_payment_simulator.dart';
 import 'package:sentech_connect_app/app/main_shell.dart';
 import 'package:sentech_connect_app/core/config/app_environment.dart';
 import 'package:sentech_connect_app/features/auth/presentation/bloc/auth_cubit.dart';
@@ -350,10 +352,19 @@ GoRouter _buildRouter(
             create: (_) =>
                 PaymentCubit(locator(), context.read<CartCubit>(), orderId),
             child: PaymentPage(
+              // Hotspot orders hide it regardless (PaymentPage derives that
+              // from the order).
+              showIdentityVerified:
+                  tenantCubit?.state.featureFlags.rica ?? true,
+              devSimulator:
+                  kDebugMode && locator.isRegistered<DevPaymentSimulator>()
+                  ? locator<DevPaymentSimulator>()
+                  : null,
               onPaid: (order) =>
                   context.go(AppRoutes.confirmationFor(order.id)),
               onNeedsVerification: (order) =>
                   context.push(AppRoutes.ricaFor(order.id)),
+              onClosed: () => context.go(AppRoutes.main),
             ),
           );
         },

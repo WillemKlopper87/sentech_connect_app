@@ -89,11 +89,9 @@ class ApiClient {
   Future<ApiOperationScope> captureScope() async {
     final tenantGeneration = tenant.generation;
     final sessionGeneration = _tokens.sessionGeneration;
-    try {
-      await _tokens.read();
-    } on Object {
-      return ApiOperationScope(() => false);
-    }
+    // Deliberately no token read: a keystore failure must not break public
+    // (unauthenticated) calls. A scoped authenticated call that cannot read
+    // its token ends the session through the interceptor's expireSession path.
     return ApiOperationScope(
       () =>
           tenant.generation == tenantGeneration &&

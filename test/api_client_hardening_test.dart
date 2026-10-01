@@ -124,6 +124,35 @@ void main() {
       },
     );
 
+    test(
+      'a token-read failure does not break a scoped public call (catalogue) but ends a scoped signed-in call cleanly',
+      () async {
+        flaky.failReads = true;
+        h.adapter.on(
+          'GET',
+          '/v1/products',
+          (_) => const FakeReply(200, {'items': <Object>[]}),
+        );
+        final scope = await api.captureScope(); // must not throw
+        final publicResult = await api
+            .get('/v1/products', authenticated: false, scope: scope, decode: id)
+            .timeout(const Duration(seconds: 5));
+        expect(publicResult.isRight(), isTrue);
+        expect(expiredEvents, 0);
+
+        final scopedAuthed = await api
+            .get('/v1/orders', scope: await api.captureScope(), decode: id)
+            .timeout(const Duration(seconds: 5));
+        expect(
+          scopedAuthed.match((f) => f, (_) => null),
+          isA<UnauthorizedFailure>(),
+        );
+        await Future<void>.delayed(Duration.zero);
+        expect(expiredEvents, 1); // normal expireSession path, no zombie
+        expect(h.adapter.requestsTo('GET', '/v1/orders'), isEmpty);
+      },
+    );
+
     test('a failing token clear still announces the expired session', () async {
       flaky.failClears = true;
       h.adapter.on(

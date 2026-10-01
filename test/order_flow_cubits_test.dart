@@ -9,6 +9,7 @@ import 'package:sentech_connect_app/core/storage/secure_store.dart';
 import 'package:sentech_connect_app/features/cart/presentation/bloc/cart_cubit.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/data/repositories/mock_checkout_repository.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/domain/entities/order.dart';
+import 'package:sentech_connect_app/features/catalog_checkout/domain/entities/payment_handoff.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/domain/entities/plan.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/presentation/bloc/checkout_cubit.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/presentation/bloc/payment_cubit.dart';
@@ -180,10 +181,17 @@ void main() {
           status: OrderStatus.awaitingPayment,
         );
         final scripted = _StateCheckout(repo, order);
-        final cubit = PaymentCubit(scripted, cart, order.id);
+        final cubit = PaymentCubit(
+          scripted,
+          cart,
+          order.id,
+          pollDelays: const [Duration.zero],
+        );
         await Future<void>.delayed(Duration.zero);
         await cubit.pay();
-        expect(cubit.state.status, PaymentStatus.ready);
+        expect(cubit.state.status, PaymentStatus.handoff);
+        await cubit.handoffFinished();
+        expect(cubit.state.status, PaymentStatus.stillPending);
         expect(cart.state.items, isNotEmpty);
         await cubit.close();
       },
@@ -321,6 +329,8 @@ void main() {
       expect(cart.state.items, isNotEmpty);
 
       await payment.pay();
+      expect(payment.state.status, PaymentStatus.handoff);
+      await payment.handoffFinished();
       expect(payment.state.status, PaymentStatus.paid);
       expect(cart.state.items, isEmpty);
       await payment.close();
@@ -365,10 +375,9 @@ class _KeyRecordingCheckout implements CheckoutRepository {
       _inner.markIdentityVerified(orderId);
 
   @override
-  Future<Either<Failure, Order>> pay({
+  Future<Either<Failure, PaymentHandoff>> startPayment({
     required String orderId,
-    required PaymentMethod method,
-  }) => _inner.pay(orderId: orderId, method: method);
+  }) => _inner.startPayment(orderId: orderId);
 
   @override
   Future<void> clearLocalOrders() => _inner.clearLocalOrders();
@@ -383,11 +392,19 @@ class _StateCheckout extends _KeyRecordingCheckout {
   Future<Either<Failure, Order>> getOrder(String orderId) async => Right(order);
 
   @override
-  Future<Either<Failure, Order>> pay({
+  Future<Either<Failure, PaymentHandoff>> startPayment({
     required String orderId,
-    required PaymentMethod method,
   }) async {
     payCalls++;
-    return Right(order);
+    return Right(
+      PaymentHandoff(
+        paymentId: 'pay-scripted',
+        reference: order.orderNumber,
+        gateway: PaymentHandoff.demoGateway,
+        method: PaymentHandoffMethod.get,
+        url: Uri.parse('about:blank'),
+        amountCents: order.totalCents,
+      ),
+    );
   }
 }
