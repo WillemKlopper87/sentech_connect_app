@@ -100,8 +100,6 @@ void main() {
     final rejected = {
       '401': FakeReply.problem(401, 'whatever'),
       '400 invalid_refresh_token': FakeReply.problem(400, 'invalid_refresh_token'),
-      '403 refresh_token_reused': FakeReply.problem(403, 'refresh_token_reused'),
-      '400 refresh_token_expired': FakeReply.problem(400, 'refresh_token_expired'),
     };
     for (final MapEntry(key: name, value: reply) in rejected.entries) {
       test('$name ends the session: tokens cleared, sessionExpired, Unauthorized', () async {

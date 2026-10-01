@@ -148,25 +148,29 @@ class ApiClient {
     Object? body,
     bool authenticated = true,
     Duration? timeout,
+    ApiOperationScope? scope,
   }) => _send(
     () => _dio.patch<Object?>(
       path,
       data: body,
-      options: _options(authenticated, timeout, null),
+      options: _options(authenticated, timeout, null, null, scope),
     ),
     decode,
+    scope: scope,
   );
 
   Future<Either<Failure, Unit>> delete(
     String path, {
     bool authenticated = true,
     Duration? timeout,
+    ApiOperationScope? scope,
   }) => _send(
     () => _dio.delete<Object?>(
       path,
-      options: _options(authenticated, timeout, null),
+      options: _options(authenticated, timeout, null, null, scope),
     ),
     (_) => unit,
+    scope: scope,
   );
 
   Options _options(

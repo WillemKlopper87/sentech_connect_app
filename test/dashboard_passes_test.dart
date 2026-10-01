@@ -118,10 +118,10 @@ void main() {
   });
 
   group('demo catalogue', () {
-    test('hotspot passes come first, with ZAR prices and data caps', () async {
+    testWidgets('hotspot passes come first, with ZAR prices and data caps', (tester) async {
       final cubit = CatalogCubit(MockCatalogRepository());
       addTearDown(cubit.close);
-      await Future<void>.delayed(const Duration(seconds: 1));
+      await tester.pump(const Duration(seconds: 1)); // fake time: the mock's 400 ms delay
       expect(cubit.state.selectedCategory, ProductCategory.hotspotPass);
       expect(
         cubit.state.availableCategories.first,

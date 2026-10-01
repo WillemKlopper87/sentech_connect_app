@@ -236,6 +236,15 @@ void main() {
     );
   });
 
+  test('a server hand-off naming the demo gateway is refused (it would skip URL validation)', () async {
+    final bad = fixtureMap('checkout_netcash.json')..['gateway'] = 'demo';
+    h.adapter.on('POST', '/v1/orders/o1/checkout', (_) => FakeReply(200, bad));
+    expect(
+      (await repo.startPayment(orderId: 'o1')).match((f) => f, (_) => null),
+      isA<ServerFailure>(),
+    );
+  });
+
   test('an unknown order is a NotFoundFailure', () async {
     h.adapter.on(
       'GET',

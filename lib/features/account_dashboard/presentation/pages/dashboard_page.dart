@@ -30,6 +30,7 @@ class DashboardPage extends StatelessWidget {
     this.onReportIssue,
     required this.onOpenPromotions,
     required this.onResumeOrder,
+    this.now = DateTime.now,
   });
 
   final VoidCallback onTopUp;
@@ -47,6 +48,10 @@ class DashboardPage extends StatelessWidget {
   final VoidCallback? onReportIssue;
   final VoidCallback onOpenPromotions;
   final void Function(Order order) onResumeOrder;
+
+  /// The clock the current pass's time left is measured against (tests inject
+  /// a fixed one).
+  final DateTime Function() now;
 
   @override
   Widget build(BuildContext context) {
@@ -114,6 +119,7 @@ class DashboardPage extends StatelessWidget {
           ),
           if (onOpenPasses case final openPasses?) ...[
             _CurrentPassCard(
+              now: now,
               onOpenPasses: openPasses,
               onBuyPass: onBuyPass ?? onTopUp,
             ),
@@ -435,10 +441,15 @@ class _QuickAction extends StatelessWidget {
 /// scheduled one) with time and data remaining, plus a "Buy a pass" action.
 /// A failed load shows an error with Retry, never "no pass".
 class _CurrentPassCard extends StatefulWidget {
-  const _CurrentPassCard({required this.onOpenPasses, required this.onBuyPass});
+  const _CurrentPassCard({
+    required this.onOpenPasses,
+    required this.onBuyPass,
+    required this.now,
+  });
 
   final VoidCallback onOpenPasses;
   final VoidCallback onBuyPass;
+  final DateTime Function() now;
 
   @override
   State<_CurrentPassCard> createState() => _CurrentPassCardState();
@@ -566,7 +577,7 @@ class _CurrentPassCardState extends State<_CurrentPassCard> {
             ? l10n.dashboardTimeLeft(
                 formatTimeLeft(
                   l10n,
-                  current.expiresAt.difference(DateTime.now().toUtc()),
+                  current.expiresAt.difference(widget.now().toUtc()),
                 ),
               )
             : l10n.passesStarts(

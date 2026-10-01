@@ -48,6 +48,7 @@ class AuthState extends Equatable {
     this.biometricIssue,
     this.freshSignIn = false,
     this.legal = LegalStatus.accepted,
+    this.providerUnavailable = false,
   });
 
   /// The launch state from what is stored on the device (spec §6:
@@ -75,6 +76,10 @@ class AuthState extends Equatable {
 
   final LegalStatus legal;
 
+  /// The session was ended because the provider is suspended; the login page
+  /// says so once (cleared by any later state change).
+  final bool providerUnavailable;
+
   bool get isSignedIn => status == AuthStatus.success && user != null;
 
   AuthState copyWith({
@@ -94,11 +99,12 @@ class AuthState extends Equatable {
       biometricIssue: biometricIssue,
       freshSignIn: freshSignIn ?? this.freshSignIn,
       legal: legal ?? this.legal,
+      providerUnavailable: false,
     );
   }
 
   @override
-  List<Object?> get props => [status, user, errorMessage, biometricsReady, biometricIssue, freshSignIn, legal];
+  List<Object?> get props => [status, user, errorMessage, biometricsReady, biometricIssue, freshSignIn, legal, providerUnavailable];
 }
 
 /// Holds the signed-in session. Tokens live in secure storage behind the
@@ -114,12 +120,14 @@ class AuthCubit extends Cubit<AuthState> {
     required this._wiper,
     AuthState initial = const AuthState(),
     Stream<void>? sessionExpired,
+    Stream<void>? providerUnavailable,
     String Function()? activeTenantSlug,
     ConsentRepository? consents,
   }) : _activeTenantSlug = activeTenantSlug ?? (() => TenantContext.defaultSlug),
        _consents = consents,
        super(consents != null && initial.isSignedIn ? initial.copyWith(legal: LegalStatus.unchecked) : initial) {
     _expiry = sessionExpired?.listen((_) => _onSessionExpired());
+    _suspended = providerUnavailable?.listen((_) => _onProviderUnavailable());
   }
 
   final AuthRepository _repository;
@@ -129,6 +137,7 @@ class AuthCubit extends Cubit<AuthState> {
   final String Function() _activeTenantSlug;
   final ConsentRepository? _consents;
   StreamSubscription<void>? _expiry;
+  StreamSubscription<void>? _suspended;
 
   /// Interactive sign-ins running (verify + sign-in). A session-expired event
   /// during one belongs to the session being REPLACED, never to the new one.
@@ -422,8 +431,22 @@ class AuthCubit extends Cubit<AuthState> {
     }
   }
 
+  /// 403 `tenant_suspended`: sign out like an expired session, then leave a
+  /// notice for the login page.
+  Future<void> _onProviderUnavailable() async {
+    if (_signingIn > 0) return;
+    if (!state.isSignedIn && state.status != AuthStatus.locked) return;
+    try {
+      await logOut();
+    } catch (_) {
+      // Already signed out in the UI; see _onSessionExpired.
+    }
+    _emitIfOpen(const AuthState(providerUnavailable: true));
+  }
+
   @override
   Future<void> close() async {
+    await _suspended?.cancel();
     await _expiry?.cancel();
     return super.close();
   }

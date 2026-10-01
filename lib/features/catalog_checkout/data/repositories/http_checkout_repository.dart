@@ -113,8 +113,17 @@ class HttpCheckoutRepository implements CheckoutRepository {
   }) => _api.post<PaymentHandoff>(
     '/v1/orders/${Uri.encodeComponent(orderId)}/checkout',
     timeout: const Duration(seconds: 30),
-    decode: (data) =>
-        paymentHandoffFromJson(Map<String, Object?>.from(data! as Map)),
+    decode: (data) {
+      final handoff = paymentHandoffFromJson(
+        Map<String, Object?>.from(data! as Map),
+      );
+      // 'demo' is the mock repository's marker and skips URL validation in
+      // the payment cubit; a real server must never be able to use it.
+      if (handoff.isDemo) {
+        throw const FormatException('Unexpected demo gateway from the API');
+      }
+      return handoff;
+    },
   );
 
   @override

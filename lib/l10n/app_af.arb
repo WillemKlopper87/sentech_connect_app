@@ -16,6 +16,7 @@
   "biometricUnavailable": "Biometrie is tans nie beskikbaar nie.",
   "biometricLockedOut": "Te veel pogings. Wag 'n oomblik en probeer weer.",
   "biometricPermanentlyLockedOut": "Biometrie is gesluit. Ontsluit eers jou foon met jou PIN of patroon.",
+  "signedOutProviderUnavailable": "Your provider is currently unavailable, so you have been signed out. Please try again later.",
   "biometricFailed": "Biometriese kontrole het misluk. Probeer weer.",
 
   "registerTitle": "Skep 'n rekening",

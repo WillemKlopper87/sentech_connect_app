@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/domain/entities/payment_handoff.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/presentation/payment/payment_urls.dart';
+import 'package:sentech_connect_app/shared/widgets/secure_screen.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 /// Hosts the gateway's payment page (ruling R-M4-3). Pops `true` when the
@@ -110,31 +111,35 @@ class _PaymentWebViewPageState extends State<PaymentWebViewPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.close),
-          tooltip: 'Close payment',
-          onPressed: () => _close(false),
-        ),
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text('Secure payment'),
-            Text(
-              widget.handoff.url.host,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.appBarTheme.foregroundColor,
+    // A card form must not show up in screenshots or the recents thumbnail.
+    return SecureScreen(
+      child: Scaffold(
+        appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.close),
+            tooltip: 'Close payment',
+            onPressed: () => _close(false),
+          ),
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('Secure payment'),
+              Text(
+                widget.handoff.url.host,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.appBarTheme.foregroundColor,
+                ),
               ),
-            ),
+            ],
+          ),
+        ),
+        body: Column(
+          children: [
+            if (_progress < 100)
+              LinearProgressIndicator(value: _progress / 100),
+            Expanded(child: WebViewWidget(controller: _controller)),
           ],
         ),
-      ),
-      body: Column(
-        children: [
-          if (_progress < 100) LinearProgressIndicator(value: _progress / 100),
-          Expanded(child: WebViewWidget(controller: _controller)),
-        ],
       ),
     );
   }

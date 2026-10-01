@@ -104,6 +104,11 @@ class _LoginViewState extends State<_LoginView> {
       body: MultiBlocListener(
         listeners: [
           BlocListener<AuthCubit, AuthState>(
+            listenWhen: (previous, current) =>
+                !previous.providerUnavailable && current.providerUnavailable,
+            listener: (context, state) => _snack(l10n.signedOutProviderUnavailable),
+          ),
+          BlocListener<AuthCubit, AuthState>(
             listenWhen: (previous, current) => previous.status != current.status,
             listener: (context, state) {
               if (state.status != AuthStatus.failure) return;

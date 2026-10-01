@@ -37,6 +37,10 @@ class _Passes implements PassesRepository {
   }
 }
 
+/// Fixed instant: the card and the pass fixtures share it, so no test depends
+/// on the wall clock.
+final _now = DateTime.utc(2026, 10, 1, 12);
+
 Pass _pass({
   int? dataMb = 1024,
   int used = 0,
@@ -46,8 +50,8 @@ Pass _pass({
   orderId: 'o',
   productName: 'Day Pass',
   status: PassStatus.active,
-  startsAt: DateTime.now().toUtc().subtract(const Duration(hours: 1)),
-  expiresAt: DateTime.now().toUtc().add(left),
+  startsAt: _now.subtract(const Duration(hours: 1)),
+  expiresAt: _now.add(left),
   durationMinutes: 180,
   dataMb: dataMb,
   maxDevices: 1,
@@ -87,6 +91,7 @@ Future<PassesCubit> _pump(
           onOpenPromotions: () {},
           onResumeOrder: (_) {},
           showRouterCard: false,
+          now: () => _now,
         ),
       ),
     ),

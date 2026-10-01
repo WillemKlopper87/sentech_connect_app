@@ -1,6 +1,7 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:sentech_connect_app/core/error/failure.dart';
 import 'package:sentech_connect_app/core/network/api_client.dart';
+import 'package:sentech_connect_app/core/network/api_operation_scope.dart';
 import 'package:sentech_connect_app/core/network/tenant_context.dart';
 import 'package:sentech_connect_app/features/privacy/domain/entities/consent_record.dart';
 import 'package:sentech_connect_app/features/privacy/domain/repositories/consent_repository.dart';
@@ -49,8 +50,9 @@ class HttpConsentRepository implements ConsentRepository {
   }
 
   /// The latest decision per purpose.
-  Future<Either<Failure, Map<String, _LedgerEntry>>> _ledger() => _api.get<Map<String, _LedgerEntry>>(
+  Future<Either<Failure, Map<String, _LedgerEntry>>> _ledger(ApiOperationScope scope) => _api.get<Map<String, _LedgerEntry>>(
         '/v1/me/consents',
+        scope: scope,
         decode: (data) {
           final items = ((data! as Map)['items']! as List).cast<Map<Object?, Object?>>();
           return {for (final i in items) i['purpose']! as String: _LedgerEntry.fromServer(i)};
@@ -66,7 +68,7 @@ class HttpConsentRepository implements ConsentRepository {
     // is unknown, not "not accepted". A retryable failure sends the legal gate
     // to its retry state instead of asking a returning customer to re-accept.
     if (version == null) return const Left(_legalVersionsNotLoaded);
-    return (await _ledger()).map((ledger) {
+    return (await _ledger(await _api.captureScope())).map((ledger) {
       final entry = ledger[name];
       if (entry == null || !entry.granted || entry.version != version) return null;
       return entry.toRecord(purpose);
@@ -83,7 +85,8 @@ class HttpConsentRepository implements ConsentRepository {
     final name = purpose.apiName!;
     final version = _currentVersion(purpose);
     if (version == null) return const Left(_legalVersionsMissing);
-    final ledger = await _ledger();
+    final scope = await _api.captureScope();
+    final ledger = await _ledger(scope);
     final failure = ledger.match((f) => f, (_) => null);
     if (failure != null) return Left(failure);
     final entry = ledger.getOrElse((_) => const {})[name];
@@ -97,6 +100,7 @@ class HttpConsentRepository implements ConsentRepository {
     return _api.post<ConsentRecord>(
       '/v1/me/consents',
       body: {'purpose': name, 'version': version, 'granted': true, 'source': 'app'},
+      scope: scope,
       idempotencyKey: afterWithdrawal ? '$base-after-${entry.recordedAt.millisecondsSinceEpoch}' : base,
       decode: (data) => _LedgerEntry.fromServer(data! as Map).toRecord(purpose),
     );
@@ -112,7 +116,8 @@ class HttpConsentRepository implements ConsentRepository {
     final name = purpose.apiName!;
     final version = _currentVersion(purpose);
     if (version == null) return const Left(_legalVersionsMissing);
-    final ledger = await _ledger();
+    final scope = await _api.captureScope();
+    final ledger = await _ledger(scope);
     final failure = ledger.match((f) => f, (_) => null);
     if (failure != null) return Left(failure);
     final entry = ledger.getOrElse((_) => const {})[name];
@@ -120,6 +125,7 @@ class HttpConsentRepository implements ConsentRepository {
     return _api.post<Unit>(
       '/v1/me/consents',
       body: {'purpose': name, 'version': version, 'granted': false, 'source': 'app'},
+      scope: scope,
       idempotencyKey: '${_baseKey(name, version)}-withdraw-${entry.recordedAt.millisecondsSinceEpoch}',
       decode: (_) => unit,
     );

@@ -14,7 +14,11 @@ class HttpPrivacyRepository implements PrivacyRepository {
 
   @override
   Future<Either<Failure, PrivacyRequestReceipt>> requestAccountDeletion() async {
-    final result = await _api.delete('/v1/me', timeout: const Duration(seconds: 30));
+    final result = await _api.delete(
+      '/v1/me',
+      timeout: const Duration(seconds: 30),
+      scope: await _api.captureScope(),
+    );
     return result.map((_) {
       final at = _now().toUtc();
       return PrivacyRequestReceipt(reference: 'DEL-${at.millisecondsSinceEpoch}', requestedAt: at);
@@ -22,9 +26,10 @@ class HttpPrivacyRepository implements PrivacyRepository {
   }
 
   @override
-  Future<Either<Failure, PrivacyRequestReceipt>> requestDataExport() => _api.get<PrivacyRequestReceipt>(
+  Future<Either<Failure, PrivacyRequestReceipt>> requestDataExport() async => _api.get<PrivacyRequestReceipt>(
         '/v1/me/export',
         timeout: const Duration(seconds: 30),
+        scope: await _api.captureScope(),
         decode: (data) {
           final map = data! as Map;
           final generated = DateTime.parse(map['generated_at']! as String).toUtc();

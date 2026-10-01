@@ -71,6 +71,43 @@ void main() {
     expect(h.adapter.requestsTo('POST', '/v1/auth/token/refresh'), hasLength(1));
   });
 
+  test('a 401 on the retry after a successful refresh ends the session', () async {
+    await h.signIn();
+    var expired = 0;
+    final sub = h.events.expired.listen((_) => expired++);
+    h.adapter.on('GET', '/v1/orders', (_) => FakeReply.problem(401, 'invalid_token'));
+    h.adapter.on('POST', '/v1/auth/token/refresh', (_) => FakeReply(200, tokenPair()));
+    final result = await h.api.get('/v1/orders', decode: id);
+    expect(result.match((f) => f, (_) => null), isA<UnauthorizedFailure>());
+    await Future<void>.delayed(Duration.zero);
+    expect(await h.tokens.read(), isNull);
+    expect(expired, 1);
+    await sub.cancel();
+  });
+
+  test('403 tenant_suspended ends the session with a provider-unavailable event', () async {
+    await h.signIn();
+    var suspended = 0;
+    var expired = 0;
+    final a = h.events.providerUnavailable.listen((_) => suspended++);
+    final b = h.events.expired.listen((_) => expired++);
+    h.adapter.on('GET', '/v1/orders', (_) => FakeReply.problem(403, 'tenant_suspended'));
+    final result = await h.api.get('/v1/orders', decode: id);
+    expect(result.match((f) => f, (_) => null), isA<ProviderUnavailableFailure>());
+    await Future<void>.delayed(Duration.zero);
+    expect(await h.tokens.read(), isNull);
+    expect(suspended, 1);
+    expect(expired, 0);
+    // Any other 403 keeps the session.
+    await h.signIn();
+    h.adapter.on('GET', '/v1/orders', (_) => FakeReply.problem(403, 'forbidden'));
+    final other = await h.api.get('/v1/orders', decode: id);
+    expect(other.match((f) => f, (_) => null), isA<ServerFailure>());
+    expect(await h.tokens.read(), isNotNull);
+    await a.cancel();
+    await b.cancel();
+  });
+
   test('a rejected refresh clears the tokens and announces the expired session', () async {
     await h.signIn();
     final expired = expectLater(h.events.expired, emits(null));

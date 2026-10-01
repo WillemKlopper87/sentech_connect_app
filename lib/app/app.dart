@@ -44,6 +44,7 @@ class _SentechConnectAppState extends State<SentechConnectApp> {
     wiper: locator(),
     initial: widget.initialAuthState,
     sessionExpired: locator<SessionEvents>().expired,
+    providerUnavailable: locator<SessionEvents>().providerUnavailable,
     activeTenantSlug: () => locator<TenantContext>().slug,
     consents: locator(),
   );

@@ -41,6 +41,25 @@ void main() {
     expect(h.adapter.requests.single.headers.containsKey('Authorization'), isFalse);
   });
 
+  test('follows next_cursor so more than one page of ISPs is not truncated (bounded)', () async {
+    Map<String, Object?> t(String slug) => {'slug': slug, 'name': slug, 'type': 'operator', 'branding': <String, Object?>{}};
+    h.adapter.on('GET', '/v1/tenants', (r) {
+      return switch (r.uri.queryParameters['cursor']) {
+        null => FakeReply(200, {'tenants': [t('aa')], 'next_cursor': 'c2'}),
+        'c2' => FakeReply(200, {'tenants': [t('bb')], 'next_cursor': 'c3'}),
+        _ => FakeReply(200, {'tenants': [t('cc')], 'next_cursor': null}),
+      };
+    });
+    final tenants = (await repo.listTenants()).getOrElse((f) => throw StateError(f.message)).tenants;
+    expect(tenants.map((x) => x.slug), ['aa', 'bb', 'cc']);
+
+    // A server that never stops (or repeats a cursor) is cut off.
+    h.adapter.requests.clear();
+    h.adapter.on('GET', '/v1/tenants', (_) => FakeReply(200, {'tenants': [t('aa')], 'next_cursor': 'same'}));
+    expect((await repo.listTenants()).isRight(), isTrue);
+    expect(h.adapter.requestsTo('GET', '/v1/tenants').length, lessThanOrEqualTo(2));
+  });
+
   test('loads app-config for the chosen tenant', () async {
     h.adapter.on('GET', '/v1/app-config', (_) => FakeReply(200, fixture('app_config.json')));
     final config = (await repo.getAppConfig('acme-wifi')).getOrElse((f) => throw StateError(f.message));

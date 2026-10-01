@@ -2,6 +2,7 @@ import 'package:sentech_connect_app/core/network/api_operation_scope.dart';
 import 'package:dio/dio.dart';
 import 'package:sentech_connect_app/core/diagnostics/pii_scrubber.dart';
 import 'package:sentech_connect_app/core/error/failure.dart';
+import 'package:sentech_connect_app/core/network/api_problem.dart';
 import 'package:sentech_connect_app/core/network/auth_tokens.dart';
 import 'package:sentech_connect_app/core/network/idempotency.dart';
 import 'package:sentech_connect_app/core/network/tenant_context.dart';
@@ -98,13 +99,15 @@ class AuthInterceptor extends Interceptor {
       handler.next(options);
       return;
     }
+    // Captured before the read: an expiry below clears only what was read.
+    final readGeneration = _tokens.generation;
     final AuthTokens? stored;
     try {
       stored = await _tokens.read();
     } on Object {
       // Keystore read failure: end the session cleanly rather than showing
       // "network error" forever.
-      await _refresher.expireSession();
+      await _refresher.expireSession(ifGeneration: readGeneration);
       handler.reject(
         DioException(
           requestOptions: options,
@@ -128,7 +131,7 @@ class AuthInterceptor extends Interceptor {
       // is a zombie (nothing it sends would ever be accepted), so end it
       // instead of failing every call forever. Another tenant's tokens are
       // never sent and are forgotten.
-      await _refresher.expireSession();
+      await _refresher.expireSession(ifGeneration: readGeneration);
       handler.reject(
         DioException(
           requestOptions: options,
@@ -178,6 +181,25 @@ class AuthInterceptor extends Interceptor {
       );
       return;
     }
+    if (err.response?.statusCode == 403 &&
+        options.extra[kAuthenticated] == true &&
+        failureFromDioException(err) is ProviderUnavailableFailure) {
+      // The provider is suspended: end the session with a clear notice rather
+      // than letting every call fail.
+      await _refresher.expireSession(
+        providerSuspended: true,
+        ifGeneration: _tokens.generation,
+      );
+      handler.next(
+        DioException(
+          requestOptions: options,
+          response: err.response,
+          type: err.type,
+          error: const ProviderUnavailableFailure(),
+        ),
+      );
+      return;
+    }
     final eligible =
         err.response?.statusCode == 401 &&
         options.extra[kAuthenticated] == true &&
@@ -202,9 +224,17 @@ class AuthInterceptor extends Interceptor {
           return;
         }
         options.extra[kRetried] = true;
+        final retryGeneration = _tokens.generation;
         try {
           handler.resolve(await _dio.fetch<Object?>(options));
         } on DioException catch (retryError) {
+          // A fresh token was refused too: the session is dead, not just the
+          // access token. End it instead of leaving a zombie until the next
+          // refresh.
+          if (retryError.response?.statusCode == 401 &&
+              _scopeIsCurrent(options)) {
+            await _refresher.expireSession(ifGeneration: retryGeneration);
+          }
           handler.next(retryError);
         }
       case RefreshRejected():

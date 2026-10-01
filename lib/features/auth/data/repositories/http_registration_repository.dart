@@ -16,12 +16,17 @@ class HttpRegistrationRepository implements RegistrationRepository {
   @override
   Future<Either<Failure, Unit>> save(RegistrationDetails details) async {
     final email = details.email.trim();
+    final scope = await _api.captureScope();
     final result = await _api.patch<Unit>(
       '/v1/me/profile',
       body: {'display_name': details.fullName.trim(), if (email.isNotEmpty) 'email': email},
       decode: (_) => unit,
+      scope: scope,
     );
     if (result.isLeft()) return result;
+    // A sign-out or tenant switch during the PATCH wiped the device: do not
+    // write the customer's details back after the wipe.
+    if (!scope.isCurrent) return const Left(UnauthorizedFailure());
     return _local.save(details);
   }
 

@@ -55,6 +55,13 @@ class UnauthorizedFailure extends Failure {
   const UnauthorizedFailure([super.message = 'Your session has ended. Sign in again.']);
 }
 
+/// The customer's provider (tenant) is suspended (403 `tenant_suspended`):
+/// nothing will work until it is reinstated, so the session is ended with a
+/// "provider unavailable" notice instead of failing every call.
+class ProviderUnavailableFailure extends Failure {
+  const ProviderUnavailableFailure([super.message = 'This provider is currently unavailable.']);
+}
+
 class NotFoundFailure extends Failure {
   const NotFoundFailure([super.message = 'We could not find that.']);
 }

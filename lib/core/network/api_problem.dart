@@ -112,6 +112,7 @@ Failure failureFromStatus(int status, ApiProblem? problem, {String? requestId, D
   if (status == 404) return NotFoundFailure(detail ?? 'We could not find that.');
   if (status == 429) return RateLimitedFailure(detail ?? 'Too many attempts. Please wait and try again.', retryAfter);
   if (status >= 500 || problem == null) return ServerFailure('Something went wrong on our end.', requestId);
+  if (status == 403 && problem.code == 'tenant_suspended') return const ProviderUnavailableFailure();
   if (status == 403) return ServerFailure(detail ?? 'You are not allowed to do that.', requestId);
   return ValidationFailure(detail ?? _capped(problem.title), problem.code, detail != null);
 }

@@ -136,6 +136,7 @@ void main() {
         wiper: wiper,
         initial: initial,
         sessionExpired: events.expired,
+        providerUnavailable: events.providerUnavailable,
       );
 
   Future<AuthCubit> lockedCubit() async {
@@ -629,6 +630,19 @@ void main() {
     await Future<void>.delayed(Duration.zero);
     await Future<void>.delayed(Duration.zero);
     expect(cubit.state.isSignedIn, isFalse);
+    expect(wiper.logoutWipes, 1);
+    await cubit.close();
+  });
+
+  test('a suspended provider signs the customer out and leaves a provider-unavailable notice', () async {
+    final cubit = build();
+    await cubit.signedIn(_user, fresh: true);
+    events.providerSuspended();
+    for (var i = 0; i < 5; i++) {
+      await Future<void>.delayed(Duration.zero);
+    }
+    expect(cubit.state.isSignedIn, isFalse);
+    expect(cubit.state.providerUnavailable, isTrue);
     expect(wiper.logoutWipes, 1);
     await cubit.close();
   });

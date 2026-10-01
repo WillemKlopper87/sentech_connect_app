@@ -44,6 +44,7 @@
   "registerAcceptTerms": "I accept the Terms of Service and the Privacy notice",
   "accountRequestOffline": "You're offline. Check your connection and try again.",
   "accountRequestRateLimited": "Too many requests. Please wait a moment and try again.",
+  "signedOutProviderUnavailable": "Your provider is currently unavailable, so you have been signed out. Please try again later.",
   "biometricFailed": "Biometric check failed. Try again or log in with your SMS code.",
 
   "registerTitle": "Create an account",

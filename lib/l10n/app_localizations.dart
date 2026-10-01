@@ -334,6 +334,12 @@ abstract class AppLocalizations {
   /// **'Too many requests. Please wait a moment and try again.'**
   String get accountRequestRateLimited;
 
+  /// No description provided for @signedOutProviderUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Your provider is currently unavailable, so you have been signed out. Please try again later.'**
+  String get signedOutProviderUnavailable;
+
   /// No description provided for @biometricFailed.
   ///
   /// In en, this message translates to:

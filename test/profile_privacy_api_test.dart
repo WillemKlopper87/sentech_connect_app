@@ -54,6 +54,18 @@ void main() {
       expect(h.adapter.requestsTo('PATCH', '/v1/me/profile').single.data, {'display_name': 'Thandi Mokoena'});
     });
 
+    test('a sign-out during the PATCH leaves nothing on the device (stale scope)', () async {
+      final localStore = InMemorySecureStore();
+      final repo = HttpRegistrationRepository(h.api, local: LocalRegistrationRepository(localStore));
+      h.adapter.on('PATCH', '/v1/me/profile', (_) async {
+        await h.tokens.clear(); // logout while the request is in flight
+        return FakeReply(200, fixture('profile_complete.json'));
+      });
+      final failure = (await repo.save(_details)).match((f) => f, (_) => null);
+      expect(failure, isA<UnauthorizedFailure>());
+      expect(localStore.snapshot, isEmpty);
+    });
+
     test('a rejected profile is not saved locally either', () async {
       final localStore = InMemorySecureStore();
       final repo = HttpRegistrationRepository(h.api, local: LocalRegistrationRepository(localStore));
@@ -96,6 +108,17 @@ void main() {
       expect(terms?.policyVersion, '2026-09-30');
       expect(terms?.synced, isTrue);
       expect(privacy, isNull); // agreed to 2026-08-01, current is 2026-09-30
+    });
+
+    test('a sign-out between the ledger read and the write sends no consent', () async {
+      h.adapter.on('GET', '/v1/me/consents', (_) async {
+        await h.tokens.clear();
+        return FakeReply(200, {'items': <Object?>[]});
+      });
+      accepting();
+      final result = await repo.grant(ConsentPurpose.terms);
+      expect(result.match((f) => f, (_) => null), isA<UnauthorizedFailure>());
+      expect(h.adapter.requestsTo('POST', '/v1/me/consents'), isEmpty);
     });
 
     test('legal versions not loaded yet: currentConsent is a retryable failure, never "not accepted"', () async {

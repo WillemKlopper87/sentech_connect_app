@@ -16,6 +16,7 @@
   "biometricUnavailable": "I-biometrics ayitholakali okwamanje.",
   "biometricLockedOut": "Imizamo eminingi kakhulu. Linda isikhashana bese uzama futhi.",
   "biometricPermanentlyLockedOut": "I-biometrics ikhiyiwe. Vula ifoni yakho kuqala nge-PIN noma iphethini.",
+  "signedOutProviderUnavailable": "Your provider is currently unavailable, so you have been signed out. Please try again later.",
   "biometricFailed": "Ukuhlolwa kwe-biometric kuhlulekile. Zama futhi.",
 
   "registerTitle": "Dala i-akhawunti",

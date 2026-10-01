@@ -148,6 +148,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Too many requests. Please wait a moment and try again.';
 
   @override
+  String get signedOutProviderUnavailable =>
+      'Your provider is currently unavailable, so you have been signed out. Please try again later.';
+
+  @override
   String get biometricFailed =>
       'Biometric check failed. Try again or log in with your SMS code.';
 

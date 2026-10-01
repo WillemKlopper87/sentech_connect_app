@@ -18,6 +18,9 @@ class _FlakyTokenStore implements TokenStore {
   bool failWrites = false;
   bool failClears = false;
 
+  /// Next read answers "no session" while a sign-in writes concurrently.
+  AuthTokens? signInDuringNextRead;
+
   @override
   int get generation => _inner.generation;
 
@@ -27,6 +30,12 @@ class _FlakyTokenStore implements TokenStore {
   @override
   Future<AuthTokens?> read() async {
     if (failReads) throw StateError('keystore unavailable');
+    final racing = signInDuringNextRead;
+    if (racing != null) {
+      signInDuringNextRead = null;
+      await _inner.write(racing);
+      return null;
+    }
     return _inner.read();
   }
 
@@ -150,6 +159,26 @@ void main() {
         await Future<void>.delayed(Duration.zero);
         expect(expiredEvents, 1); // normal expireSession path, no zombie
         expect(h.adapter.requestsTo('GET', '/v1/orders'), isEmpty);
+      },
+    );
+
+    test(
+      'a read that raced a concurrent sign-in does not clear (or announce) the new session',
+      () async {
+        flaky.signInDuringNextRead = AuthTokens(
+          accessToken: 'access-new',
+          refreshToken: 'refresh-token-0000000-new',
+          accessExpiresAt: h.now.add(const Duration(minutes: 15)),
+          customerId: ApiHarness.customerId,
+          tenantSlug: 'sentech',
+        );
+        final result = await api
+            .get('/v1/orders', decode: id)
+            .timeout(const Duration(seconds: 5));
+        expect(result.match((f) => f, (_) => null), isA<UnauthorizedFailure>());
+        await Future<void>.delayed(Duration.zero);
+        expect((await h.tokens.read())?.accessToken, 'access-new');
+        expect(expiredEvents, 0);
       },
     );
 

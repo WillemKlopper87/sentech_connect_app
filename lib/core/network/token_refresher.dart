@@ -31,7 +31,9 @@ final class RefreshUnavailable extends RefreshOutcome {
 }
 
 /// Problem `code`s on a 400/403 that mean the refresh token itself is dead.
-const _rejectionCodes = {'invalid_refresh_token', 'refresh_token_reused', 'refresh_token_expired'};
+/// The API rejects a refresh token with 401 `invalid_refresh_token` (any 401 is
+/// already a rejection); only that code is recognised on 400/403.
+const _rejectionCodes = {'invalid_refresh_token'};
 
 /// Single-flight token refresh. Refresh tokens rotate and reuse revokes the
 /// whole family on the server, so two parallel refreshes with the same
@@ -110,14 +112,24 @@ class TokenRefresher {
   /// Ends the local session because the server no longer accepts it (or it
   /// cannot be read): clears the tokens (best effort, a storage failure must
   /// not swallow the event) and tells the app to sign out.
-  Future<void> expireSession({bool announce = true}) async {
+  ///
+  /// [ifGeneration] makes this a compare-and-clear: when the token store has
+  /// changed since the caller read it (a concurrent sign-in or refresh wrote a
+  /// new session), that session is not ours to end, so nothing is cleared or
+  /// announced.
+  Future<void> expireSession({bool announce = true, int? ifGeneration, bool providerSuspended = false}) async {
+    if (ifGeneration != null && _tokens.generation != ifGeneration) return;
     _forgetKey();
     try {
       await _tokens.clear();
     } on Object {
       // Best effort: the in-memory state is already cleared by the store.
     }
-    if (announce) _sessionEvents.sessionExpired();
+    if (providerSuspended) {
+      _sessionEvents.providerSuspended();
+    } else if (announce) {
+      _sessionEvents.sessionExpired();
+    }
   }
 
   Future<RefreshOutcome> _run(String? staleAccessToken, bool announceExpiry) async {
