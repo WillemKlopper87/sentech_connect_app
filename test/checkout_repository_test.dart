@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fpdart/fpdart.dart' hide Order;
 import 'package:sentech_connect_app/core/error/failure.dart';
@@ -86,6 +88,29 @@ void main() {
 
   test('unknown order id is a failure, not a crash', () async {
     expect((await repo.getOrder('nope')).isLeft(), isTrue);
+  });
+
+  test('a corrupt stored record is skipped; the valid orders around it survive', () async {
+    final seeded = InMemorySecureStore({
+      'orders': jsonEncode([
+        {'id': 'good1', 'orderNumber': 'SEN-1', 'planName': 'Home 100', 'totalCents': 54900, 'status': 'paid'},
+        {'id': 'no_total', 'orderNumber': 'SEN-2', 'planName': 'Home 100', 'status': 'paid'},
+        'not even a map',
+        {'id': 'good2', 'orderNumber': 'SEN-3', 'planName': 'Day pass', 'totalRands': 19.99, 'status': 'paid'},
+      ]),
+    });
+    final seededRepo = MockCheckoutRepository(seeded, network: network, latency: Duration.zero);
+    expect(unwrap(await seededRepo.getOrder('good1')).totalCents, 54900);
+    expect(unwrap(await seededRepo.getOrder('good2')).totalCents, 1999);
+    expect((await seededRepo.getOrder('no_total')).isLeft(), isTrue);
+  });
+
+  test('a stored value that is not a list of orders at all is ignored', () async {
+    for (final raw in ['{not json', '{"a":1}']) {
+      final seeded = InMemorySecureStore({'orders': raw});
+      final seededRepo = MockCheckoutRepository(seeded, network: network, latency: Duration.zero);
+      expect((await seededRepo.getOpenOrder()).getOrElse((_) => null), isNull, reason: raw);
+    }
   });
 
   test('clearLocalOrders wipes persisted orders', () async {

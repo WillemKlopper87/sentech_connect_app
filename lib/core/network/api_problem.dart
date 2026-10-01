@@ -39,6 +39,33 @@ class ApiProblem {
   }
 }
 
+/// Longest server-written text (problem `detail`/`title`) shown to a customer.
+const _maxUserText = 300;
+
+/// `Retry-After` is clamped to this range so a hostile or buggy server cannot
+/// ask the app to wait forever (or a negative time).
+const _maxRetryAfter = Duration(hours: 1);
+
+String _capped(String text) =>
+    text.length <= _maxUserText ? text : '${text.substring(0, _maxUserText - 1)}\u2026';
+
+/// First value of a header, or null. Never `Headers.value()`: that throws when
+/// a proxy or CDN duplicates the header.
+String? _firstHeader(Headers? headers, String name) {
+  final values = headers?[name];
+  return values == null || values.isEmpty ? null : values.first;
+}
+
+/// Only the delta-seconds form is supported; the HTTP-date form and anything
+/// malformed are ignored (no Retry-After hint).
+Duration? _parseRetryAfter(String? raw) {
+  final seconds = int.tryParse(raw?.trim() ?? '');
+  if (seconds == null) return null;
+  final delay = Duration(seconds: seconds.clamp(0, _maxRetryAfter.inSeconds));
+  return delay;
+}
+
+/// Maps any [DioException] to a [Failure]. Must never throw.
 Failure failureFromDioException(DioException e) {
   if (e.error case final Failure failure) return failure;
   switch (e.type) {
@@ -57,24 +84,28 @@ Failure failureFromDioException(DioException e) {
       final response = e.response;
       final status = response?.statusCode ?? 500;
       final problem = ApiProblem.tryParse(status, response?.data);
-      final seconds = int.tryParse(response?.headers.value('retry-after') ?? '');
       return failureFromStatus(
         status,
         problem,
-        requestId: problem?.requestId ?? response?.headers.value('x-request-id'),
-        retryAfter: seconds == null ? null : Duration(seconds: seconds),
+        requestId: problem?.requestId ?? _firstHeader(response?.headers, 'x-request-id'),
+        retryAfter: _parseRetryAfter(_firstHeader(response?.headers, 'retry-after')),
       );
   }
 }
 
-/// 4xx details are written for customers by the API and are shown as-is;
-/// 5xx text is never shown (it can carry internals).
+/// 4xx details are written for customers by the API and are shown (capped to
+/// 300 characters); 5xx text is never shown (it can carry internals).
+///
+/// Semantic caveats, kept deliberately: a 403, or any 4xx without a problem
+/// body (e.g. an HTML gateway page), becomes a [ServerFailure] even though it
+/// is not strictly a server fault, and unknown transport errors become
+/// [NetworkFailure].
 Failure failureFromStatus(int status, ApiProblem? problem, {String? requestId, Duration? retryAfter}) {
-  final detail = problem?.detail;
+  final detail = problem?.detail == null ? null : _capped(problem!.detail!);
   if (status == 401) return const UnauthorizedFailure();
   if (status == 404) return NotFoundFailure(detail ?? 'We could not find that.');
   if (status == 429) return RateLimitedFailure(detail ?? 'Too many attempts. Please wait and try again.', retryAfter);
   if (status >= 500 || problem == null) return ServerFailure('Something went wrong on our end.', requestId);
   if (status == 403) return ServerFailure(detail ?? 'You are not allowed to do that.', requestId);
-  return ValidationFailure(detail ?? problem.title, problem.code);
+  return ValidationFailure(detail ?? _capped(problem.title), problem.code);
 }

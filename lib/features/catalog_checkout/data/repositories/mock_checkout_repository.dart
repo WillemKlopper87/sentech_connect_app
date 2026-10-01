@@ -31,13 +31,23 @@ class MockCheckoutRepository implements CheckoutRepository {
   Future<List<Order>> _load() async {
     final raw = await _store.read(_ordersKey);
     if (raw == null) return [];
+    final Object? decoded;
     try {
-      return (jsonDecode(raw) as List)
-          .map((e) => Order.fromJson(e as Map<String, dynamic>))
-          .toList();
+      decoded = jsonDecode(raw);
     } catch (_) {
       return [];
     }
+    if (decoded is! List) return [];
+    // Skip only a corrupt record; the customer's valid orders around it stay.
+    final orders = <Order>[];
+    for (final entry in decoded) {
+      try {
+        orders.add(Order.fromJson(entry as Map<String, dynamic>));
+      } catch (_) {
+        continue;
+      }
+    }
+    return orders;
   }
 
   Future<void> _save(List<Order> orders) =>

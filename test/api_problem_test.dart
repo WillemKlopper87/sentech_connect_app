@@ -65,7 +65,7 @@ void main() {
   test('5xx never shows server text but keeps the request id for support', () {
     final f = failureFromDioException(_bad(503, _problem(503, 'internal_error', detail: 'stack trace here')));
     expect(f, isA<ServerFailure>());
-    expect(f.message, isNot(contains('stack')));
+    expect(f.message, 'Something went wrong on our end.');
     expect((f as ServerFailure).requestId, 'rid-123');
   });
 
@@ -105,5 +105,138 @@ void main() {
   test('a Failure attached by an interceptor is passed through unchanged', () {
     final f = failureFromDioException(DioException(requestOptions: RequestOptions(path: '/v1/x'), error: const UnauthorizedFailure()));
     expect(f, const UnauthorizedFailure());
+  });
+
+  group('headers', () {
+    test('duplicated Retry-After and X-Request-ID headers never make the mapper throw (429)', () {
+      final f = failureFromDioException(_bad(429, null, headers: {
+        'retry-after': ['30', '60'],
+        'x-request-id': ['a', 'b'],
+      }));
+      expect(f, isA<RateLimitedFailure>());
+      expect((f as RateLimitedFailure).retryAfter, const Duration(seconds: 30));
+    });
+
+    test('duplicated headers never make the mapper throw (503)', () {
+      final f = failureFromDioException(_bad(503, null, headers: {
+        'retry-after': ['30', '60'],
+        'x-request-id': ['rid-a', 'rid-b'],
+      }));
+      expect(f, isA<ServerFailure>());
+      expect((f as ServerFailure).requestId, 'rid-a');
+    });
+
+    test('the X-Request-ID header is the request id when the body has none', () {
+      final f = failureFromDioException(_bad(500, null, headers: {
+        'X-Request-ID': ['hdr-1'],
+      }));
+      expect((f as ServerFailure).requestId, 'hdr-1');
+    });
+
+    test('the body request id wins over the header', () {
+      final f = failureFromDioException(_bad(500, _problem(500, 'internal_error'), headers: {
+        'x-request-id': ['hdr-1'],
+      }));
+      expect((f as ServerFailure).requestId, 'rid-123');
+    });
+
+    test('Retry-After is clamped to 0..1 hour and malformed values are ignored', () {
+      Duration? retry(String value) {
+        final f = failureFromDioException(_bad(429, null, headers: {
+          'retry-after': [value],
+        }));
+        return (f as RateLimitedFailure).retryAfter;
+      }
+
+      expect(retry('60'), const Duration(seconds: 60));
+      expect(retry(' 60 '), const Duration(seconds: 60));
+      expect(retry('-5'), Duration.zero);
+      expect(retry('999999'), const Duration(hours: 1));
+      expect(retry('3600'), const Duration(hours: 1));
+      expect(retry('abc'), isNull);
+      expect(retry(''), isNull);
+      // The HTTP-date form is deliberately not supported.
+      expect(retry('Wed, 21 Oct 2026 07:28:00 GMT'), isNull);
+    });
+
+    test('429 without Retry-After has no retryAfter', () {
+      final f = failureFromDioException(_bad(429, null));
+      expect((f as RateLimitedFailure).retryAfter, isNull);
+    });
+  });
+
+  group('statuses without a usable body', () {
+    test('403 without a body is a ServerFailure with the generic message', () {
+      final f = failureFromDioException(_bad(403, null));
+      expect(f, isA<ServerFailure>());
+      expect(f.message, 'Something went wrong on our end.');
+    });
+
+    test('403 with a problem body shows its detail', () {
+      final f = failureFromDioException(_bad(403, _problem(403, 'forbidden', detail: 'Not yours.')));
+      expect(f, isA<ServerFailure>());
+      expect(f.message, 'Not yours.');
+    });
+
+    test('500 without a body is the generic ServerFailure', () {
+      expect(failureFromDioException(_bad(500, null)), const ServerFailure());
+    });
+
+    test('404 without a body uses the default message', () {
+      expect(failureFromDioException(_bad(404, null)), const NotFoundFailure());
+    });
+
+    test('429 without a body uses the default message', () {
+      expect(failureFromDioException(_bad(429, null)).message, const RateLimitedFailure().message);
+    });
+
+    test('a bad response with no status code is treated as a server error', () {
+      final request = RequestOptions(path: '/v1/x');
+      final f = failureFromDioException(DioException(
+        requestOptions: request,
+        type: DioExceptionType.badResponse,
+        response: Response<Object?>(requestOptions: request),
+      ));
+      expect(f, isA<ServerFailure>());
+    });
+  });
+
+  group('user-facing text from the server is capped', () {
+    final huge = 'x' * 5000;
+
+    test('a huge validation detail is truncated with an ellipsis', () {
+      final f = failureFromDioException(_bad(422, _problem(422, 'invalid_phone', detail: huge)));
+      expect(f.message.length, 300);
+      expect(f.message, endsWith('…'));
+    });
+
+    test('a huge title is truncated when there is no detail', () {
+      final body = {..._problem(409, 'order_not_payable'), 'title': huge};
+      expect(failureFromDioException(_bad(409, body)).message.length, 300);
+    });
+
+    test('404 and 429 details are capped too', () {
+      expect(failureFromDioException(_bad(404, _problem(404, 'order_not_found', detail: huge))).message.length, 300);
+      expect(failureFromDioException(_bad(429, _problem(429, 'rate_limited', detail: huge))).message.length, 300);
+    });
+
+    test('text at the limit is left alone', () {
+      final exact = 'y' * 300;
+      expect(failureFromDioException(_bad(422, _problem(422, 'c', detail: exact))).message, exact);
+    });
+  });
+
+  test('a cancelled request maps to its own NetworkFailure', () {
+    final f = failureFromDioException(
+      DioException(requestOptions: RequestOptions(path: '/v1/x'), type: DioExceptionType.cancel),
+    );
+    expect(f, const NetworkFailure('The request was cancelled.'));
+  });
+
+  test('a transform timeout is a NetworkFailure', () {
+    final f = failureFromDioException(
+      DioException(requestOptions: RequestOptions(path: '/v1/x'), type: DioExceptionType.transformTimeout),
+    );
+    expect(f, isA<NetworkFailure>());
   });
 }

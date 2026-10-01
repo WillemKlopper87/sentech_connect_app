@@ -21,8 +21,13 @@ class AppEnvironment {
 
   static const demo = AppEnvironment(flavor: AppFlavor.demo);
 
-  /// Hosts that may be reached over cleartext HTTP, in debug builds only
-  /// (mirrors android/app/src/debug/res/xml/network_security_config.xml).
+  /// Hosts that this app accepts over cleartext HTTP, in debug builds only.
+  /// This is the Dart-side allowlist. On Android the debug network security
+  /// config (android/app/src/debug/res/xml/network_security_config.xml) is
+  /// stricter: it permits cleartext for `localhost` and `10.0.2.2` only, so
+  /// `127.0.0.1` passes this check but is still blocked by the Android
+  /// platform (use `localhost` or `10.0.2.2` there). iOS/desktop debug runs
+  /// can use `127.0.0.1`.
   static const localDevHosts = {'localhost', '127.0.0.1', '10.0.2.2'};
 
   final AppFlavor flavor;
@@ -33,19 +38,39 @@ class AppEnvironment {
   bool get isDemo => flavor == AppFlavor.demo;
 
   factory AppEnvironment.fromDefines() => AppEnvironment.resolve(
-        flavor: const String.fromEnvironment('APP_FLAVOR', defaultValue: 'demo'),
+        flavor: const String.fromEnvironment('APP_FLAVOR'),
         apiBaseUrl: const String.fromEnvironment('API_BASE_URL'),
         isDebug: kDebugMode,
+        isRelease: kReleaseMode,
       );
 
-  factory AppEnvironment.resolve({required String flavor, required String apiBaseUrl, required bool isDebug}) {
-    switch (flavor) {
+  /// A missing (or blank) `APP_FLAVOR` means `demo` in debug, profile and
+  /// test builds, but is an error when [isRelease]: a forgotten define must
+  /// not silently ship a demo build with mock data.
+  ///
+  /// Error messages never include the raw defines, which can hold credentials.
+  factory AppEnvironment.resolve({
+    required String flavor,
+    required String apiBaseUrl,
+    required bool isDebug,
+    bool isRelease = false,
+  }) {
+    final name = flavor.trim();
+    if (name.isEmpty) {
+      if (isRelease) {
+        throw const InvalidEnvironment(
+          'Release builds must set --dart-define=APP_FLAVOR=demo or --dart-define=APP_FLAVOR=prod.',
+        );
+      }
+      return demo;
+    }
+    switch (name) {
       case 'demo':
         return demo;
       case 'prod':
         return AppEnvironment(flavor: AppFlavor.prod, apiBaseUrl: _checkedBaseUrl(apiBaseUrl, isDebug: isDebug));
       default:
-        throw InvalidEnvironment('APP_FLAVOR must be "demo" or "prod", not "$flavor".');
+        throw const InvalidEnvironment('APP_FLAVOR must be "demo" or "prod".');
     }
   }
 
@@ -55,7 +80,7 @@ class AppEnvironment {
     }
     final uri = Uri.tryParse(raw.trim());
     if (uri == null || !uri.hasScheme || uri.host.isEmpty) {
-      throw InvalidEnvironment('API_BASE_URL is not an absolute URL: $raw');
+      throw const InvalidEnvironment('API_BASE_URL is not an absolute http(s) URL.');
     }
     if (uri.userInfo.isNotEmpty || uri.hasQuery || uri.hasFragment || (uri.path.isNotEmpty && uri.path != '/')) {
       throw const InvalidEnvironment('API_BASE_URL must be an origin only, e.g. https://api.example.co.za');
