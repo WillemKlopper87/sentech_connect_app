@@ -256,17 +256,59 @@ abstract class AppLocalizations {
   /// **'That code is not right or has expired. Try again or ask for a new code.'**
   String get otpInvalidCode;
 
+  /// No description provided for @otpRateLimited.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many attempts. Please wait a moment before trying again.'**
+  String get otpRateLimited;
+
+  /// No description provided for @otpServerError.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong on our end. Please try again.'**
+  String get otpServerError;
+
+  /// No description provided for @otpSessionSetupFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'We could not finish signing you in. Please request a new code.'**
+  String get otpSessionSetupFailed;
+
+  /// No description provided for @registerCompleteProfileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete your profile'**
+  String get registerCompleteProfileTitle;
+
+  /// No description provided for @legalGateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms of Service'**
+  String get legalGateTitle;
+
+  /// No description provided for @legalGateChecking.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking your Terms of Service…'**
+  String get legalGateChecking;
+
+  /// No description provided for @legalGateUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'We could not check the Terms of Service right now. Check your connection and try again.'**
+  String get legalGateUnavailable;
+
+  /// No description provided for @legalGateSignOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out'**
+  String get legalGateSignOut;
+
   /// No description provided for @otpDemoHint.
   ///
   /// In en, this message translates to:
   /// **'Demo mode: any 6-digit code except 000000 works.'**
   String get otpDemoHint;
-
-  /// No description provided for @otpTermsRequired.
-  ///
-  /// In en, this message translates to:
-  /// **'To sign in you need to accept the Terms of Service. Please try again.'**
-  String get otpTermsRequired;
 
   /// No description provided for @otpOffline.
   ///

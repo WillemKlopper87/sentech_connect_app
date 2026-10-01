@@ -61,6 +61,10 @@ void main() {
       expect(privacyFailureMessage(l10n, const ServerFailure('Export is not allowed.')), 'Export is not allowed.');
     });
 
+    test('a bare problem title such as Conflict is not shown to the customer', () {
+      expect(privacyFailureMessage(l10n, const ValidationFailure('Conflict', 'conflict', false)), l10n.accountRequestFailed);
+    });
+
     test('never shows generic server text, and maps offline and rate limits to localised text', () {
       expect(privacyFailureMessage(l10n, const ServerFailure()), l10n.accountRequestFailed);
       expect(privacyFailureMessage(l10n, const ServerFailure('We received an unexpected response. Please try again.')), l10n.accountRequestFailed);

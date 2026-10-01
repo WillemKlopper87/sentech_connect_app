@@ -54,6 +54,15 @@ class _RegistrationViewState extends State<_RegistrationView> {
     super.dispose();
   }
 
+  /// "Not you?": leaves the half-created account on this phone (wipes the session).
+  Future<void> _signOut() async {
+    try {
+      await context.read<AuthCubit>().logOut();
+    } catch (_) {
+      // Signed out in the UI already; a storage failure has nowhere to go.
+    }
+  }
+
   /// POPIA: location is only captured after the customer has agreed to the
   /// (versioned, timestamped) location-consent notice.
   Future<void> _useLocation(RegistrationCubit cubit) async {
@@ -73,7 +82,11 @@ class _RegistrationViewState extends State<_RegistrationView> {
     final theme = Theme.of(context);
     final l10n = context.l10n;
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.registerTitle)),
+      appBar: AppBar(
+        title: Text(l10n.registerCompleteProfileTitle),
+        automaticallyImplyLeading: false,
+        actions: [TextButton(onPressed: _signOut, child: Text(l10n.loginNotYou))],
+      ),
       body: BlocConsumer<RegistrationCubit, RegistrationState>(
         listener: (context, state) {
           if (state.submitStatus == SubmitStatus.submitted) {
@@ -83,7 +96,7 @@ class _RegistrationViewState extends State<_RegistrationView> {
               id: auth.state.user?.id ?? 'usr_new',
               fullName: state.fullName.trim(),
               mobileNumber: auth.state.user?.mobileNumber ?? state.mobileNumber,
-            ));
+            ), legalAccepted: true);
           }
           if (state.submitStatus == SubmitStatus.failed) {
             ScaffoldMessenger.of(context)

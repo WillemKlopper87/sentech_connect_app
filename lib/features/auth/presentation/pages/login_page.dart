@@ -6,8 +6,6 @@ import 'package:sentech_connect_app/core/error/failure.dart';
 import 'package:sentech_connect_app/core/utils/phone_number.dart';
 import 'package:sentech_connect_app/features/auth/presentation/bloc/auth_cubit.dart';
 import 'package:sentech_connect_app/features/auth/presentation/bloc/otp_login_cubit.dart';
-import 'package:sentech_connect_app/features/privacy/domain/entities/consent_record.dart';
-import 'package:sentech_connect_app/features/privacy/presentation/widgets/consent_gate.dart';
 import 'package:sentech_connect_app/l10n/l10n.dart';
 import 'package:sentech_connect_app/shared/widgets/dot_grid_panel.dart';
 import 'package:sentech_connect_app/shared/widgets/sentech_logo.dart';
@@ -28,18 +26,9 @@ class LoginPage extends StatelessWidget {
         final auth = context.read<AuthCubit>();
         return OtpLoginCubit(
           locator(),
-          // Verification and sign-in are ONE operation (AuthCubit.signInWithOtp). A returning
-          // customer must have accepted the CURRENT terms before the session is ready; a new
-          // customer (no name yet) accepts them on the profile page.
-          verifier: (challenge, code) => auth.signInWithOtp(
-            challenge: challenge,
-            code: code,
-            beforeReady: (user) async {
-              if (user.fullName.trim().isEmpty) return true;
-              if (!context.mounted) return false;
-              return ensureConsent(context, ConsentPurpose.terms);
-            },
-          ),
+          // Verification and sign-in are ONE operation (AuthCubit.signInWithOtp). The legal consent
+          // step that follows is enforced by the router for every kind of session.
+          verifier: (challenge, code) => auth.signInWithOtp(challenge: challenge, code: code),
         );
       },
       child: _LoginView(demoMode: demoMode),
@@ -90,12 +79,15 @@ class _LoginViewState extends State<_LoginView> {
           return l10n.loginPhoneInvalid;
         case 'otp_invalid' || 'invalid_code':
           return l10n.otpInvalidCode;
-        case 'terms_not_accepted':
-          return l10n.otpTermsRequired;
       }
+      return failure.messageIsDetail ? failure.message : l10n.otpServerError;
     }
-    if (failure is NetworkFailure) return l10n.otpOffline;
-    return failure.message;
+    return switch (failure) {
+      NetworkFailure() => l10n.otpOffline,
+      RateLimitedFailure() => l10n.otpRateLimited,
+      SessionSetupFailure() => l10n.otpSessionSetupFailed,
+      _ => l10n.otpServerError, // no raw server or client English
+    };
   }
 
   void _snack(String message) {
@@ -131,6 +123,7 @@ class _LoginViewState extends State<_LoginView> {
           builder: (context, auth) => BlocBuilder<OtpLoginCubit, OtpLoginState>(
             builder: (context, otp) {
               final busy = auth.status == AuthStatus.loading || otp.busy;
+              final locked = otp.locked;
               final name = auth.isSignedIn ? null : auth.user?.fullName.trim();
               final firstName = (name == null || name.isEmpty) ? null : name.split(' ').first;
               return SafeArea(
@@ -178,7 +171,7 @@ class _LoginViewState extends State<_LoginView> {
                         ),
                         const SizedBox(height: 16),
                       ],
-                      if (otp.step == OtpStep.phone) ..._phoneStep(context, otp, busy) else ..._codeStep(context, otp, busy),
+                      if (otp.step == OtpStep.phone) ..._phoneStep(context, otp, busy || locked) else ..._codeStep(context, otp, busy, locked),
                     ],
                   ),
                 ),
@@ -216,7 +209,7 @@ class _LoginViewState extends State<_LoginView> {
     ];
   }
 
-  List<Widget> _codeStep(BuildContext context, OtpLoginState otp, bool busy) {
+  List<Widget> _codeStep(BuildContext context, OtpLoginState otp, bool busy, bool locked) {
     final l10n = context.l10n;
     final theme = Theme.of(context);
     final cubit = context.read<OtpLoginCubit>();
@@ -229,8 +222,9 @@ class _LoginViewState extends State<_LoginView> {
         autofillHints: const [AutofillHints.oneTimeCode],
         inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(6)],
         textInputAction: TextInputAction.done,
-        onSubmitted: busy ? null : cubit.submitCode,
-        decoration: InputDecoration(hintText: l10n.otpCodeHint),
+        autofocus: true,
+        onSubmitted: busy || locked ? null : cubit.submitCode,
+        decoration: InputDecoration(labelText: l10n.otpCodeHint),
       ),
       if (widget.demoMode) ...[
         const SizedBox(height: 6),
@@ -238,7 +232,7 @@ class _LoginViewState extends State<_LoginView> {
       ],
       const SizedBox(height: 16),
       ElevatedButton(
-        onPressed: busy ? null : () => cubit.submitCode(_codeController.text),
+        onPressed: busy || locked ? null : () => cubit.submitCode(_codeController.text),
         child: otp.status == OtpLoginStatus.verifying ? const _ButtonSpinner() : Text(l10n.otpVerify),
       ),
       const SizedBox(height: 8),

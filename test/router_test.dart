@@ -9,6 +9,8 @@ import 'package:sentech_connect_app/core/biometrics/biometric_authenticator.dart
 import 'package:sentech_connect_app/features/auth/domain/entities/user.dart';
 import 'package:sentech_connect_app/features/auth/presentation/bloc/auth_cubit.dart';
 import 'package:sentech_connect_app/features/cart/presentation/bloc/cart_cubit.dart';
+import 'package:sentech_connect_app/features/privacy/domain/entities/consent_record.dart';
+import 'package:sentech_connect_app/features/privacy/domain/repositories/consent_repository.dart';
 import 'helpers/test_setup.dart';
 
 const _user = User(id: 'usr_001', fullName: 'Lindiwe', mobileNumber: '081');
@@ -85,6 +87,64 @@ void main() {
       expect(authRedirect(const AuthState(), Uri.parse(AppRoutes.register)), startsWith(AppRoutes.login));
     });
 
+    group('the legal consent step (terms + privacy)', () {
+      AuthState signedInWith(LegalStatus legal) => AuthState(status: AuthStatus.success, user: _user, legal: legal);
+
+      test('every state but accepted keeps a signed-in customer on /consent', () {
+        for (final legal in [LegalStatus.unchecked, LegalStatus.required, LegalStatus.unavailable]) {
+          final state = signedInWith(legal);
+          expect(authRedirect(state, Uri.parse('/main')), AppRoutes.consent, reason: '$legal');
+          expect(authRedirect(state, Uri.parse(AppRoutes.consent)), isNull, reason: '$legal');
+          expect(authRedirect(state, Uri.parse(AppRoutes.login)), AppRoutes.consent, reason: '$legal');
+        }
+      });
+
+      test('splash and the tenant screens keep their own flow', () {
+        final state = signedInWith(LegalStatus.required);
+        for (final path in [AppRoutes.splash, AppRoutes.tenantPicker, AppRoutes.updateRequired]) {
+          expect(authRedirect(state, Uri.parse(path)), isNull, reason: path);
+        }
+      });
+
+      test('once accepted, /consent leads on to the app (or the requested route)', () {
+        final state = signedInWith(LegalStatus.accepted);
+        expect(authRedirect(state, Uri.parse(AppRoutes.consent)), AppRoutes.main);
+        expect(authRedirect(state, Uri.parse('${AppRoutes.consent}?from=%2Fcart')), '/cart');
+      });
+
+      test('the profile step comes before the consent step', () {
+        const nameless = AuthState(
+          status: AuthStatus.success,
+          user: User(id: 'c1', fullName: '', mobileNumber: '+27821234567'),
+          legal: LegalStatus.required,
+        );
+        expect(authRedirect(nameless, Uri.parse(AppRoutes.consent)), AppRoutes.register);
+        expect(authRedirect(nameless, Uri.parse(AppRoutes.register)), isNull);
+      });
+
+      test('a customer with a name but no consent is never let into /register either', () {
+        expect(authRedirect(signedInWith(LegalStatus.required), Uri.parse(AppRoutes.register)), AppRoutes.consent);
+      });
+
+      test('the deep link survives the consent and profile steps as from', () {
+        final consent = authRedirect(signedInWith(LegalStatus.unchecked), Uri.parse('/cart'))!;
+        expect(Uri.parse(consent).path, AppRoutes.consent);
+        expect(Uri.parse(consent).queryParameters['from'], '/cart');
+
+        const nameless = AuthState(status: AuthStatus.success, user: User(id: 'c1', fullName: '', mobileNumber: '+27821234567'));
+        final register = authRedirect(nameless, Uri.parse('/login?from=%2Fpayment%2Ford_1'))!;
+        expect(Uri.parse(register).path, AppRoutes.register);
+        expect(Uri.parse(register).queryParameters['from'], '/payment/ord_1');
+        // and after the profile is complete it leads there
+        expect(authRedirect(_signedIn, Uri.parse(register)), '/payment/ord_1');
+      });
+
+      test('a gate route is never accepted as a "from"', () {
+        expect(safeFrom('/consent'), isNull);
+        expect(safeFrom('/register'), isNull);
+      });
+    });
+
     test('unsafe "from" values are ignored', () {
       for (final bad in ['//evil.example', 'https://evil.example', '/login', 'cart', '']) {
         expect(safeFrom(bad), isNull, reason: bad);
@@ -99,13 +159,14 @@ void main() {
     late AuthCubit auth;
     late AppRouter appRouter;
 
-    Future<void> pumpRouter(WidgetTester tester, {required AuthState initial, required String at}) async {
+    Future<void> pumpRouter(WidgetTester tester, {required AuthState initial, required String at, bool gated = false}) async {
       auth = AuthCubit(
         locator(),
         sessionStore: locator(),
         biometrics: MockBiometricAuthenticator(),
         wiper: locator(),
         initial: initial,
+        consents: gated ? locator<ConsentRepository>() : null,
       );
       appRouter = AppRouter(auth, initialLocation: at);
       addTearDown(() async {
@@ -125,7 +186,7 @@ void main() {
     }
 
     testWidgets('signed-out deep link to /cart lands on login, then returns to /cart after sign-in', (tester) async {
-      await pumpRouter(tester, initial: const AuthState(), at: '/cart');
+      await pumpRouter(tester, initial: const AuthState(), at: '/cart', gated: true);
       expect(find.text('Welcome back'), findsOneWidget);
       expect(find.text('Your cart'), findsNothing);
 
@@ -135,12 +196,39 @@ void main() {
       await tester.enterText(find.widgetWithText(TextField, '6-digit code'), '123456');
       await tester.tap(find.widgetWithText(ElevatedButton, 'Verify'));
       await tester.pump(const Duration(seconds: 1));
-      // A returning customer must accept the (current) terms before the session is ready.
-      await tester.pump(const Duration(milliseconds: 500));
-      await tester.tap(find.text('I agree'));
+      // A returning customer meets the consent step (terms + privacy) before anything else.
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('I agree')); // the consent step
       await tester.pumpAndSettle();
 
       expect(find.text('Your cart'), findsOneWidget);
+    });
+
+    testWidgets('a restored session without current consent meets the consent step first, then reaches the deep link', (tester) async {
+      await pumpRouter(tester, initial: _signedIn, at: '/cart', gated: true);
+      expect(find.text('Terms of Service'), findsOneWidget);
+      expect(find.text('Your cart'), findsNothing);
+
+      await tester.tap(find.text('I agree'));
+      await tester.pumpAndSettle();
+      expect(find.text('Your cart'), findsOneWidget);
+    });
+
+    testWidgets('a restored session that already agreed is not asked again', (tester) async {
+      await locator<ConsentRepository>().grant(ConsentPurpose.terms);
+      await locator<ConsentRepository>().grant(ConsentPurpose.privacy);
+      await pumpRouter(tester, initial: _signedIn, at: '/cart', gated: true);
+      expect(find.text('Terms of Service'), findsNothing);
+      expect(find.text('Your cart'), findsOneWidget);
+    });
+
+    testWidgets('the consent step can be left by signing out', (tester) async {
+      await pumpRouter(tester, initial: _signedIn, at: '/main', gated: true);
+      expect(find.text('Terms of Service'), findsOneWidget);
+      await tester.tap(find.text('Sign out'));
+      await tester.pumpAndSettle();
+      expect(auth.state.isSignedIn, isFalse);
+      expect(find.text('Welcome back'), findsOneWidget);
     });
 
     testWidgets('unknown order ids fail gracefully instead of throwing on a missing extra', (tester) async {

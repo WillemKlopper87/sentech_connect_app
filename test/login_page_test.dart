@@ -7,13 +7,12 @@ import 'package:sentech_connect_app/features/auth/domain/entities/otp_challenge.
 import 'package:sentech_connect_app/features/auth/domain/entities/user.dart';
 import 'package:sentech_connect_app/app/locator.dart';
 import 'package:sentech_connect_app/core/biometrics/biometric_authenticator.dart';
+import 'package:sentech_connect_app/core/local/personal_data_wiper.dart';
 import 'package:sentech_connect_app/features/auth/data/repositories/mock_auth_repository.dart';
 import 'package:sentech_connect_app/features/auth/domain/repositories/auth_repository.dart';
 import 'package:sentech_connect_app/features/auth/domain/repositories/session_store.dart';
 import 'package:sentech_connect_app/features/auth/presentation/bloc/auth_cubit.dart';
 import 'package:sentech_connect_app/features/auth/presentation/pages/login_page.dart';
-import 'package:sentech_connect_app/features/privacy/domain/entities/consent_record.dart';
-import 'package:sentech_connect_app/features/privacy/domain/repositories/consent_repository.dart';
 
 import 'helpers/test_setup.dart';
 
@@ -26,16 +25,38 @@ class _NewCustomerRepository extends MockAuthRepository {
       Right(User(id: 'new-1', fullName: '', mobileNumber: challenge.phoneE164));
 }
 
+class _FailingWiper implements PersonalDataWiper {
+  @override
+  Future<void> wipeOnLogout() async => throw StateError('disk');
+
+  @override
+  Future<void> wipeEverything() async => throw StateError('disk');
+}
+
+class _RateLimitedRepository extends MockAuthRepository {
+  _RateLimitedRepository() : super(latency: Duration.zero);
+
+  @override
+  Future<Either<Failure, OtpChallenge>> requestOtp({required String phoneNumber}) async =>
+      const Left(RateLimitedFailure('slow down from the server', Duration(seconds: 90)));
+}
+
+class _RateLimitedOnVerifyRepository extends MockAuthRepository {
+  _RateLimitedOnVerifyRepository() : super(latency: Duration.zero);
+
+  @override
+  Future<Either<Failure, User>> verifyOtp({required OtpChallenge challenge, required String code}) async =>
+      const Left(RateLimitedFailure('slow down from the server', Duration(seconds: 120)));
+}
+
 void main() {
   setUpAppTests();
 
   late AuthCubit auth;
 
-  setUp(() async {
+  setUp(() {
     locator.registerSingleton<AuthRepository>(MockAuthRepository(latency: Duration.zero));
     auth = AuthCubit(locator(), sessionStore: locator(), biometrics: MockBiometricAuthenticator(), wiper: locator());
-    // These tests are about the code flow; the terms step has its own group below.
-    await locator<ConsentRepository>().grant(ConsentPurpose.terms);
   });
 
   tearDown(() => auth.close());
@@ -97,50 +118,84 @@ void main() {
     await tester.pump(const Duration(seconds: 31));
     expect(tester.widget<TextButton>(find.widgetWithText(TextButton, 'Resend code')).onPressed, isNotNull);
   });
-  group('terms of service on sign-in', () {
-    setUp(() async => locator<ConsentRepository>().clear());
+  Future<void> toCodeStep(WidgetTester tester) async {
+    await pumpLogin(tester);
+    await tester.enterText(find.widgetWithText(TextField, 'Mobile number'), '0821234567');
+    await tester.tap(find.widgetWithText(ElevatedButton, 'Send code'));
+    await tester.pump();
+    await tester.pump();
+  }
 
-    Future<void> enterCode(WidgetTester tester) async {
+  group('the code step', () {
+    testWidgets('the code field is labelled and focused', (tester) async {
+      await toCodeStep(tester);
+      final field = tester.widget<TextField>(find.widgetWithText(TextField, '6-digit code'));
+      expect(field.autofocus, isTrue);
+      expect(field.decoration!.labelText, '6-digit code');
+    });
+
+    testWidgets('a new customer (no name yet) signs in; the profile step follows via the router', (tester) async {
+      final repository = _NewCustomerRepository();
+      locator.registerSingleton<AuthRepository>(repository);
+      await auth.close();
+      auth = AuthCubit(repository, sessionStore: locator(), biometrics: MockBiometricAuthenticator(), wiper: locator());
+      await toCodeStep(tester);
+      await tester.enterText(find.widgetWithText(TextField, '6-digit code'), '123456');
+      await tester.tap(find.widgetWithText(ElevatedButton, 'Verify'));
+      await tester.pump();
+      await tester.pump();
+      expect(auth.state.isSignedIn, isTrue);
+      expect(auth.state.user!.fullName, isEmpty);
+    });
+
+    testWidgets('a code that was accepted but could not start a session returns to the phone step with a new-code message', (tester) async {
+      // Another customer's record is on the phone and its wipe fails, so the new sign-in cannot be set up.
+      await locator<SessionStore>().saveUser(const User(id: 'someone-else', fullName: 'Old', mobileNumber: '+27810000000'), tenantSlug: 'sentech');
+      await auth.close();
+      auth = AuthCubit(locator(), sessionStore: locator(), biometrics: MockBiometricAuthenticator(), wiper: _FailingWiper());
+      await toCodeStep(tester);
+      await tester.enterText(find.widgetWithText(TextField, '6-digit code'), '123456');
+      await tester.tap(find.widgetWithText(ElevatedButton, 'Verify'));
+      await tester.pump();
+      await tester.pump();
+      expect(find.textContaining('request a new code'), findsOneWidget);
+      expect(find.widgetWithText(ElevatedButton, 'Send code'), findsOneWidget, reason: 'back on the phone step');
+      expect(auth.state.isSignedIn, isFalse);
+    });
+  });
+
+  group('rate limiting', () {
+    testWidgets('a 429 shows a localised message and disables Send code for the wait', (tester) async {
+      final repository = _RateLimitedRepository();
+      locator.registerSingleton<AuthRepository>(repository);
       await pumpLogin(tester);
       await tester.enterText(find.widgetWithText(TextField, 'Mobile number'), '0821234567');
       await tester.tap(find.widgetWithText(ElevatedButton, 'Send code'));
       await tester.pump();
       await tester.pump();
+
+      expect(find.textContaining('Too many attempts'), findsOneWidget);
+      expect(find.textContaining('slow down from the server'), findsNothing, reason: 'no raw server text');
+      expect(tester.widget<ElevatedButton>(find.widgetWithText(ElevatedButton, 'Send code')).onPressed, isNull);
+
+      await tester.pump(const Duration(seconds: 91));
+      expect(tester.widget<ElevatedButton>(find.widgetWithText(ElevatedButton, 'Send code')).onPressed, isNotNull);
+    });
+
+    testWidgets('a 429 on verify disables Verify and Resend', (tester) async {
+      await auth.close();
+      auth = AuthCubit(_RateLimitedOnVerifyRepository(), sessionStore: locator(), biometrics: MockBiometricAuthenticator(), wiper: locator());
+      await toCodeStep(tester);
       await tester.enterText(find.widgetWithText(TextField, '6-digit code'), '123456');
       await tester.tap(find.widgetWithText(ElevatedButton, 'Verify'));
       await tester.pump();
-      await tester.pump(const Duration(milliseconds: 500)); // the dialog opens (the Verify spinner keeps animating)
-    }
+      await tester.pump();
+      expect(find.textContaining('Too many attempts'), findsOneWidget);
+      expect(tester.widget<ElevatedButton>(find.widgetWithText(ElevatedButton, 'Verify')).onPressed, isNull);
+      expect(find.textContaining('Resend code in'), findsOneWidget);
 
-    testWidgets('a returning customer without current terms is asked first; agreeing signs them in and records it', (tester) async {
-      await enterCode(tester);
-      expect(find.text('Your privacy'), findsOneWidget);
-      expect(auth.state.isSignedIn, isFalse, reason: 'the session is not ready before the terms are accepted');
-
-      await tester.tap(find.text('I agree'));
-      await tester.pumpAndSettle();
-      expect(auth.state.isSignedIn, isTrue);
-      expect((await locator<ConsentRepository>().currentConsent(ConsentPurpose.terms)).getOrElse((_) => null), isNotNull);
-    });
-
-    testWidgets('declining leaves the customer signed out, with a message', (tester) async {
-      await enterCode(tester);
-      await tester.tap(find.text('Not now'));
-      await tester.pumpAndSettle();
-      expect(auth.state.isSignedIn, isFalse);
-      expect(find.textContaining('accept the Terms of Service'), findsOneWidget);
-      expect(find.widgetWithText(ElevatedButton, 'Verify'), findsOneWidget, reason: 'still on the code step to try again');
-    });
-
-    testWidgets('a new customer (no name yet) is not asked here: the profile page records the terms', (tester) async {
-      final repository = _NewCustomerRepository();
-      locator.registerSingleton<AuthRepository>(repository);
-      await auth.close();
-      auth = AuthCubit(repository, sessionStore: locator(), biometrics: MockBiometricAuthenticator(), wiper: locator());
-      await enterCode(tester);
-      expect(find.text('Your privacy'), findsNothing);
-      expect(auth.state.isSignedIn, isTrue);
-      expect(auth.state.user!.fullName, isEmpty);
+      await tester.pump(const Duration(seconds: 121));
+      expect(tester.widget<ElevatedButton>(find.widgetWithText(ElevatedButton, 'Verify')).onPressed, isNotNull);
     });
   });
 

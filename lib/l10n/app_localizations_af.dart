@@ -41,19 +41,18 @@ class AppLocalizationsAf extends AppLocalizations {
 
   @override
   String get biometricNotEnrolled =>
-      'Geen vingerafdruk of gesig is op hierdie foon opgestel nie. Voeg een in die stelselinstellings by, of teken met jou wagwoord in.';
+      'Geen vingerafdruk of gesig is op hierdie foon opgestel nie. Voeg een in die stelselinstellings by.';
 
   @override
-  String get biometricUnavailable =>
-      'Biometrie is tans nie beskikbaar nie. Teken met jou wagwoord in.';
+  String get biometricUnavailable => 'Biometrie is tans nie beskikbaar nie.';
 
   @override
   String get biometricLockedOut =>
-      'Te veel pogings. Wag \'n oomblik en probeer weer, of teken met jou wagwoord in.';
+      'Te veel pogings. Wag \'n oomblik en probeer weer.';
 
   @override
   String get biometricPermanentlyLockedOut =>
-      'Biometrie is gesluit. Ontsluit eers jou foon met jou PIN of patroon, of teken met jou wagwoord in.';
+      'Biometrie is gesluit. Ontsluit eers jou foon met jou PIN of patroon.';
 
   @override
   String get loginSendCode => 'Send code';
@@ -101,11 +100,35 @@ class AppLocalizationsAf extends AppLocalizations {
       'That code is not right or has expired. Try again or ask for a new code.';
 
   @override
-  String get otpDemoHint => 'Demo mode: any 6-digit code except 000000 works.';
+  String get otpRateLimited =>
+      'Too many attempts. Please wait a moment before trying again.';
 
   @override
-  String get otpTermsRequired =>
-      'To sign in you need to accept the Terms of Service. Please try again.';
+  String get otpServerError =>
+      'Something went wrong on our end. Please try again.';
+
+  @override
+  String get otpSessionSetupFailed =>
+      'We could not finish signing you in. Please request a new code.';
+
+  @override
+  String get registerCompleteProfileTitle => 'Complete your profile';
+
+  @override
+  String get legalGateTitle => 'Terms of Service';
+
+  @override
+  String get legalGateChecking => 'Checking your Terms of Service…';
+
+  @override
+  String get legalGateUnavailable =>
+      'We could not check the Terms of Service right now. Check your connection and try again.';
+
+  @override
+  String get legalGateSignOut => 'Sign out';
+
+  @override
+  String get otpDemoHint => 'Demo mode: any 6-digit code except 000000 works.';
 
   @override
   String get otpOffline =>
@@ -125,7 +148,7 @@ class AppLocalizationsAf extends AppLocalizations {
 
   @override
   String get biometricFailed =>
-      'Biometriese kontrole het misluk. Probeer weer of teken met jou wagwoord in.';
+      'Biometriese kontrole het misluk. Probeer weer.';
 
   @override
   String get registerTitle => 'Skep \'n rekening';

@@ -32,12 +32,22 @@ class NotCoveredFailure extends Failure {
 /// machine-readable problem code (e.g. `otp_invalid`), or a local code for
 /// checks done before calling the API (e.g. `invalid_phone`).
 class ValidationFailure extends Failure {
-  const ValidationFailure(super.message, [this.code]);
+  const ValidationFailure(super.message, [this.code, this.messageIsDetail = true]);
 
   final String? code;
 
+  /// False when [message] is only the problem's short `title` (e.g.
+  /// "Conflict"), which is not fit to show a customer on its own.
+  final bool messageIsDetail;
+
   @override
-  List<Object?> get props => [message, code];
+  List<Object?> get props => [message, code, messageIsDetail];
+}
+
+/// The one-time code was accepted (and is spent) but the session could not be
+/// set up on this device; the customer must request a new code.
+class SessionSetupFailure extends Failure {
+  const SessionSetupFailure([super.message = 'We could not finish signing you in. Please try again.']);
 }
 
 /// No valid session: the customer must sign in again.

@@ -17,8 +17,8 @@ enum OtpLoginStatus { idle, sending, verifying, failure, verified }
 typedef CountdownTicker = Stream<int> Function(int seconds);
 
 /// Verifies the code and, in the app, signs the customer in as part of the
-/// same operation (`AuthCubit.signInWithOtp`). Defaults to the repository's
-/// plain `verifyOtp`.
+/// same operation (`AuthCubit.signInWithOtp`). Required: the repository's
+/// plain `verifyOtp`; there is no fallback that skips the sign-in.
 typedef CodeVerifier = Future<Either<Failure, User>> Function(OtpChallenge challenge, String code);
 
 Stream<int> _secondsTicker(int seconds) =>
@@ -32,6 +32,7 @@ class OtpLoginState extends Equatable {
     this.failure,
     this.resendIn = 0,
     this.user,
+    this.rateLimited = false,
   });
 
   final OtpStep step;
@@ -43,11 +44,25 @@ class OtpLoginState extends Equatable {
   final int resendIn;
   final User? user;
 
+  /// The server answered 429: [resendIn] is then the wait it asked for, and
+  /// sending, resending and verifying stay disabled until it is over.
+  final bool rateLimited;
+
+  bool get locked => rateLimited && resendIn > 0;
+
   bool get busy => status == OtpLoginStatus.sending || status == OtpLoginStatus.verifying;
 
   /// A status change replaces [failure] (null unless given); a countdown
   /// tick keeps it.
-  OtpLoginState copyWith({OtpStep? step, OtpLoginStatus? status, OtpChallenge? challenge, Failure? failure, int? resendIn, User? user}) =>
+  OtpLoginState copyWith({
+    OtpStep? step,
+    OtpLoginStatus? status,
+    OtpChallenge? challenge,
+    Failure? failure,
+    int? resendIn,
+    User? user,
+    bool? rateLimited,
+  }) =>
       OtpLoginState(
         step: step ?? this.step,
         status: status ?? this.status,
@@ -55,10 +70,11 @@ class OtpLoginState extends Equatable {
         failure: status != null ? failure : (failure ?? this.failure),
         resendIn: resendIn ?? this.resendIn,
         user: user ?? this.user,
+        rateLimited: rateLimited ?? this.rateLimited,
       );
 
   @override
-  List<Object?> get props => [step, status, challenge, failure, resendIn, user];
+  List<Object?> get props => [step, status, challenge, failure, resendIn, user, rateLimited];
 }
 
 /// Phone number -> SMS code -> signed in. Sign-in and sign-up are the same
@@ -68,9 +84,9 @@ class OtpLoginState extends Equatable {
 class OtpLoginCubit extends Cubit<OtpLoginState> {
   OtpLoginCubit(
     this._repository, {
+    required this._verifier,
     this.resendCooldown = const Duration(seconds: 30),
     CountdownTicker? ticker,
-    this._verifier,
   })  : _ticker = ticker ?? _secondsTicker,
         super(const OtpLoginState());
 
@@ -79,11 +95,11 @@ class OtpLoginCubit extends Cubit<OtpLoginState> {
   final AuthRepository _repository;
   final Duration resendCooldown;
   final CountdownTicker _ticker;
-  final CodeVerifier? _verifier;
+  final CodeVerifier _verifier;
   StreamSubscription<int>? _countdown;
 
   Future<void> submitPhone(String input) async {
-    if (state.busy) return;
+    if (state.busy || state.locked) return;
     if (normaliseZaMobile(input) == null) {
       emit(state.copyWith(
         status: OtpLoginStatus.failure,
@@ -96,7 +112,7 @@ class OtpLoginCubit extends Cubit<OtpLoginState> {
 
   Future<void> resend() async {
     final challenge = state.challenge;
-    if (state.busy || challenge == null || state.resendIn > 0) return;
+    if (state.busy || state.locked || challenge == null || state.resendIn > 0) return;
     await _send(challenge.phoneE164);
   }
 
@@ -105,42 +121,59 @@ class OtpLoginCubit extends Cubit<OtpLoginState> {
     final result = await _repository.requestOtp(phoneNumber: phone);
     if (isClosed) return;
     result.match(
-      (failure) => emit(state.copyWith(status: OtpLoginStatus.failure, failure: failure)),
+      _fail,
       (challenge) {
         emit(state.copyWith(
           step: OtpStep.code,
           status: OtpLoginStatus.idle,
           challenge: challenge,
           resendIn: resendCooldown.inSeconds,
+          rateLimited: false,
         ));
-        _startCountdown();
+        _startCountdown(resendCooldown.inSeconds);
       },
     );
   }
 
-  void _startCountdown() {
+  /// A failed send/verify. A 429 locks the buttons for the wait the server
+  /// asked for (never less than the normal resend cooldown) and runs the
+  /// countdown; a spent code (the session could not be set up) goes back to
+  /// the phone step so the customer is never stuck on a dead code.
+  void _fail(Failure failure) {
+    if (failure is SessionSetupFailure) {
+      _countdown?.cancel();
+      emit(OtpLoginState(status: OtpLoginStatus.failure, failure: failure));
+      return;
+    }
+    if (failure is RateLimitedFailure) {
+      final wait = [failure.retryAfter?.inSeconds ?? 0, resendCooldown.inSeconds].reduce((a, b) => a > b ? a : b);
+      emit(state.copyWith(status: OtpLoginStatus.failure, failure: failure, resendIn: wait, rateLimited: true));
+      _startCountdown(wait);
+      return;
+    }
+    emit(state.copyWith(status: OtpLoginStatus.failure, failure: failure));
+  }
+
+  void _startCountdown(int seconds) {
     _countdown?.cancel();
-    _countdown = _ticker(resendCooldown.inSeconds).listen((left) {
-      if (!isClosed) emit(state.copyWith(resendIn: left));
+    _countdown = _ticker(seconds).listen((left) {
+      if (!isClosed) emit(state.copyWith(resendIn: left, rateLimited: left > 0 ? null : false));
     });
   }
 
   Future<void> submitCode(String code) async {
     final challenge = state.challenge;
-    if (state.busy || challenge == null) return;
+    if (state.busy || state.locked || challenge == null) return;
     final trimmed = code.trim();
     if (!_sixDigits.hasMatch(trimmed)) {
       emit(state.copyWith(status: OtpLoginStatus.failure, failure: const ValidationFailure('Enter the 6-digit code.', 'invalid_code')));
       return;
     }
     emit(state.copyWith(status: OtpLoginStatus.verifying));
-    final verify = _verifier;
-    final result = verify != null
-        ? await verify(challenge, trimmed)
-        : await _repository.verifyOtp(challenge: challenge, code: trimmed);
+    final result = await _verifier(challenge, trimmed);
     if (isClosed) return;
     result.match(
-      (failure) => emit(state.copyWith(status: OtpLoginStatus.failure, failure: failure)),
+      _fail,
       (user) {
         _countdown?.cancel();
         emit(state.copyWith(status: OtpLoginStatus.verified, user: user));

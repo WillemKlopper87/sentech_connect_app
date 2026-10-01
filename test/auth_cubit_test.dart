@@ -13,6 +13,8 @@ import 'package:sentech_connect_app/features/auth/domain/entities/otp_challenge.
 import 'package:sentech_connect_app/features/auth/domain/entities/user.dart';
 import 'package:sentech_connect_app/features/auth/domain/repositories/session_store.dart';
 import 'package:sentech_connect_app/features/auth/presentation/bloc/auth_cubit.dart';
+import 'package:sentech_connect_app/features/privacy/domain/entities/consent_record.dart';
+import 'package:sentech_connect_app/features/privacy/domain/repositories/consent_repository.dart';
 
 const _user = User(id: 'c1', fullName: 'Lindiwe Khumalo', mobileNumber: '+27810000000');
 
@@ -70,6 +72,44 @@ class _FakeAuthRepository extends MockAuthRepository {
     final error = logOutError;
     if (error != null) throw error;
   }
+}
+
+class _FakeConsents implements ConsentRepository {
+  final granted = <ConsentPurpose>{};
+  bool readFails = false;
+  bool grantFails = false;
+  int grants = 0;
+
+  @override
+  Future<Either<Failure, ConsentRecord?>> currentConsent(ConsentPurpose purpose) async {
+    if (readFails) return const Left(NetworkFailure());
+    return Right(granted.contains(purpose)
+        ? ConsentRecord(purpose: purpose, policyVersion: 'v1', grantedAt: DateTime.utc(2026, 10, 1))
+        : null);
+  }
+
+  @override
+  Future<Either<Failure, ConsentRecord>> grant(ConsentPurpose purpose) async {
+    grants++;
+    if (grantFails) return const Left(NetworkFailure());
+    granted.add(purpose);
+    return Right(ConsentRecord(purpose: purpose, policyVersion: 'v1', grantedAt: DateTime.utc(2026, 10, 1)));
+  }
+
+  @override
+  Future<Either<Failure, Unit>> withdraw(ConsentPurpose purpose) async {
+    granted.remove(purpose);
+    return const Right(unit);
+  }
+
+  @override
+  Future<List<ConsentRecord>> unsyncedRecords() async => const [];
+
+  @override
+  Future<void> markSynced(Iterable<ConsentRecord> records) async {}
+
+  @override
+  Future<void> clear() async => granted.clear();
 }
 
 void main() {
@@ -322,53 +362,14 @@ void main() {
       await cubit.close();
     });
 
-    test('declining the legal step ends the new session: revoked, tokens dropped, not signed in', () async {
-      final cubit = build();
-      final result = await cubit.signInWithOtp(challenge: challenge, code: '123456', beforeReady: (_) async => false);
-      expect((result.match((f) => f, (_) => null)! as ValidationFailure).code, 'terms_not_accepted');
-      expect(cubit.state.isSignedIn, isFalse);
-      expect(repo.logOuts, 1);
-      expect(repo.discards, 1);
-      expect(await sessionStore.loadUser(), isNull);
-      await cubit.close();
-    });
-
-    test('a failing legal step also ends the new session (no silent half sign-in)', () async {
-      final cubit = build();
-      final result = await cubit.signInWithOtp(
-        challenge: challenge,
-        code: '123456',
-        beforeReady: (_) async => throw StateError('consent store'),
-      );
-      expect(result.isLeft(), isTrue);
-      expect(cubit.state.isSignedIn, isFalse);
-      expect(repo.discards, 1);
-      await cubit.close();
-    });
-
-    test('the legal step runs after verification and before the session is ready', () async {
-      final cubit = build();
-      var signedInDuringStep = true;
-      await cubit.signInWithOtp(
-        challenge: challenge,
-        code: '123456',
-        beforeReady: (_) async {
-          signedInDuringStep = cubit.state.isSignedIn;
-          return true;
-        },
-      );
-      expect(signedInDuringStep, isFalse);
-      expect(cubit.state.isSignedIn, isTrue);
-      await cubit.close();
-    });
-
     test('a sign-in whose wipe fails reports a failure and drops the new tokens', () async {
       final cubit = await lockedCubit();
       repo.verifyResult = const Right(sipho);
       wiper.onWipe = () async => throw StateError('disk');
       final result = await cubit.signInWithOtp(challenge: challenge, code: '123456');
-      expect(result.isLeft(), isTrue);
+      expect(result.match((f) => f, (_) => null), isA<SessionSetupFailure>());
       expect(cubit.state.isSignedIn, isFalse);
+      expect(repo.logOuts, greaterThanOrEqualTo(1), reason: "the new session's refresh token is revoked before the local tokens go");
       expect(repo.discards, greaterThanOrEqualTo(1));
       await cubit.close();
     });
@@ -396,6 +397,124 @@ void main() {
       events.sessionExpired();
       await settle();
       expect(cubit.state.isSignedIn, isFalse);
+      await cubit.close();
+    });
+  });
+
+  group('legal consent gate (terms + privacy) for every kind of session', () {
+    late _FakeConsents consents;
+
+    setUp(() => consents = _FakeConsents());
+
+    AuthCubit withConsents({AuthState initial = const AuthState()}) => AuthCubit(
+          repo,
+          sessionStore: sessionStore,
+          biometrics: biometrics,
+          wiper: wiper,
+          initial: initial,
+          sessionExpired: events.expired,
+          consents: consents,
+        );
+
+    test('without a consent repository nothing is gated', () async {
+      final cubit = build();
+      await cubit.signedIn(_user, fresh: true);
+      expect(cubit.state.legal, LegalStatus.accepted);
+      await cubit.close();
+    });
+
+    test('an interactive sign-in starts unchecked; no consent on record means required', () async {
+      final cubit = withConsents();
+      await cubit.signedIn(_user, fresh: true);
+      expect(cubit.state.legal, LegalStatus.unchecked);
+      await cubit.checkLegal();
+      expect(cubit.state.legal, LegalStatus.required);
+      await cubit.close();
+    });
+
+    test('both terms and privacy must be current; then it is accepted', () async {
+      final cubit = withConsents();
+      await cubit.signedIn(_user, fresh: true);
+      consents.granted.add(ConsentPurpose.terms);
+      await cubit.checkLegal();
+      expect(cubit.state.legal, LegalStatus.required, reason: 'privacy missing');
+      consents.granted.add(ConsentPurpose.privacy);
+      await cubit.checkLegal();
+      expect(cubit.state.legal, LegalStatus.accepted);
+      await cubit.close();
+    });
+
+    test('a session restored at launch (cold start) is gated until it is checked', () async {
+      final cubit = withConsents(initial: const AuthState(status: AuthStatus.success, user: _user));
+      expect(cubit.state.isSignedIn, isTrue);
+      expect(cubit.state.legal, LegalStatus.unchecked);
+      await cubit.checkLegal();
+      expect(cubit.state.legal, LegalStatus.required);
+      await cubit.close();
+    });
+
+    test('a biometric unlock is gated too: a session without current consent lands on the consent step', () async {
+      await sessionStore.saveUser(_user, tenantSlug: 'sentech');
+      await sessionStore.saveBiometricCredential(_user.id);
+      final cubit = withConsents(initial: AuthState.restore(user: _user, hasBiometricCredential: true, biometricsAvailable: true));
+      expect(cubit.state.status, AuthStatus.locked);
+      await cubit.logInWithBiometrics(reason: 'test');
+      expect(cubit.state.isSignedIn, isTrue);
+      expect(cubit.state.legal, LegalStatus.unchecked);
+      await cubit.checkLegal();
+      expect(cubit.state.legal, LegalStatus.required);
+      await cubit.close();
+    });
+
+    test('a failed lookup is unavailable (retry), never required: someone who agreed is not re-asked', () async {
+      consents.granted.addAll([ConsentPurpose.terms, ConsentPurpose.privacy]);
+      consents.readFails = true;
+      final cubit = withConsents(initial: const AuthState(status: AuthStatus.success, user: _user));
+      await cubit.checkLegal();
+      expect(cubit.state.legal, LegalStatus.unavailable);
+      consents.readFails = false;
+      await cubit.checkLegal();
+      expect(cubit.state.legal, LegalStatus.accepted);
+      await cubit.close();
+    });
+
+    test('agreeing records terms and privacy; a failed recording is unavailable and can be retried', () async {
+      final cubit = withConsents();
+      await cubit.signedIn(_user, fresh: true);
+      consents.grantFails = true;
+      await cubit.acceptLegal();
+      expect(cubit.state.legal, LegalStatus.unavailable);
+      consents.grantFails = false;
+      await cubit.acceptLegal();
+      expect(cubit.state.legal, LegalStatus.accepted);
+      expect(consents.granted, {ConsentPurpose.terms, ConsentPurpose.privacy});
+      await cubit.close();
+    });
+
+    test('a double tap on I agree records once', () async {
+      final cubit = withConsents();
+      await cubit.signedIn(_user, fresh: true);
+      await Future.wait([cubit.acceptLegal(), cubit.acceptLegal()]);
+      expect(consents.grants, 2, reason: 'terms + privacy, once');
+      await cubit.close();
+    });
+
+    test('signing out while the check runs ignores its answer', () async {
+      final cubit = withConsents();
+      await cubit.signedIn(_user, fresh: true);
+      final check = cubit.checkLegal();
+      await cubit.logOut();
+      await check;
+      expect(cubit.state.isSignedIn, isFalse);
+      expect(cubit.state.legal, LegalStatus.accepted);
+      await cubit.close();
+    });
+
+    test('the profile step that just recorded the consents opens the app straight away', () async {
+      final cubit = withConsents();
+      await cubit.signedIn(const User(id: 'c1', fullName: '', mobileNumber: '+27810000000'), fresh: true);
+      await cubit.profileUpdated(_user, legalAccepted: true);
+      expect(cubit.state.legal, LegalStatus.accepted);
       await cubit.close();
     });
   });

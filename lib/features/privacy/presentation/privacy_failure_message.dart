@@ -19,7 +19,7 @@ String privacyFailureMessage(AppLocalizations l10n, Failure? failure) {
   return switch (failure) {
     NetworkFailure() => l10n.accountRequestOffline,
     RateLimitedFailure() => l10n.accountRequestRateLimited,
-    ValidationFailure(:final message) when message.trim().isNotEmpty => message,
+    ValidationFailure(:final message, :final messageIsDetail) when messageIsDetail && message.trim().isNotEmpty => message,
     ServerFailure(:final message) when message.trim().isNotEmpty && !_genericServerTexts.contains(message) => message,
     _ => l10n.accountRequestFailed,
   };

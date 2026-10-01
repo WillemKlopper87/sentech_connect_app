@@ -41,19 +41,18 @@ class AppLocalizationsZu extends AppLocalizations {
 
   @override
   String get biometricNotEnrolled =>
-      'Akukho isigxivizo somunwe noma ubuso obusethiwe kule foni. Engeza okukodwa kumasethingi esistimu, noma ungene ngephasiwedi yakho.';
+      'Akukho isigxivizo somunwe noma ubuso obusethiwe kule foni. Engeza okukodwa kumasethingi esistimu.';
 
   @override
-  String get biometricUnavailable =>
-      'I-biometrics ayitholakali okwamanje. Ngena ngephasiwedi yakho.';
+  String get biometricUnavailable => 'I-biometrics ayitholakali okwamanje.';
 
   @override
   String get biometricLockedOut =>
-      'Imizamo eminingi kakhulu. Linda isikhashana bese uzama futhi, noma ungene ngephasiwedi yakho.';
+      'Imizamo eminingi kakhulu. Linda isikhashana bese uzama futhi.';
 
   @override
   String get biometricPermanentlyLockedOut =>
-      'I-biometrics ikhiyiwe. Vula ifoni yakho kuqala nge-PIN noma iphethini, noma ungene ngephasiwedi yakho.';
+      'I-biometrics ikhiyiwe. Vula ifoni yakho kuqala nge-PIN noma iphethini.';
 
   @override
   String get loginSendCode => 'Send code';
@@ -101,11 +100,35 @@ class AppLocalizationsZu extends AppLocalizations {
       'That code is not right or has expired. Try again or ask for a new code.';
 
   @override
-  String get otpDemoHint => 'Demo mode: any 6-digit code except 000000 works.';
+  String get otpRateLimited =>
+      'Too many attempts. Please wait a moment before trying again.';
 
   @override
-  String get otpTermsRequired =>
-      'To sign in you need to accept the Terms of Service. Please try again.';
+  String get otpServerError =>
+      'Something went wrong on our end. Please try again.';
+
+  @override
+  String get otpSessionSetupFailed =>
+      'We could not finish signing you in. Please request a new code.';
+
+  @override
+  String get registerCompleteProfileTitle => 'Complete your profile';
+
+  @override
+  String get legalGateTitle => 'Terms of Service';
+
+  @override
+  String get legalGateChecking => 'Checking your Terms of Service…';
+
+  @override
+  String get legalGateUnavailable =>
+      'We could not check the Terms of Service right now. Check your connection and try again.';
+
+  @override
+  String get legalGateSignOut => 'Sign out';
+
+  @override
+  String get otpDemoHint => 'Demo mode: any 6-digit code except 000000 works.';
 
   @override
   String get otpOffline =>
@@ -125,7 +148,7 @@ class AppLocalizationsZu extends AppLocalizations {
 
   @override
   String get biometricFailed =>
-      'Ukuhlolwa kwe-biometric kuhlulekile. Zama futhi noma ungene ngephasiwedi yakho.';
+      'Ukuhlolwa kwe-biometric kuhlulekile. Zama futhi.';
 
   @override
   String get registerTitle => 'Dala i-akhawunti';

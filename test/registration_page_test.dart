@@ -47,6 +47,14 @@ void main() {
     expect(mobile.readOnly, isTrue);
   });
 
+  testWidgets('it is the "Complete your profile" step, with a way out for someone who is not this customer', (tester) async {
+    await pumpPage(tester);
+    expect(find.text('Complete your profile'), findsOneWidget);
+    await tester.tap(find.text('Not you? Sign out'));
+    await tester.pumpAndSettle();
+    expect(auth.state.isSignedIn, isFalse);
+  });
+
   testWidgets('the button stays disabled until the terms are accepted', (tester) async {
     await pumpPage(tester);
     await tester.enterText(field('Full name'), 'Thandi Mokoena');

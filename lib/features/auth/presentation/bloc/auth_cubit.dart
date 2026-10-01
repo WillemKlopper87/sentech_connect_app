@@ -11,6 +11,8 @@ import 'package:sentech_connect_app/features/auth/domain/entities/otp_challenge.
 import 'package:sentech_connect_app/features/auth/domain/entities/user.dart';
 import 'package:sentech_connect_app/features/auth/domain/repositories/auth_repository.dart';
 import 'package:sentech_connect_app/features/auth/domain/repositories/session_store.dart';
+import 'package:sentech_connect_app/features/privacy/domain/entities/consent_record.dart';
+import 'package:sentech_connect_app/features/privacy/domain/repositories/consent_repository.dart';
 
 /// [locked]: a session is stored on this device but waits for a biometric
 /// unlock (cold start with an enrolled biometric). Not signed in.
@@ -20,6 +22,23 @@ enum AuthStatus { initial, loading, success, failure, locked }
 /// these to (localised) guidance; [cancelled] is deliberately silent.
 enum BiometricIssue { cancelled, notEnrolled, unavailable, lockedOut, permanentlyLockedOut, failed }
 
+/// Whether the signed-in customer has accepted the CURRENT terms and privacy
+/// notice. Anything but [accepted] keeps them on the consent step, however the
+/// session began (OTP, biometric unlock, restored at launch).
+enum LegalStatus {
+  accepted,
+
+  /// Not known yet (being checked).
+  unchecked,
+
+  /// Checked: the current versions have not been accepted.
+  required,
+
+  /// The check or the recording failed (offline, server): retry, never
+  /// treated as a decline or as consent.
+  unavailable,
+}
+
 class AuthState extends Equatable {
   const AuthState({
     this.status = AuthStatus.initial,
@@ -28,6 +47,7 @@ class AuthState extends Equatable {
     this.biometricsReady = false,
     this.biometricIssue,
     this.freshSignIn = false,
+    this.legal = LegalStatus.accepted,
   });
 
   /// The launch state from what is stored on the device (spec §6:
@@ -53,6 +73,8 @@ class AuthState extends Equatable {
   /// run; the router sends brand-new sign-ins through coverage once.
   final bool freshSignIn;
 
+  final LegalStatus legal;
+
   bool get isSignedIn => status == AuthStatus.success && user != null;
 
   AuthState copyWith({
@@ -62,6 +84,7 @@ class AuthState extends Equatable {
     bool? biometricsReady,
     BiometricIssue? biometricIssue,
     bool? freshSignIn,
+    LegalStatus? legal,
   }) {
     return AuthState(
       status: status ?? this.status,
@@ -70,11 +93,12 @@ class AuthState extends Equatable {
       biometricsReady: biometricsReady ?? this.biometricsReady,
       biometricIssue: biometricIssue,
       freshSignIn: freshSignIn ?? this.freshSignIn,
+      legal: legal ?? this.legal,
     );
   }
 
   @override
-  List<Object?> get props => [status, user, errorMessage, biometricsReady, biometricIssue, freshSignIn];
+  List<Object?> get props => [status, user, errorMessage, biometricsReady, biometricIssue, freshSignIn, legal];
 }
 
 /// Holds the signed-in session. Tokens live in secure storage behind the
@@ -91,8 +115,10 @@ class AuthCubit extends Cubit<AuthState> {
     AuthState initial = const AuthState(),
     Stream<void>? sessionExpired,
     String Function()? activeTenantSlug,
+    ConsentRepository? consents,
   }) : _activeTenantSlug = activeTenantSlug ?? (() => TenantContext.defaultSlug),
-       super(initial) {
+       _consents = consents,
+       super(consents != null && initial.isSignedIn ? initial.copyWith(legal: LegalStatus.unchecked) : initial) {
     _expiry = sessionExpired?.listen((_) => _onSessionExpired());
   }
 
@@ -101,6 +127,7 @@ class AuthCubit extends Cubit<AuthState> {
   final BiometricAuthenticator _biometrics;
   final PersonalDataWiper _wiper;
   final String Function() _activeTenantSlug;
+  final ConsentRepository? _consents;
   StreamSubscription<void>? _expiry;
 
   /// Interactive sign-ins running (verify + sign-in). A session-expired event
@@ -190,30 +217,20 @@ class AuthCubit extends Cubit<AuthState> {
   /// Verifies the SMS code AND signs the customer in, as one operation (the
   /// login UI never calls the repository and the cubit separately, so the
   /// tokens that verification stores can never be left without a session).
-  ///
-  /// [beforeReady] runs once the code is verified and before the session is
-  /// considered ready (e.g. the legal terms must be accepted); returning
-  /// false ends the new session again and reports `terms_not_accepted`.
-  /// Session-expired events are ignored while this runs.
-  Future<Either<Failure, User>> signInWithOtp({
-    required OtpChallenge challenge,
-    required String code,
-    Future<bool> Function(User user)? beforeReady,
-  }) async {
+  /// The legal consent step is enforced afterwards by [AuthState.legal] (the
+  /// router), for every way a session can begin. Session-expired events are
+  /// ignored while this runs.
+  Future<Either<Failure, User>> signInWithOtp({required OtpChallenge challenge, required String code}) async {
     _signingIn++;
     try {
       final verified = await _repository.verifyOtp(challenge: challenge, code: code);
       final user = verified.match((_) => null, (u) => u);
       if (user == null || isClosed) return verified;
       try {
-        if (beforeReady != null && !await beforeReady(user)) {
-          await _discardNewSession();
-          return const Left(ValidationFailure('Accept the Terms of Service to continue.', 'terms_not_accepted'));
-        }
         await signedIn(user, fresh: true);
       } catch (_) {
         await _discardNewSession();
-        return const Left(ServerFailure('We could not finish signing you in. Please try again.'));
+        return const Left(SessionSetupFailure());
       }
       return Right(user);
     } finally {
@@ -221,11 +238,11 @@ class AuthCubit extends Cubit<AuthState> {
     }
   }
 
-  /// A verified session that is not going to be used: revoke it (best effort)
-  /// and make sure no token stays on the device.
+  /// A verified session that is not going to be used: revoke it (best effort,
+  /// bounded) and make sure no token stays on the device.
   Future<void> _discardNewSession() async {
     try {
-      await _repository.logOut();
+      await _repository.logOut().timeout(const Duration(seconds: 10));
     } catch (_) {
       // Fall through: the local tokens are dropped below regardless.
     }
@@ -250,24 +267,100 @@ class AuthCubit extends Cubit<AuthState> {
       try {
         await _wiper.wipeOnLogout();
       } catch (_) {
-        try {
-          await _repository.discardLocalSession();
-        } catch (_) {
-          // The wipe failure below is the one the caller needs to see.
-        }
+        await _discardNewSession();
         rethrow;
       }
     }
     await _sessionStore.saveUser(user, tenantSlug: _activeTenantSlug());
     await _sessionStore.saveBiometricCredential(user.id);
-    _emitIfOpen(state.copyWith(status: AuthStatus.success, user: user, freshSignIn: fresh));
+    _emitIfOpen(state.copyWith(
+      status: AuthStatus.success,
+      user: user,
+      freshSignIn: fresh,
+      legal: _consents == null ? LegalStatus.accepted : LegalStatus.unchecked,
+    ));
   }
 
   /// After the customer completed or edited their profile.
-  Future<void> profileUpdated(User user) async {
+  /// [legalAccepted]: the profile step has just recorded the consents.
+  Future<void> profileUpdated(User user, {bool legalAccepted = false}) async {
     await _sessionStore.saveUser(user, tenantSlug: _activeTenantSlug());
-    _emitIfOpen(state.copyWith(status: AuthStatus.success, user: user));
+    _emitIfOpen(state.copyWith(
+      status: AuthStatus.success,
+      user: user,
+      legal: legalAccepted ? LegalStatus.accepted : state.legal,
+    ));
   }
+
+  static const _legalPurposes = [ConsentPurpose.terms, ConsentPurpose.privacy];
+  Future<void>? _legalCheck;
+
+  /// Looks up whether the CURRENT terms and privacy notice are accepted and
+  /// sets [AuthState.legal]. A lookup that fails is `unavailable` (retry),
+  /// never "not accepted": someone who already agreed is not asked again
+  /// because of a bad connection. Concurrent calls share one check.
+  Future<void> checkLegal() => _legalCheck ??= _runLegalCheck().whenComplete(() {
+        _legalCheck = null;
+      });
+
+  Future<void> _runLegalCheck() async {
+    final user = state.user;
+    if (!state.isSignedIn || isClosed) return;
+    final consents = _consents;
+    if (consents == null) {
+      _emitIfOpen(state.copyWith(legal: LegalStatus.accepted));
+      return;
+    }
+    if (state.legal != LegalStatus.unchecked) _emitIfOpen(state.copyWith(legal: LegalStatus.unchecked));
+    var unknown = false;
+    var missing = false;
+    try {
+      for (final purpose in _legalPurposes) {
+        final result = await consents.currentConsent(purpose);
+        result.match((_) => unknown = true, (record) => missing = missing || record == null);
+      }
+    } catch (_) {
+      unknown = true;
+    }
+    if (!_sameSignedInUser(user)) return;
+    _emitIfOpen(state.copyWith(
+      legal: unknown
+          ? LegalStatus.unavailable
+          : missing
+              ? LegalStatus.required
+              : LegalStatus.accepted,
+    ));
+  }
+
+  /// The customer agrees to the CURRENT terms and privacy notice on the
+  /// consent step (recorded in the ledger; a repeat is a no-op).
+  Future<void> acceptLegal() => _legalAccept ??= _runAcceptLegal().whenComplete(() {
+        _legalAccept = null;
+      });
+
+  Future<void>? _legalAccept;
+
+  Future<void> _runAcceptLegal() async {
+    final user = state.user;
+    final consents = _consents;
+    if (!state.isSignedIn || consents == null) return;
+    var failed = false;
+    try {
+      for (final purpose in _legalPurposes) {
+        final granted = await consents.grant(purpose);
+        if (granted.isLeft()) {
+          failed = true;
+          break;
+        }
+      }
+    } catch (_) {
+      failed = true;
+    }
+    if (!_sameSignedInUser(user)) return;
+    _emitIfOpen(state.copyWith(legal: failed ? LegalStatus.unavailable : LegalStatus.accepted));
+  }
+
+  bool _sameSignedInUser(User? user) => !isClosed && state.isSignedIn && state.user?.id == user?.id;
 
   /// Signs out (full wipe) when the session held on this device does not
   /// belong to what the app is serving: no API tokens, tokens for another

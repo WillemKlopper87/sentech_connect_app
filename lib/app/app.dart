@@ -45,6 +45,7 @@ class _SentechConnectAppState extends State<SentechConnectApp> {
     initial: widget.initialAuthState,
     sessionExpired: locator<SessionEvents>().expired,
     activeTenantSlug: () => locator<TenantContext>().slug,
+    consents: locator(),
   );
   // Switching ISP signs the customer out first (ruling: one session per tenant).
   late final TenantCubit _tenantCubit = TenantCubit(

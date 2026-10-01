@@ -42,9 +42,9 @@ void main() {
     await tester.tap(find.widgetWithText(ElevatedButton, 'Verify'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 500)); // mock OTP verify delay
-    // A returning customer must accept the (current) terms before the session is ready.
-    await tester.pump(const Duration(milliseconds: 500));
-    expect(find.text('Your privacy'), findsOneWidget);
+    // A returning customer meets the consent step (terms + privacy) before anything else.
+    await tester.pumpAndSettle();
+    expect(find.text('Terms of Service'), findsOneWidget);
     await tester.tap(find.text('I agree'));
     await tester.pumpAndSettle();
 

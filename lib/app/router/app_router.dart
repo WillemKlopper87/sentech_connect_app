@@ -21,6 +21,7 @@ import 'package:sentech_connect_app/features/catalog_checkout/presentation/pages
 import 'package:sentech_connect_app/features/catalog_checkout/presentation/pages/payment_page.dart';
 import 'package:sentech_connect_app/features/coverage/presentation/bloc/coverage_cubit.dart';
 import 'package:sentech_connect_app/features/coverage/presentation/pages/coverage_page.dart';
+import 'package:sentech_connect_app/features/privacy/presentation/pages/legal_gate_page.dart';
 import 'package:sentech_connect_app/features/promotions/presentation/bloc/promotions_cubit.dart';
 import 'package:sentech_connect_app/features/promotions/presentation/pages/promotions_page.dart';
 import 'package:sentech_connect_app/features/rica/presentation/bloc/rica_cubit.dart';
@@ -35,6 +36,7 @@ abstract class AppRoutes {
   static const splash = '/';
   static const login = '/login';
   static const register = '/register';
+  static const consent = '/consent';
   static const coverage = '/coverage';
   static const main = '/main';
   static const cart = '/cart';
@@ -94,7 +96,8 @@ class _GuardRefresh extends ChangeNotifier {
 /// Pure redirect rule, separated out so it can be unit tested.
 ///
 /// - Signed out + protected route  -> `/login?from=<intended route>`
-/// - Signed in without a name yet (new customer) -> `/register` (complete the profile)
+/// - Signed in without a name yet (new customer) -> `/register` (complete the profile);
+///   terms/privacy not accepted yet -> `/consent`. The route asked for travels as `from`.
 /// - Signed in + `/login`/`/register` -> the intended route (`from`), else
 ///   coverage right after a fresh sign-in (first-time onboarding), else `/main`.
 String? authRedirect(AuthState auth, Uri uri) {
@@ -105,19 +108,33 @@ String? authRedirect(AuthState auth, Uri uri) {
     if (location == AppRoutes.main) return AppRoutes.login;
     return Uri(path: AppRoutes.login, queryParameters: {AppRoutes.fromParam: target}).toString();
   }
-  // New customers (first verified code) have no name yet: complete the
-  // profile before anything else. (Splash and the tenant screens keep their
-  // own flow; they lead on to a protected route, which lands here.)
-  if (auth.user!.fullName.trim().isEmpty) {
-    const own = {AppRoutes.register, AppRoutes.splash, AppRoutes.tenantPicker, AppRoutes.updateRequired};
-    return own.contains(location) ? null : AppRoutes.register;
+  // Steps every signed-in session passes first, whatever began it (SMS code,
+  // biometric unlock, restore at launch): new customers (no name yet)
+  // complete their profile, and the CURRENT terms and privacy notice must be
+  // accepted. (Splash and the tenant screens keep their own flow; they lead on
+  // to a protected route, which lands here.)
+  final gate = auth.user!.fullName.trim().isEmpty
+      ? AppRoutes.register
+      : (auth.legal == LegalStatus.accepted ? null : AppRoutes.consent);
+  if (gate != null) {
+    const ownFlow = {AppRoutes.splash, AppRoutes.tenantPicker, AppRoutes.updateRequired};
+    if (location == gate || ownFlow.contains(location)) return null;
+    return _towards(gate, uri);
   }
-  if (location == AppRoutes.login || location == AppRoutes.register) {
+  if (location == AppRoutes.login || location == AppRoutes.register || location == AppRoutes.consent) {
     final from = safeFrom(uri.queryParameters[AppRoutes.fromParam]);
     if (from != null) return from;
     return auth.freshSignIn ? AppRoutes.coverage : AppRoutes.main;
   }
   return null;
+}
+
+/// [gate] with the route the customer was after kept as `from`, so the
+/// deep link survives the profile / consent step.
+String _towards(String gate, Uri uri) {
+  final candidate = uri.queryParameters[AppRoutes.fromParam] ?? (uri.path == AppRoutes.main ? null : uri.toString());
+  final from = safeFrom(candidate);
+  return from == null ? gate : Uri(path: gate, queryParameters: {AppRoutes.fromParam: from}).toString();
 }
 
 /// Tenant rules run before the auth rules: no screen is usable until a
@@ -141,7 +158,7 @@ String? tenantRedirect(TenantState tenant, Uri uri) {
 String? safeFrom(String? from) {
   if (from == null || !from.startsWith('/') || from.startsWith('//')) return null;
   final path = Uri.tryParse(from)?.path;
-  if (path == null || !AppRoutes.isProtected(path)) return null;
+  if (path == null || !AppRoutes.isProtected(path) || path == AppRoutes.register || path == AppRoutes.consent) return null;
   return from;
 }
 
@@ -203,6 +220,10 @@ GoRouter _buildRouter(AuthCubit authCubit, TenantCubit? tenantCubit, Listenable 
       GoRoute(
         path: AppRoutes.register,
         builder: (context, state) => const RegistrationPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.consent,
+        builder: (context, state) => const LegalGatePage(),
       ),
       GoRoute(
         path: AppRoutes.coverage,

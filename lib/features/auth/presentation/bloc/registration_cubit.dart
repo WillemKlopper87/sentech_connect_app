@@ -161,18 +161,14 @@ class RegistrationCubit extends Cubit<RegistrationState> {
     }
   }
 
-  /// Saves the profile, then records the legal consents (POPIA: versioned,
-  /// timestamped, server-held in prod). Nothing is submitted without the
-  /// terms being accepted.
+  /// Records the legal consents FIRST, then saves the profile: a profile
+  /// (a named customer) must never exist without the terms having been
+  /// recorded, or a later biometric unlock / cold start would skip them.
+  /// A retry is safe: consents already in the ledger are not written again.
+  /// Nothing is submitted without the terms being accepted.
   Future<void> submit() async {
     if (!state.acceptedTerms || state.submitStatus == SubmitStatus.submitting) return;
     emit(state.copyWith(submitStatus: SubmitStatus.submitting));
-    final saved = await _repository.save(state.toDetails());
-    if (isClosed) return;
-    if (saved.isLeft()) {
-      emit(state.copyWith(submitStatus: SubmitStatus.failed));
-      return;
-    }
     final consents = _consents;
     if (consents != null) {
       for (final purpose in [
@@ -188,6 +184,8 @@ class RegistrationCubit extends Cubit<RegistrationState> {
         }
       }
     }
-    emit(state.copyWith(submitStatus: SubmitStatus.submitted));
+    final saved = await _repository.save(state.toDetails());
+    if (isClosed) return;
+    emit(state.copyWith(submitStatus: saved.isLeft() ? SubmitStatus.failed : SubmitStatus.submitted));
   }
 }
