@@ -1,0 +1,6 @@
+{
+  "tenant": {"slug": "acme-wifi", "name": "Acme Wi-Fi", "type": "reseller", "branding": {"primary_color": "#123456"}},
+  "min_app_version": "1.0.0",
+  "feature_flags": {"hotspot_passes": true, "rica": false, "cpe": false},
+  "legal": {"terms": "2026-09-30", "privacy": "2026-09-30"}
+}

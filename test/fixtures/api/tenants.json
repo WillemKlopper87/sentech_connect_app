@@ -1,0 +1,11 @@
+{
+  "tenants": [
+    {"slug": "sentech", "name": "Sentech", "type": "operator", "branding": {}},
+    {
+      "slug": "acme-wifi",
+      "name": "Acme Wi-Fi",
+      "type": "reseller",
+      "branding": {"primary_color": "#123456", "logo_url": "https://cdn.example.test/acme.png", "tagline": "ignored"}
+    }
+  ]
+}
