@@ -2,12 +2,16 @@ import 'package:equatable/equatable.dart';
 
 enum PassStatus { scheduled, active, expired, exhausted, revoked }
 
+/// Where a pass came from. A newer server may add values: those read as [unknown].
+enum PassSource { order, voucher, admin, unknown }
+
 /// A hotspot entitlement bought with a pass (`GET /v1/me/entitlements`).
 /// The server owns time, usage and status (spec §2).
 class Pass extends Equatable {
   const Pass({
     required this.id,
-    required this.orderId,
+    this.orderId,
+    this.source = PassSource.order,
     required this.productName,
     required this.status,
     required this.startsAt,
@@ -20,7 +24,10 @@ class Pass extends Equatable {
   });
 
   final String id;
-  final String orderId;
+
+  /// Null for a pass that no order paid for (a redeemed voucher, an admin grant).
+  final String? orderId;
+  final PassSource source;
   final String productName;
   final PassStatus status;
   final DateTime startsAt;
@@ -45,6 +52,7 @@ class Pass extends Equatable {
   List<Object?> get props => [
     id,
     orderId,
+    source,
     productName,
     status,
     startsAt,
@@ -67,7 +75,8 @@ Pass passFromJson(Map<String, Object?> json) {
   }
   return Pass(
     id: json['id']! as String,
-    orderId: json['order_id']! as String,
+    orderId: json['order_id'] as String?,
+    source: _sourceFromJson(json['source']),
     productName: json['product_name']! as String,
     status: status,
     startsAt: DateTime.parse(json['starts_at']! as String).toUtc(),
@@ -78,4 +87,11 @@ Pass passFromJson(Map<String, Object?> json) {
     maxDevices: json['max_devices']! as int,
     usedBytes: json['used_bytes'] as int? ?? 0,
   );
+}
+
+/// A missing `source` (an older server) means an order's pass; an unrecognised one is [PassSource.unknown].
+PassSource _sourceFromJson(Object? raw) {
+  if (raw == null) return PassSource.order;
+  return PassSource.values.where((s) => s.name == raw).firstOrNull ??
+      PassSource.unknown;
 }

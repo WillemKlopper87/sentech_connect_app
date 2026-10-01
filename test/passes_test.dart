@@ -130,6 +130,39 @@ void main() {
       ]);
     });
 
+    test('a voucher pass has no order: null order_id and source voucher', () {
+      final base = Map<String, Object?>.from(
+        (fixtureMap('entitlements_page.json')['items']! as List).first as Map,
+      );
+      final pass = passFromJson({
+        ...base,
+        'order_id': null,
+        'source': 'voucher',
+      });
+      expect(pass.orderId, isNull);
+      expect(pass.source, PassSource.voucher);
+      expect(pass.isCurrent, isTrue);
+    });
+
+    test(
+      'a missing source reads as an order pass, an unknown one as unknown',
+      () {
+        final base = Map<String, Object?>.from(
+          (fixtureMap('entitlements_page.json')['items']! as List).first as Map,
+        )..remove('source');
+        expect(passFromJson(base).source, PassSource.order);
+        expect(
+          passFromJson({...base, 'source': 'gift'}).source,
+          PassSource.unknown,
+        );
+        expect(
+          passFromJson({...base, 'order_id': null}).orderId,
+          isNull,
+          reason: 'order_id may be absent without a source too',
+        );
+      },
+    );
+
     test('exhausted, expired and revoked are not current', () {
       final base = Map<String, Object?>.from(
         (fixtureMap('entitlements_page.json')['items']! as List).first as Map,
