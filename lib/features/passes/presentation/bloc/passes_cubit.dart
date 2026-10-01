@@ -41,14 +41,24 @@ class PassesCubit extends Cubit<PassesState> {
   }
 
   final PassesRepository _repository;
+  var _generation = 0;
 
-  /// Also the retry entry point.
+  /// Also the retry and pull-to-refresh entry point. Visible passes stay on
+  /// screen while refreshing; only an empty screen shows the spinner. Only the
+  /// newest request may publish, so out-of-order responses are dropped.
   Future<void> load() async {
-    emit(state.copyWith(status: PassesStatus.loading));
+    final generation = ++_generation;
+    emit(
+      state.copyWith(
+        status: state.passes.isEmpty || state.status == PassesStatus.failure
+            ? PassesStatus.loading
+            : state.status,
+      ),
+    );
     final result = await _repository.getPasses(
       includeExpired: state.includeExpired,
     );
-    if (isClosed) return;
+    if (isClosed || generation != _generation) return;
     result.match(
       (failure) =>
           emit(state.copyWith(status: PassesStatus.failure, failure: failure)),

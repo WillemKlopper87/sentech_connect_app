@@ -537,4 +537,43 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get confirmationViewPasses => 'View my passes';
+
+  @override
+  String passesExpiredAt(String date) {
+    return 'Expired $date';
+  }
+
+  @override
+  String passesEndedAt(String date) {
+    return 'Ended $date';
+  }
+
+  @override
+  String get passesJustPaidHint =>
+      'Just paid? It can take a minute to appear. Pull down to refresh.';
+
+  @override
+  String durationDaysHours(int days, int hours) {
+    return '${days}d ${hours}h';
+  }
+
+  @override
+  String durationHoursMinutes(int hours, int minutes) {
+    return '${hours}h ${minutes}m';
+  }
+
+  @override
+  String durationMinutes(int minutes) {
+    return '${minutes}m';
+  }
+
+  @override
+  String sizeMegabytes(String amount) {
+    return '$amount MB';
+  }
+
+  @override
+  String sizeGigabytes(String amount) {
+    return '$amount GB';
+  }
 }

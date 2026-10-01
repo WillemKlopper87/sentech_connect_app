@@ -259,6 +259,9 @@ void main() {
 
     testWidgets('a signed-in user opening /login is sent to /main', (tester) async {
       await pumpRouter(tester, initial: _signedIn, at: '/login');
+      // No TenantCubit in this router: the cpe flag defaults to OFF, so no router card.
+      expect(find.text('Living room router'), findsNothing);
+      expect(find.text('Buy a pass'), findsWidgets);
       expect(appRouter.router.state.uri.path, '/main');
     });
   });

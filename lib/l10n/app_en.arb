@@ -177,5 +177,20 @@
   "dashboardDataLeft": "{left} of {total} left",
   "@dashboardDataLeft": {"placeholders": {"left": {"type": "String"}, "total": {"type": "String"}}},
   "dashboardUncapped": "Uncapped data",
-  "confirmationViewPasses": "View my passes"
+  "confirmationViewPasses": "View my passes",
+  "passesExpiredAt": "Expired {date}",
+  "@passesExpiredAt": {"placeholders": {"date": {"type": "String"}}},
+  "passesEndedAt": "Ended {date}",
+  "@passesEndedAt": {"placeholders": {"date": {"type": "String"}}},
+  "passesJustPaidHint": "Just paid? It can take a minute to appear. Pull down to refresh.",
+  "durationDaysHours": "{days}d {hours}h",
+  "@durationDaysHours": {"placeholders": {"days": {"type": "int"}, "hours": {"type": "int"}}},
+  "durationHoursMinutes": "{hours}h {minutes}m",
+  "@durationHoursMinutes": {"placeholders": {"hours": {"type": "int"}, "minutes": {"type": "int"}}},
+  "durationMinutes": "{minutes}m",
+  "@durationMinutes": {"placeholders": {"minutes": {"type": "int"}}},
+  "sizeMegabytes": "{amount} MB",
+  "@sizeMegabytes": {"placeholders": {"amount": {"type": "String"}}},
+  "sizeGigabytes": "{amount} GB",
+  "@sizeGigabytes": {"placeholders": {"amount": {"type": "String"}}}
 }

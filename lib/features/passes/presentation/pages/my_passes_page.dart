@@ -3,11 +3,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:sentech_connect_app/features/passes/domain/entities/pass.dart';
 import 'package:sentech_connect_app/features/passes/presentation/bloc/passes_cubit.dart';
+import 'package:sentech_connect_app/features/passes/presentation/pass_format.dart';
 import 'package:sentech_connect_app/l10n/l10n.dart';
 import 'package:sentech_connect_app/shared/widgets/failure_view.dart';
 
 class MyPassesPage extends StatelessWidget {
-  const MyPassesPage({super.key});
+  const MyPassesPage({super.key, this.onBuyPass});
+
+  /// Empty state shortcut to the Shop's hotspot passes.
+  final VoidCallback? onBuyPass;
 
   @override
   Widget build(BuildContext context) {
@@ -26,6 +30,7 @@ class MyPassesPage extends StatelessWidget {
           return RefreshIndicator(
             onRefresh: cubit.load,
             child: ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
               children: [
                 SwitchListTile(
@@ -34,12 +39,23 @@ class MyPassesPage extends StatelessWidget {
                   value: state.includeExpired,
                   onChanged: cubit.setIncludeExpired,
                 ),
-                if (state.passes.isEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 24),
-                    child: Text(l10n.passesEmpty, textAlign: TextAlign.center),
-                  )
-                else
+                if (state.passes.isEmpty) ...[
+                  const SizedBox(height: 24),
+                  Text(l10n.passesEmpty, textAlign: TextAlign.center),
+                  const SizedBox(height: 8),
+                  Text(
+                    l10n.passesJustPaidHint,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                  if (onBuyPass case final buy?) ...[
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: buy,
+                      child: Text(l10n.dashboardBuyPass),
+                    ),
+                  ],
+                ] else
                   for (final pass in state.passes) ...[
                     _PassCard(pass: pass),
                     const SizedBox(height: 12),
@@ -73,6 +89,7 @@ class _PassCard extends StatelessWidget {
       PassStatus.revoked => l10n.passesStatusRevoked,
     };
     final fraction = pass.dataUsedFraction;
+    final dataLeft = dataLeftText(l10n, pass);
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -91,12 +108,22 @@ class _PassCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 4),
-            Text(
-              pass.status == PassStatus.scheduled
-                  ? l10n.passesStarts(format.format(pass.startsAt.toLocal()))
-                  : l10n.passesExpires(format.format(pass.expiresAt.toLocal())),
-              style: theme.textTheme.bodyMedium,
-            ),
+            Text(switch (pass.status) {
+              PassStatus.scheduled => l10n.passesStarts(
+                format.format(pass.startsAt.toLocal()),
+              ),
+              PassStatus.active => l10n.passesExpires(
+                format.format(pass.expiresAt.toLocal()),
+              ),
+              PassStatus.expired => l10n.passesExpiredAt(
+                format.format(pass.expiresAt.toLocal()),
+              ),
+              PassStatus.exhausted || PassStatus.revoked => l10n.passesEndedAt(
+                format.format(pass.expiresAt.toLocal()),
+              ),
+            }, style: theme.textTheme.bodyMedium),
+            if (dataLeft != null && pass.isCurrent)
+              Text(dataLeft, style: theme.textTheme.bodyMedium),
             Text(
               l10n.passesDevices(pass.maxDevices),
               style: theme.textTheme.bodyMedium,

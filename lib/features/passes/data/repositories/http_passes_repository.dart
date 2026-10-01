@@ -8,6 +8,9 @@ class HttpPassesRepository implements PassesRepository {
   HttpPassesRepository(this._api);
 
   static const maxPages = 10;
+  static const _incomplete = ServerFailure(
+    'We could not load all of your passes. Please try again.',
+  );
 
   final ApiClient _api;
 
@@ -15,11 +18,16 @@ class HttpPassesRepository implements PassesRepository {
   Future<Either<Failure, List<Pass>>> getPasses({
     bool includeExpired = false,
   }) async {
+    // One scope for the whole load: a sign-out, customer or tenant switch
+    // between pages discards the operation instead of mixing customers.
+    final scope = await _api.captureScope();
     final passes = <Pass>[];
+    final seen = <String>{};
     String? cursor;
     for (var page = 0; page < maxPages; page++) {
       final result = await _api.get<(List<Pass>, String?)>(
         '/v1/me/entitlements',
+        scope: scope,
         query: {
           'status': includeExpired ? 'all' : 'current',
           'limit': 50,
@@ -43,8 +51,11 @@ class HttpPassesRepository implements PassesRepository {
           passes.addAll(items);
           cursor = next;
       }
-      if (cursor == null) break;
+      if (cursor == null) return Right(passes);
+      // A repeated cursor would loop forever; hitting the page cap means the
+      // list is incomplete. Both are failures, never a silently short list.
+      if (!seen.add(cursor)) return const Left(_incomplete);
     }
-    return Right(passes);
+    return const Left(_incomplete);
   }
 }

@@ -308,7 +308,7 @@ GoRouter _buildRouter(
         path: AppRoutes.passes,
         builder: (context, state) => BlocProvider(
           create: (_) => PassesCubit(locator()),
-          child: const MyPassesPage(),
+          child: MyPassesPage(onBuyPass: () => context.go(AppRoutes.main)),
         ),
       ),
       GoRoute(
@@ -390,7 +390,7 @@ GoRouter _buildRouter(
             child: ConfirmationPage(
               onDone: () => context.go(AppRoutes.main),
               onResume: (order) => context.go(AppRoutes.forOrder(order)),
-              onViewPasses: () => context.go(AppRoutes.passes),
+              onViewPasses: () => context.push(AppRoutes.passes),
             ),
           );
         },

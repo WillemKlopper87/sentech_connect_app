@@ -1041,6 +1041,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'View my passes'**
   String get confirmationViewPasses;
+
+  /// No description provided for @passesExpiredAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Expired {date}'**
+  String passesExpiredAt(String date);
+
+  /// No description provided for @passesEndedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Ended {date}'**
+  String passesEndedAt(String date);
+
+  /// No description provided for @passesJustPaidHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Just paid? It can take a minute to appear. Pull down to refresh.'**
+  String get passesJustPaidHint;
+
+  /// No description provided for @durationDaysHours.
+  ///
+  /// In en, this message translates to:
+  /// **'{days}d {hours}h'**
+  String durationDaysHours(int days, int hours);
+
+  /// No description provided for @durationHoursMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours}h {minutes}m'**
+  String durationHoursMinutes(int hours, int minutes);
+
+  /// No description provided for @durationMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes}m'**
+  String durationMinutes(int minutes);
+
+  /// No description provided for @sizeMegabytes.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} MB'**
+  String sizeMegabytes(String amount);
+
+  /// No description provided for @sizeGigabytes.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} GB'**
+  String sizeGigabytes(String amount);
 }
 
 class _AppLocalizationsDelegate

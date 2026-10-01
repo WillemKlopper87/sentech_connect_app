@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -7,6 +9,7 @@ import 'package:sentech_connect_app/features/catalog_checkout/domain/entities/or
 import 'package:sentech_connect_app/features/catalog_checkout/presentation/bloc/order_cubit.dart';
 import 'package:sentech_connect_app/features/passes/domain/entities/pass.dart';
 import 'package:sentech_connect_app/features/passes/presentation/bloc/passes_cubit.dart';
+import 'package:sentech_connect_app/features/passes/presentation/pass_format.dart';
 import 'package:sentech_connect_app/l10n/l10n.dart';
 import 'package:sentech_connect_app/shared/widgets/failure_view.dart';
 import 'package:sentech_connect_app/shared/widgets/sentech_logo.dart';
@@ -85,62 +88,74 @@ class DashboardPage extends StatelessWidget {
   }
 
   Widget _content(BuildContext context, AccountSummary? summary) {
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
-      children: [
-        BlocBuilder<OpenOrderCubit, Order?>(
-          builder: (context, order) {
-            if (order == null) return const SizedBox.shrink();
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 16),
-              child: _ResumeOrderBanner(
-                order: order,
-                onTap: () => onResumeOrder(order),
-              ),
-            );
-          },
-        ),
-        if (onOpenPasses case final openPasses?) ...[
-          _CurrentPassCard(
-            onOpenPasses: openPasses,
-            onBuyPass: onBuyPass ?? onTopUp,
+    return RefreshIndicator(
+      onRefresh: () async {
+        if (onOpenPasses != null) await context.read<PassesCubit>().load();
+        if (showRouterCard && context.mounted) {
+          await context.read<AccountCubit>().load();
+        }
+      },
+      child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
+        children: [
+          BlocBuilder<OpenOrderCubit, Order?>(
+            builder: (context, order) {
+              if (order == null) return const SizedBox.shrink();
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: _ResumeOrderBanner(
+                  order: order,
+                  onTap: () => onResumeOrder(order),
+                ),
+              );
+            },
           ),
-          const SizedBox(height: 16),
-        ],
-        if (summary != null) ...[
-          _UsageCard(summary: summary),
-          const SizedBox(height: 16),
-        ],
-        _PromoBanner(onTap: onOpenPromotions),
-        const SizedBox(height: 16),
-        // Router telemetry needs the CPE/ACS integration (flag `cpe`, off at launch).
-        if (showRouterCard && summary != null) ...[
-          _CpeCard(summary: summary),
-          const SizedBox(height: 16),
-        ],
-        Row(
-          children: [
-            Expanded(
-              child: _QuickAction(
-                label: onBuyPass != null
-                    ? context.l10n.dashboardBuyPass
-                    : 'Top up',
-                onTap: onBuyPass ?? onTopUp,
-              ),
+          if (onOpenPasses case final openPasses?) ...[
+            _CurrentPassCard(
+              onOpenPasses: openPasses,
+              onBuyPass: onBuyPass ?? onTopUp,
             ),
-            const SizedBox(width: 8),
-            if (showRouterCard) ...[
+            const SizedBox(height: 16),
+          ],
+          if (summary != null) ...[
+            _UsageCard(summary: summary),
+            const SizedBox(height: 16),
+          ],
+          _PromoBanner(onTap: onOpenPromotions),
+          const SizedBox(height: 16),
+          // Router telemetry needs the CPE/ACS integration (flag `cpe`, off at launch).
+          if (showRouterCard && summary != null) ...[
+            _CpeCard(summary: summary),
+            const SizedBox(height: 16),
+          ],
+          Row(
+            children: [
               Expanded(
-                child: _QuickAction(label: 'Upgrade', onTap: onUpgrade),
+                child: _QuickAction(
+                  label: onBuyPass != null
+                      ? context.l10n.dashboardBuyPass
+                      : 'Top up',
+                  onTap: onBuyPass ?? onTopUp,
+                ),
               ),
               const SizedBox(width: 8),
+              if (showRouterCard) ...[
+                Expanded(
+                  child: _QuickAction(label: 'Upgrade', onTap: onUpgrade),
+                ),
+                const SizedBox(width: 8),
+              ],
+              Expanded(
+                child: _QuickAction(
+                  label: 'Report issue',
+                  onTap: onReportIssue,
+                ),
+              ),
             ],
-            Expanded(
-              child: _QuickAction(label: 'Report issue', onTap: onReportIssue),
-            ),
-          ],
-        ),
-      ],
+          ),
+        ],
+      ),
     );
   }
 }
@@ -416,24 +431,33 @@ class _QuickAction extends StatelessWidget {
 
 /// The customer's current hotspot pass (active first, else the next
 /// scheduled one) with time and data remaining, plus a "Buy a pass" action.
-class _CurrentPassCard extends StatelessWidget {
+/// A failed load shows an error with Retry, never "no pass".
+class _CurrentPassCard extends StatefulWidget {
   const _CurrentPassCard({required this.onOpenPasses, required this.onBuyPass});
 
   final VoidCallback onOpenPasses;
   final VoidCallback onBuyPass;
 
-  static String _duration(Duration d) {
-    if (d.inDays >= 1) return '${d.inDays}d ${d.inHours.remainder(24)}h';
-    if (d.inHours >= 1) return '${d.inHours}h ${d.inMinutes.remainder(60)}m';
-    return '${d.inMinutes.clamp(0, 59)}m';
+  @override
+  State<_CurrentPassCard> createState() => _CurrentPassCardState();
+}
+
+class _CurrentPassCardState extends State<_CurrentPassCard> {
+  /// Re-renders the time left once a minute while the dashboard is alive.
+  Timer? _ticker;
+
+  @override
+  void initState() {
+    super.initState();
+    _ticker = Timer.periodic(const Duration(minutes: 1), (_) {
+      if (mounted) setState(() {});
+    });
   }
 
-  static String _size(num mb) {
-    if (mb >= 1024) {
-      final gb = mb / 1024;
-      return '${gb.toStringAsFixed(gb == gb.roundToDouble() ? 0 : 1)} GB';
-    }
-    return '${mb.round()} MB';
+  @override
+  void dispose() {
+    _ticker?.cancel();
+    super.dispose();
   }
 
   @override
@@ -449,6 +473,8 @@ class _CurrentPassCard extends StatelessWidget {
             state.passes
                 .where((p) => p.status == PassStatus.scheduled)
                 .firstOrNull;
+        final failed = state.status == PassesStatus.failure && current == null;
+        final loading = state.status == PassesStatus.loading && current == null;
         return Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
@@ -458,12 +484,18 @@ class _CurrentPassCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (state.status == PassesStatus.loading && current == null)
+              if (loading)
                 const Center(
                   child: Padding(
                     padding: EdgeInsets.all(8),
                     child: CircularProgressIndicator(),
                   ),
+                )
+              else if (failed)
+                FailureView(
+                  failure: state.failure,
+                  compact: true,
+                  onRetry: () => context.read<PassesCubit>().load(),
                 )
               else if (current == null) ...[
                 Text(l10n.dashboardNoPass, style: theme.textTheme.titleMedium),
@@ -473,84 +505,94 @@ class _CurrentPassCard extends StatelessWidget {
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
                 ),
-              ] else ...[
+              ] else
+                ..._passDetails(context, current),
+              if (!failed) ...[
+                const SizedBox(height: 12),
                 Row(
                   children: [
                     Expanded(
-                      child: Text(
-                        current.productName,
-                        style: theme.textTheme.titleMedium,
+                      child: ElevatedButton(
+                        onPressed: widget.onBuyPass,
+                        child: Text(l10n.dashboardBuyPass),
                       ),
                     ),
-                    Text(
-                      current.status == PassStatus.active
-                          ? l10n.passesStatusActive
-                          : l10n.passesStatusScheduled,
-                      style: theme.textTheme.labelLarge?.copyWith(
-                        color: theme.colorScheme.primary,
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: widget.onOpenPasses,
+                        child: Text(l10n.dashboardMyPasses),
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  current.status == PassStatus.active
-                      ? l10n.dashboardTimeLeft(
-                          _duration(
-                            current.expiresAt.difference(
-                              DateTime.now().toUtc(),
-                            ),
-                          ),
-                        )
-                      : l10n.passesStarts(
-                          DateFormat.MMMd(
-                            Localizations.localeOf(context).toLanguageTag(),
-                          ).add_Hm().format(current.startsAt.toLocal()),
-                        ),
-                  style: theme.textTheme.bodyMedium,
-                ),
-                if (current.dataMb case final cap?) ...[
-                  Text(
-                    l10n.dashboardDataLeft(
-                      _size(cap - current.usedBytes / (1024 * 1024)),
-                      _size(cap),
-                    ),
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  LinearProgressIndicator(value: current.dataUsedFraction),
-                ] else
-                  Text(
-                    l10n.dashboardUncapped,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
               ],
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: onBuyPass,
-                      child: Text(l10n.dashboardBuyPass),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: onOpenPasses,
-                      child: Text(l10n.dashboardMyPasses),
-                    ),
-                  ),
-                ],
-              ),
             ],
           ),
         );
       },
     );
+  }
+
+  List<Widget> _passDetails(BuildContext context, Pass current) {
+    final theme = Theme.of(context);
+    final l10n = context.l10n;
+    final dataLeft = dataLeftText(l10n, current);
+    final fraction = current.dataUsedFraction;
+    return [
+      Row(
+        children: [
+          Expanded(
+            child: Text(
+              current.productName,
+              style: theme.textTheme.titleMedium,
+            ),
+          ),
+          Text(
+            current.status == PassStatus.active
+                ? l10n.passesStatusActive
+                : l10n.passesStatusScheduled,
+            style: theme.textTheme.labelLarge?.copyWith(
+              color: theme.colorScheme.primary,
+            ),
+          ),
+        ],
+      ),
+      const SizedBox(height: 4),
+      Text(
+        current.status == PassStatus.active
+            ? l10n.dashboardTimeLeft(
+                formatTimeLeft(
+                  l10n,
+                  current.expiresAt.difference(DateTime.now().toUtc()),
+                ),
+              )
+            : l10n.passesStarts(
+                DateFormat.MMMd(
+                  Localizations.localeOf(context).toLanguageTag(),
+                ).add_Hm().format(current.startsAt.toLocal()),
+              ),
+        style: theme.textTheme.bodyMedium,
+      ),
+      if (dataLeft != null) ...[
+        Text(
+          dataLeft,
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+        ),
+        // A zero cap has no meaningful bar: show the text only.
+        if (fraction != null) ...[
+          const SizedBox(height: 10),
+          LinearProgressIndicator(value: fraction),
+        ],
+      ] else
+        Text(
+          l10n.dashboardUncapped,
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+        ),
+    ];
   }
 }

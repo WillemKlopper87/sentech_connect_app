@@ -88,7 +88,9 @@ class _MainShellState extends State<MainShell> {
     final pages = [
       MultiBlocProvider(
         providers: [
-          BlocProvider(create: (_) => AccountCubit(locator())),
+          // Fixed-plan account data is only loaded when the cpe flag is on.
+          if (widget.showRouterCard)
+            BlocProvider(create: (_) => AccountCubit(locator())),
           BlocProvider.value(value: _openOrderCubit),
           BlocProvider.value(value: _passesCubit),
         ],
