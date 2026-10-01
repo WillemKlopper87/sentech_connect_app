@@ -110,6 +110,53 @@ void main() {
     });
   });
 
+  test(
+    'demo A/B/A replays the original creation snapshot after supersession',
+    () async {
+      final a = (await repo.createOrder(
+        items: cart.state.items,
+        idempotencyKey: 'A',
+      )).getOrElse((f) => throw StateError(f.message));
+      final b = (await repo.createOrder(
+        items: cart.state.items,
+        idempotencyKey: 'B',
+      )).getOrElse((f) => throw StateError(f.message));
+      final replay = (await repo.createOrder(
+        items: cart.state.items,
+        idempotencyKey: 'A',
+      )).getOrElse((f) => throw StateError(f.message));
+      expect(replay, a);
+      expect(
+        (await repo.getOpenOrder()).getOrElse(
+          (f) => throw StateError(f.message),
+        ),
+        b,
+      );
+      await repo.clearLocalOrders();
+      final fresh = (await repo.createOrder(
+        items: cart.state.items,
+        idempotencyKey: 'A',
+      )).getOrElse((f) => throw StateError(f.message));
+      expect(fresh.id, isNot(a.id));
+    },
+  );
+
+  test('concurrent same-key demo requests create just one order', () async {
+    final results = await Future.wait(
+      List.generate(
+        4,
+        (_) => repo.createOrder(
+          items: cart.state.items,
+          idempotencyKey: 'parallel',
+        ),
+      ),
+    );
+    final orders = results
+        .map((r) => r.getOrElse((f) => throw StateError(f.message)))
+        .toList();
+    expect(orders.map((o) => o.id).toSet(), hasLength(1));
+  });
+
   group('server order state', () {
     for (final status in [OrderStatus.expired, OrderStatus.cancelled]) {
       test('$status cannot reach a payment mutation', () async {

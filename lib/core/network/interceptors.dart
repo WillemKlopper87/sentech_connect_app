@@ -1,3 +1,4 @@
+import 'package:sentech_connect_app/core/network/api_operation_scope.dart';
 import 'package:dio/dio.dart';
 import 'package:sentech_connect_app/core/diagnostics/pii_scrubber.dart';
 import 'package:sentech_connect_app/core/error/failure.dart';
@@ -8,6 +9,13 @@ import 'package:sentech_connect_app/core/network/token_refresher.dart';
 
 /// `RequestOptions.extra` keys.
 const kAuthenticated = 'sc.authenticated';
+const kOperationScope = 'sc.operationScope';
+
+bool _scopeIsCurrent(RequestOptions options) {
+  final scope = options.extra[kOperationScope];
+  return scope is! ApiOperationScope || scope.isCurrent;
+}
+
 const kRetried = 'sc.retried';
 const _kStopwatch = 'sc.stopwatch';
 
@@ -22,7 +30,8 @@ String? _firstHeader(Headers? headers, String name) {
 
 /// Adds an `X-Request-ID` (kept on retries) for log correlation.
 class RequestIdInterceptor extends Interceptor {
-  RequestIdInterceptor([String Function()? newId]) : _newId = newId ?? newRequestId;
+  RequestIdInterceptor([String Function()? newId])
+    : _newId = newId ?? newRequestId;
 
   final String Function() _newId;
 
@@ -57,16 +66,32 @@ class AuthInterceptor extends Interceptor {
   final DateTime Function() _now;
 
   @override
-  void onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
+  void onRequest(
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) async {
     // An absolute URL in a path would override the base URL and could carry
     // the bearer token to another host (or over plain http): refuse it. Every
     // request is checked, not only authenticated ones, so the client never
     // talks to anything but its own API origin.
     if (!_isApiOrigin(options.uri)) {
-      handler.reject(DioException(
-        requestOptions: options,
-        error: const ServerFailure('Blocked a request to an unexpected address.'),
-      ));
+      handler.reject(
+        DioException(
+          requestOptions: options,
+          error: const ServerFailure(
+            'Blocked a request to an unexpected address.',
+          ),
+        ),
+      );
+      return;
+    }
+    if (!_scopeIsCurrent(options)) {
+      handler.reject(
+        DioException(
+          requestOptions: options,
+          error: const UnauthorizedFailure(),
+        ),
+      );
       return;
     }
     if (options.extra[kAuthenticated] != true) {
@@ -80,7 +105,21 @@ class AuthInterceptor extends Interceptor {
       // Keystore read failure: end the session cleanly rather than showing
       // "network error" forever.
       await _refresher.expireSession();
-      handler.reject(DioException(requestOptions: options, error: const UnauthorizedFailure()));
+      handler.reject(
+        DioException(
+          requestOptions: options,
+          error: const UnauthorizedFailure(),
+        ),
+      );
+      return;
+    }
+    if (!_scopeIsCurrent(options)) {
+      handler.reject(
+        DioException(
+          requestOptions: options,
+          error: const UnauthorizedFailure(),
+        ),
+      );
       return;
     }
     var tokens = stored;
@@ -90,7 +129,12 @@ class AuthInterceptor extends Interceptor {
       // instead of failing every call forever. Another tenant's tokens are
       // never sent and are forgotten.
       await _refresher.expireSession();
-      handler.reject(DioException(requestOptions: options, error: const UnauthorizedFailure()));
+      handler.reject(
+        DioException(
+          requestOptions: options,
+          error: const UnauthorizedFailure(),
+        ),
+      );
       return;
     }
     if (tokens.expiresWithin(refreshMargin, _now())) {
@@ -98,11 +142,25 @@ class AuthInterceptor extends Interceptor {
         case RefreshSucceeded(tokens: final fresh):
           tokens = fresh;
         case RefreshRejected():
-          handler.reject(DioException(requestOptions: options, error: const UnauthorizedFailure()));
+          handler.reject(
+            DioException(
+              requestOptions: options,
+              error: const UnauthorizedFailure(),
+            ),
+          );
           return;
         case RefreshUnavailable():
           break; // try the current token; the server decides
       }
+    }
+    if (!_scopeIsCurrent(options)) {
+      handler.reject(
+        DioException(
+          requestOptions: options,
+          error: const UnauthorizedFailure(),
+        ),
+      );
+      return;
     }
     options.headers['Authorization'] = 'Bearer ${tokens.accessToken}';
     handler.next(options);
@@ -111,7 +169,17 @@ class AuthInterceptor extends Interceptor {
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) async {
     final options = err.requestOptions;
-    final eligible = err.response?.statusCode == 401 &&
+    if (!_scopeIsCurrent(options)) {
+      handler.next(
+        DioException(
+          requestOptions: options,
+          error: const UnauthorizedFailure(),
+        ),
+      );
+      return;
+    }
+    final eligible =
+        err.response?.statusCode == 401 &&
         options.extra[kAuthenticated] == true &&
         options.extra[kRetried] != true;
     if (!eligible) {
@@ -119,9 +187,20 @@ class AuthInterceptor extends Interceptor {
       return;
     }
     final sent = options.headers['Authorization'];
-    final stale = sent is String && sent.startsWith('Bearer ') ? sent.substring(7) : null;
+    final stale = sent is String && sent.startsWith('Bearer ')
+        ? sent.substring(7)
+        : null;
     switch (await _refresher.refresh(staleAccessToken: stale)) {
       case RefreshSucceeded():
+        if (!_scopeIsCurrent(options)) {
+          handler.next(
+            DioException(
+              requestOptions: options,
+              error: const UnauthorizedFailure(),
+            ),
+          );
+          return;
+        }
         options.extra[kRetried] = true;
         try {
           handler.resolve(await _dio.fetch<Object?>(options));
@@ -131,15 +210,20 @@ class AuthInterceptor extends Interceptor {
       case RefreshRejected():
         handler.next(err);
       case RefreshUnavailable(failure: final failure):
-        handler.next(DioException(
-          requestOptions: options,
-          type: DioExceptionType.connectionError,
-          error: failure,
-        ));
+        handler.next(
+          DioException(
+            requestOptions: options,
+            type: DioExceptionType.connectionError,
+            error: failure,
+          ),
+        );
     }
   }
 
-  bool _isApiOrigin(Uri uri) => uri.scheme == _baseUrl.scheme && uri.host == _baseUrl.host && uri.port == _baseUrl.port;
+  bool _isApiOrigin(Uri uri) =>
+      uri.scheme == _baseUrl.scheme &&
+      uri.host == _baseUrl.host &&
+      uri.port == _baseUrl.port;
 }
 
 /// One line per request: method, path (no query), outcome, duration and
@@ -157,21 +241,40 @@ class SafeLogInterceptor extends Interceptor {
   }
 
   @override
-  void onResponse(Response<dynamic> response, ResponseInterceptorHandler handler) {
-    _log(_line(response.requestOptions, '${response.statusCode}', _firstHeader(response.headers, 'x-request-id')));
+  void onResponse(
+    Response<dynamic> response,
+    ResponseInterceptorHandler handler,
+  ) {
+    _log(
+      _line(
+        response.requestOptions,
+        '${response.statusCode}',
+        _firstHeader(response.headers, 'x-request-id'),
+      ),
+    );
     handler.next(response);
   }
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
-    final requestId = _firstHeader(err.response?.headers, 'x-request-id') ?? err.requestOptions.headers['X-Request-ID'];
-    _log(_line(err.requestOptions, '${err.response?.statusCode ?? err.type.name}', requestId is String ? requestId : null));
+    final requestId =
+        _firstHeader(err.response?.headers, 'x-request-id') ??
+        err.requestOptions.headers['X-Request-ID'];
+    _log(
+      _line(
+        err.requestOptions,
+        '${err.response?.statusCode ?? err.type.name}',
+        requestId is String ? requestId : null,
+      ),
+    );
     handler.next(err);
   }
 
   String _line(RequestOptions options, String outcome, String? requestId) {
     final stopwatch = options.extra[_kStopwatch];
     final ms = stopwatch is Stopwatch ? stopwatch.elapsedMilliseconds : -1;
-    return PiiScrubber.scrub('[api] ${options.method} ${options.uri.path} -> $outcome ${ms}ms rid=${requestId ?? '-'}');
+    return PiiScrubber.scrub(
+      '[api] ${options.method} ${options.uri.path} -> $outcome ${ms}ms rid=${requestId ?? '-'}',
+    );
   }
 }

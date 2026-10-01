@@ -24,8 +24,10 @@ class HttpCheckoutRepository implements CheckoutRepository {
     if (items.isEmpty) {
       return const Left(ValidationFailure('Your cart is empty.'));
     }
+    final scope = await _api.captureScope();
     return _api.post<Order>(
       '/v1/orders',
+      scope: scope,
       body: {
         'lines': [
           for (final item in items)
@@ -38,14 +40,19 @@ class HttpCheckoutRepository implements CheckoutRepository {
   }
 
   @override
-  Future<Either<Failure, Order>> getOrder(String orderId) => _api.get<Order>(
-    '/v1/orders/${Uri.encodeComponent(orderId)}',
-    timeout: const Duration(seconds: 10),
-    decode: (data) => orderFromJson(Map<String, Object?>.from(data! as Map)),
-  );
+  Future<Either<Failure, Order>> getOrder(String orderId) async {
+    final scope = await _api.captureScope();
+    return _api.get<Order>(
+      '/v1/orders/${Uri.encodeComponent(orderId)}',
+      scope: scope,
+      timeout: const Duration(seconds: 10),
+      decode: (data) => orderFromJson(Map<String, Object?>.from(data! as Map)),
+    );
+  }
 
   @override
   Future<Either<Failure, Order?>> getOpenOrder() async {
+    final scope = await _api.captureScope();
     String? cursor;
     final seen = <String>{};
     // The server sorts newest first by (created_at, id). Continue beyond
@@ -53,6 +60,7 @@ class HttpCheckoutRepository implements CheckoutRepository {
     for (var page = 0; page < 100; page++) {
       final result = await _api.get<(Order?, String?)>(
         '/v1/orders',
+        scope: scope,
         query: {'limit': 100, 'cursor': ?cursor},
         decode: (data) {
           final map = data! as Map;
@@ -141,6 +149,7 @@ Order orderFromJson(Map<String, Object?> json) {
     orderNumber: 'SC-${id.replaceAll('-', '').substring(0, 8).toUpperCase()}',
     planName: planName,
     totalCents: total['amount_cents']! as int,
+    isHotspotPass: true,
     status: orderStatusFromApi(json['status']! as String),
   );
 }

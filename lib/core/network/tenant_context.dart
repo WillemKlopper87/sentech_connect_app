@@ -9,16 +9,26 @@ class TenantContext {
   static const defaultSlug = 'sentech';
 
   String _slug;
+  int _generation = 0;
+
+  /// Also detects changing away and back during a pending operation.
+  int get generation => _generation;
 
   String get slug => _slug;
 
-  set slug(String value) => _slug = _check(value);
+  set slug(String value) {
+    final checked = _check(value);
+    if (checked != _slug) _generation++;
+    _slug = checked;
+  }
 
   String? termsVersion;
   String? privacyVersion;
 
   static String _check(String value) {
-    if (!tenantSlugPattern.hasMatch(value)) throw ArgumentError.value(value, 'slug', 'Invalid tenant slug');
+    if (!tenantSlugPattern.hasMatch(value)) {
+      throw ArgumentError.value(value, 'slug', 'Invalid tenant slug');
+    }
     return value;
   }
 }

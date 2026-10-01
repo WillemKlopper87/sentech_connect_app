@@ -22,6 +22,9 @@ class _FlakyTokenStore implements TokenStore {
   int get generation => _inner.generation;
 
   @override
+  int get sessionGeneration => _inner.sessionGeneration;
+
+  @override
   Future<AuthTokens?> read() async {
     if (failReads) throw StateError('keystore unavailable');
     return _inner.read();
@@ -36,7 +39,8 @@ class _FlakyTokenStore implements TokenStore {
   @override
   Future<void> clear() async {
     if (failClears) {
-      await _inner.clear(); // the in-memory state is gone even if the disk delete fails
+      await _inner
+          .clear(); // the in-memory state is gone even if the disk delete fails
       throw StateError('keystore unavailable');
     }
     return _inner.clear();
@@ -46,20 +50,31 @@ class _FlakyTokenStore implements TokenStore {
 void main() {
   Object? id(Object? d) => d;
 
-  test('a duplicated X-Request-ID response header does not break the call or its log line', () async {
-    final h = ApiHarness();
-    h.adapter.on(
-      'GET',
-      '/v1/tenants',
-      (_) => const FakeReply(200, {'tenants': <Object>[]}, {
-        'x-request-id': ['one', 'two'],
-      }),
-    );
-    final result = await h.api.get('/v1/tenants', authenticated: false, decode: id);
-    expect(result.isRight(), isTrue);
-    expect(h.logLines, hasLength(1));
-    expect(h.logLines.single, contains('rid=one'));
-  });
+  test(
+    'a duplicated X-Request-ID response header does not break the call or its log line',
+    () async {
+      final h = ApiHarness();
+      h.adapter.on(
+        'GET',
+        '/v1/tenants',
+        (_) => const FakeReply(
+          200,
+          {'tenants': <Object>[]},
+          {
+            'x-request-id': ['one', 'two'],
+          },
+        ),
+      );
+      final result = await h.api.get(
+        '/v1/tenants',
+        authenticated: false,
+        decode: id,
+      );
+      expect(result.isRight(), isTrue);
+      expect(h.logLines, hasLength(1));
+      expect(h.logLines.single, contains('rid=one'));
+    },
+  );
 
   group('storage failures complete the request instead of hanging it', () {
     late ApiHarness h;
@@ -85,41 +100,71 @@ void main() {
       );
     });
 
-    test('an unreadable session signs the customer out (not "offline" forever) and is not sticky', () async {
-      flaky.failReads = true;
-      final result = await api.get('/v1/orders', decode: id).timeout(const Duration(seconds: 5));
-      expect(result.match((f) => f, (_) => null), isA<UnauthorizedFailure>());
-      expect(h.adapter.requests, isEmpty);
-      await Future<void>.delayed(Duration.zero);
-      expect(expiredEvents, 1);
+    test(
+      'an unreadable session signs the customer out (not "offline" forever) and is not sticky',
+      () async {
+        flaky.failReads = true;
+        final result = await api
+            .get('/v1/orders', decode: id)
+            .timeout(const Duration(seconds: 5));
+        expect(result.match((f) => f, (_) => null), isA<UnauthorizedFailure>());
+        expect(h.adapter.requests, isEmpty);
+        await Future<void>.delayed(Duration.zero);
+        expect(expiredEvents, 1);
 
-      // The failed-read state is not sticky: once storage works again the
-      // client simply has no session (cleared) instead of failing forever.
-      flaky.failReads = false;
-      expect(await flaky.read(), isNull);
-      final again = await api.get('/v1/orders', decode: id).timeout(const Duration(seconds: 5));
-      expect(again.match((f) => f, (_) => null), isA<UnauthorizedFailure>());
-      expect(h.adapter.requests, isEmpty);
-    });
+        // The failed-read state is not sticky: once storage works again the
+        // client simply has no session (cleared) instead of failing forever.
+        flaky.failReads = false;
+        expect(await flaky.read(), isNull);
+        final again = await api
+            .get('/v1/orders', decode: id)
+            .timeout(const Duration(seconds: 5));
+        expect(again.match((f) => f, (_) => null), isA<UnauthorizedFailure>());
+        expect(h.adapter.requests, isEmpty);
+      },
+    );
 
     test('a failing token clear still announces the expired session', () async {
       flaky.failClears = true;
-      h.adapter.on('GET', '/v1/orders', (_) => FakeReply.problem(401, 'invalid_token'));
-      h.adapter.on('POST', '/v1/auth/token/refresh', (_) => FakeReply.problem(401, 'invalid_refresh_token'));
-      final result = await api.get('/v1/orders', decode: id).timeout(const Duration(seconds: 5));
+      h.adapter.on(
+        'GET',
+        '/v1/orders',
+        (_) => FakeReply.problem(401, 'invalid_token'),
+      );
+      h.adapter.on(
+        'POST',
+        '/v1/auth/token/refresh',
+        (_) => FakeReply.problem(401, 'invalid_refresh_token'),
+      );
+      final result = await api
+          .get('/v1/orders', decode: id)
+          .timeout(const Duration(seconds: 5));
       expect(result.match((f) => f, (_) => null), isA<UnauthorizedFailure>());
       await Future<void>.delayed(Duration.zero);
       expect(expiredEvents, 1);
     });
 
-    test('a refresh whose new tokens cannot be stored is a failure, not a hang, and not a logout', () async {
-      flaky.failWrites = true;
-      h.adapter.on('GET', '/v1/orders', (_) => FakeReply.problem(401, 'invalid_token'));
-      h.adapter.on('POST', '/v1/auth/token/refresh', (_) => FakeReply(200, tokenPair()));
-      final result = await api.get('/v1/orders', decode: id).timeout(const Duration(seconds: 5));
-      expect(result.match((f) => f, (_) => null), isA<NetworkFailure>());
-      await Future<void>.delayed(Duration.zero);
-      expect(expiredEvents, 0);
-    });
+    test(
+      'a refresh whose new tokens cannot be stored is a failure, not a hang, and not a logout',
+      () async {
+        flaky.failWrites = true;
+        h.adapter.on(
+          'GET',
+          '/v1/orders',
+          (_) => FakeReply.problem(401, 'invalid_token'),
+        );
+        h.adapter.on(
+          'POST',
+          '/v1/auth/token/refresh',
+          (_) => FakeReply(200, tokenPair()),
+        );
+        final result = await api
+            .get('/v1/orders', decode: id)
+            .timeout(const Duration(seconds: 5));
+        expect(result.match((f) => f, (_) => null), isA<NetworkFailure>());
+        await Future<void>.delayed(Duration.zero);
+        expect(expiredEvents, 0);
+      },
+    );
   });
 }

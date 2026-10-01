@@ -1,3 +1,5 @@
+import 'package:sentech_connect_app/features/catalog_checkout/data/repositories/http_checkout_repository.dart';
+import 'helpers/fixtures.dart';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -95,6 +97,117 @@ void main() {
     expect(find.text('Total due'), findsOneWidget);
     expect(find.textContaining('RICA'), findsNothing);
   });
+
+  testWidgets(
+    'legacy demo physical orders keep verified payment and installation views',
+    (tester) async {
+      final store = InMemorySecureStore();
+      final repo = MockCheckoutRepository(store, latency: Duration.zero);
+      final cart = CartCubit()
+        ..addItem(
+          const Plan(
+            id: 'home',
+            name: 'Home 5G',
+            priceCents: 54900,
+            dataDescription: '100 GB',
+            speedMbps: 100,
+            category: ProductCategory.home5g,
+          ),
+        );
+      final order = (await tester.runAsync(
+        () => repo.createOrder(items: cart.state.items),
+      ))!.getOrElse((f) => throw StateError(f.message));
+      await tester.runAsync(() => repo.markIdentityVerified(order.id));
+      final payment = PaymentCubit(repo, cart, order.id);
+      addTearDown(cart.close);
+      addTearDown(payment.close);
+      await tester.pumpWidget(
+        MaterialApp(
+          home: BlocProvider.value(
+            value: payment,
+            child: PaymentPage(onPaid: (_) {}, onNeedsVerification: (_) {}),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Identity verified'), findsOneWidget);
+      await tester.runAsync(
+        () => repo.pay(orderId: order.id, method: PaymentMethod.card),
+      );
+      final confirmation = OrderCubit(repo, order.id);
+      addTearDown(confirmation.close);
+      await tester.pumpWidget(
+        MaterialApp(
+          home: BlocProvider.value(
+            value: confirmation,
+            child: ConfirmationPage(onDone: () {}, onResume: (_) {}),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Courier dispatched'), findsOneWidget);
+      expect(find.text('Track my installation'), findsOneWidget);
+    },
+  );
+
+  testWidgets('ready hotspot payment never claims identity verification', (
+    tester,
+  ) async {
+    final order = orderFromJson(fixtureMap('order_draft.json'));
+    final store = InMemorySecureStore();
+    await store.write('orders', '[${_json(order)}]');
+    final repo = MockCheckoutRepository(store, latency: Duration.zero);
+    final cart = CartCubit();
+    final payment = PaymentCubit(repo, cart, order.id);
+    addTearDown(cart.close);
+    addTearDown(payment.close);
+    await tester.pumpWidget(
+      MaterialApp(
+        home: BlocProvider.value(
+          value: payment,
+          child: PaymentPage(
+            onPaid: (_) {},
+            onNeedsVerification: (_) => fail('hotspot routed to RICA'),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Identity verified'), findsNothing);
+    expect(find.textContaining('RICA'), findsNothing);
+    expect(find.text('Wi-Fi pass order'), findsOneWidget);
+  });
+
+  testWidgets(
+    'paid hotspot confirmation presents passes without router installation',
+    (tester) async {
+      final order = orderFromJson(
+        fixtureMap('order_draft.json')..['status'] = 'paid',
+      );
+      final store = InMemorySecureStore();
+      await store.write('orders', '[${_json(order)}]');
+      final cubit = OrderCubit(
+        MockCheckoutRepository(store, latency: Duration.zero),
+        order.id,
+      );
+      addTearDown(cubit.close);
+      await tester.pumpWidget(
+        MaterialApp(
+          home: BlocProvider.value(
+            value: cubit,
+            child: ConfirmationPage(onDone: () {}, onResume: (_) {}),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Your Wi-Fi pass is paid'), findsOneWidget);
+      expect(find.text(order.planName), findsOneWidget);
+      expect(find.textContaining('Courier'), findsNothing);
+      expect(find.textContaining('Router'), findsNothing);
+      expect(find.textContaining('Self-install'), findsNothing);
+      expect(find.textContaining('installation'), findsNothing);
+    },
+  );
 
   for (final status in [OrderStatus.expired, OrderStatus.cancelled]) {
     testWidgets(

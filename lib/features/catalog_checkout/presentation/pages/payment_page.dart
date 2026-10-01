@@ -174,7 +174,9 @@ class _OrderCard extends StatelessWidget {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  'Identity verified',
+                  order.isHotspotPass
+                      ? 'Wi-Fi pass order'
+                      : 'Identity verified',
                   style: theme.textTheme.bodyMedium,
                 ),
               ),

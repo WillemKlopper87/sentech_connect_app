@@ -28,6 +28,7 @@ class Order extends Equatable {
     required this.planName,
     required this.totalCents,
     this.status = OrderStatus.pendingVerification,
+    this.isHotspotPass = false,
   });
 
   /// Opaque identifier used in routes (`/rica/:orderId`). Never the
@@ -40,6 +41,9 @@ class Order extends Equatable {
   final int totalCents;
   final OrderStatus status;
 
+  /// Hotspot passes have no identity or router installation flow.
+  final bool isHotspotPass;
+
   bool get isOpen =>
       status == OrderStatus.pendingVerification ||
       status == OrderStatus.awaitingPayment ||
@@ -51,6 +55,7 @@ class Order extends Equatable {
     planName: planName,
     totalCents: totalCents,
     status: status ?? this.status,
+    isHotspotPass: isHotspotPass,
   );
 
   Map<String, dynamic> toJson() => {
@@ -59,6 +64,7 @@ class Order extends Equatable {
     'planName': planName,
     'totalCents': totalCents,
     'status': status.name,
+    'isHotspotPass': isHotspotPass,
   };
 
   factory Order.fromJson(Map<String, dynamic> json) => Order(
@@ -66,6 +72,7 @@ class Order extends Equatable {
     orderNumber: json['orderNumber'] as String,
     planName: json['planName'] as String,
     totalCents: _centsFrom(json),
+    isHotspotPass: json['isHotspotPass'] == true,
     status: OrderStatus.values.firstWhere(
       (s) => s.name == json['status'],
       orElse: () => OrderStatus.pendingVerification,
@@ -84,5 +91,12 @@ class Order extends Equatable {
   }
 
   @override
-  List<Object?> get props => [id, orderNumber, planName, totalCents, status];
+  List<Object?> get props => [
+    id,
+    orderNumber,
+    planName,
+    totalCents,
+    status,
+    isHotspotPass,
+  ];
 }

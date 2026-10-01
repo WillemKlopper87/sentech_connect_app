@@ -36,25 +36,31 @@ void main() {
     });
 
     test('leaves ordinary diagnostics alone', () {
-      const text = 'RenderFlex overflowed by 12 pixels on the right (lib/features/cart/cart_page.dart:42)';
+      const text =
+          'RenderFlex overflowed by 12 pixels on the right (lib/features/cart/cart_page.dart:42)';
       expect(PiiScrubber.scrub(text), text);
     });
   });
 
   group('CrashReport', () {
-    test('is scrubbed before any reporter sees it (message, stack and reason)', () async {
-      final reporter = _RecordingReporter();
-      await reporter.recordError(
-        Exception('could not save 0810000000 for jo@example.com'),
-        StackTrace.fromString('#0 save (package:app/x.dart:1) user=jo@example.com'),
-        reason: 'registration for 9001015800087',
-      );
-      final r = reporter.reports.single;
-      expect(r.message, isNot(contains('0810000000')));
-      expect(r.message, isNot(contains('@example.com')));
-      expect(r.stackTrace, isNot(contains('@example.com')));
-      expect(r.reason, isNot(contains('9001015800087')));
-    });
+    test(
+      'is scrubbed before any reporter sees it (message, stack and reason)',
+      () async {
+        final reporter = _RecordingReporter();
+        await reporter.recordError(
+          Exception('could not save 0810000000 for jo@example.com'),
+          StackTrace.fromString(
+            '#0 save (package:app/x.dart:1) user=jo@example.com',
+          ),
+          reason: 'registration for 9001015800087',
+        );
+        final r = reporter.reports.single;
+        expect(r.message, isNot(contains('0810000000')));
+        expect(r.message, isNot(contains('@example.com')));
+        expect(r.stackTrace, isNot(contains('@example.com')));
+        expect(r.reason, isNot(contains('9001015800087')));
+      },
+    );
 
     test('a failing reporter never throws into the app', () async {
       await _ThrowingReporter().recordError(StateError('x'), null);
@@ -78,30 +84,48 @@ void main() {
     test('FlutterError.onError reports framework errors, scrubbed', () async {
       final reporter = _RecordingReporter();
       installErrorHandlers(reporter);
+      final originalPresentError = FlutterError.presentError;
+      final presented = <FlutterErrorDetails>[];
+      FlutterError.presentError = presented.add;
+      addTearDown(() => FlutterError.presentError = originalPresentError);
 
-      FlutterError.onError!(FlutterErrorDetails(exception: Exception('bad input from jo@example.com')));
+      FlutterError.onError!(
+        FlutterErrorDetails(
+          exception: Exception('bad input from jo@example.com'),
+        ),
+      );
       await Future<void>.delayed(Duration.zero);
 
+      expect(presented, hasLength(1));
       expect(reporter.reports, hasLength(1));
       expect(reporter.reports.single.fatal, isFalse);
       expect(reporter.reports.single.message, contains('[email]'));
     });
 
-    test('PlatformDispatcher.onError reports uncaught async errors as fatal and marks them handled', () async {
-      final reporter = _RecordingReporter();
-      installErrorHandlers(reporter);
+    test(
+      'PlatformDispatcher.onError reports uncaught async errors as fatal and marks them handled',
+      () async {
+        final reporter = _RecordingReporter();
+        installErrorHandlers(reporter);
 
-      final handled = PlatformDispatcher.instance.onError!(StateError('boom'), StackTrace.current);
-      await Future<void>.delayed(Duration.zero);
+        final handled = PlatformDispatcher.instance.onError!(
+          StateError('boom'),
+          StackTrace.current,
+        );
+        await Future<void>.delayed(Duration.zero);
 
-      expect(handled, isTrue);
-      expect(reporter.reports.single.fatal, isTrue);
-    });
+        expect(handled, isTrue);
+        expect(reporter.reports.single.fatal, isTrue);
+      },
+    );
 
     test('runGuarded catches errors that escape the app zone', () async {
       final reporter = _RecordingReporter();
       await runGuarded(reporter, () async {
-        Future<void>.delayed(Duration.zero, () => throw StateError('escaped 0810000000'));
+        Future<void>.delayed(
+          Duration.zero,
+          () => throw StateError('escaped 0810000000'),
+        );
       });
       await Future<void>.delayed(const Duration(milliseconds: 20));
 

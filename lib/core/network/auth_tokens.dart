@@ -15,12 +15,19 @@ class AuthTokens extends Equatable {
   });
 
   /// From a `TokenPairOut` body (`/v1/auth/otp/verify`, `/v1/auth/token/refresh`).
-  factory AuthTokens.fromTokenPair(Map<String, Object?> json, {required String tenantSlug, required DateTime now}) {
+  factory AuthTokens.fromTokenPair(
+    Map<String, Object?> json, {
+    required String tenantSlug,
+    required DateTime now,
+  }) {
     final access = json['access_token'];
     final refresh = json['refresh_token'];
     final expiresIn = json['expires_in'];
     final customerId = json['customer_id'];
-    if (access is! String || refresh is! String || expiresIn is! int || customerId is! String) {
+    if (access is! String ||
+        refresh is! String ||
+        expiresIn is! int ||
+        customerId is! String) {
       throw const FormatException('Malformed token pair');
     }
     return AuthTokens(
@@ -40,15 +47,16 @@ class AuthTokens extends Equatable {
   /// Tokens are only valid for the tenant that issued them.
   final String tenantSlug;
 
-  bool expiresWithin(Duration margin, DateTime now) => !now.toUtc().add(margin).isBefore(accessExpiresAt);
+  bool expiresWithin(Duration margin, DateTime now) =>
+      !now.toUtc().add(margin).isBefore(accessExpiresAt);
 
   Map<String, Object?> toJson() => {
-        'accessToken': accessToken,
-        'refreshToken': refreshToken,
-        'accessExpiresAt': accessExpiresAt.toUtc().toIso8601String(),
-        'customerId': customerId,
-        'tenantSlug': tenantSlug,
-      };
+    'accessToken': accessToken,
+    'refreshToken': refreshToken,
+    'accessExpiresAt': accessExpiresAt.toUtc().toIso8601String(),
+    'customerId': customerId,
+    'tenantSlug': tenantSlug,
+  };
 
   static AuthTokens? tryFromJson(Object? json) {
     if (json is! Map) return null;
@@ -58,7 +66,13 @@ class AuthTokens extends Equatable {
     final expires = expiresRaw is String ? DateTime.tryParse(expiresRaw) : null;
     final customer = json['customerId'];
     final tenant = json['tenantSlug'];
-    if (access is! String || refresh is! String || expires == null || customer is! String || tenant is! String) return null;
+    if (access is! String ||
+        refresh is! String ||
+        expires == null ||
+        customer is! String ||
+        tenant is! String) {
+      return null;
+    }
     return AuthTokens(
       accessToken: access,
       refreshToken: refresh,
@@ -69,10 +83,17 @@ class AuthTokens extends Equatable {
   }
 
   @override
-  List<Object?> get props => [accessToken, refreshToken, accessExpiresAt, customerId, tenantSlug];
+  List<Object?> get props => [
+    accessToken,
+    refreshToken,
+    accessExpiresAt,
+    customerId,
+    tenantSlug,
+  ];
 
   @override
-  String toString() => 'AuthTokens(customer: $customerId, tenant: $tenantSlug, expires: $accessExpiresAt)';
+  String toString() =>
+      'AuthTokens(customer: $customerId, tenant: $tenantSlug, expires: $accessExpiresAt)';
 }
 
 abstract class TokenStore {
@@ -80,6 +101,9 @@ abstract class TokenStore {
   /// and discards its result if it changed, so a logout (or a new sign-in)
   /// during an in-flight refresh is never overwritten by the stale tokens.
   int get generation;
+
+  /// Changes on logout or customer/tenant replacement, not token refresh.
+  int get sessionGeneration;
 
   Future<AuthTokens?> read();
 
@@ -99,9 +123,13 @@ class SecureTokenStore implements TokenStore {
   AuthTokens? _cache;
   var _loaded = false;
   var _generation = 0;
+  var _sessionGeneration = 0;
 
   @override
   int get generation => _generation;
+
+  @override
+  int get sessionGeneration => _sessionGeneration;
 
   @override
   Future<AuthTokens?> read() async {
@@ -124,6 +152,10 @@ class SecureTokenStore implements TokenStore {
   @override
   Future<void> write(AuthTokens tokens) async {
     _generation++;
+    if (_cache?.customerId != tokens.customerId ||
+        _cache?.tenantSlug != tokens.tenantSlug) {
+      _sessionGeneration++;
+    }
     _cache = tokens;
     _loaded = true;
     await _store.write(key, jsonEncode(tokens.toJson()));
@@ -132,6 +164,7 @@ class SecureTokenStore implements TokenStore {
   @override
   Future<void> clear() async {
     _generation++;
+    _sessionGeneration++;
     _cache = null;
     _loaded = true;
     await _store.delete(key);

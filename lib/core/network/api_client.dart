@@ -1,3 +1,4 @@
+import 'package:sentech_connect_app/core/network/api_operation_scope.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:fpdart/fpdart.dart';
@@ -35,7 +36,7 @@ class ApiClient {
     Duration receiveTimeout = const Duration(seconds: 20),
     List<Duration>? refreshRetryBackoff,
     Duration Function()? monotonic,
-  }) {
+  }) : _tokens = tokens {
     final options = BaseOptions(
       baseUrl: baseUrl.toString(),
       connectTimeout: connectTimeout,
@@ -52,23 +53,54 @@ class ApiClient {
       refreshDio.httpClientAdapter = adapter;
       _dio.httpClientAdapter = adapter;
     }
-    refreshDio.interceptors.addAll([RequestIdInterceptor(), SafeLogInterceptor(logger)]);
+    refreshDio.interceptors.addAll([
+      RequestIdInterceptor(),
+      SafeLogInterceptor(logger),
+    ]);
     refresher = TokenRefresher(
       tokens: tokens,
       dio: refreshDio,
       sessionEvents: sessionEvents,
       now: now,
       monotonic: monotonic,
-      retryBackoff: refreshRetryBackoff ?? const [Duration(milliseconds: 500), Duration(seconds: 1)],
+      retryBackoff:
+          refreshRetryBackoff ??
+          const [Duration(milliseconds: 500), Duration(seconds: 1)],
     );
     _dio.interceptors.addAll([
       RequestIdInterceptor(),
-      AuthInterceptor(baseUrl: baseUrl, tokens: tokens, tenant: tenant, refresher: refresher, dio: _dio, now: now),
+      AuthInterceptor(
+        baseUrl: baseUrl,
+        tokens: tokens,
+        tenant: tenant,
+        refresher: refresher,
+        dio: _dio,
+        now: now,
+      ),
       SafeLogInterceptor(logger),
     ]);
   }
 
   final TenantContext tenant;
+  final TokenStore _tokens;
+
+  /// Capture once for a paginated operation. GET/POST carry this guard through
+  /// proactive refresh and 401 retries, discarding stale responses.
+  Future<ApiOperationScope> captureScope() async {
+    final tenantGeneration = tenant.generation;
+    final sessionGeneration = _tokens.sessionGeneration;
+    try {
+      await _tokens.read();
+    } on Object {
+      return ApiOperationScope(() => false);
+    }
+    return ApiOperationScope(
+      () =>
+          tenant.generation == tenantGeneration &&
+          _tokens.sessionGeneration == sessionGeneration,
+    );
+  }
+
   late final Dio _dio;
   late final TokenRefresher refresher;
 
@@ -82,8 +114,16 @@ class ApiClient {
     Map<String, Object?>? query,
     bool authenticated = true,
     Duration? timeout,
-  }) =>
-      _send(() => _dio.get<Object?>(path, queryParameters: query, options: _options(authenticated, timeout, null)), decode);
+    ApiOperationScope? scope,
+  }) => _send(
+    () => _dio.get<Object?>(
+      path,
+      queryParameters: query,
+      options: _options(authenticated, timeout, null, null, scope),
+    ),
+    decode,
+    scope: scope,
+  );
 
   Future<Either<Failure, T>> post<T>(
     String path, {
@@ -93,11 +133,16 @@ class ApiClient {
     String? idempotencyKey,
     Duration? timeout,
     Map<String, String>? headers,
-  }) =>
-      _send(
-        () => _dio.post<Object?>(path, data: body, options: _options(authenticated, timeout, idempotencyKey, headers)),
-        decode,
-      );
+    ApiOperationScope? scope,
+  }) => _send(
+    () => _dio.post<Object?>(
+      path,
+      data: body,
+      options: _options(authenticated, timeout, idempotencyKey, headers, scope),
+    ),
+    decode,
+    scope: scope,
+  );
 
   Future<Either<Failure, T>> patch<T>(
     String path, {
@@ -105,30 +150,63 @@ class ApiClient {
     Object? body,
     bool authenticated = true,
     Duration? timeout,
-  }) =>
-      _send(() => _dio.patch<Object?>(path, data: body, options: _options(authenticated, timeout, null)), decode);
+  }) => _send(
+    () => _dio.patch<Object?>(
+      path,
+      data: body,
+      options: _options(authenticated, timeout, null),
+    ),
+    decode,
+  );
 
-  Future<Either<Failure, Unit>> delete(String path, {bool authenticated = true, Duration? timeout}) =>
-      _send(() => _dio.delete<Object?>(path, options: _options(authenticated, timeout, null)), (_) => unit);
+  Future<Either<Failure, Unit>> delete(
+    String path, {
+    bool authenticated = true,
+    Duration? timeout,
+  }) => _send(
+    () => _dio.delete<Object?>(
+      path,
+      options: _options(authenticated, timeout, null),
+    ),
+    (_) => unit,
+  );
 
-  Options _options(bool authenticated, Duration? timeout, String? idempotencyKey, [Map<String, String>? headers]) => Options(
-        extra: {kAuthenticated: authenticated},
-        sendTimeout: timeout,
-        receiveTimeout: timeout,
-        headers: {...?headers, 'Idempotency-Key': ?idempotencyKey},
-      );
+  Options _options(
+    bool authenticated,
+    Duration? timeout,
+    String? idempotencyKey, [
+    Map<String, String>? headers,
+    ApiOperationScope? scope,
+  ]) => Options(
+    extra: {kAuthenticated: authenticated, kOperationScope: ?scope},
+    sendTimeout: timeout,
+    receiveTimeout: timeout,
+    headers: {...?headers, 'Idempotency-Key': ?idempotencyKey},
+  );
 
-  Future<Either<Failure, T>> _send<T>(Future<Response<Object?>> Function() call, ResponseDecoder<T> decode) async {
+  Future<Either<Failure, T>> _send<T>(
+    Future<Response<Object?>> Function() call,
+    ResponseDecoder<T> decode, {
+    ApiOperationScope? scope,
+  }) async {
+    if (scope != null && !scope.isCurrent) {
+      return const Left(UnauthorizedFailure());
+    }
     final Response<Object?> response;
     try {
       response = await call();
     } on DioException catch (e) {
       return Left(failureFromDioException(e));
     }
+    if (scope != null && !scope.isCurrent) {
+      return const Left(UnauthorizedFailure());
+    }
     try {
       return Right(decode(response.data));
     } on Object {
-      return const Left(ServerFailure('We received an unexpected response. Please try again.'));
+      return const Left(
+        ServerFailure('We received an unexpected response. Please try again.'),
+      );
     }
   }
 }

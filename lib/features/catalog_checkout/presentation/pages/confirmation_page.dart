@@ -113,7 +113,9 @@ class _ConfirmationView extends StatelessWidget {
               ),
               const SizedBox(height: 14),
               Text(
-                "You're connected!",
+                order.isHotspotPass
+                    ? 'Your Wi-Fi pass is paid'
+                    : "You're connected!",
                 textAlign: TextAlign.center,
                 style: theme.textTheme.headlineMedium,
               ),
@@ -126,17 +128,34 @@ class _ConfirmationView extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 28),
-              const _Timeline(),
+              if (order.isHotspotPass) ...[
+                Text(
+                  order.planName,
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.titleMedium,
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  'Payment confirmed. View your Wi-Fi passes on the dashboard.',
+                  textAlign: TextAlign.center,
+                ),
+              ] else
+                const _Timeline(),
               const Spacer(),
               ElevatedButton(
                 onPressed: onDone,
-                child: const Text('Track my installation'),
+                child: Text(
+                  order.isHotspotPass
+                      ? 'Back to dashboard'
+                      : 'Track my installation',
+                ),
               ),
               const SizedBox(height: 8),
-              TextButton(
-                onPressed: onDone,
-                child: const Text('Back to dashboard'),
-              ),
+              if (!order.isHotspotPass)
+                TextButton(
+                  onPressed: onDone,
+                  child: const Text('Back to dashboard'),
+                ),
             ],
           ),
         ),

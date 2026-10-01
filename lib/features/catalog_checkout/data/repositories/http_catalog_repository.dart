@@ -17,6 +17,7 @@ class HttpCatalogRepository implements CatalogRepository {
 
   @override
   Future<Either<Failure, List<Plan>>> getProducts() async {
+    final scope = await _api.captureScope();
     final plans = <Plan>[];
     String? cursor;
     final seen = <String>{};
@@ -24,6 +25,7 @@ class HttpCatalogRepository implements CatalogRepository {
     for (var page = 0; page < maxPages; page++) {
       final result = await _api.get<(List<Plan>, String?)>(
         '/v1/products',
+        scope: scope,
         authenticated: false,
         timeout: const Duration(seconds: 15),
         query: {'tenant': tenant, 'limit': pageSize, 'cursor': ?cursor},

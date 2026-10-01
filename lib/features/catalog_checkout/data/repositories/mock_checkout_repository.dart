@@ -24,7 +24,8 @@ class MockCheckoutRepository implements CheckoutRepository {
   static const _counterKey = 'order_counter';
   static const _firstOrderNumber = 48213;
 
-  final _ordersByKey = <String, String>{};
+  final _ordersByKey = <String, Order>{};
+  Future<void> _creationTail = Future.value();
   final SecureStore _store;
   final SimulatedNetwork _network;
   final Duration _latency;
@@ -69,20 +70,33 @@ class MockCheckoutRepository implements CheckoutRepository {
   Future<Either<Failure, Order>> createOrder({
     required List<CartItem> items,
     String? idempotencyKey,
-  }) async {
+  }) {
+    // Serialize creations before the first await, including concurrent key
+    // replays, so counters/history cannot race. Replay snapshots survive
+    // supersession; only the newest open order remains in resume history.
+    final reviewed = List<CartItem>.unmodifiable(items);
+    final result = _creationTail.then(
+      (_) => _createOrder(reviewed, idempotencyKey),
+    );
+    _creationTail = result.then<void>(
+      (_) {},
+      onError: (Object _, StackTrace _) {},
+    );
+    return result;
+  }
+
+  Future<Either<Failure, Order>> _createOrder(
+    List<CartItem> items,
+    String? idempotencyKey,
+  ) async {
     await Future.delayed(_latency ~/ 3);
     if (_network.failure case final failure?) return Left(failure);
     if (items.isEmpty) {
       return const Left(ValidationFailure('Your cart is empty.'));
     }
 
-    if (idempotencyKey != null) {
-      final existingId = _ordersByKey[idempotencyKey];
-      final existing = (await _load())
-          .where((o) => o.id == existingId)
-          .firstOrNull;
-      if (existing != null) return Right(existing);
-    }
+    final existing = _ordersByKey[idempotencyKey];
+    if (existing != null) return Right(existing);
     final n = await _nextCounter();
     final total = items.fold(0, (sum, i) => sum + i.lineTotalCents);
     final summary = items.length == 1
@@ -93,11 +107,14 @@ class MockCheckoutRepository implements CheckoutRepository {
       orderNumber: 'SEN-${_firstOrderNumber + n}',
       planName: summary,
       totalCents: total,
+      isHotspotPass: items.every(
+        (i) => i.plan.category == ProductCategory.hotspotPass,
+      ),
     );
     // One open order at a time: a new cart supersedes any unpaid one.
     final kept = (await _load()).where((o) => !o.isOpen).toList();
     await _save([...kept, order]);
-    if (idempotencyKey != null) _ordersByKey[idempotencyKey] = order.id;
+    if (idempotencyKey != null) _ordersByKey[idempotencyKey] = order;
     return Right(order);
   }
 
@@ -171,9 +188,16 @@ class MockCheckoutRepository implements CheckoutRepository {
   }
 
   @override
-  Future<void> clearLocalOrders() async {
-    _ordersByKey.clear();
-    await _store.delete(_ordersKey);
-    await _store.delete(_counterKey);
+  Future<void> clearLocalOrders() {
+    final result = _creationTail.then((_) async {
+      _ordersByKey.clear();
+      await _store.delete(_ordersKey);
+      await _store.delete(_counterKey);
+    });
+    _creationTail = result.then<void>(
+      (_) {},
+      onError: (Object _, StackTrace _) {},
+    );
+    return result;
   }
 }
