@@ -23,6 +23,8 @@ import 'package:sentech_connect_app/features/catalog_checkout/presentation/pages
 import 'package:sentech_connect_app/features/catalog_checkout/presentation/pages/confirmation_page.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/presentation/pages/payment_page.dart';
 
+import 'package:sentech_connect_app/l10n/app_localizations.dart';
+
 import 'helpers/test_setup.dart';
 
 const pass = Plan(
@@ -123,6 +125,8 @@ void main() {
       addTearDown(payment.close);
       await tester.pumpWidget(
         MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
           home: BlocProvider.value(
             value: payment,
             child: PaymentPage(
@@ -165,6 +169,8 @@ void main() {
     addTearDown(payment.close);
     await tester.pumpWidget(
       MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         home: BlocProvider.value(
           value: payment,
           child: PaymentPage(
@@ -234,6 +240,8 @@ void main() {
         addTearDown(confirmation.close);
         await tester.pumpWidget(
           MaterialApp(
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
             home: BlocProvider.value(
               value: payment,
               child: PaymentPage(

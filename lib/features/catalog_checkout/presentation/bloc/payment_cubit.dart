@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fpdart/fpdart.dart' hide Order;
 import 'package:sentech_connect_app/core/error/failure.dart';
@@ -6,6 +7,7 @@ import 'package:sentech_connect_app/features/cart/presentation/bloc/cart_cubit.d
 import 'package:sentech_connect_app/features/catalog_checkout/domain/entities/order.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/domain/entities/payment_handoff.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/domain/repositories/checkout_repository.dart';
+import 'package:sentech_connect_app/features/catalog_checkout/presentation/payment/payment_urls.dart';
 
 enum PaymentStatus {
   loading,
@@ -103,6 +105,9 @@ class PaymentCubit extends Cubit<PaymentState> {
     'payment_failed',
   );
 
+  /// The hand-off URL failed our own safety rules; nothing was opened.
+  static const handoffInvalidCode = 'handoff_invalid';
+
   final CheckoutRepository _repository;
   final CartCubit _cartCubit;
   final String orderId;
@@ -150,30 +155,65 @@ class PaymentCubit extends Cubit<PaymentState> {
     emit(state.copyWith(status: PaymentStatus.starting));
     final result = await _repository.startPayment(orderId: orderId);
     if (isClosed) return;
-    result.match(
-      (failure) => emit(
-        state.copyWith(
-          status:
-              failure is ValidationFailure &&
-                  failure.code == 'order_not_payable'
-              ? PaymentStatus.closed
-              : PaymentStatus.payFailed,
-          failure: failure,
-        ),
-      ),
-      (handoff) =>
-          emit(state.copyWith(status: PaymentStatus.handoff, handoff: handoff)),
-    );
+    switch (result) {
+      case Left(value: final failure):
+        if (failure is ValidationFailure &&
+            failure.code == 'order_not_payable') {
+          await _routeByServerStatus(failure);
+        } else {
+          emit(
+            state.copyWith(status: PaymentStatus.payFailed, failure: failure),
+          );
+        }
+      case Right(value: final handoff):
+        if (!handoff.isDemo &&
+            !isAllowedPaymentUrl(handoff.url, allowLocalHttp: kDebugMode)) {
+          emit(
+            state.copyWith(
+              status: PaymentStatus.payFailed,
+              failure: const ValidationFailure(
+                'We could not open the payment page safely.',
+                handoffInvalidCode,
+              ),
+            ),
+          );
+          return;
+        }
+        emit(state.copyWith(status: PaymentStatus.handoff, handoff: handoff));
+    }
+  }
+
+  /// The server refused a new payment ("not payable"): the order may in fact
+  /// have been paid late (or expired/cancelled), so show what is true.
+  Future<void> _routeByServerStatus(Failure refusal) async {
+    final result = await _repository.getOrder(orderId);
+    if (isClosed) return;
+    final order = result.match((_) => null, (o) => o);
+    switch (order?.status) {
+      case OrderStatus.paid:
+        _cartCubit.clear();
+        emit(state.copyWith(status: PaymentStatus.paid, order: order));
+      case OrderStatus.expired || OrderStatus.cancelled:
+        emit(
+          state.copyWith(
+            status: PaymentStatus.closed,
+            order: order,
+            failure: refusal,
+          ),
+        );
+      case _:
+        emit(state.copyWith(status: PaymentStatus.payFailed, failure: refusal));
+    }
   }
 
   /// Called by the page once the gateway page is closed / returned.
   Future<void> handoffFinished() async {
-    if (state.status != PaymentStatus.handoff) return;
+    if (isClosed || state.status != PaymentStatus.handoff) return;
     await _confirm();
   }
 
   Future<void> checkAgain() async {
-    if (state.status != PaymentStatus.stillPending) return;
+    if (isClosed || state.status != PaymentStatus.stillPending) return;
     await _confirm();
   }
 
@@ -213,6 +253,7 @@ class PaymentCubit extends Cubit<PaymentState> {
           break;
       }
     }
+    if (isClosed) return;
     if (closedOrder != null) {
       emit(state.copyWith(status: PaymentStatus.closed, order: closedOrder));
       return;

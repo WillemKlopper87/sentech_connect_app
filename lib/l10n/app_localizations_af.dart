@@ -438,6 +438,35 @@ class AppLocalizationsAf extends AppLocalizations {
       'This version of the app is no longer supported. Install the latest version from your app store to continue.';
 
   @override
+  String get paymentClosedExpired =>
+      'This order has expired and can no longer be paid. If you already paid, it will still be applied once the payment provider confirms it.';
+
+  @override
+  String get paymentClosedCancelled =>
+      'This order was cancelled and can no longer be paid. A payment received after cancellation is held for review and refunded or applied by our team.';
+
+  @override
+  String get paymentStillPending =>
+      'We have not received confirmation from the payment provider yet. If you completed the payment, check again in a moment. A payment that needs a manual check is held for review: our team will apply or refund it.';
+
+  @override
+  String get paymentPayAgainHint =>
+      'Only pay again if you did not complete the payment.';
+
+  @override
+  String get paymentHandoffInvalid =>
+      'We could not open the payment page safely. You have not been charged. Please try again.';
+
+  @override
+  String get paymentCheckAgain => 'Check again';
+
+  @override
+  String get paymentPayAgain => 'Pay again';
+
+  @override
+  String get paymentBackToDashboard => 'Back to dashboard';
+
+  @override
   String get accountProvider => 'PROVIDER';
 
   @override

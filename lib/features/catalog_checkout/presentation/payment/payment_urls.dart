@@ -35,6 +35,28 @@ bool isAllowedHandoffNavigation(
   return uri.host.toLowerCase() == handoff.url.host.toLowerCase();
 }
 
+enum NavigationVerdict { returned, allow, block }
+
+/// One decision for every web-view navigation request: a return URL ends the
+/// hand-off (checked first, never loaded); main-frame navigation is pinned to
+/// the gateway host; sub-frames only need to satisfy the scheme rules.
+NavigationVerdict decideNavigation(
+  Uri uri, {
+  required bool isMainFrame,
+  required PaymentHandoff handoff,
+  required bool allowLocalHttp,
+}) {
+  if (isPaymentReturnUrl(uri)) return NavigationVerdict.returned;
+  final allowed = isMainFrame
+      ? isAllowedHandoffNavigation(
+          uri,
+          handoff: handoff,
+          allowLocalHttp: allowLocalHttp,
+        )
+      : isAllowedPaymentUrl(uri, allowLocalHttp: allowLocalHttp);
+  return allowed ? NavigationVerdict.allow : NavigationVerdict.block;
+}
+
 Uri getHandoffUri(PaymentHandoff handoff) => handoff.fields.isEmpty
     ? handoff.url
     : handoff.url.replace(

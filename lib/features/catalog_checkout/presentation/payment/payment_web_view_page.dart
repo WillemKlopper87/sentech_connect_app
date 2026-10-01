@@ -41,38 +41,58 @@ class _PaymentWebViewPageState extends State<PaymentWebViewPage> {
           onNavigationRequest: _onNavigation,
         ),
       );
+    unawaited(_start());
+  }
+
+  Future<void> _clearWebData() async {
+    try {
+      await _controller.clearCache();
+      await _controller.clearLocalStorage();
+      await WebViewCookieManager().clearCookies();
+    } on Object {
+      // Best effort: never let a clean-up failure surface (or crash a
+      // disposed page).
+    }
+  }
+
+  Future<void> _start() async {
     final handoff = widget.handoff;
     if (!isAllowedPaymentUrl(handoff.url, allowLocalHttp: kDebugMode)) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => _close(false));
+      _close(false);
       return;
     }
+    // Start from a clean slate: nothing left from an earlier payment.
+    await _clearWebData();
+    if (_closed || !mounted) return;
     if (handoff.method == PaymentHandoffMethod.post) {
-      _controller.loadRequest(
+      await _controller.loadRequest(
         handoff.url,
         method: LoadRequestMethod.post,
         headers: const {'Content-Type': 'application/x-www-form-urlencoded'},
         body: Uint8List.fromList(utf8.encode(formBody(handoff.fields))),
       );
     } else {
-      _controller.loadRequest(getHandoffUri(handoff));
+      await _controller.loadRequest(getHandoffUri(handoff));
     }
   }
 
   NavigationDecision _onNavigation(NavigationRequest request) {
     final uri = Uri.tryParse(request.url);
     if (uri == null) return NavigationDecision.prevent;
-    if (isPaymentReturnUrl(uri)) {
-      _close(true);
-      return NavigationDecision.prevent;
+    switch (decideNavigation(
+      uri,
+      isMainFrame: request.isMainFrame,
+      handoff: widget.handoff,
+      allowLocalHttp: kDebugMode,
+    )) {
+      case NavigationVerdict.returned:
+        _close(true);
+        return NavigationDecision.prevent;
+      case NavigationVerdict.allow:
+        return NavigationDecision.navigate;
+      case NavigationVerdict.block:
+        return NavigationDecision.prevent;
     }
-    final allowed = request.isMainFrame
-        ? isAllowedHandoffNavigation(
-            uri,
-            handoff: widget.handoff,
-            allowLocalHttp: kDebugMode,
-          )
-        : isAllowedPaymentUrl(uri, allowLocalHttp: kDebugMode);
-    return allowed ? NavigationDecision.navigate : NavigationDecision.prevent;
   }
 
   void _close(bool returned) {
@@ -83,9 +103,7 @@ class _PaymentWebViewPageState extends State<PaymentWebViewPage> {
 
   @override
   void dispose() {
-    unawaited(_controller.clearCache());
-    unawaited(_controller.clearLocalStorage());
-    unawaited(WebViewCookieManager().clearCookies());
+    unawaited(_clearWebData());
     super.dispose();
   }
 

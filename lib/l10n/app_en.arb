@@ -144,6 +144,14 @@
   "tenantChangeConfirm": "Switch",
   "updateRequiredTitle": "Update required",
   "updateRequiredBody": "This version of the app is no longer supported. Install the latest version from your app store to continue.",
+  "paymentClosedExpired": "This order has expired and can no longer be paid. If you already paid, it will still be applied once the payment provider confirms it.",
+  "paymentClosedCancelled": "This order was cancelled and can no longer be paid. A payment received after cancellation is held for review and refunded or applied by our team.",
+  "paymentStillPending": "We have not received confirmation from the payment provider yet. If you completed the payment, check again in a moment. A payment that needs a manual check is held for review: our team will apply or refund it.",
+  "paymentPayAgainHint": "Only pay again if you did not complete the payment.",
+  "paymentHandoffInvalid": "We could not open the payment page safely. You have not been charged. Please try again.",
+  "paymentCheckAgain": "Check again",
+  "paymentPayAgain": "Pay again",
+  "paymentBackToDashboard": "Back to dashboard",
   "accountProvider": "PROVIDER",
   "accountChangeProvider": "Change provider"
 }

@@ -2,12 +2,14 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sentech_connect_app/core/money/money.dart';
+import 'package:sentech_connect_app/core/error/failure.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/data/dev_payment_simulator.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/domain/entities/order.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/domain/entities/payment_handoff.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/presentation/bloc/payment_cubit.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/presentation/payment/fake_gateway_sheet.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/presentation/payment/payment_web_view_page.dart';
+import 'package:sentech_connect_app/l10n/app_localizations.dart';
 import 'package:sentech_connect_app/shared/widgets/failure_view.dart';
 
 /// Pay for an order on the gateway's hosted page, then wait for the server
@@ -33,6 +35,14 @@ class PaymentPage extends StatelessWidget {
 
   /// Local stack + debug only (ruling R-M4-13).
   final DevPaymentSimulator? devSimulator;
+
+  Failure? _displayFailure(AppLocalizations l10n, Failure? failure) {
+    if (failure is ValidationFailure &&
+        failure.code == PaymentCubit.handoffInvalidCode) {
+      return ValidationFailure(l10n.paymentHandoffInvalid, failure.code);
+    }
+    return failure;
+  }
 
   Future<void> _handOff(BuildContext context, PaymentHandoff handoff) async {
     final cubit = context.read<PaymentCubit>();
@@ -81,6 +91,7 @@ class PaymentPage extends StatelessWidget {
         builder: (context, state) {
           final cubit = context.read<PaymentCubit>();
           final theme = Theme.of(context);
+          final l10n = AppLocalizations.of(context);
           switch (state.status) {
             case PaymentStatus.loading:
               return const Center(child: CircularProgressIndicator());
@@ -88,13 +99,12 @@ class PaymentPage extends StatelessWidget {
               return FailureView(failure: state.failure, onRetry: cubit.load);
             case PaymentStatus.closed:
               return _Message(
-                text:
-                    'This order can no longer be paid. If you already paid, '
-                    'it will still be applied once the payment provider '
-                    'confirms it.',
+                text: state.order?.status == OrderStatus.cancelled
+                    ? l10n.paymentClosedCancelled
+                    : l10n.paymentClosedExpired,
                 action: FilledButton(
                   onPressed: onClosed,
-                  child: const Text('Back to dashboard'),
+                  child: Text(l10n.paymentBackToDashboard),
                 ),
               );
             case PaymentStatus.confirming:
@@ -105,21 +115,24 @@ class PaymentPage extends StatelessWidget {
               );
             case PaymentStatus.stillPending:
               return _Message(
-                text:
-                    'We have not received confirmation from the payment provider yet. '
-                    'If you completed the payment, check again in a moment. '
-                    'A payment that needs a manual check is applied once it is cleared.',
+                text: l10n.paymentStillPending,
                 action: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     ElevatedButton(
                       onPressed: cubit.checkAgain,
-                      child: const Text('Check again'),
+                      child: Text(l10n.paymentCheckAgain),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      l10n.paymentPayAgainHint,
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.bodyMedium,
                     ),
                     const SizedBox(height: 8),
                     OutlinedButton(
                       onPressed: cubit.pay,
-                      child: const Text('Pay again'),
+                      child: Text(l10n.paymentPayAgain),
                     ),
                   ],
                 ),
@@ -167,7 +180,7 @@ class PaymentPage extends StatelessWidget {
                         if (state.status == PaymentStatus.payFailed) ...[
                           const SizedBox(height: 16),
                           FailureView(
-                            failure: state.failure,
+                            failure: _displayFailure(l10n, state.failure),
                             compact: true,
                             onRetry: cubit.pay,
                           ),
@@ -280,8 +293,10 @@ class _OrderCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Icon(Icons.verified, size: 18, color: Color(0xFF6F9126)),
-              const SizedBox(width: 8),
+              if (showIdentityVerified) ...[
+                const Icon(Icons.verified, size: 18, color: Color(0xFF6F9126)),
+                const SizedBox(width: 8),
+              ],
               Expanded(child: Text(label, style: theme.textTheme.bodyMedium)),
               Text('#${order.orderNumber}', style: theme.textTheme.bodyMedium),
             ],

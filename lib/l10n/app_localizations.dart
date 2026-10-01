@@ -868,6 +868,54 @@ abstract class AppLocalizations {
   /// **'This version of the app is no longer supported. Install the latest version from your app store to continue.'**
   String get updateRequiredBody;
 
+  /// No description provided for @paymentClosedExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'This order has expired and can no longer be paid. If you already paid, it will still be applied once the payment provider confirms it.'**
+  String get paymentClosedExpired;
+
+  /// No description provided for @paymentClosedCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'This order was cancelled and can no longer be paid. A payment received after cancellation is held for review and refunded or applied by our team.'**
+  String get paymentClosedCancelled;
+
+  /// No description provided for @paymentStillPending.
+  ///
+  /// In en, this message translates to:
+  /// **'We have not received confirmation from the payment provider yet. If you completed the payment, check again in a moment. A payment that needs a manual check is held for review: our team will apply or refund it.'**
+  String get paymentStillPending;
+
+  /// No description provided for @paymentPayAgainHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Only pay again if you did not complete the payment.'**
+  String get paymentPayAgainHint;
+
+  /// No description provided for @paymentHandoffInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'We could not open the payment page safely. You have not been charged. Please try again.'**
+  String get paymentHandoffInvalid;
+
+  /// No description provided for @paymentCheckAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Check again'**
+  String get paymentCheckAgain;
+
+  /// No description provided for @paymentPayAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay again'**
+  String get paymentPayAgain;
+
+  /// No description provided for @paymentBackToDashboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to dashboard'**
+  String get paymentBackToDashboard;
+
   /// No description provided for @accountProvider.
   ///
   /// In en, this message translates to:

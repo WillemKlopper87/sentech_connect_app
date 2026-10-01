@@ -41,6 +41,7 @@ class _ScriptedCheckout implements CheckoutRepository {
   int getCalls = 0;
   int startCalls = 0;
   Completer<void>? startGate;
+  Either<Failure, PaymentHandoff>? startResult;
 
   Order _order(OrderStatus s) => Order(
     id: 'o1',
@@ -67,7 +68,7 @@ class _ScriptedCheckout implements CheckoutRepository {
   }) async {
     startCalls++;
     await startGate?.future;
-    return Right(_handoff);
+    return startResult ?? Right(_handoff);
   }
 
   @override
@@ -210,6 +211,90 @@ void main() {
     await Future.wait([first, second]);
     expect(repo.startCalls, 1);
     await cubit.close();
+  });
+
+  test(
+    'stillPending -> late paid -> Pay again -> 409 not payable -> reloads and shows paid',
+    () async {
+      final repo = _ScriptedCheckout();
+      final cubit = await ready(repo, delays: const [Duration.zero]);
+      await cubit.pay();
+      await cubit.handoffFinished();
+      expect(cubit.state.status, PaymentStatus.stillPending);
+
+      repo.startResult = const Left(
+        ValidationFailure(
+          'An order that is paid cannot be paid.',
+          'order_not_payable',
+        ),
+      );
+      repo.polls.add(const Right(OrderStatus.paid));
+      await cubit.pay();
+      expect(cubit.state.status, PaymentStatus.paid);
+      expect(cart.state.items, isEmpty);
+      await cubit.close();
+    },
+  );
+
+  test(
+    '409 not payable on an expired / cancelled order routes to closed',
+    () async {
+      for (final status in [OrderStatus.expired, OrderStatus.cancelled]) {
+        final repo = _ScriptedCheckout();
+        final cubit = await ready(repo, delays: const [Duration.zero]);
+        repo.startResult = const Left(
+          ValidationFailure('Not payable.', 'order_not_payable'),
+        );
+        repo.polls.add(Right(status));
+        await cubit.pay();
+        expect(cubit.state.status, PaymentStatus.closed);
+        expect(cubit.state.order!.status, status);
+        await cubit.close();
+      }
+    },
+  );
+
+  test('409 not payable but still awaiting payment shows the error', () async {
+    final repo = _ScriptedCheckout()
+      ..startResult = const Left(
+        ValidationFailure('Not payable.', 'order_not_payable'),
+      );
+    final cubit = await ready(repo);
+    await cubit.pay();
+    expect(cubit.state.status, PaymentStatus.payFailed);
+    await cubit.close();
+  });
+
+  test('an unsafe hand-off URL is a hand-off failure, never opened', () async {
+    final repo = _ScriptedCheckout()
+      ..startResult = Right(
+        PaymentHandoff(
+          paymentId: 'p',
+          reference: 'r',
+          gateway: 'netcash',
+          method: PaymentHandoffMethod.get,
+          url: Uri.parse('http://evil.example/pay'),
+          amountCents: 1500,
+        ),
+      );
+    final cubit = await ready(repo);
+    await cubit.pay();
+    expect(cubit.state.status, PaymentStatus.payFailed);
+    expect(
+      (cubit.state.failure! as ValidationFailure).code,
+      PaymentCubit.handoffInvalidCode,
+    );
+    await cubit.close();
+  });
+
+  test('closing the cubit while the hand-off is open does not throw', () async {
+    final repo = _ScriptedCheckout();
+    final cubit = await ready(repo);
+    await cubit.pay();
+    await cubit.close();
+    await cubit.handoffFinished(); // page returns after the screen is gone
+    await cubit.checkAgain();
+    expect(repo.getCalls, 1);
   });
 
   test('an expired order is reported as closed, not payable', () async {

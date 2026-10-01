@@ -133,4 +133,67 @@ void main() {
       expect(allowed('javascript:alert(1)'), isFalse);
     },
   );
+
+  group('decideNavigation', () {
+    final handoff = PaymentHandoff(
+      paymentId: 'p1',
+      reference: 'SC1',
+      gateway: 'netcash',
+      method: PaymentHandoffMethod.post,
+      url: Uri.parse('https://paynow.netcash.co.za/site/paynow.aspx'),
+      amountCents: 3000,
+    );
+    NavigationVerdict decide(
+      String url, {
+      bool main = true,
+      bool local = false,
+    }) => decideNavigation(
+      Uri.parse(url),
+      isMainFrame: main,
+      handoff: handoff,
+      allowLocalHttp: local,
+    );
+
+    test('the initial hand-off URL is allowed', () {
+      expect(decide(handoff.url.toString()), NavigationVerdict.allow);
+    });
+    test('a return URL wins first, even on another host or in a sub-frame', () {
+      expect(
+        decide('https://www.example.test/sentech/checkout/accepted'),
+        NavigationVerdict.returned,
+      );
+      expect(
+        decide(
+          'https://www.example.test/sentech/checkout/declined',
+          main: false,
+        ),
+        NavigationVerdict.returned,
+      );
+    });
+    test('main frame is pinned to the gateway host', () {
+      expect(decide('https://other.example/x'), NavigationVerdict.block);
+      expect(
+        decide('http://paynow.netcash.co.za/x', local: true),
+        NavigationVerdict.block,
+      );
+    });
+    test('sub-frames follow the scheme rules only', () {
+      expect(
+        decide('https://3ds.bank.example/frame', main: false),
+        NavigationVerdict.allow,
+      );
+      expect(
+        decide('javascript:alert(1)', main: false),
+        NavigationVerdict.block,
+      );
+      expect(
+        decide('http://10.0.2.2:3000/x', main: false),
+        NavigationVerdict.block,
+      );
+      expect(
+        decide('http://10.0.2.2:3000/x', main: false, local: true),
+        NavigationVerdict.allow,
+      );
+    });
+  });
 }

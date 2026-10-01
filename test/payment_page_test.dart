@@ -10,6 +10,8 @@ import 'package:sentech_connect_app/features/catalog_checkout/domain/entities/pl
 import 'package:sentech_connect_app/features/catalog_checkout/presentation/bloc/payment_cubit.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/presentation/pages/payment_page.dart';
 
+import 'package:sentech_connect_app/l10n/app_localizations.dart';
+
 import 'helpers/test_setup.dart';
 
 const _pass = Plan(
@@ -31,6 +33,8 @@ Future<void> _pumpPage(
 }) async {
   await tester.pumpWidget(
     MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       home: BlocProvider.value(
         value: cubit,
         child: PaymentPage(
@@ -132,6 +136,10 @@ void main() {
       expect(cubit.state.status, PaymentStatus.stillPending);
       expect(find.text('Check again'), findsOneWidget);
       expect(find.text('Pay again'), findsOneWidget);
+      expect(
+        find.text('Only pay again if you did not complete the payment.'),
+        findsOneWidget,
+      );
       expect(cart.state.items, isNotEmpty);
     },
   );
