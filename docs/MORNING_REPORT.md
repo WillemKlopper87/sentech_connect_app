@@ -67,7 +67,7 @@ M2: a dedicated narrow `sentech_radius` DB role (a settable platform-admin flag 
 5. Keycloak production mode; **key backup and rotation** for `PII_KEY` and the new keys (`VOUCHER_HMAC_KEY`, `VOUCHER_EXPORT_KEY`, `NAS_SECRET_KEY`); NAS master-key rotation is a manual runbook step including resealing secrets under `NAS_SECRET_KEY_PREVIOUS`; voucher HMAC rotation by `key_version` is unbuilt.
 6. **Real MikroTik test on a Linux host**, with a VPN path for field routers (WireGuard hub or UDP-capable edge); M2 ships only the VPN-agnostic lab overlay.
 7. **FreeRADIUS image digest**: re-verify the pinned digest (`scripts/pin-digests.sh`); live Garage round trip for exports.
-8. **Prometheus alert for the `radius-clients` render failure** (re-render and reload are automatic, a failed render is not yet alerted); alert rules have not been run through `promtool`.
+8. **Prometheus alert for the `radius-clients` render failure** (re-render and reload are automatic, a failed render is not yet alerted); the 15 alert rules passed `promtool check rules` in a local container.
 9. **Message-Authenticator** is supported but needs RouterOS 7.15 or newer; confirm the version on site and whether hotspots can use `login-by=https`.
 10. **Void-after-redeem refund policy** (currently no refund) and the **RICA/ICASA position on anonymous voucher sessions** and 90-day MAC retention: counsel.
 11. POPIA: procedure for privacy requests from customers of a suspended ISP; purpose/retention table (audit log, idempotency records); crypto-shred versus backups policy for exports.
