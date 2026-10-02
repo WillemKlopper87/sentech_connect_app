@@ -1,7 +1,12 @@
 // Entry point — build/maintained by W. Klopper, Research & Innovation.
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sentech_connect_app/app/app.dart';
+import 'package:sentech_connect_app/app/boot/boot_host.dart';
+import 'package:sentech_connect_app/app/boot/boot_video_config.dart';
+import 'package:sentech_connect_app/app/boot/boot_video_controller.dart';
 import 'package:sentech_connect_app/app/locator.dart';
 import 'package:sentech_connect_app/app/session_restore.dart';
 import 'package:sentech_connect_app/app/startup_error_app.dart';
@@ -37,6 +42,18 @@ Future<void> _start(CrashReporter crashReporter) async {
     return;
   }
 
+  // Boot video (cold start only: main() is not re-run on resume). Start-up
+  // work runs in parallel with it; the video never delays that work.
+  runApp(BootHost(
+    app: _prepareApp(),
+    controllerFactory: bootVideoEnabled ? createAssetBootVideoController : null,
+    onError: (error, stack) => unawaited(
+      crashReporter.recordError(error, stack, fatal: true, reason: 'startup failed'),
+    ),
+  ));
+}
+
+Future<Widget> _prepareApp() async {
   final savedThemeMode = await AppPreferences.loadThemeMode();
   final savedLocale = await AppPreferences.loadLocale();
   final initialAuthState = await restoreAuthState(
@@ -48,9 +65,10 @@ Future<void> _start(CrashReporter crashReporter) async {
     installMarker: SharedPrefsInstallMarker(),
   );
 
-  runApp(SentechConnectApp(
+  return SentechConnectApp(
     initialThemeMode: savedThemeMode,
     initialLocale: savedLocale,
     initialAuthState: initialAuthState,
-  ));
+    quickSplash: bootVideoEnabled,
+  );
 }

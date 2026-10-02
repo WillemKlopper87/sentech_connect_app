@@ -24,11 +24,16 @@ class SentechConnectApp extends StatefulWidget {
     this.initialThemeMode = ThemeMode.system,
     this.initialAuthState = const AuthState(),
     this.initialLocale,
+    this.quickSplash = false,
   });
 
   final ThemeMode initialThemeMode;
   final AuthState initialAuthState;
   final Locale? initialLocale;
+
+  /// True when the boot video already provided the branded moment, so the
+  /// in-app splash only waits for the tenant and hands over without its reveal.
+  final bool quickSplash;
 
   @override
   State<SentechConnectApp> createState() => _SentechConnectAppState();
@@ -56,7 +61,7 @@ class _SentechConnectAppState extends State<SentechConnectApp> {
     onTenantChanging: () => _authCubit.logOut(),
     onTenantApplied: _authCubit.ensureSessionMatches,
   )..bootstrap();
-  late final AppRouter _appRouter = AppRouter(_authCubit, tenantCubit: _tenantCubit);
+  late final AppRouter _appRouter = AppRouter(_authCubit, tenantCubit: _tenantCubit, quickSplash: widget.quickSplash);
 
   @override
   void dispose() {

@@ -212,8 +212,9 @@ class AppRouter {
     AuthCubit authCubit, {
     TenantCubit? tenantCubit,
     String initialLocation = AppRoutes.splash,
+    bool quickSplash = false,
   }) : _refresh = _GuardRefresh(authCubit, tenantCubit) {
-    router = _buildRouter(authCubit, tenantCubit, _refresh, initialLocation);
+    router = _buildRouter(authCubit, tenantCubit, _refresh, initialLocation, quickSplash);
   }
 
   final _GuardRefresh _refresh;
@@ -230,6 +231,7 @@ GoRouter _buildRouter(
   TenantCubit? tenantCubit,
   Listenable refresh,
   String initialLocation,
+  bool quickSplash,
 ) {
   return GoRouter(
     initialLocation: initialLocation,
@@ -252,6 +254,7 @@ GoRouter _buildRouter(
       GoRoute(
         path: AppRoutes.splash,
         builder: (context, state) => SplashPage(
+          instant: quickSplash,
           onFinished: () async {
             final tenant = tenantCubit;
             if (tenant != null && !tenant.state.isSettled) {

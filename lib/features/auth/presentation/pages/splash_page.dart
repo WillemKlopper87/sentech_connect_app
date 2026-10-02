@@ -7,9 +7,12 @@ import 'package:sentech_connect_app/shared/widgets/sentech_logo.dart';
 /// login — giving the launch a single continuous branded moment instead
 /// of a jarring cut from native splash to first Flutter frame.
 class SplashPage extends StatefulWidget {
-  const SplashPage({super.key, required this.onFinished});
+  const SplashPage({super.key, required this.onFinished, this.instant = false});
 
   final VoidCallback onFinished;
+
+  /// No reveal animation or delay: used after the boot video.
+  final bool instant;
 
   @override
   State<SplashPage> createState() => _SplashPageState();
@@ -26,12 +29,12 @@ class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateM
     final reduceMotion = WidgetsBinding.instance.platformDispatcher.accessibilityFeatures.disableAnimations;
     _controller = AnimationController(
       vsync: this,
-      duration: reduceMotion ? Duration.zero : const Duration(milliseconds: 700),
+      duration: reduceMotion || widget.instant ? Duration.zero : const Duration(milliseconds: 700),
     );
     _scale = Tween<double>(begin: 0.85, end: 1.0).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
     _opacity = CurvedAnimation(parent: _controller, curve: Curves.easeOut);
     _controller.forward();
-    Future.delayed(Duration(milliseconds: reduceMotion ? 200 : 1100), () {
+    Future.delayed(Duration(milliseconds: widget.instant ? 0 : reduceMotion ? 200 : 1100), () {
       if (mounted) widget.onFinished();
     });
   }
