@@ -29,6 +29,7 @@ class Order extends Equatable {
     required this.totalCents,
     this.status = OrderStatus.pendingVerification,
     this.isHotspotPass = false,
+    this.identityVerified = false,
   });
 
   /// Opaque identifier used in routes (`/rica/:orderId`). Never the
@@ -44,18 +45,24 @@ class Order extends Equatable {
   /// Hotspot passes have no identity or router installation flow.
   final bool isHotspotPass;
 
+  /// True only once the RICA identity check was completed for THIS order.
+  /// Orders that never needed it (WiFi passes, vouchers, every API order
+  /// today) stay false, so nothing claims an identity was verified.
+  final bool identityVerified;
+
   bool get isOpen =>
       status == OrderStatus.pendingVerification ||
       status == OrderStatus.awaitingPayment ||
       status == OrderStatus.paymentFailed;
 
-  Order copyWith({OrderStatus? status}) => Order(
+  Order copyWith({OrderStatus? status, bool? identityVerified}) => Order(
     id: id,
     orderNumber: orderNumber,
     planName: planName,
     totalCents: totalCents,
     status: status ?? this.status,
     isHotspotPass: isHotspotPass,
+    identityVerified: identityVerified ?? this.identityVerified,
   );
 
   Map<String, dynamic> toJson() => {
@@ -65,6 +72,7 @@ class Order extends Equatable {
     'totalCents': totalCents,
     'status': status.name,
     'isHotspotPass': isHotspotPass,
+    'identityVerified': identityVerified,
   };
 
   factory Order.fromJson(Map<String, dynamic> json) => Order(
@@ -73,6 +81,7 @@ class Order extends Equatable {
     planName: json['planName'] as String,
     totalCents: _centsFrom(json),
     isHotspotPass: json['isHotspotPass'] == true,
+    identityVerified: json['identityVerified'] == true,
     status: OrderStatus.values.firstWhere(
       (s) => s.name == json['status'],
       orElse: () => OrderStatus.pendingVerification,
@@ -98,5 +107,6 @@ class Order extends Equatable {
     totalCents,
     status,
     isHotspotPass,
+    identityVerified,
   ];
 }

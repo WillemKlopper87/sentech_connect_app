@@ -25,6 +25,24 @@ const _pass = Plan(
 
 const _items = [CartItem(plan: _pass, quantity: 1)];
 
+const _voucher = Plan(
+  id: 'voucher_5gb',
+  name: '5GB Wi-Fi Voucher',
+  priceCents: 5900,
+  dataDescription: 'Valid for 30 days',
+  speedMbps: 50,
+  category: ProductCategory.voucher,
+);
+
+const _home5g = Plan(
+  id: 'home_100',
+  name: 'Home 100',
+  priceCents: 54900,
+  dataDescription: '100GB',
+  speedMbps: 100,
+  category: ProductCategory.home5g,
+);
+
 Future<void> _pumpPage(
   WidgetTester tester,
   PaymentCubit cubit, {
@@ -113,6 +131,56 @@ void main() {
       expect(cart.state.items, isEmpty);
     },
   );
+
+  testWidgets(
+    'a WiFi voucher purchase (no RICA) shows nothing about identity',
+    (tester) async {
+      final repo = MockCheckoutRepository(
+        InMemorySecureStore(),
+        latency: Duration.zero,
+      );
+      final cart = CartCubit()..addItem(_voucher);
+      addTearDown(cart.close);
+      final order = (await tester.runAsync(
+        () => repo.createOrder(
+          items: const [CartItem(plan: _voucher, quantity: 1)],
+        ),
+      ))!.getOrElse((f) => throw StateError(f.message));
+      expect(order.isHotspotPass, isFalse);
+      expect(order.status, OrderStatus.awaitingPayment);
+
+      final cubit = PaymentCubit(repo, cart, order.id);
+      addTearDown(cubit.close);
+      await _pumpPage(tester, cubit);
+      expect(find.textContaining('Pay '), findsOneWidget);
+      expect(find.textContaining('Identity'), findsNothing);
+      expect(find.byIcon(Icons.verified), findsNothing);
+    },
+  );
+
+  testWidgets('a Home 5G order shows Identity verified once RICA is done', (
+    tester,
+  ) async {
+    final repo = MockCheckoutRepository(
+      InMemorySecureStore(),
+      latency: Duration.zero,
+    );
+    final cart = CartCubit()..addItem(_home5g);
+    addTearDown(cart.close);
+    final order = (await tester.runAsync(
+      () =>
+          repo.createOrder(items: const [CartItem(plan: _home5g, quantity: 1)]),
+    ))!.getOrElse((f) => throw StateError(f.message));
+    final verified = (await tester.runAsync(
+      () => repo.markIdentityVerified(order.id),
+    ))!.getOrElse((f) => throw StateError(f.message));
+    expect(verified.identityVerified, isTrue);
+
+    final cubit = PaymentCubit(repo, cart, order.id);
+    addTearDown(cubit.close);
+    await _pumpPage(tester, cubit);
+    expect(find.text('Identity verified'), findsOneWidget);
+  });
 
   testWidgets(
     'a still-pending payment offers Check again and Pay again (no false success)',

@@ -161,6 +161,7 @@ class MockCheckoutRepository implements CheckoutRepository {
     if (orders[index].status == OrderStatus.pendingVerification) {
       orders[index] = orders[index].copyWith(
         status: OrderStatus.awaitingPayment,
+        identityVerified: true,
       );
       await _save(orders);
     }

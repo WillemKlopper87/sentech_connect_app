@@ -28,9 +28,9 @@ class PaymentPage extends StatelessWidget {
   final void Function(Order order) onNeedsVerification;
   final VoidCallback onClosed;
 
-  /// "Identity verified" header (only when the RICA flag is on). Hotspot
-  /// pass orders never show it, whatever this says: they have no identity
-  /// check.
+  /// "Identity verified" header (only when the RICA flag is on). It shows
+  /// only for an order whose RICA check was completed
+  /// ([Order.identityVerified]); WiFi passes and vouchers never show it.
   final bool showIdentityVerified;
 
   /// Local stack + debug only (ruling R-M4-13).
@@ -156,8 +156,10 @@ class PaymentPage extends StatelessWidget {
                       children: [
                         _OrderCard(
                           order: order,
+                          // Only when RICA was actually completed for
+                          // this order: WiFi passes and vouchers never.
                           showIdentityVerified:
-                              showIdentityVerified && !order.isHotspotPass,
+                              showIdentityVerified && order.identityVerified,
                         ),
                         const SizedBox(height: 18),
                         Row(
