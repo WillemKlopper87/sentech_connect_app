@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:sentech_connect_app/core/error/failure.dart';
 import 'package:sentech_connect_app/core/network/api_client.dart';
@@ -19,10 +20,15 @@ class HttpVoucherRepository implements VoucherRepository {
   final ApiClient _api;
 
   // One idempotency key per logical redemption: "Try again" after a lost
-  // response repeats the same code with the same key, so the server replays
-  // its answer instead of judging a second attempt. Kept in memory only.
+  // response (a network failure) repeats the same code with the same key, so
+  // the server replays its answer instead of judging a second attempt. The
+  // code is held only across that failure; any answer from the server
+  // (success, refusal, rate limit, server error) clears it.
   String? _lastCode;
   String? _lastKey;
+
+  @visibleForTesting
+  String? get heldCodeForTest => _lastCode;
 
   @override
   Future<Either<Failure, VoucherRedemption>> redeem(VoucherCode code) async {
@@ -47,6 +53,12 @@ class HttpVoucherRepository implements VoucherRepository {
         );
       },
     );
+    if (result case Left(value: NetworkFailure())) {
+      // Kept for the retry.
+    } else {
+      _lastCode = null;
+      _lastKey = null;
+    }
     return switch (result) {
       // A refusal of the code itself (422 voucher_invalid, or another 4xx
       // problem) is an answer about the voucher, not a transport failure.

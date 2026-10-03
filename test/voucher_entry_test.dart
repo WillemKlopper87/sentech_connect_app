@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fpdart/fpdart.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:sentech_connect_app/app/locator.dart';
 import 'package:sentech_connect_app/core/error/failure.dart';
 import 'package:sentech_connect_app/features/voucher_scanner/domain/entities/voucher_code.dart';
@@ -24,8 +25,51 @@ class _FakeVoucherRepository implements VoucherRepository {
   }
 }
 
+/// Counts camera starts; never touches a real camera.
+class _CountingController extends MobileScannerController {
+  _CountingController() : super(autoStart: false);
+
+  int starts = 0;
+
+  @override
+  Future<void> start({
+    CameraFacing? cameraDirection,
+    CameraLensType? cameraLensType,
+  }) async {
+    starts++;
+  }
+
+  @override
+  Future<void> stop() async {}
+}
+
 void main() {
   setUpAppTests();
+
+  test('camera start errors meaning "already starting/started" are benign', () {
+    MobileScannerException error(MobileScannerErrorCode code) =>
+        MobileScannerException(errorCode: code);
+    expect(
+      isBenignCameraStartError(
+        error(MobileScannerErrorCode.controllerInitializing),
+      ),
+      isTrue,
+    );
+    expect(
+      isBenignCameraStartError(
+        error(MobileScannerErrorCode.controllerAlreadyInitialized),
+      ),
+      isTrue,
+    );
+    expect(
+      isBenignCameraStartError(error(MobileScannerErrorCode.permissionDenied)),
+      isFalse,
+    );
+    expect(
+      isBenignCameraStartError(error(MobileScannerErrorCode.genericError)),
+      isFalse,
+    );
+  });
 
   late _FakeVoucherRepository repo;
 
@@ -101,6 +145,27 @@ void main() {
 
     expect(repo.calls, isEmpty);
     expect(find.textContaining('never use 0, 1, I, L, O or U'), findsOneWidget);
+  });
+
+  testWidgets('closing the result restarts the camera exactly once', (
+    tester,
+  ) async {
+    repo = _FakeVoucherRepository(
+      const VoucherRedemption(VoucherOutcome.invalid),
+    );
+    locator.registerLazySingleton<VoucherRepository>(() => repo);
+    final camera = _CountingController();
+    addTearDown(camera.dispose);
+    await pumpThemed(tester, VoucherScannerPage(controller: camera));
+    await tester.pump();
+    await typeAndSubmit(tester, 'abcd2345efgq');
+    final before = camera.starts;
+
+    await tester.tap(find.text('Done'));
+    await tester.pump(const Duration(milliseconds: 500));
+    await tester.pump(const Duration(milliseconds: 500));
+
+    expect(camera.starts - before, 1);
   });
 
   testWidgets('Done closes the result and the page is ready again', (

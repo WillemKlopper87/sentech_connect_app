@@ -26,7 +26,10 @@ import 'package:sentech_connect_app/shared/widgets/viewfinder_corners.dart';
 /// camera when it isn't the visible, foregrounded tab and restart it when
 /// it is.
 class VoucherScannerPage extends StatelessWidget {
-  const VoucherScannerPage({super.key});
+  const VoucherScannerPage({super.key, @visibleForTesting this.controller});
+
+  /// Tests inject a camera controller; the app lets the page own one.
+  final MobileScannerController? controller;
 
   @override
   Widget build(BuildContext context) {
@@ -35,20 +38,23 @@ class VoucherScannerPage extends StatelessWidget {
     final isDemo = !locator.isRegistered<AppEnvironment>() || locator<AppEnvironment>().isDemo;
     return BlocProvider(
       create: (_) => VoucherCubit(locator(), allowDemoCodes: isDemo),
-      child: const _VoucherScannerView(),
+      child: _VoucherScannerView(controller: controller),
     );
   }
 }
 
 class _VoucherScannerView extends StatefulWidget {
-  const _VoucherScannerView();
+  const _VoucherScannerView({this.controller});
+
+  final MobileScannerController? controller;
 
   @override
   State<_VoucherScannerView> createState() => _VoucherScannerViewState();
 }
 
 class _VoucherScannerViewState extends State<_VoucherScannerView> with WidgetsBindingObserver {
-  final MobileScannerController _controller = MobileScannerController(detectionSpeed: DetectionSpeed.noDuplicates);
+  late final MobileScannerController _controller =
+      widget.controller ?? MobileScannerController(detectionSpeed: DetectionSpeed.noDuplicates);
   bool _wasTabActive = false;
 
   /// What the customer last typed, kept on this screen only (never logged,
@@ -93,22 +99,21 @@ class _VoucherScannerViewState extends State<_VoucherScannerView> with WidgetsBi
     }
   }
 
-  /// Starting while a start is still in progress throws
-  /// `controllerInitializing`; the camera is already on its way up then, so
-  /// that is not an error. Other camera errors reach the errorBuilder.
+  /// A start that races another start or a running camera is harmless
+  /// ([isBenignCameraStartError]). Other camera errors reach the errorBuilder.
   Future<void> _startCamera() async {
     if (_controller.value.isStarting) return;
     try {
       await _controller.start();
     } on MobileScannerException catch (e) {
-      if (e.errorCode != MobileScannerErrorCode.controllerInitializing) rethrow;
+      if (!isBenignCameraStartError(e)) rethrow;
     }
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    _controller.dispose();
+    if (widget.controller == null) _controller.dispose();
     super.dispose();
   }
 
@@ -143,10 +148,10 @@ class _VoucherScannerViewState extends State<_VoucherScannerView> with WidgetsBi
       // Sheet closed. If "Try again" started a new redemption the cubit is
       // already past the result state; otherwise resume scanning.
       if (cubit.state.status == VoucherStatus.result) {
+        // dismiss() emits the scanning state, and this listener's last
+        // branch restarts the camera: no second start here.
         cubit.dismiss();
         _typed = null;
-        if (!mounted) return;
-        if (_wasTabActive) await _startCamera();
         if (editAgain == true && typed != null && mounted) {
           // Reopen the field with the code still in it, ready to fix.
           await _enterCodeManually(initial: typed);
@@ -234,6 +239,11 @@ class _VoucherScannerViewState extends State<_VoucherScannerView> with WidgetsBi
 
 /// Manual entry: formats as the customer types, pastes, and submits on the
 /// keyboard's Done key as well as the Redeem button.
+/// The camera is already starting or running: nothing to do, not an error.
+bool isBenignCameraStartError(MobileScannerException e) =>
+    e.errorCode == MobileScannerErrorCode.controllerInitializing ||
+    e.errorCode == MobileScannerErrorCode.controllerAlreadyInitialized;
+
 class _ManualEntryDialog extends StatefulWidget {
   const _ManualEntryDialog({required this.initial});
 

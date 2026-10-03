@@ -140,4 +140,53 @@ void main() {
       isA<ServerFailure>(),
     );
   });
+
+  group('the plaintext code does not linger in memory', () {
+    for (final (name, reply) in [
+      ('success', FakeReply(200, fixture('voucher_redeem_ok.json'))),
+      ('refused', FakeReply.problem(422, 'voucher_invalid')),
+      ('rate limited', FakeReply.problem(429, 'rate_limited')),
+      ('server error', FakeReply.problem(503, 'unavailable')),
+    ]) {
+      test('cleared after $name', () async {
+        h.adapter.on('POST', _path, (_) => reply);
+        await repo.redeem(code);
+        expect(repo.heldCodeForTest, isNull);
+      });
+    }
+
+    test(
+      'kept only across a network failure, so the retry reuses its key',
+      () async {
+        h.adapter.on(
+          'POST',
+          _path,
+          (_) => const FakeReply.error(DioExceptionType.connectionError),
+        );
+        await repo.redeem(code);
+        expect(repo.heldCodeForTest, isNotNull);
+        h.adapter.on(
+          'POST',
+          _path,
+          (_) => FakeReply(200, fixture('voucher_redeem_ok.json')),
+        );
+        await repo.redeem(code);
+        expect(repo.heldCodeForTest, isNull);
+      },
+    );
+
+    test('the same code after a completed attempt gets a fresh key', () async {
+      h.adapter.on(
+        'POST',
+        _path,
+        (_) => FakeReply.problem(422, 'voucher_invalid'),
+      );
+      await repo.redeem(code);
+      await repo.redeem(code);
+      expect(
+        h.adapter.requests.map((r) => r.headers['Idempotency-Key']).toSet(),
+        hasLength(2),
+      );
+    });
+  });
 }
