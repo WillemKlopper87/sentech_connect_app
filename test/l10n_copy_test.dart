@@ -24,6 +24,9 @@ class _TestCopy extends AppLocalizationsEn {
   String get demoPromotion1Title => 'Localized offer title';
   @override
   String get failureNoInternetConnection => 'Localized offline failure';
+  @override
+  String get failureThisProviderIsCurrentlyUnavailable =>
+      'Localized internet service failure';
 }
 
 class _TestDelegate extends LocalizationsDelegate<AppLocalizations> {
@@ -95,6 +98,33 @@ void main() {
       expect(l10n.priceInclVat('R35'), 'R35 incl. VAT');
     },
   );
+
+  test('owned source identity survives revised English display copy', () {
+    final l10n = AppLocalizationsEn();
+    final cases = <String, String>{
+      const ProviderUnavailableFailure().message:
+          l10n.failureThisProviderIsCurrentlyUnavailable,
+      const NotFoundFailure('Unknown provider.').message:
+          l10n.failureUnknownProvider,
+      'This order was replaced by a newer one and can no longer be paid.':
+          l10n.failureThisOrderWasReplacedByANewer,
+    };
+    for (final entry in cases.entries) {
+      expect(entry.value, isNot(entry.key), reason: 'Display wording changed');
+      expect(localizedFailureText(l10n, entry.key), entry.value);
+    }
+    expect(
+      localizedFailureText(
+        _TestCopy(),
+        const ProviderUnavailableFailure().message,
+      ),
+      'Localized internet service failure',
+    );
+    expect(
+      localizedFailureText(l10n, 'External service detail for this customer'),
+      'External service detail for this customer',
+    );
+  });
 
   testWidgets('FAQ search filters the displayed localized question', (
     tester,

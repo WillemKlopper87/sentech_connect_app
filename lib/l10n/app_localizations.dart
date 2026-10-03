@@ -2053,7 +2053,7 @@ abstract class AppLocalizations {
   /// Demo FAQ answer; not a promise of configured payment methods.
   ///
   /// In en, this message translates to:
-  /// **'Speed can dip during peak hours (6–10pm) or if your router is placed near thick walls or other electronics. Try moving the router to an open, central spot. If it persists after that, report the issue below.'**
+  /// **'Speed may drop from 6–10pm, when more people use the network. Thick walls and nearby electronics can also slow your connection. Move your router to an open, central spot. If that does not help, report the issue below.'**
   String get demoFaq1Answer;
 
   /// Demo FAQ question.
@@ -2065,7 +2065,7 @@ abstract class AppLocalizations {
   /// Demo FAQ answer; not a promise of configured payment methods.
   ///
   /// In en, this message translates to:
-  /// **'Go to the Shop tab, choose a top-up or voucher, and pay with card, Ozow, or PayShap. Top-ups apply to your account within a few minutes.'**
+  /// **'Open Shop and choose a top-up or voucher. Pay by card, Ozow, or PayShap. Top-ups reach your account within a few minutes.'**
   String get demoFaq2Answer;
 
   /// Demo FAQ question.
@@ -2077,7 +2077,7 @@ abstract class AppLocalizations {
   /// Demo FAQ answer; not a promise of configured payment methods.
   ///
   /// In en, this message translates to:
-  /// **'A solid red light usually means a signal or power issue. Check the power cable is fully seated, then wait 2 minutes for the router to reconnect. If it stays red, report the issue below.'**
+  /// **'A solid red light usually means a signal or power problem. Check that the power cable is firmly plugged in. Wait 2 minutes for your router to reconnect. If it stays red, report the issue below.'**
   String get demoFaq3Answer;
 
   /// Demo promotional copy; available in demo only.
@@ -2089,7 +2089,7 @@ abstract class AppLocalizations {
   /// Demo promotional copy; available in demo only.
   ///
   /// In en, this message translates to:
-  /// **'Move to Home 100 this month and get your first month at 20% off.'**
+  /// **'Switch to Home 100 this month. Get 20% off your first month.'**
   String get demoPromotion1Description;
 
   /// Demo promotional copy; available in demo only.
@@ -2137,7 +2137,7 @@ abstract class AppLocalizations {
   /// Demo promotional copy; available in demo only.
   ///
   /// In en, this message translates to:
-  /// **'You\'ve earned enough points for a free Wi-Fi voucher — redeem it in Vouchers.'**
+  /// **'You\'ve earned enough points for a free Wi-Fi voucher. Redeem it in Vouchers.'**
   String get demoPromotion3Description;
 
   /// Demo promotional copy; available in demo only.
@@ -2251,7 +2251,7 @@ abstract class AppLocalizations {
   /// Customer error matching an internal failure message; external details remain data.
   ///
   /// In en, this message translates to:
-  /// **'This provider is currently unavailable.'**
+  /// **'Your internet service is currently unavailable.'**
   String get failureThisProviderIsCurrentlyUnavailable;
 
   /// Customer error matching an internal failure message; external details remain data.
@@ -2359,7 +2359,7 @@ abstract class AppLocalizations {
   /// Customer error matching an internal failure message; external details remain data.
   ///
   /// In en, this message translates to:
-  /// **'This order was replaced by a newer one and can no longer be paid.'**
+  /// **'A newer order replaced this one. You can no longer pay for this order.'**
   String get failureThisOrderWasReplacedByANewer;
 
   /// Customer error matching an internal failure message; external details remain data.
@@ -2413,7 +2413,7 @@ abstract class AppLocalizations {
   /// Customer error matching an internal failure message; external details remain data.
   ///
   /// In en, this message translates to:
-  /// **'Unknown provider.'**
+  /// **'We could not find your internet service.'**
   String get failureUnknownProvider;
 
   /// Customer error matching an internal failure message; external details remain data.

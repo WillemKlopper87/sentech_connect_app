@@ -1153,28 +1153,28 @@ class AppLocalizationsZu extends AppLocalizations {
 
   @override
   String get demoFaq1Answer =>
-      'Speed can dip during peak hours (6–10pm) or if your router is placed near thick walls or other electronics. Try moving the router to an open, central spot. If it persists after that, report the issue below.';
+      'Speed may drop from 6–10pm, when more people use the network. Thick walls and nearby electronics can also slow your connection. Move your router to an open, central spot. If that does not help, report the issue below.';
 
   @override
   String get demoFaq2Question => 'How do I top up my data?';
 
   @override
   String get demoFaq2Answer =>
-      'Go to the Shop tab, choose a top-up or voucher, and pay with card, Ozow, or PayShap. Top-ups apply to your account within a few minutes.';
+      'Open Shop and choose a top-up or voucher. Pay by card, Ozow, or PayShap. Top-ups reach your account within a few minutes.';
 
   @override
   String get demoFaq3Question => 'My router lights are red';
 
   @override
   String get demoFaq3Answer =>
-      'A solid red light usually means a signal or power issue. Check the power cable is fully seated, then wait 2 minutes for the router to reconnect. If it stays red, report the issue below.';
+      'A solid red light usually means a signal or power problem. Check that the power cable is firmly plugged in. Wait 2 minutes for your router to reconnect. If it stays red, report the issue below.';
 
   @override
   String get demoPromotion1Title => 'Upgrade and save';
 
   @override
   String get demoPromotion1Description =>
-      'Move to Home 100 this month and get your first month at 20% off.';
+      'Switch to Home 100 this month. Get 20% off your first month.';
 
   @override
   String get demoPromotion1Badge => '20% OFF';
@@ -1200,7 +1200,7 @@ class AppLocalizationsZu extends AppLocalizations {
 
   @override
   String get demoPromotion3Description =>
-      'You\'ve earned enough points for a free Wi-Fi voucher — redeem it in Vouchers.';
+      'You\'ve earned enough points for a free Wi-Fi voucher. Redeem it in Vouchers.';
 
   @override
   String get demoPromotion3Badge => 'LOYALTY';
@@ -1270,7 +1270,7 @@ class AppLocalizationsZu extends AppLocalizations {
 
   @override
   String get failureThisProviderIsCurrentlyUnavailable =>
-      'This provider is currently unavailable.';
+      'Your internet service is currently unavailable.';
 
   @override
   String get failureWeCouldNotFindThat => 'We could not find that.';
@@ -1337,7 +1337,7 @@ class AppLocalizationsZu extends AppLocalizations {
 
   @override
   String get failureThisOrderWasReplacedByANewer =>
-      'This order was replaced by a newer one and can no longer be paid.';
+      'A newer order replaced this one. You can no longer pay for this order.';
 
   @override
   String get failureThisOrderCanNoLongerBePaid =>
@@ -1372,7 +1372,8 @@ class AppLocalizationsZu extends AppLocalizations {
       'Could not save your choice on this device.';
 
   @override
-  String get failureUnknownProvider => 'Unknown provider.';
+  String get failureUnknownProvider =>
+      'We could not find your internet service.';
 
   @override
   String get failureYourPhoneSDateOrTimeLooks =>
