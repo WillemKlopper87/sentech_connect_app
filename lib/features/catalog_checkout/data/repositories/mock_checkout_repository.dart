@@ -8,6 +8,7 @@ import 'package:sentech_connect_app/features/cart/domain/entities/cart_item.dart
 import 'package:sentech_connect_app/features/catalog_checkout/domain/entities/order.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/domain/entities/payment_handoff.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/domain/entities/plan.dart';
+import 'package:sentech_connect_app/features/catalog_checkout/domain/identity_rule.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/domain/repositories/checkout_repository.dart';
 
 /// Mock order service that still behaves like the real thing where it
@@ -108,6 +109,12 @@ class MockCheckoutRepository implements CheckoutRepository {
       orderNumber: 'SEN-${_firstOrderNumber + n}',
       planName: summary,
       totalCents: total,
+      // The demo tenant has rica: true, so only orders with a SIM product
+      // (Home 5G, MiFi) start at the identity check; WiFi passes and
+      // vouchers go straight to payment.
+      status: requiresIdentityCheck(ricaFlag: true, items: items)
+          ? OrderStatus.pendingVerification
+          : OrderStatus.awaitingPayment,
       isHotspotPass: items.every(
         (i) => i.plan.category == ProductCategory.hotspotPass,
       ),

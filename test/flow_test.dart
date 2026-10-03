@@ -146,4 +146,55 @@ void main() {
     expect(find.text('Submit a ticket'), findsWidgets);
     expect(find.text('WhatsApp'), findsOneWidget);
   });
+
+  // Audit screenshot 11: buying a WiFi pass under a tenant with rica: true
+  // (the demo tenant) used to open the face check. RICA follows the product,
+  // not the tenant flag alone: a hotspot pass goes from checkout to payment.
+  testWidgets('a WiFi pass goes checkout -> payment with no identity check', (tester) async {
+    await tester.pumpWidget(const SentechConnectApp());
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 1300));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.widgetWithText(TextField, 'Mobile number'), '0810000000');
+    await tester.tap(find.widgetWithText(ElevatedButton, 'Send code'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+    await tester.enterText(find.widgetWithText(TextField, '6-digit code'), '123456');
+    await tester.tap(find.widgetWithText(ElevatedButton, 'Verify'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('I agree'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('View plans for this address'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+
+    await tester.tap(find.text('Shop'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.text('Day Pass'), findsOneWidget);
+    await tester.tap(find.text('Add to cart').at(1)); // "Day Pass"
+    await tester.pump();
+    await tester.tap(find.byIcon(Icons.shopping_bag_outlined));
+    await tester.pump();
+    await pumpTransition(tester);
+    for (var i = 0; i < 6; i++) {
+      await tester.pump(const Duration(seconds: 1));
+    }
+    await tester.tap(find.text('Checkout'));
+    await tester.pump();
+    await pumpTransition(tester);
+
+    expect(find.text('Verify identity to continue'), findsNothing);
+    expect(find.textContaining('RICA'), findsNothing);
+    await tester.tap(find.text('Continue to payment'));
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+    await pumpTransition(tester);
+
+    expect(find.text('Verify your identity'), findsNothing);
+    expect(find.text('Identity verified'), findsNothing);
+    expect(find.textContaining('Pay R'), findsOneWidget);
+  });
 }

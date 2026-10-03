@@ -15,6 +15,7 @@ import 'package:sentech_connect_app/features/auth/presentation/pages/splash_page
 import 'package:sentech_connect_app/features/cart/presentation/bloc/cart_cubit.dart';
 import 'package:sentech_connect_app/features/cart/presentation/pages/cart_page.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/domain/entities/order.dart';
+import 'package:sentech_connect_app/features/catalog_checkout/domain/identity_rule.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/presentation/bloc/checkout_cubit.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/presentation/bloc/order_cubit.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/presentation/bloc/payment_cubit.dart';
@@ -351,8 +352,12 @@ GoRouter _buildRouter(
           return BlocProvider(
             create: (_) => CheckoutCubit(locator(), context.read<CartCubit>()),
             child: CheckoutPage(
-              requiresIdentityCheck:
-                  tenantCubit?.state.featureFlags.rica ?? true,
+              // RICA follows the products in the cart, not the tenant flag
+              // alone: a WiFi pass never goes to the face check.
+              requiresIdentityCheck: requiresIdentityCheck(
+                ricaFlag: tenantCubit?.state.featureFlags.rica ?? true,
+                items: context.read<CartCubit>().state.items,
+              ),
               onOrderCreated: (order) =>
                   context.push(AppRoutes.forOrder(order)),
             ),
