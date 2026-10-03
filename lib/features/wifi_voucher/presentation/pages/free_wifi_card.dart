@@ -1,3 +1,4 @@
+import 'package:sentech_connect_app/l10n/l10n.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -29,7 +30,9 @@ class _FreeWifiCardState extends State<FreeWifiCard> {
     _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
       if (mounted) {
         context.read<FreeWifiCubit>().checkExpiry();
-        setState(() {}); // re-read session.remaining/dataUsedMb for the countdown
+        setState(
+          () {},
+        ); // re-read session.remaining/dataUsedMb for the countdown
       }
     });
   }
@@ -60,16 +63,24 @@ class _FreeWifiCardState extends State<FreeWifiCard> {
     return BlocBuilder<FreeWifiCubit, FreeWifiState>(
       builder: (context, state) {
         if (state.status == FreeWifiStatus.loading) {
-          return const SizedBox(height: 96, child: Center(child: CircularProgressIndicator()));
+          return const SizedBox(
+            height: 96,
+            child: Center(child: CircularProgressIndicator()),
+          );
         }
         return Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            gradient: const LinearGradient(colors: [AppColors.darkBlue, AppColors.gradientEnd]),
+            gradient: const LinearGradient(
+              colors: [AppColors.darkBlue, AppColors.gradientEnd],
+            ),
             borderRadius: BorderRadius.circular(16),
           ),
           child: state.hasActiveSession
-              ? _ActiveSession(session: state.session!, onFindHotspots: widget.onFindHotspots)
+              ? _ActiveSession(
+                  session: state.session!,
+                  onFindHotspots: widget.onFindHotspots,
+                )
               : _AdOffer(
                   adsRemainingToday: state.adsRemainingToday,
                   onWatchAd: state.canWatchAd ? () => _watchAd(context) : null,
@@ -89,7 +100,11 @@ final _outlinedOnGradient = OutlinedButton.styleFrom(
 );
 
 class _AdOffer extends StatelessWidget {
-  const _AdOffer({required this.adsRemainingToday, required this.onWatchAd, required this.onFindHotspots});
+  const _AdOffer({
+    required this.adsRemainingToday,
+    required this.onWatchAd,
+    required this.onFindHotspots,
+  });
 
   final int adsRemainingToday;
   final VoidCallback? onWatchAd;
@@ -100,19 +115,25 @@ class _AdOffer extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Row(
+        Row(
           children: [
             Icon(Icons.wifi_tethering, color: Colors.white, size: 22),
             SizedBox(width: 8),
-            Text('Free WiFi', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 15)),
+            Text(
+              context.l10n.freeWifiFreeWifi,
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w800,
+                fontSize: 15,
+              ),
+            ),
           ],
         ),
         const SizedBox(height: 6),
         Text(
           adsRemainingToday > 0
-              ? 'Watch an ad for 45 minutes of free WiFi. '
-                  '$adsRemainingToday of 3 free ${adsRemainingToday == 1 ? 'view' : 'views'} left today.'
-              : "You've used all 3 free WiFi ads for today — come back tomorrow.",
+              ? context.l10n.freeWifiAdOffer(adsRemainingToday.toString())
+              : context.l10n.freeWifiYouVeUsedAll3Free,
           style: const TextStyle(color: Colors.white, fontSize: 14),
         ),
         const SizedBox(height: 12),
@@ -127,7 +148,7 @@ class _AdOffer extends StatelessWidget {
                   minimumSize: const Size(0, 48),
                 ),
                 icon: const Icon(Icons.play_circle_outline, size: 18),
-                label: const Text('Watch ad'),
+                label: Text(context.l10n.freeWifiWatchAd),
               ),
             ),
             const SizedBox(width: 8),
@@ -139,7 +160,7 @@ class _AdOffer extends StatelessWidget {
                 onPressed: onFindHotspots,
                 style: _outlinedOnGradient,
                 icon: const Icon(Icons.map_outlined, size: 18),
-                label: const Text('Hotspots'),
+                label: Text(context.l10n.freeWifiHotspots),
               ),
             ),
           ],
@@ -164,11 +185,18 @@ class _ActiveSession extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Row(
+        Row(
           children: [
             Icon(Icons.wifi, color: Colors.white, size: 22),
             SizedBox(width: 8),
-            Text('Free WiFi active', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 15)),
+            Text(
+              context.l10n.freeWifiFreeWifiActive,
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w800,
+                fontSize: 15,
+              ),
+            ),
           ],
         ),
         const SizedBox(height: 10),
@@ -176,19 +204,25 @@ class _ActiveSession extends StatelessWidget {
           children: [
             Expanded(
               child: _StatChip(
-                label: 'TIME LEFT',
-                value: '${minutes}m ${seconds.toString().padLeft(2, '0')}s',
+                label: context.l10n.freeWifiTimeLeft,
+                value: context.l10n.freeWifiTimeRemaining(
+                  minutes.toString(),
+                  seconds.toString().padLeft(2, '0'),
+                ),
               ),
             ),
             const SizedBox(width: 10),
             Expanded(
-              child: _StatChip(label: 'DATA LEFT', value: '$dataRemaining MB'),
+              child: _StatChip(
+                label: context.l10n.freeWifiDataLeft,
+                value: context.l10n.sizeMegabytes(dataRemaining.toString()),
+              ),
             ),
           ],
         ),
         const SizedBox(height: 4),
-        const Text(
-          'Monitored from your Sentech account — updates as you use it.',
+        Text(
+          context.l10n.freeWifiUpdatesFromYourAccountAsYou,
           style: TextStyle(color: Colors.white, fontSize: 12),
         ),
         const SizedBox(height: 10),
@@ -196,7 +230,7 @@ class _ActiveSession extends StatelessWidget {
           onPressed: onFindHotspots,
           style: _outlinedOnGradient,
           icon: const Icon(Icons.map_outlined, size: 18),
-          label: const Text('Find hotspots near me'),
+          label: Text(context.l10n.freeWifiFindHotspotsNearMe),
         ),
       ],
     );
@@ -222,8 +256,22 @@ class _StatChip extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w700)),
-          Text(value, style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w800)),
+          Text(
+            label,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          Text(
+            value,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 15,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
         ],
       ),
     );

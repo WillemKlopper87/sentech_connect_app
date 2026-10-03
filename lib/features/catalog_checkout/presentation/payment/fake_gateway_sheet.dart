@@ -1,3 +1,4 @@
+import 'package:sentech_connect_app/l10n/l10n.dart';
 import 'package:flutter/material.dart';
 import 'package:sentech_connect_app/core/money/money.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/domain/entities/payment_handoff.dart';
@@ -17,22 +18,24 @@ Future<bool?> showFakeGatewaySheet(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            'Test payment (local stack)',
+            context.l10n.paymentTestPaymentLocalStack,
             style: Theme.of(context).textTheme.titleLarge,
           ),
           const SizedBox(height: 8),
           Text(
-            'No money moves. This simulates the payment gateway for ${formatRands(handoff.amountCents)}.',
+            context.l10n.paymentTestExplanation(
+              context.l10n.priceInclVat(formatRands(handoff.amountCents)),
+            ),
           ),
           const SizedBox(height: 16),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Approve test payment'),
+            child: Text(context.l10n.paymentApproveTestPayment),
           ),
           const SizedBox(height: 8),
           OutlinedButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Decline test payment'),
+            child: Text(context.l10n.paymentDeclineTestPayment),
           ),
         ],
       ),

@@ -1,3 +1,4 @@
+import 'package:sentech_connect_app/l10n/l10n.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -13,7 +14,7 @@ import 'package:sentech_connect_app/shared/widgets/sentech_logo.dart';
 /// static logo under reduce-motion) AND [initDone] has completed. A failing
 /// [initDone] also counts as done: the owner of the future reports errors.
 ///
-/// Deliberately localisation-free and theme-free (it sits above the app, like
+/// Uses bundled localization copy and is theme-free (it sits above the app, like
 /// the startup error screen), and it never shows an error: any problem with
 /// the video just means moving on.
 class BootVideoScreen extends StatefulWidget {
@@ -154,7 +155,7 @@ class _BootVideoScreenState extends State<BootVideoScreen> {
     final controller = _controller;
     return Semantics(
       container: true,
-      label: 'Sentech Connect is starting',
+      label: context.l10n.bootSentechConnectIsStarting,
       child: Material(
         color: bootVideoBackground,
         child: GestureDetector(
@@ -180,7 +181,7 @@ class _BootVideoScreenState extends State<BootVideoScreen> {
                         container: true,
                         button: true,
                         enabled: _skipEnabled,
-                        label: 'Skip intro',
+                        label: context.l10n.bootSkipIntro,
                         excludeSemantics: true,
                         onTap: _skipEnabled ? _skip : null,
                         child: AnimatedOpacity(
@@ -193,7 +194,7 @@ class _BootVideoScreenState extends State<BootVideoScreen> {
                               disabledForegroundColor: const Color(0xFF1F2937),
                               minimumSize: const Size(48, 48),
                             ),
-                            child: const Text('Skip'),
+                            child: Text(context.l10n.bootSkip),
                           ),
                         ),
                       ),

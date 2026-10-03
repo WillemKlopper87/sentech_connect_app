@@ -51,34 +51,46 @@ void main() {
 
   /// A phone-sized window at the given text scale. Text scaling is applied
   /// through MediaQuery, as the OS font-size setting does.
-  Future<void> pumpScaled(WidgetTester tester, Widget home, {double scale = 1.0}) async {
+  Future<void> pumpScaled(
+    WidgetTester tester,
+    Widget home, {
+    double scale = 1.0,
+  }) async {
     tester.view.physicalSize = const Size(1080, 2160);
     tester.view.devicePixelRatio = 3; // 360 x 720 dp
     addTearDown(tester.view.reset);
-    await tester.pumpWidget(MaterialApp(
-      theme: AppTheme.light(),
-      builder: (context, child) => MediaQuery(
-        data: MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(scale)),
-        child: child!,
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.light(),
+        builder: (context, child) => MediaQuery(
+          data: MediaQuery.of(
+            context,
+          ).copyWith(textScaler: TextScaler.linear(scale)),
+          child: child!,
+        ),
+        home: home,
       ),
-      home: home,
-    ));
+    );
     await tester.pump(const Duration(seconds: 1));
   }
 
   AuthCubit newAuth() => AuthCubit(
-        locator(),
-        sessionStore: locator(),
-        biometrics: MockBiometricAuthenticator(),
-        wiper: locator(),
-      );
+    locator(),
+    sessionStore: locator(),
+    biometrics: MockBiometricAuthenticator(),
+    wiper: locator(),
+  );
 
-  Widget loginPage(AuthCubit auth) => BlocProvider.value(value: auth, child: const LoginPage());
+  Widget loginPage(AuthCubit auth) =>
+      BlocProvider.value(value: auth, child: const LoginPage());
 
   Widget checkoutPage(CartCubit cart) => BlocProvider(
-        create: (_) => CheckoutCubit(MockCheckoutRepository(InMemorySecureStore(), latency: Duration.zero), cart),
-        child: CheckoutPage(onOrderCreated: (_) {}),
-      );
+    create: (_) => CheckoutCubit(
+      MockCheckoutRepository(InMemorySecureStore(), latency: Duration.zero),
+      cart,
+    ),
+    child: CheckoutPage(onOrderCreated: (_) {}),
+  );
 
   CartCubit fullCart() {
     final cart = CartCubit();
@@ -89,7 +101,9 @@ void main() {
   }
 
   group('text scale 2.0', () {
-    testWidgets('login: no overflow, and every control is still reachable', (tester) async {
+    testWidgets('login: no overflow, and every control is still reachable', (
+      tester,
+    ) async {
       final auth = newAuth();
       addTearDown(auth.close);
       await pumpScaled(tester, loginPage(auth), scale: 2.0);
@@ -100,29 +114,38 @@ void main() {
         expect(find.text(label), findsOneWidget);
       }
       // The form still works at large text.
-      await tester.enterText(find.widgetWithText(TextField, 'Mobile number'), '0810000000');
+      await tester.enterText(
+        find.widgetWithText(TextField, 'Mobile number'),
+        '0810000000',
+      );
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets('checkout: no overflow, totals and the primary button stay visible', (tester) async {
-      final cart = fullCart();
-      addTearDown(cart.close);
-      await pumpScaled(tester, checkoutPage(cart), scale: 2.0);
+    testWidgets(
+      'checkout: no overflow, totals and the primary button stay visible',
+      (tester) async {
+        final cart = fullCart();
+        addTearDown(cart.close);
+        await pumpScaled(tester, checkoutPage(cart), scale: 2.0);
 
-      expect(tester.takeException(), isNull);
-      expect(find.text('Home Unlimited'), findsOneWidget);
-      expect(find.text('Due after verification'), findsOneWidget);
-      await tester.ensureVisible(find.text('Verify identity to continue'));
-      expect(find.text('Verify identity to continue'), findsOneWidget);
-      expect(tester.takeException(), isNull);
-    });
+        expect(tester.takeException(), isNull);
+        expect(find.text('Home Unlimited'), findsOneWidget);
+        expect(find.text('To pay'), findsOneWidget);
+        await tester.ensureVisible(find.text('Verify identity to continue'));
+        expect(find.text('Verify identity to continue'), findsOneWidget);
+        expect(tester.takeException(), isNull);
+      },
+    );
 
     testWidgets('cart: no overflow at 2.0', (tester) async {
       final cart = fullCart();
       addTearDown(cart.close);
       await pumpScaled(
         tester,
-        BlocProvider.value(value: cart, child: CartPage(onCheckout: () {})),
+        BlocProvider.value(
+          value: cart,
+          child: CartPage(onCheckout: () {}),
+        ),
         scale: 2.0,
       );
       expect(tester.takeException(), isNull);
@@ -130,7 +153,9 @@ void main() {
   });
 
   group('touch targets and labels', () {
-    testWidgets('login meets the Android 48dp tap-target guideline', (tester) async {
+    testWidgets('login meets the Android 48dp tap-target guideline', (
+      tester,
+    ) async {
       final handle = tester.ensureSemantics();
       final auth = newAuth();
       addTearDown(auth.close);
@@ -148,11 +173,19 @@ void main() {
       handle.dispose();
     });
 
-    testWidgets('cart: quantity steppers are 48dp and labelled', (tester) async {
+    testWidgets('cart: quantity steppers are 48dp and labelled', (
+      tester,
+    ) async {
       final handle = tester.ensureSemantics();
       final cart = fullCart();
       addTearDown(cart.close);
-      await pumpScaled(tester, BlocProvider.value(value: cart, child: CartPage(onCheckout: () {})));
+      await pumpScaled(
+        tester,
+        BlocProvider.value(
+          value: cart,
+          child: CartPage(onCheckout: () {}),
+        ),
+      );
       await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
       await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
       expect(find.byTooltip('Increase quantity'), findsNWidgets(3));
@@ -160,26 +193,32 @@ void main() {
       handle.dispose();
     });
 
-    testWidgets('catalog: the icon-only cart button is labelled and category chips are 48dp', (tester) async {
-      final handle = tester.ensureSemantics();
-      final cubit = CatalogCubit(MockCatalogRepository(SimulatedNetwork()));
-      final cart = CartCubit();
-      addTearDown(() {
-        cubit.close();
-        cart.close();
-      });
-      await pumpScaled(
-        tester,
-        MultiBlocProvider(
-          providers: [BlocProvider.value(value: cubit), BlocProvider.value(value: cart)],
-          child: CatalogPage(onOpenCart: () {}, onFindHotspots: () {}),
-        ),
-      );
-      await tester.pump(const Duration(seconds: 1));
-      expect(find.byTooltip('Shopping cart'), findsOneWidget);
-      await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
-      await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
-      handle.dispose();
-    });
+    testWidgets(
+      'catalog: the icon-only cart button is labelled and category chips are 48dp',
+      (tester) async {
+        final handle = tester.ensureSemantics();
+        final cubit = CatalogCubit(MockCatalogRepository(SimulatedNetwork()));
+        final cart = CartCubit();
+        addTearDown(() {
+          cubit.close();
+          cart.close();
+        });
+        await pumpScaled(
+          tester,
+          MultiBlocProvider(
+            providers: [
+              BlocProvider.value(value: cubit),
+              BlocProvider.value(value: cart),
+            ],
+            child: CatalogPage(onOpenCart: () {}, onFindHotspots: () {}),
+          ),
+        );
+        await tester.pump(const Duration(seconds: 1));
+        expect(find.byTooltip('Shopping cart'), findsOneWidget);
+        await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
+        await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
+        handle.dispose();
+      },
+    );
   });
 }

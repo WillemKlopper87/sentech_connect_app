@@ -61,7 +61,7 @@ void main() {
     (tester) async {
       await _pump(tester, mock: true);
       expect(find.text('Scan'), findsOneWidget);
-      expect(find.text('Support'), findsOneWidget);
+      expect(find.text('Help'), findsOneWidget);
       expect(find.text('Report issue'), findsOneWidget);
     },
   );
@@ -70,11 +70,17 @@ void main() {
     'prod: Scan (real voucher redemption) shows; mock-backed Support and report-issue are hidden',
     (tester) async {
       await _pump(tester, mock: false);
-      expect(find.text('Home'), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byType(NavigationBar),
+          matching: find.text('Home'),
+        ),
+        findsOneWidget,
+      );
       expect(find.text('Shop'), findsOneWidget);
       expect(find.text('Account'), findsOneWidget);
       expect(find.text('Scan'), findsOneWidget);
-      expect(find.text('Support'), findsNothing);
+      expect(find.text('Help'), findsNothing);
       expect(find.text('Report issue'), findsNothing);
     },
   );

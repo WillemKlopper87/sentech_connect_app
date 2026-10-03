@@ -184,7 +184,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.textContaining('Identity verified'), findsNothing);
     expect(find.textContaining('RICA'), findsNothing);
-    expect(find.text('Wi-Fi pass order'), findsOneWidget);
+    expect(find.text('WiFi pass order'), findsOneWidget);
   });
 
   testWidgets(
@@ -209,7 +209,7 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      expect(find.text('Your Wi-Fi pass is paid'), findsOneWidget);
+      expect(find.text('Your WiFi pass is paid'), findsOneWidget);
       expect(find.text(order.planName), findsOneWidget);
       expect(find.textContaining('Courier'), findsNothing);
       expect(find.textContaining('Router'), findsNothing);
@@ -267,7 +267,7 @@ void main() {
           ),
         );
         await tester.pumpAndSettle();
-        expect(find.text('Back to dashboard'), findsOneWidget);
+        expect(find.text('Back to Home'), findsOneWidget);
         expect(find.text('Continue your order'), findsNothing);
         expect(AppRoutes.forOrder(order), AppRoutes.confirmationFor(order.id));
       },

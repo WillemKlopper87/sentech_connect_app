@@ -35,45 +35,56 @@ void main() {
     expect(cubit.state, isTrue);
   });
 
-  testWidgets('global offline banner appears and disappears with connectivity', (tester) async {
-    await tester.pumpWidget(const SentechConnectApp());
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 1300));
-    await tester.pumpAndSettle();
-    expect(find.text('Welcome back'), findsOneWidget);
-    expect(find.textContaining("You're offline"), findsNothing);
+  testWidgets(
+    'global offline banner appears and disappears with connectivity',
+    (tester) async {
+      await tester.pumpWidget(const SentechConnectApp());
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 1300));
+      await tester.pumpAndSettle();
+      expect(find.text('Welcome back'), findsOneWidget);
+      expect(find.textContaining("You're offline"), findsNothing);
 
-    final connectivity = locator<ConnectivityService>() as FakeConnectivityService;
-    connectivity.setOnline(false);
-    await tester.pump();
-    await tester.pump();
-    expect(find.textContaining("You're offline"), findsOneWidget);
-    expect(find.text('Welcome back'), findsOneWidget); // screen state is preserved
+      final connectivity =
+          locator<ConnectivityService>() as FakeConnectivityService;
+      connectivity.setOnline(false);
+      await tester.pump();
+      await tester.pump();
+      expect(find.textContaining("You're offline"), findsOneWidget);
+      expect(
+        find.text('Welcome back'),
+        findsOneWidget,
+      ); // screen state is preserved
 
-    connectivity.setOnline(true);
-    await tester.pump();
-    await tester.pump();
-    expect(find.textContaining("You're offline"), findsNothing);
-  });
+      connectivity.setOnline(true);
+      await tester.pump();
+      await tester.pump();
+      expect(find.textContaining("You're offline"), findsNothing);
+    },
+  );
 
   group('retry UI', () {
     late SimulatedNetwork network;
 
     setUp(() => network = SimulatedNetwork());
 
-    testWidgets('catalog: offline failure shows retry, then recovers', (tester) async {
+    testWidgets('catalog: offline failure shows retry, then recovers', (
+      tester,
+    ) async {
       network.offline = true;
       final cubit = CatalogCubit(MockCatalogRepository(network));
       addTearDown(cubit.close);
-      await tester.pumpWidget(MaterialApp(
-        home: MultiBlocProvider(
-          providers: [
-            BlocProvider.value(value: cubit),
-            BlocProvider(create: (_) => CartCubit()),
-          ],
-          child: CatalogPage(onOpenCart: () {}, onFindHotspots: () {}),
+      await tester.pumpWidget(
+        MaterialApp(
+          home: MultiBlocProvider(
+            providers: [
+              BlocProvider.value(value: cubit),
+              BlocProvider(create: (_) => CartCubit()),
+            ],
+            child: CatalogPage(onOpenCart: () {}, onFindHotspots: () {}),
+          ),
         ),
-      ));
+      );
       await tester.pump(const Duration(seconds: 1));
       expect(find.textContaining("You're offline"), findsOneWidget);
       expect(find.text('Day Pass'), findsNothing);
@@ -86,14 +97,18 @@ void main() {
       expect(find.text('Retry'), findsNothing);
     });
 
-    testWidgets('coverage: offline failure shows retry, then recovers', (tester) async {
+    testWidgets('coverage: offline failure shows retry, then recovers', (
+      tester,
+    ) async {
       network.offline = true;
-      await tester.pumpWidget(MaterialApp(
-        home: BlocProvider(
-          create: (_) => CoverageCubit(MockCoverageRepository(network)),
-          child: CoveragePage(onCovered: () {}),
+      await tester.pumpWidget(
+        MaterialApp(
+          home: BlocProvider(
+            create: (_) => CoverageCubit(MockCoverageRepository(network)),
+            child: CoveragePage(onCovered: () {}),
+          ),
         ),
-      ));
+      );
       await tester.pump();
       await tester.pump(const Duration(seconds: 1));
       expect(find.textContaining("You're offline"), findsOneWidget);
@@ -103,42 +118,53 @@ void main() {
       await tester.tap(find.text('Retry'));
       await tester.pump();
       await tester.pump(const Duration(seconds: 1));
-      expect(find.text('5G FWA available'), findsOneWidget);
+      expect(find.text('Home internet is available here'), findsOneWidget);
     });
 
-    testWidgets('checkout: a failed order creation shows retry, then continues', (tester) async {
-      network.offline = true;
-      final cart = CartCubit()
-        ..addItem(const Plan(
-          id: 'home_100',
-          name: 'Home 100',
-          priceCents: 54900,
-          dataDescription: '100GB',
-          speedMbps: 100,
-          category: ProductCategory.home5g,
-        ));
-      addTearDown(cart.close);
-      final created = <String>[];
-      await tester.pumpWidget(MaterialApp(
-        home: BlocProvider(
-          create: (_) => CheckoutCubit(
-            MockCheckoutRepository(InMemorySecureStore(), network: network, latency: Duration.zero),
-            cart,
+    testWidgets(
+      'checkout: a failed order creation shows retry, then continues',
+      (tester) async {
+        network.offline = true;
+        final cart = CartCubit()
+          ..addItem(
+            const Plan(
+              id: 'home_100',
+              name: 'Home 100',
+              priceCents: 54900,
+              dataDescription: '100GB',
+              speedMbps: 100,
+              category: ProductCategory.home5g,
+            ),
+          );
+        addTearDown(cart.close);
+        final created = <String>[];
+        await tester.pumpWidget(
+          MaterialApp(
+            home: BlocProvider(
+              create: (_) => CheckoutCubit(
+                MockCheckoutRepository(
+                  InMemorySecureStore(),
+                  network: network,
+                  latency: Duration.zero,
+                ),
+                cart,
+              ),
+              child: CheckoutPage(onOrderCreated: (o) => created.add(o.id)),
+            ),
           ),
-          child: CheckoutPage(onOrderCreated: (o) => created.add(o.id)),
-        ),
-      ));
-      await tester.tap(find.text('Verify identity to continue'));
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 50));
-      expect(find.textContaining("You're offline"), findsOneWidget);
-      expect(created, isEmpty);
+        );
+        await tester.tap(find.text('Verify identity to continue'));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 50));
+        expect(find.textContaining("You're offline"), findsOneWidget);
+        expect(created, isEmpty);
 
-      network.offline = false;
-      await tester.tap(find.text('Retry'));
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 50));
-      expect(created, hasLength(1));
-    });
+        network.offline = false;
+        await tester.tap(find.text('Retry'));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 50));
+        expect(created, hasLength(1));
+      },
+    );
   });
 }

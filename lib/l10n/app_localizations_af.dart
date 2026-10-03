@@ -598,4 +598,808 @@ class AppLocalizationsAf extends AppLocalizations {
 
   @override
   String get dashboardReportIssue => 'Report issue';
+
+  @override
+  String get navHome => 'Home';
+
+  @override
+  String get navShop => 'Shop';
+
+  @override
+  String get navScan => 'Scan';
+
+  @override
+  String get navHelp => 'Help';
+
+  @override
+  String get navAccount => 'Account';
+
+  @override
+  String get homeTitle => 'Home';
+
+  @override
+  String get commonTryAgain => 'Try again';
+
+  @override
+  String priceInclVat(String price) {
+    return '$price incl. VAT';
+  }
+
+  @override
+  String homeFinishOrder(String number) {
+    return 'Finish your order #$number';
+  }
+
+  @override
+  String homeDataUsed(String used, String total) {
+    return '$used GB of $total GB';
+  }
+
+  @override
+  String homePlanRenews(String plan, String date) {
+    return '$plan · renews $date';
+  }
+
+  @override
+  String homeRouterAddress(String suffix) {
+    return 'MAC •• •• $suffix';
+  }
+
+  @override
+  String get homeVerifyYourIdentityToContinue =>
+      'Verify your identity to continue';
+
+  @override
+  String get homeYourLastPaymentDidNotGo =>
+      'Your last payment did not go through. Try again.';
+
+  @override
+  String get homeCompleteYourPayment => 'Complete your payment';
+
+  @override
+  String get homeUsed => 'USED';
+
+  @override
+  String get shopTitle => 'Buy';
+
+  @override
+  String shopAddedToCart(String name) {
+    return '$name added to cart';
+  }
+
+  @override
+  String get planBadgeOurPick => 'Our pick';
+
+  @override
+  String get pricePerMonth => '/month';
+
+  @override
+  String shopPlanSpeed(String data, String speed) {
+    return '$data · up to $speed Mbps';
+  }
+
+  @override
+  String get shopAddToCart => 'Add to cart';
+
+  @override
+  String cartPriceEach(String price) {
+    return '$price each';
+  }
+
+  @override
+  String get cartYourCart => 'Your cart';
+
+  @override
+  String get cartYourCartIsEmpty => 'Your cart is empty';
+
+  @override
+  String get cartTotal => 'Total';
+
+  @override
+  String get cartCheckout => 'Checkout';
+
+  @override
+  String get checkoutCheckout => 'Checkout';
+
+  @override
+  String get checkoutToPay => 'To pay';
+
+  @override
+  String get checkoutTotalDue => 'Total due';
+
+  @override
+  String get checkoutVerifyIdentityToContinue => 'Verify identity to continue';
+
+  @override
+  String get checkoutContinueToPayment => 'Continue to payment';
+
+  @override
+  String orderExpiredBeforePayment(String number) {
+    return 'Order #$number expired before payment was confirmed.';
+  }
+
+  @override
+  String orderCancelled(String number) {
+    return 'Order #$number was cancelled.';
+  }
+
+  @override
+  String orderNotComplete(String number) {
+    return 'Order #$number is not complete yet.';
+  }
+
+  @override
+  String orderNumberLabel(String number) {
+    return 'Order #$number';
+  }
+
+  @override
+  String get confirmationOrder => 'Order';
+
+  @override
+  String get confirmationBackToHome => 'Back to Home';
+
+  @override
+  String get confirmationContinueYourOrder => 'Continue your order';
+
+  @override
+  String get confirmationTrackMyInstallation => 'Track my installation';
+
+  @override
+  String get confirmationCourierDispatched => 'Courier dispatched';
+
+  @override
+  String get confirmationRouterKitOnItsWay => 'Router kit on its way';
+
+  @override
+  String get confirmationSelfInstall => 'Self-install';
+
+  @override
+  String get confirmationFollowTheSetupGuideInThe =>
+      'Follow the setup guide in the app';
+
+  @override
+  String get confirmationActivation => 'Activation';
+
+  @override
+  String get confirmationSignalConfirmedServiceLive =>
+      'Signal confirmed, service live';
+
+  @override
+  String paymentPaySecurely(String price) {
+    return 'Pay $price securely';
+  }
+
+  @override
+  String get paymentPayment => 'Payment';
+
+  @override
+  String get paymentConfirmingYourPaymentThisCanTake =>
+      'Confirming your payment. This can take a minute. Your order stays saved if you leave this screen.';
+
+  @override
+  String get paymentChooseHowToPayOnThe =>
+      'Choose how to pay on the secure payment page.';
+
+  @override
+  String get paymentPayOnASecurePaymentPage =>
+      'Pay on a secure payment page. We never see or store your card details.';
+
+  @override
+  String get paymentIdentityVerified => 'Identity verified';
+
+  @override
+  String get paymentWifiPassOrder => 'WiFi pass order';
+
+  @override
+  String get paymentYourOrder => 'Your order';
+
+  @override
+  String voucherProductReady(String product) {
+    return '$product is ready';
+  }
+
+  @override
+  String voucherDataAdded(String amount) {
+    return '$amount GB has been added to your account.';
+  }
+
+  @override
+  String get voucherTooManyTries => 'Too many tries';
+
+  @override
+  String get voucherWaitAFewMinutesThenTry =>
+      'Wait a few minutes, then try again.';
+
+  @override
+  String get voucherYouReOffline => 'You\'re offline';
+
+  @override
+  String get voucherSomethingWentWrong => 'Something went wrong';
+
+  @override
+  String get voucherCheckYourConnectionAndTryAgain =>
+      'Check your connection and try again. We could not confirm whether this voucher was used.';
+
+  @override
+  String get voucherWeCouldNotCheckThisVoucher =>
+      'We could not check this voucher. Please try again.';
+
+  @override
+  String get voucherVoucherRedeemed => 'Voucher redeemed';
+
+  @override
+  String get voucherDataHasBeenAddedToYour =>
+      'Data has been added to your account.';
+
+  @override
+  String get voucherYourPassIsOnYourAccount =>
+      'Your pass is on your account. Find it under My passes.';
+
+  @override
+  String get voucherAlreadyUsed => 'Already used';
+
+  @override
+  String get voucherThisVoucherHasAlreadyBeenRedeemed =>
+      'This voucher has already been redeemed.';
+
+  @override
+  String get voucherVoucherExpired => 'Voucher expired';
+
+  @override
+  String get voucherThisVoucherIsNoLongerValid =>
+      'This voucher is no longer valid.';
+
+  @override
+  String get voucherOneCharacterLooksWrong => 'One character looks wrong';
+
+  @override
+  String get voucherCompareTheCodeWithYourVoucher =>
+      'Compare the code with your voucher card, then try again.';
+
+  @override
+  String get voucherCheckTheCode => 'Check the code';
+
+  @override
+  String get voucherVoucherCodesNeverUse01 =>
+      'Voucher codes never use 0, 1, I, L, O or U. Check those characters.';
+
+  @override
+  String get voucherVoucherCodesHave12LettersAnd =>
+      'Voucher codes have 12 letters and numbers.';
+
+  @override
+  String get voucherNotAVoucherCode => 'Not a voucher code';
+
+  @override
+  String get voucherCheckTheCodeOnYourVoucher =>
+      'Check the code on your voucher card and try again.';
+
+  @override
+  String get voucherThatCodeDidnTWork => 'That code didn\'t work';
+
+  @override
+  String get voucherItMayBeMistypedAlreadyUsed =>
+      'It may be mistyped, already used or not active yet. Check it, or ask the shop.';
+
+  @override
+  String get scanScanVoucher => 'Scan voucher';
+
+  @override
+  String get scanAlignTheVoucherSQrCode =>
+      'Align the voucher\'s QR code within the frame';
+
+  @override
+  String get scanTypeTheCodeInstead => 'Type the code instead';
+
+  @override
+  String get scanEnterVoucherCode => 'Enter voucher code';
+
+  @override
+  String get scanEGAbcd2345Efgh => 'e.g. ABCD-2345-EFGH';
+
+  @override
+  String get scan12LettersAndNumbersOnYour =>
+      '12 letters and numbers, on your voucher card';
+
+  @override
+  String get scanPaste => 'Paste';
+
+  @override
+  String get scanRedeem => 'Redeem';
+
+  @override
+  String get scanEnableTheCameraInSystemSettings =>
+      'Enable the camera in system settings, or type the code below.';
+
+  @override
+  String get scanCameraUnavailablePleaseTypeTheCode =>
+      'Camera unavailable. Please type the code below.';
+
+  @override
+  String freeWifiAdOffer(String remaining) {
+    return 'Watch an ad for 45 minutes of free WiFi. $remaining of 3 free views left today.';
+  }
+
+  @override
+  String freeWifiTimeRemaining(String minutes, String seconds) {
+    return '${minutes}m ${seconds}s';
+  }
+
+  @override
+  String get freeWifiFreeWifi => 'Free WiFi';
+
+  @override
+  String get freeWifiWatchAd => 'Watch ad';
+
+  @override
+  String get freeWifiHotspots => 'Hotspots';
+
+  @override
+  String get freeWifiFreeWifiActive => 'Free WiFi active';
+
+  @override
+  String get freeWifiTimeLeft => 'TIME LEFT';
+
+  @override
+  String get freeWifiDataLeft => 'DATA LEFT';
+
+  @override
+  String get freeWifiFindHotspotsNearMe => 'Find hotspots near me';
+
+  @override
+  String get freeWifiYouVeUsedAll3Free =>
+      'You\'ve used all 3 free WiFi ads today. Come back tomorrow.';
+
+  @override
+  String get freeWifiUpdatesFromYourAccountAsYou =>
+      'Updates from your account as you use it.';
+
+  @override
+  String get freeWifiYourFreeWifiAdIsPlaying => 'Your free WiFi ad is playing…';
+
+  @override
+  String get freeWifiSimulatedNoSkipUntilItFinishes =>
+      '(simulated — no skip until it finishes)';
+
+  @override
+  String get hotspotsWifiHotspotsNearYou => 'WiFi hotspots near you';
+
+  @override
+  String get hotspotsEnableLocationToSeeWhichHotspot =>
+      'Enable location to see which hotspot is closest to you.';
+
+  @override
+  String get hotspotsClosest => 'CLOSEST';
+
+  @override
+  String coverageCurrentLocation(String latitude, String longitude) {
+    return 'Current location ($latitude, $longitude)';
+  }
+
+  @override
+  String coverageEstimatedSpeed(String speed) {
+    return 'Estimated speed: up to $speed Mbps';
+  }
+
+  @override
+  String get coverageTurnOnLocationServicesToUse =>
+      'Turn on location services to use this.';
+
+  @override
+  String get coverageLocationPermissionDeniedEnterYourAddress =>
+      'Location permission denied — enter your address manually.';
+
+  @override
+  String get coverageCouldNotGetYourLocationCheck =>
+      'Could not get your location — check that location services are on.';
+
+  @override
+  String get coverageCoverageCheck => 'Coverage check';
+
+  @override
+  String get coverageAddress => 'Address';
+
+  @override
+  String get coverageUseMyCurrentLocation => 'Use my current location';
+
+  @override
+  String get coverageViewPlansForThisAddress => 'View plans for this address';
+
+  @override
+  String get coverageCheckADifferentAddress => 'Check a different address';
+
+  @override
+  String get coverageCheckThisAddress => 'Check this address';
+
+  @override
+  String get coverageNotYetCovered => 'Not yet covered';
+
+  @override
+  String get coverageHomeInternetIsAvailableHere =>
+      'Home internet is available here';
+
+  @override
+  String get ricaPrivacyNotice =>
+      'Your face and ID information are used for verification only, under POPIA. You will be asked to confirm your consent before the check starts.';
+
+  @override
+  String get ricaVerifyYourIdentity => 'Verify your identity';
+
+  @override
+  String get ricaLookAtTheCameraAndBlink =>
+      'Look at the camera and blink slowly…';
+
+  @override
+  String get ricaReadyToVerifyWhenYouAre => 'Ready to verify when you are.';
+
+  @override
+  String get ricaWeCouldnTReachOurServers =>
+      'We couldn\'t reach our servers. Check your connection and try again.';
+
+  @override
+  String get ricaWeCouldnTUpdateYourOrder =>
+      'We couldn\'t update your order. Try again in a moment.';
+
+  @override
+  String get ricaWeCouldnTVerifyYourIdentity =>
+      'We couldn\'t verify your identity. Keep your face well lit and fully in the frame. Please try again. You haven\'t been charged.';
+
+  @override
+  String promotionsPoints(String count) {
+    return '$count points';
+  }
+
+  @override
+  String promotionsExpires(String date) {
+    return 'Expires $date';
+  }
+
+  @override
+  String get promotionsPromotionsLoyalty => 'Promotions & loyalty';
+
+  @override
+  String get promotionsYourSentechLoyaltyBalance =>
+      'Your Sentech loyalty balance';
+
+  @override
+  String get promotionsCurrentOffers => 'CURRENT OFFERS';
+
+  @override
+  String get routerPageNotFound => 'Page not found';
+
+  @override
+  String get routerBackToHome => 'Back to Home';
+
+  @override
+  String mapDataAttribution(String attribution) {
+    return 'Map data $attribution';
+  }
+
+  @override
+  String get paymentClosePayment => 'Close payment';
+
+  @override
+  String get paymentSecurePayment => 'Secure payment';
+
+  @override
+  String paymentTestExplanation(String price) {
+    return 'No money moves. This simulates payment for $price.';
+  }
+
+  @override
+  String get paymentTestPaymentLocalStack => 'Test payment (local stack)';
+
+  @override
+  String get paymentApproveTestPayment => 'Approve test payment';
+
+  @override
+  String get paymentDeclineTestPayment => 'Decline test payment';
+
+  @override
+  String get bootSentechConnectIsStarting => 'Sentech Connect is starting';
+
+  @override
+  String get bootSkipIntro => 'Skip intro';
+
+  @override
+  String get bootSkip => 'Skip';
+
+  @override
+  String get failureYouReOfflineCheckYourConnection =>
+      'You\'re offline. Check your connection and try again.';
+
+  @override
+  String get failureSomethingWentWrongPleaseTryAgain =>
+      'Something went wrong. Please try again.';
+
+  @override
+  String get productCategoryHome5g => 'Home 5G';
+
+  @override
+  String get productCategoryMifi => 'MiFi';
+
+  @override
+  String get productCategoryVoucher => 'Vouchers';
+
+  @override
+  String get productCategoryHotspotPass => 'WiFi passes';
+
+  @override
+  String get startupErrorMessage =>
+      'App configuration error — please reinstall or contact support';
+
+  @override
+  String get languageEnglish => 'English';
+
+  @override
+  String get languageZulu => 'isiZulu';
+
+  @override
+  String get languageAfrikaans => 'Afrikaans';
+
+  @override
+  String hotspotMetersAway(String distance) {
+    return '$distance m away';
+  }
+
+  @override
+  String hotspotKilometersAway(String distance) {
+    return '$distance km away';
+  }
+
+  @override
+  String get demoFaq1Question => 'Why is my speed slower than expected?';
+
+  @override
+  String get demoFaq1Answer =>
+      'Speed can dip during peak hours (6–10pm) or if your router is placed near thick walls or other electronics. Try moving the router to an open, central spot. If it persists after that, report the issue below.';
+
+  @override
+  String get demoFaq2Question => 'How do I top up my data?';
+
+  @override
+  String get demoFaq2Answer =>
+      'Go to the Shop tab, choose a top-up or voucher, and pay with card, Ozow, or PayShap. Top-ups apply to your account within a few minutes.';
+
+  @override
+  String get demoFaq3Question => 'My router lights are red';
+
+  @override
+  String get demoFaq3Answer =>
+      'A solid red light usually means a signal or power issue. Check the power cable is fully seated, then wait 2 minutes for the router to reconnect. If it stays red, report the issue below.';
+
+  @override
+  String get demoPromotion1Title => 'Upgrade and save';
+
+  @override
+  String get demoPromotion1Description =>
+      'Move to Home 100 this month and get your first month at 20% off.';
+
+  @override
+  String get demoPromotion1Badge => '20% OFF';
+
+  @override
+  String get demoPromotion1Expiry => '31 Aug';
+
+  @override
+  String get demoPromotion2Title => 'Refer a friend';
+
+  @override
+  String get demoPromotion2Description =>
+      'Give a friend a free installation — you both get 10GB bonus data.';
+
+  @override
+  String get demoPromotion2Badge => 'REFERRAL';
+
+  @override
+  String get demoPromotion2Expiry => 'Ongoing';
+
+  @override
+  String get demoPromotion3Title => 'Loyalty reward';
+
+  @override
+  String get demoPromotion3Description =>
+      'You\'ve earned enough points for a free Wi-Fi voucher — redeem it in Vouchers.';
+
+  @override
+  String get demoPromotion3Badge => 'LOYALTY';
+
+  @override
+  String get demoPromotion3Expiry => '15 Sep';
+
+  @override
+  String get supportChatGreeting => 'Hi Sentech, I need help with my account.';
+
+  @override
+  String supportEmailSubject(String category) {
+    return '[$category] Support request';
+  }
+
+  @override
+  String get homePromotionsLabel =>
+      'Promotions & loyalty — see what\'s on offer';
+
+  @override
+  String get checkoutIdentityNotice =>
+      'Next we verify your identity (required by RICA). You are only charged after that succeeds.';
+
+  @override
+  String get checkoutPaymentNotice =>
+      'Pay on a secure payment page. Your pass starts when payment is confirmed.';
+
+  @override
+  String get ricaLawNotice =>
+      'Required by South African law (RICA) before we can activate your service.';
+
+  @override
+  String get confirmationReady => 'You\'re all set!';
+
+  @override
+  String get confirmationPassPaid => 'Your WiFi pass is paid';
+
+  @override
+  String get confirmationConnectHint =>
+      'You\'re all set. Connect at a WiFi hotspot to start.';
+
+  @override
+  String get mapUnavailable => 'Map not available.';
+
+  @override
+  String get offlineBanner =>
+      'You\'re offline. Some things won\'t work until you reconnect.';
+
+  @override
+  String get failureNoInternetConnection => 'No internet connection.';
+
+  @override
+  String get failureSomethingWentWrongOnOurEnd =>
+      'Something went wrong on our end.';
+
+  @override
+  String get failureThisAddressIsNotYetInOur =>
+      'This address is not yet in our coverage area.';
+
+  @override
+  String get failureWeCouldNotFinishSigningYouIn =>
+      'We could not finish signing you in. Please try again.';
+
+  @override
+  String get failureYourSessionHasEndedSignInAgain =>
+      'Your session has ended. Sign in again.';
+
+  @override
+  String get failureThisProviderIsCurrentlyUnavailable =>
+      'This provider is currently unavailable.';
+
+  @override
+  String get failureWeCouldNotFindThat => 'We could not find that.';
+
+  @override
+  String get failureTooManyAttemptsPleaseWaitAndTry =>
+      'Too many attempts. Please wait and try again.';
+
+  @override
+  String get failureWeReceivedAnUnexpectedResponsePleaseTry =>
+      'We received an unexpected response. Please try again.';
+
+  @override
+  String get failureTheRequestWasCancelled => 'The request was cancelled.';
+
+  @override
+  String get failureWeCouldNotMakeASecureConnection =>
+      'We could not make a secure connection. Check your network and try again.';
+
+  @override
+  String get failureBlockedARequestToAnUnexpectedAddress =>
+      'Blocked a request to an unexpected address.';
+
+  @override
+  String get failureEnterAValidSouthAfricanMobileNumber =>
+      'Enter a valid South African mobile number.';
+
+  @override
+  String get failureEnterThe6DigitCode => 'Enter the 6-digit code.';
+
+  @override
+  String get failureCouldNotSaveYourDetailsOnThis =>
+      'Could not save your details on this device.';
+
+  @override
+  String get failureCouldNotReadYourSavedDetails =>
+      'Could not read your saved details.';
+
+  @override
+  String get failureTheCodeIsInvalidOrHasExpired =>
+      'The code is invalid or has expired.';
+
+  @override
+  String get failureYourSessionCouldNotBeVerifiedSign =>
+      'Your session could not be verified. Sign in again.';
+
+  @override
+  String get failureWeCouldNotLoadTheCompleteCatalogue =>
+      'We could not load the complete catalogue. Please try again.';
+
+  @override
+  String get failureYourCartIsEmpty => 'Your cart is empty.';
+
+  @override
+  String get failureWeCouldNotLoadYourOpenOrder =>
+      'We could not load your open order. Please try again.';
+
+  @override
+  String get failureIdentityChecksAreNotNeededForThis =>
+      'Identity checks are not needed for this order.';
+
+  @override
+  String get failureWeCouldNotFindThatOrder => 'We could not find that order.';
+
+  @override
+  String get failureThisOrderWasReplacedByANewer =>
+      'This order was replaced by a newer one and can no longer be paid.';
+
+  @override
+  String get failureThisOrderCanNoLongerBePaid =>
+      'This order can no longer be paid.';
+
+  @override
+  String get failureVerifyYourIdentityBeforePaying =>
+      'Verify your identity before paying.';
+
+  @override
+  String get failureThePaymentWasNotCompletedYouHave =>
+      'The payment was not completed. You have not been charged.';
+
+  @override
+  String get failureWeCouldNotOpenThePaymentPage =>
+      'We could not open the payment page safely.';
+
+  @override
+  String get failureWeCouldNotLoadAllOfYour =>
+      'We could not load all of your passes. Please try again.';
+
+  @override
+  String get failureWeCouldNotLoadTheLegalDocuments =>
+      'We could not load the legal documents. Try again.';
+
+  @override
+  String get failureCouldNotSaveYourConsentOnThis =>
+      'Could not save your consent on this device.';
+
+  @override
+  String get failureCouldNotSaveYourChoiceOnThis =>
+      'Could not save your choice on this device.';
+
+  @override
+  String get failureUnknownProvider => 'Unknown provider.';
+
+  @override
+  String get failureYourPhoneSDateOrTimeLooks =>
+      'Your phone\'s date or time looks wrong. Set it to automatic and try again.';
+
+  @override
+  String get failureYouAlreadyHaveAFreeWifiSession =>
+      'You already have a free WiFi session running.';
+
+  @override
+  String get failureYouVeReachedTodaySFreeWifi =>
+      'You\'ve reached today\'s free WiFi limit.';
+
+  @override
+  String get failureNotAllowed => 'You are not allowed to do that.';
+
+  @override
+  String get contactMethodEmail => 'Email';
+
+  @override
+  String get contactMethodSms => 'SMS';
+
+  @override
+  String get mapUnavailableNearestSpots =>
+      'Map not available. Here are the nearest spots.';
+
+  @override
+  String get mapUnavailableWifiSpots =>
+      'Map not available. Here are the WiFi spots.';
 }

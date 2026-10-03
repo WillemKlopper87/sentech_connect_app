@@ -45,6 +45,7 @@ class DashboardPage extends StatelessWidget {
   /// The tenant's `cpe` flag. Off: no router card, no fixed-plan usage, no
   /// Upgrade shortcut; the dashboard is about hotspot passes only.
   final bool showRouterCard;
+
   /// Null hides the shortcut (support tickets are mock-backed in prod).
   final VoidCallback? onReportIssue;
   final VoidCallback onOpenPromotions;
@@ -62,7 +63,7 @@ class DashboardPage extends StatelessWidget {
           children: [
             const SentechLogo(height: 20),
             const SizedBox(width: 10),
-            const Text('Dashboard'),
+            Text(context.l10n.homeTitle),
           ],
         ),
         actions: const [
@@ -150,7 +151,10 @@ class DashboardPage extends StatelessWidget {
               const SizedBox(width: 8),
               if (showRouterCard) ...[
                 Expanded(
-                  child: _QuickAction(label: context.l10n.dashboardUpgrade, onTap: onUpgrade),
+                  child: _QuickAction(
+                    label: context.l10n.dashboardUpgrade,
+                    onTap: onUpgrade,
+                  ),
                 ),
                 const SizedBox(width: 8),
               ],
@@ -204,16 +208,16 @@ class _ResumeOrderBanner extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Finish your order #${order.orderNumber}',
+                      context.l10n.homeFinishOrder(order.orderNumber),
                       style: theme.textTheme.titleMedium,
                     ),
                     Text(
                       switch (order.status) {
                         OrderStatus.pendingVerification =>
-                          'Verify your identity to continue',
+                          context.l10n.homeVerifyYourIdentityToContinue,
                         OrderStatus.paymentFailed =>
-                          'Your last payment did not go through. Try again.',
-                        _ => 'Complete your payment',
+                          context.l10n.homeYourLastPaymentDidNotGo,
+                        _ => context.l10n.homeCompleteYourPayment,
                       },
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: theme.colorScheme.onSurfaceVariant,
@@ -272,7 +276,7 @@ class _UsageCard extends StatelessWidget {
                       style: theme.textTheme.titleMedium,
                     ),
                     Text(
-                      'USED',
+                      context.l10n.homeUsed,
                       style: theme.textTheme.bodyMedium?.copyWith(fontSize: 9),
                     ),
                   ],
@@ -286,11 +290,17 @@ class _UsageCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '${summary.usedGB.toStringAsFixed(0)}GB of ${summary.totalGB.toStringAsFixed(0)}GB',
+                  context.l10n.homeDataUsed(
+                    summary.usedGB.toStringAsFixed(0),
+                    summary.totalGB.toStringAsFixed(0),
+                  ),
                   style: theme.textTheme.titleMedium,
                 ),
                 Text(
-                  '${summary.planName} · renews ${summary.renewsOn}',
+                  context.l10n.homePlanRenews(
+                    summary.planName,
+                    summary.renewsOn,
+                  ),
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
@@ -332,7 +342,7 @@ class _CpeCard extends StatelessWidget {
               children: [
                 Text(summary.routerName, style: theme.textTheme.titleMedium),
                 Text(
-                  'MAC •• •• ${summary.macAddressSuffix}',
+                  context.l10n.homeRouterAddress(summary.macAddressSuffix),
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
@@ -381,7 +391,7 @@ class _PromoBanner extends StatelessWidget {
           ),
           borderRadius: BorderRadius.circular(14),
         ),
-        child: const Row(
+        child: Row(
           children: [
             Icon(
               Icons.workspace_premium_outlined,
@@ -391,7 +401,7 @@ class _PromoBanner extends StatelessWidget {
             SizedBox(width: 12),
             Expanded(
               child: Text(
-                'Promotions & loyalty — see what\'s on offer',
+                context.l10n.homePromotionsLabel,
                 style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.w700,

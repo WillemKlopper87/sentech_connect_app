@@ -1,12 +1,18 @@
 import 'package:equatable/equatable.dart';
 
 class Faq extends Equatable {
-  const Faq({required this.id, required this.question, required this.answer});
+  const Faq({
+    required this.id,
+    required this.question,
+    required this.answer,
+    this.isDemoCopy = false,
+  });
 
+  final bool isDemoCopy;
   final String id;
   final String question;
   final String answer;
 
   @override
-  List<Object?> get props => [id, question, answer];
+  List<Object?> get props => [id, question, answer, isDemoCopy];
 }

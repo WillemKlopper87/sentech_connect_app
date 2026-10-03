@@ -6,7 +6,7 @@ import 'package:sentech_connect_app/app/boot/boot_host.dart';
 import 'package:sentech_connect_app/app/boot/boot_video_config.dart';
 import 'package:sentech_connect_app/app/boot/boot_video_controller.dart';
 import 'package:sentech_connect_app/app/boot/boot_video_screen.dart';
-import 'package:sentech_connect_app/app/startup_error_app.dart';
+import 'package:sentech_connect_app/l10n/app_localizations_en.dart';
 
 class FakeBootVideoController implements BootVideoController {
   FakeBootVideoController({this.failInit = false, this.neverInit = false});
@@ -338,7 +338,10 @@ void main() {
       await tester.pump();
       await tester.pump();
       expect(reported, isA<StateError>());
-      expect(find.text(startupErrorMessage), findsOneWidget);
+      expect(
+        find.text(AppLocalizationsEn().startupErrorMessage),
+        findsOneWidget,
+      );
     });
 
     t('no factory shows the app as soon as it is ready', (tester) async {

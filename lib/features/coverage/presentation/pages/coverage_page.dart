@@ -21,14 +21,18 @@ class CoveragePage extends StatefulWidget {
 }
 
 class _CoveragePageState extends State<CoveragePage> {
-  final _addressController = TextEditingController(text: '12 Lifalethu Ave, eMbalenhle');
+  final _addressController = TextEditingController(
+    text: '12 Lifalethu Ave, eMbalenhle',
+  );
   bool _locating = false;
   LatLng? _currentLatLng;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _checkAddress(_addressController.text));
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => _checkAddress(_addressController.text),
+    );
   }
 
   @override
@@ -46,7 +50,12 @@ class _CoveragePageState extends State<CoveragePage> {
     try {
       final locations = await Geocoding().locationFromAddress(address);
       if (locations.isNotEmpty && mounted) {
-        setState(() => _currentLatLng = LatLng(locations.first.latitude, locations.first.longitude));
+        setState(
+          () => _currentLatLng = LatLng(
+            locations.first.latitude,
+            locations.first.longitude,
+          ),
+        );
       }
     } catch (_) {
       // Keep whatever map view we already had (or the SA-wide default).
@@ -55,34 +64,55 @@ class _CoveragePageState extends State<CoveragePage> {
 
   Future<void> _useDeviceLocation() async {
     // POPIA: agree to the location notice before any location is read.
-    if (!await ensureConsent(context, ConsentPurpose.locationCapture) || !mounted) return;
+    if (!await ensureConsent(context, ConsentPurpose.locationCapture) ||
+        !mounted) {
+      return;
+    }
     setState(() => _locating = true);
     try {
       final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!mounted) return;
       if (!serviceEnabled) {
-        _showMessage('Turn on location services to use this.');
+        _showMessage(context.l10n.coverageTurnOnLocationServicesToUse);
         return;
       }
       var permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
       }
-      if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
-        _showMessage('Location permission denied — enter your address manually.');
+      if (!mounted) return;
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        _showMessage(
+          context.l10n.coverageLocationPermissionDeniedEnterYourAddress,
+        );
         return;
       }
       final position = await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+        ),
       );
-      final address = await reverseGeocode(position.latitude, position.longitude);
-      _addressController.text = address ??
-          'Current location (${position.latitude.toStringAsFixed(4)}, ${position.longitude.toStringAsFixed(4)})';
+      final address = await reverseGeocode(
+        position.latitude,
+        position.longitude,
+      );
+      if (!mounted) return;
+      _addressController.text =
+          address ??
+          context.l10n.coverageCurrentLocation(
+            position.latitude.toStringAsFixed(4),
+            position.longitude.toStringAsFixed(4),
+          );
       if (mounted) {
-        setState(() => _currentLatLng = LatLng(position.latitude, position.longitude));
+        setState(
+          () => _currentLatLng = LatLng(position.latitude, position.longitude),
+        );
         context.read<CoverageCubit>().checkAddress(_addressController.text);
       }
     } catch (_) {
-      _showMessage('Could not get your location — check that location services are on.');
+      if (!mounted) return;
+      _showMessage(context.l10n.coverageCouldNotGetYourLocationCheck);
     } finally {
       if (mounted) setState(() => _locating = false);
     }
@@ -98,7 +128,7 @@ class _CoveragePageState extends State<CoveragePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Coverage check')),
+      appBar: AppBar(title: Text(context.l10n.coverageCoverageCheck)),
       body: BlocBuilder<CoverageCubit, CoverageState>(
         builder: (context, state) {
           final checking = state.status == CoverageStatus.checking;
@@ -113,9 +143,12 @@ class _CoveragePageState extends State<CoveragePage> {
                       children: [
                         TextField(
                           controller: _addressController,
-                          decoration: const InputDecoration(
-                            labelText: 'Address',
-                            prefixIcon: Icon(Icons.location_on_outlined, size: 20),
+                          decoration: InputDecoration(
+                            labelText: context.l10n.coverageAddress,
+                            prefixIcon: Icon(
+                              Icons.location_on_outlined,
+                              size: 20,
+                            ),
                           ),
                         ),
                         // A typed address is forward-geocoded by the platform
@@ -124,8 +157,11 @@ class _CoveragePageState extends State<CoveragePage> {
                           padding: const EdgeInsets.only(top: 6),
                           child: Text(
                             context.l10n.coverageAddressLookupNotice,
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
                                 ),
                           ),
                         ),
@@ -133,9 +169,17 @@ class _CoveragePageState extends State<CoveragePage> {
                         OutlinedButton.icon(
                           onPressed: _locating ? null : _useDeviceLocation,
                           icon: _locating
-                              ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+                              ? const SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                )
                               : const Icon(Icons.my_location, size: 18),
-                          label: const Text('Use my current location'),
+                          label: Text(
+                            context.l10n.coverageUseMyCurrentLocation,
+                          ),
                         ),
                         const SizedBox(height: 20),
                         SizedBox(
@@ -143,19 +187,27 @@ class _CoveragePageState extends State<CoveragePage> {
                           child: OsmMap(
                             center: _currentLatLng ?? southAfricaCenter,
                             zoom: _currentLatLng != null ? 15 : 5,
-                            markers: _currentLatLng == null ? const [] : [brandPin(_currentLatLng!)],
+                            markers: _currentLatLng == null
+                                ? const []
+                                : [brandPin(_currentLatLng!)],
                           ),
                         ),
                         const SizedBox(height: 20),
-                        if (checking) const Center(child: CircularProgressIndicator()),
+                        if (checking)
+                          const Center(child: CircularProgressIndicator()),
                         if (state.status == CoverageStatus.failure)
                           FailureView(
                             failure: state.failure,
                             compact: true,
-                            onRetry: () => context.read<CoverageCubit>().retry(),
+                            onRetry: () =>
+                                context.read<CoverageCubit>().retry(),
                           ),
-                        if (state.status == CoverageStatus.checked && state.result != null)
-                          _ResultCard(covered: state.result!.isCovered, speed: state.result!.estimatedSpeedMbps),
+                        if (state.status == CoverageStatus.checked &&
+                            state.result != null)
+                          _ResultCard(
+                            covered: state.result!.isCovered,
+                            speed: state.result!.estimatedSpeedMbps,
+                          ),
                       ],
                     ),
                   ),
@@ -165,20 +217,28 @@ class _CoveragePageState extends State<CoveragePage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      if (state.status == CoverageStatus.checked && state.result?.isCovered == true) ...[
+                      if (state.status == CoverageStatus.checked &&
+                          state.result?.isCovered == true) ...[
                         ElevatedButton(
                           onPressed: widget.onCovered,
-                          child: const Text('View plans for this address'),
+                          child: Text(
+                            context.l10n.coverageViewPlansForThisAddress,
+                          ),
                         ),
                         const SizedBox(height: 8),
                         TextButton(
-                          onPressed: () => context.read<CoverageCubit>().reset(),
-                          child: const Text('Check a different address'),
+                          onPressed: () =>
+                              context.read<CoverageCubit>().reset(),
+                          child: Text(
+                            context.l10n.coverageCheckADifferentAddress,
+                          ),
                         ),
                       ] else
                         ElevatedButton(
-                          onPressed: checking ? null : () => _checkAddress(_addressController.text),
-                          child: const Text('Check this address'),
+                          onPressed: checking
+                              ? null
+                              : () => _checkAddress(_addressController.text),
+                          child: Text(context.l10n.coverageCheckThisAddress),
                         ),
                     ],
                   ),
@@ -200,7 +260,9 @@ class _ResultCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = covered ? const Color(0xFF6F9126) : Theme.of(context).colorScheme.error;
+    final color = covered
+        ? const Color(0xFF6F9126)
+        : Theme.of(context).colorScheme.error;
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -211,19 +273,24 @@ class _ResultCard extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(covered ? Icons.check_circle : Icons.error_outline, color: color),
+          Icon(
+            covered ? Icons.check_circle : Icons.error_outline,
+            color: color,
+          ),
           const SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  covered ? '5G FWA available' : 'Not yet covered',
+                  covered
+                      ? context.l10n.coverageHomeInternetIsAvailableHere
+                      : context.l10n.coverageNotYetCovered,
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 if (covered)
                   Text(
-                    'Estimated speed: up to $speed Mbps',
+                    context.l10n.coverageEstimatedSpeed(speed.toString()),
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
               ],

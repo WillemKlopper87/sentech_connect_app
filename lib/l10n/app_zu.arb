@@ -1,11 +1,9 @@
 {
   "@@locale": "zu",
-
   "commonCancel": "Khansela",
   "commonContinue": "Qhubeka",
   "commonRetry": "Zama futhi",
   "commonDone": "Kwenziwe",
-
   "loginWelcomeBack": "Siyakwamukela futhi",
   "loginSubtitle": "Ngena ukuze uphathe uxhumo lwakho",
   "loginUseBiometrics": "Sebenzisa i-biometrics",
@@ -18,7 +16,6 @@
   "biometricPermanentlyLockedOut": "I-biometrics ikhiyiwe. Vula ifoni yakho kuqala nge-PIN noma iphethini.",
   "signedOutProviderUnavailable": "Your provider is currently unavailable, so you have been signed out. Please try again later.",
   "biometricFailed": "Ukuhlolwa kwe-biometric kuhlulekile. Zama futhi.",
-
   "registerTitle": "Dala i-akhawunti",
   "registerPersonalDetails": "IMINININGWANE YAKHO",
   "registerFullName": "Igama eligcwele",
@@ -38,7 +35,6 @@
   "registerSaveFailed": "Ayikwazanga ukulondoloza imininingwane yakho — sicela uzame futhi.",
   "registerLocationDenied": "Imvume yendawo enqatshiwe — faka ikheli lakho ngesandla.",
   "registerLocationFailed": "Ayikwazanga ukuthola indawo yakho — qinisekisa ukuthi amasevisi endawo avuliwe.",
-
   "accountTitle": "I-akhawunti",
   "accountNotLoggedIn": "Awungenile",
   "accountAppearance": "ISIMO SOKUBONAKALA",
@@ -67,7 +63,6 @@
   "accountDeleteConfirm": "Susa konke",
   "accountRequestFailed": "Asikwazanga ukuqedela lesi sicelo. Sicela uzame futhi.",
   "accountLinkFailed": "Ayikwazanga ukuvula isixhumanisi.",
-
   "supportTitle": "Usizo nokwesekwa",
   "supportSearchHint": "Sesha imibuzo evame ukubuzwa",
   "supportNoResults": "Ayikho imiphumela ye-\"{query}\"",
@@ -82,7 +77,6 @@
   "supportWhatsAppFailed": "Ayikwazanga ukuvula i-WhatsApp — ingabe ifakiwe?",
   "supportTicketOpened": "Ithikithi livulwe ku-app yakho ye-imeyili — lithumele ukuze ulithumele.",
   "supportTicketNoEmail": "Ayikwazanga ukuvula i-app ye-imeyili kule divayisi.",
-
   "consentTitle": "Ubumfihlo bakho",
   "consentLocationBody": "Sisebenzisa indawo yefoni yakho kanye kuphela ukuhlola ukufinyeleleka kwe-5G ekhelini lakho. Ayigcinwa efonini yakho noma ngemva kokuhlolwa.",
   "consentLocationMapService": "To turn your location into an address, your phone's map service (Google or Apple) looks it up.",
@@ -91,12 +85,10 @@
   "consentPolicyLink": "Funda inqubomgomo yethu yobumfihlo",
   "consentAgree": "Ngiyavuma",
   "consentDecline": "Hhayi manje",
-
   "notifRationaleTitle": "Hlala wazi",
   "notifRationaleBody": "Vumela izaziso ukuze sikwazi ukukutshela uma idatha yakho iphela, uma kukhona ukucishwa endaweni yakho, nalapho i-oda lakho liqhubeka. Ungazivala noma inini.",
   "notifRationaleAllow": "Vumela izaziso",
   "notifRationaleLater": "Hhayi manje",
-
   "a11yCart": "Ikalishi lokuthenga",
   "a11yDecreaseQuantity": "Nciphisa inani",
   "a11yIncreaseQuantity": "Khulisa inani",
@@ -178,5 +170,1644 @@
   "sizeGigabytes": "{amount} GB",
   "dashboardTopUp": "Top up",
   "dashboardUpgrade": "Upgrade",
-  "dashboardReportIssue": "Report issue"
+  "dashboardReportIssue": "Report issue",
+  "navHome": "Home",
+  "@navHome": {
+    "description": "Navigation or common action label."
+  },
+  "navShop": "Shop",
+  "@navShop": {
+    "description": "Navigation or common action label."
+  },
+  "navScan": "Scan",
+  "@navScan": {
+    "description": "Navigation or common action label."
+  },
+  "navHelp": "Help",
+  "@navHelp": {
+    "description": "Navigation or common action label."
+  },
+  "navAccount": "Account",
+  "@navAccount": {
+    "description": "Navigation or common action label."
+  },
+  "homeTitle": "Home",
+  "@homeTitle": {
+    "description": "Navigation or common action label."
+  },
+  "commonTryAgain": "Try again",
+  "@commonTryAgain": {
+    "description": "Navigation or common action label."
+  },
+  "priceInclVat": "{price} incl. VAT",
+  "@priceInclVat": {
+    "description": "Price including VAT.",
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "homeFinishOrder": "Finish your order #{number}",
+  "@homeFinishOrder": {
+    "description": "Customer copy in dashboard page.",
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "homeDataUsed": "{used} GB of {total} GB",
+  "@homeDataUsed": {
+    "description": "Customer copy in dashboard page.",
+    "placeholders": {
+      "used": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "homePlanRenews": "{plan} · renews {date}",
+  "@homePlanRenews": {
+    "description": "Customer copy in dashboard page.",
+    "placeholders": {
+      "plan": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "homeRouterAddress": "MAC •• •• {suffix}",
+  "@homeRouterAddress": {
+    "description": "Customer copy in dashboard page.",
+    "placeholders": {
+      "suffix": {
+        "type": "String"
+      }
+    }
+  },
+  "homeVerifyYourIdentityToContinue": "Verify your identity to continue",
+  "@homeVerifyYourIdentityToContinue": {
+    "description": "Customer copy in dashboard page."
+  },
+  "homeYourLastPaymentDidNotGo": "Your last payment did not go through. Try again.",
+  "@homeYourLastPaymentDidNotGo": {
+    "description": "Customer copy in dashboard page."
+  },
+  "homeCompleteYourPayment": "Complete your payment",
+  "@homeCompleteYourPayment": {
+    "description": "Customer copy in dashboard page."
+  },
+  "homeUsed": "USED",
+  "@homeUsed": {
+    "description": "Customer copy in dashboard page."
+  },
+  "shopTitle": "Buy",
+  "@shopTitle": {
+    "description": "Customer copy in catalog page."
+  },
+  "shopAddedToCart": "{name} added to cart",
+  "@shopAddedToCart": {
+    "description": "Customer copy in catalog page.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "planBadgeOurPick": "Our pick",
+  "@planBadgeOurPick": {
+    "description": "Customer copy in catalog page."
+  },
+  "pricePerMonth": "/month",
+  "@pricePerMonth": {
+    "description": "Customer copy in catalog page."
+  },
+  "shopPlanSpeed": "{data} · up to {speed} Mbps",
+  "@shopPlanSpeed": {
+    "description": "Customer copy in catalog page.",
+    "placeholders": {
+      "data": {
+        "type": "String"
+      },
+      "speed": {
+        "type": "String"
+      }
+    }
+  },
+  "shopAddToCart": "Add to cart",
+  "@shopAddToCart": {
+    "description": "Customer copy in catalog page."
+  },
+  "cartPriceEach": "{price} each",
+  "@cartPriceEach": {
+    "description": "Customer copy in cart page.",
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "cartYourCart": "Your cart",
+  "@cartYourCart": {
+    "description": "Customer copy in cart page."
+  },
+  "cartYourCartIsEmpty": "Your cart is empty",
+  "@cartYourCartIsEmpty": {
+    "description": "Customer copy in cart page."
+  },
+  "cartTotal": "Total",
+  "@cartTotal": {
+    "description": "Customer copy in cart page."
+  },
+  "cartCheckout": "Checkout",
+  "@cartCheckout": {
+    "description": "Customer copy in cart page."
+  },
+  "checkoutCheckout": "Checkout",
+  "@checkoutCheckout": {
+    "description": "Customer copy in checkout page."
+  },
+  "checkoutToPay": "To pay",
+  "@checkoutToPay": {
+    "description": "Customer copy in checkout page."
+  },
+  "checkoutTotalDue": "Total due",
+  "@checkoutTotalDue": {
+    "description": "Customer copy in checkout page."
+  },
+  "checkoutVerifyIdentityToContinue": "Verify identity to continue",
+  "@checkoutVerifyIdentityToContinue": {
+    "description": "Customer copy in checkout page."
+  },
+  "checkoutContinueToPayment": "Continue to payment",
+  "@checkoutContinueToPayment": {
+    "description": "Customer copy in checkout page."
+  },
+  "orderExpiredBeforePayment": "Order #{number} expired before payment was confirmed.",
+  "@orderExpiredBeforePayment": {
+    "description": "Customer copy in confirmation page.",
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "orderCancelled": "Order #{number} was cancelled.",
+  "@orderCancelled": {
+    "description": "Customer copy in confirmation page.",
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "orderNotComplete": "Order #{number} is not complete yet.",
+  "@orderNotComplete": {
+    "description": "Customer copy in confirmation page.",
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "orderNumberLabel": "Order #{number}",
+  "@orderNumberLabel": {
+    "description": "Customer copy in confirmation page.",
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "confirmationOrder": "Order",
+  "@confirmationOrder": {
+    "description": "Customer copy in confirmation page."
+  },
+  "confirmationBackToHome": "Back to Home",
+  "@confirmationBackToHome": {
+    "description": "Customer copy in confirmation page."
+  },
+  "confirmationContinueYourOrder": "Continue your order",
+  "@confirmationContinueYourOrder": {
+    "description": "Customer copy in confirmation page."
+  },
+  "confirmationTrackMyInstallation": "Track my installation",
+  "@confirmationTrackMyInstallation": {
+    "description": "Customer copy in confirmation page."
+  },
+  "confirmationCourierDispatched": "Courier dispatched",
+  "@confirmationCourierDispatched": {
+    "description": "Customer copy in confirmation page."
+  },
+  "confirmationRouterKitOnItsWay": "Router kit on its way",
+  "@confirmationRouterKitOnItsWay": {
+    "description": "Customer copy in confirmation page."
+  },
+  "confirmationSelfInstall": "Self-install",
+  "@confirmationSelfInstall": {
+    "description": "Customer copy in confirmation page."
+  },
+  "confirmationFollowTheSetupGuideInThe": "Follow the setup guide in the app",
+  "@confirmationFollowTheSetupGuideInThe": {
+    "description": "Customer copy in confirmation page."
+  },
+  "confirmationActivation": "Activation",
+  "@confirmationActivation": {
+    "description": "Customer copy in confirmation page."
+  },
+  "confirmationSignalConfirmedServiceLive": "Signal confirmed, service live",
+  "@confirmationSignalConfirmedServiceLive": {
+    "description": "Customer copy in confirmation page."
+  },
+  "paymentPaySecurely": "Pay {price} securely",
+  "@paymentPaySecurely": {
+    "description": "Customer copy in payment page.",
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "paymentPayment": "Payment",
+  "@paymentPayment": {
+    "description": "Customer copy in payment page."
+  },
+  "paymentConfirmingYourPaymentThisCanTake": "Confirming your payment. This can take a minute. Your order stays saved if you leave this screen.",
+  "@paymentConfirmingYourPaymentThisCanTake": {
+    "description": "Customer copy in payment page."
+  },
+  "paymentChooseHowToPayOnThe": "Choose how to pay on the secure payment page.",
+  "@paymentChooseHowToPayOnThe": {
+    "description": "Customer copy in payment page."
+  },
+  "paymentPayOnASecurePaymentPage": "Pay on a secure payment page. We never see or store your card details.",
+  "@paymentPayOnASecurePaymentPage": {
+    "description": "Customer copy in payment page."
+  },
+  "paymentIdentityVerified": "Identity verified",
+  "@paymentIdentityVerified": {
+    "description": "Customer copy in payment page."
+  },
+  "paymentWifiPassOrder": "WiFi pass order",
+  "@paymentWifiPassOrder": {
+    "description": "Customer copy in payment page."
+  },
+  "paymentYourOrder": "Your order",
+  "@paymentYourOrder": {
+    "description": "Customer copy in payment page."
+  },
+  "voucherProductReady": "{product} is ready",
+  "@voucherProductReady": {
+    "description": "Customer copy in voucher result sheet.",
+    "placeholders": {
+      "product": {
+        "type": "String"
+      }
+    }
+  },
+  "voucherDataAdded": "{amount} GB has been added to your account.",
+  "@voucherDataAdded": {
+    "description": "Customer copy in voucher result sheet.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@commonCancel": {
+    "description": "Customer copy in voucher result sheet."
+  },
+  "@commonDone": {
+    "description": "Customer copy in voucher result sheet."
+  },
+  "voucherTooManyTries": "Too many tries",
+  "@voucherTooManyTries": {
+    "description": "Customer copy in voucher result sheet."
+  },
+  "voucherWaitAFewMinutesThenTry": "Wait a few minutes, then try again.",
+  "@voucherWaitAFewMinutesThenTry": {
+    "description": "Customer copy in voucher result sheet."
+  },
+  "voucherYouReOffline": "You're offline",
+  "@voucherYouReOffline": {
+    "description": "Customer copy in voucher result sheet."
+  },
+  "voucherSomethingWentWrong": "Something went wrong",
+  "@voucherSomethingWentWrong": {
+    "description": "Customer copy in voucher result sheet."
+  },
+  "voucherCheckYourConnectionAndTryAgain": "Check your connection and try again. We could not confirm whether this voucher was used.",
+  "@voucherCheckYourConnectionAndTryAgain": {
+    "description": "Customer copy in voucher result sheet."
+  },
+  "voucherWeCouldNotCheckThisVoucher": "We could not check this voucher. Please try again.",
+  "@voucherWeCouldNotCheckThisVoucher": {
+    "description": "Customer copy in voucher result sheet."
+  },
+  "voucherVoucherRedeemed": "Voucher redeemed",
+  "@voucherVoucherRedeemed": {
+    "description": "Customer copy in voucher result sheet."
+  },
+  "voucherDataHasBeenAddedToYour": "Data has been added to your account.",
+  "@voucherDataHasBeenAddedToYour": {
+    "description": "Customer copy in voucher result sheet."
+  },
+  "voucherYourPassIsOnYourAccount": "Your pass is on your account. Find it under My passes.",
+  "@voucherYourPassIsOnYourAccount": {
+    "description": "Customer copy in voucher result sheet."
+  },
+  "voucherAlreadyUsed": "Already used",
+  "@voucherAlreadyUsed": {
+    "description": "Customer copy in voucher result sheet."
+  },
+  "voucherThisVoucherHasAlreadyBeenRedeemed": "This voucher has already been redeemed.",
+  "@voucherThisVoucherHasAlreadyBeenRedeemed": {
+    "description": "Customer copy in voucher result sheet."
+  },
+  "voucherVoucherExpired": "Voucher expired",
+  "@voucherVoucherExpired": {
+    "description": "Customer copy in voucher result sheet."
+  },
+  "voucherThisVoucherIsNoLongerValid": "This voucher is no longer valid.",
+  "@voucherThisVoucherIsNoLongerValid": {
+    "description": "Customer copy in voucher result sheet."
+  },
+  "voucherOneCharacterLooksWrong": "One character looks wrong",
+  "@voucherOneCharacterLooksWrong": {
+    "description": "Customer copy in voucher result sheet."
+  },
+  "voucherCompareTheCodeWithYourVoucher": "Compare the code with your voucher card, then try again.",
+  "@voucherCompareTheCodeWithYourVoucher": {
+    "description": "Customer copy in voucher result sheet."
+  },
+  "voucherCheckTheCode": "Check the code",
+  "@voucherCheckTheCode": {
+    "description": "Customer copy in voucher result sheet."
+  },
+  "voucherVoucherCodesNeverUse01": "Voucher codes never use 0, 1, I, L, O or U. Check those characters.",
+  "@voucherVoucherCodesNeverUse01": {
+    "description": "Customer copy in voucher result sheet."
+  },
+  "voucherVoucherCodesHave12LettersAnd": "Voucher codes have 12 letters and numbers.",
+  "@voucherVoucherCodesHave12LettersAnd": {
+    "description": "Customer copy in voucher result sheet."
+  },
+  "voucherNotAVoucherCode": "Not a voucher code",
+  "@voucherNotAVoucherCode": {
+    "description": "Customer copy in voucher result sheet."
+  },
+  "voucherCheckTheCodeOnYourVoucher": "Check the code on your voucher card and try again.",
+  "@voucherCheckTheCodeOnYourVoucher": {
+    "description": "Customer copy in voucher result sheet."
+  },
+  "voucherThatCodeDidnTWork": "That code didn't work",
+  "@voucherThatCodeDidnTWork": {
+    "description": "Customer copy in voucher result sheet."
+  },
+  "voucherItMayBeMistypedAlreadyUsed": "It may be mistyped, already used or not active yet. Check it, or ask the shop.",
+  "@voucherItMayBeMistypedAlreadyUsed": {
+    "description": "Customer copy in voucher result sheet."
+  },
+  "scanScanVoucher": "Scan voucher",
+  "@scanScanVoucher": {
+    "description": "Customer copy in voucher scanner page."
+  },
+  "scanAlignTheVoucherSQrCode": "Align the voucher's QR code within the frame",
+  "@scanAlignTheVoucherSQrCode": {
+    "description": "Customer copy in voucher scanner page."
+  },
+  "scanTypeTheCodeInstead": "Type the code instead",
+  "@scanTypeTheCodeInstead": {
+    "description": "Customer copy in voucher scanner page."
+  },
+  "scanEnterVoucherCode": "Enter voucher code",
+  "@scanEnterVoucherCode": {
+    "description": "Customer copy in voucher scanner page."
+  },
+  "scanEGAbcd2345Efgh": "e.g. ABCD-2345-EFGH",
+  "@scanEGAbcd2345Efgh": {
+    "description": "Customer copy in voucher scanner page."
+  },
+  "scan12LettersAndNumbersOnYour": "12 letters and numbers, on your voucher card",
+  "@scan12LettersAndNumbersOnYour": {
+    "description": "Customer copy in voucher scanner page."
+  },
+  "scanPaste": "Paste",
+  "@scanPaste": {
+    "description": "Customer copy in voucher scanner page."
+  },
+  "scanRedeem": "Redeem",
+  "@scanRedeem": {
+    "description": "Customer copy in voucher scanner page."
+  },
+  "scanEnableTheCameraInSystemSettings": "Enable the camera in system settings, or type the code below.",
+  "@scanEnableTheCameraInSystemSettings": {
+    "description": "Customer copy in voucher scanner page."
+  },
+  "scanCameraUnavailablePleaseTypeTheCode": "Camera unavailable. Please type the code below.",
+  "@scanCameraUnavailablePleaseTypeTheCode": {
+    "description": "Customer copy in voucher scanner page."
+  },
+  "freeWifiAdOffer": "Watch an ad for 45 minutes of free WiFi. {remaining} of 3 free views left today.",
+  "@freeWifiAdOffer": {
+    "description": "Customer copy in free wifi card.",
+    "placeholders": {
+      "remaining": {
+        "type": "String"
+      }
+    }
+  },
+  "freeWifiTimeRemaining": "{minutes}m {seconds}s",
+  "@freeWifiTimeRemaining": {
+    "description": "Customer copy in free wifi card.",
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      },
+      "seconds": {
+        "type": "String"
+      }
+    }
+  },
+  "@sizeMegabytes": {
+    "description": "Customer copy in free wifi card.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "freeWifiFreeWifi": "Free WiFi",
+  "@freeWifiFreeWifi": {
+    "description": "Customer copy in free wifi card."
+  },
+  "freeWifiWatchAd": "Watch ad",
+  "@freeWifiWatchAd": {
+    "description": "Customer copy in free wifi card."
+  },
+  "freeWifiHotspots": "Hotspots",
+  "@freeWifiHotspots": {
+    "description": "Customer copy in free wifi card."
+  },
+  "freeWifiFreeWifiActive": "Free WiFi active",
+  "@freeWifiFreeWifiActive": {
+    "description": "Customer copy in free wifi card."
+  },
+  "freeWifiTimeLeft": "TIME LEFT",
+  "@freeWifiTimeLeft": {
+    "description": "Customer copy in free wifi card."
+  },
+  "freeWifiDataLeft": "DATA LEFT",
+  "@freeWifiDataLeft": {
+    "description": "Customer copy in free wifi card."
+  },
+  "freeWifiFindHotspotsNearMe": "Find hotspots near me",
+  "@freeWifiFindHotspotsNearMe": {
+    "description": "Customer copy in free wifi card."
+  },
+  "freeWifiYouVeUsedAll3Free": "You've used all 3 free WiFi ads today. Come back tomorrow.",
+  "@freeWifiYouVeUsedAll3Free": {
+    "description": "Customer copy in free wifi card."
+  },
+  "freeWifiUpdatesFromYourAccountAsYou": "Updates from your account as you use it.",
+  "@freeWifiUpdatesFromYourAccountAsYou": {
+    "description": "Customer copy in free wifi card."
+  },
+  "freeWifiYourFreeWifiAdIsPlaying": "Your free WiFi ad is playing…",
+  "@freeWifiYourFreeWifiAdIsPlaying": {
+    "description": "Customer copy in watch ad dialog."
+  },
+  "freeWifiSimulatedNoSkipUntilItFinishes": "(simulated — no skip until it finishes)",
+  "@freeWifiSimulatedNoSkipUntilItFinishes": {
+    "description": "Customer copy in watch ad dialog."
+  },
+  "hotspotsWifiHotspotsNearYou": "WiFi hotspots near you",
+  "@hotspotsWifiHotspotsNearYou": {
+    "description": "Customer copy in wifi hotspots page."
+  },
+  "hotspotsEnableLocationToSeeWhichHotspot": "Enable location to see which hotspot is closest to you.",
+  "@hotspotsEnableLocationToSeeWhichHotspot": {
+    "description": "Customer copy in wifi hotspots page."
+  },
+  "hotspotsClosest": "CLOSEST",
+  "@hotspotsClosest": {
+    "description": "Customer copy in wifi hotspots page."
+  },
+  "coverageCurrentLocation": "Current location ({latitude}, {longitude})",
+  "@coverageCurrentLocation": {
+    "description": "Customer copy in coverage page.",
+    "placeholders": {
+      "latitude": {
+        "type": "String"
+      },
+      "longitude": {
+        "type": "String"
+      }
+    }
+  },
+  "coverageEstimatedSpeed": "Estimated speed: up to {speed} Mbps",
+  "@coverageEstimatedSpeed": {
+    "description": "Customer copy in coverage page.",
+    "placeholders": {
+      "speed": {
+        "type": "String"
+      }
+    }
+  },
+  "coverageTurnOnLocationServicesToUse": "Turn on location services to use this.",
+  "@coverageTurnOnLocationServicesToUse": {
+    "description": "Customer copy in coverage page."
+  },
+  "coverageLocationPermissionDeniedEnterYourAddress": "Location permission denied — enter your address manually.",
+  "@coverageLocationPermissionDeniedEnterYourAddress": {
+    "description": "Customer copy in coverage page."
+  },
+  "coverageCouldNotGetYourLocationCheck": "Could not get your location — check that location services are on.",
+  "@coverageCouldNotGetYourLocationCheck": {
+    "description": "Customer copy in coverage page."
+  },
+  "coverageCoverageCheck": "Coverage check",
+  "@coverageCoverageCheck": {
+    "description": "Customer copy in coverage page."
+  },
+  "coverageAddress": "Address",
+  "@coverageAddress": {
+    "description": "Customer copy in coverage page."
+  },
+  "coverageUseMyCurrentLocation": "Use my current location",
+  "@coverageUseMyCurrentLocation": {
+    "description": "Customer copy in coverage page."
+  },
+  "coverageViewPlansForThisAddress": "View plans for this address",
+  "@coverageViewPlansForThisAddress": {
+    "description": "Customer copy in coverage page."
+  },
+  "coverageCheckADifferentAddress": "Check a different address",
+  "@coverageCheckADifferentAddress": {
+    "description": "Customer copy in coverage page."
+  },
+  "coverageCheckThisAddress": "Check this address",
+  "@coverageCheckThisAddress": {
+    "description": "Customer copy in coverage page."
+  },
+  "coverageNotYetCovered": "Not yet covered",
+  "@coverageNotYetCovered": {
+    "description": "Customer copy in coverage page."
+  },
+  "coverageHomeInternetIsAvailableHere": "Home internet is available here",
+  "@coverageHomeInternetIsAvailableHere": {
+    "description": "Customer copy in coverage page."
+  },
+  "ricaPrivacyNotice": "Your face and ID information are used for verification only, under POPIA. You will be asked to confirm your consent before the check starts.",
+  "@ricaPrivacyNotice": {
+    "description": "Identity verification privacy explanation."
+  },
+  "ricaVerifyYourIdentity": "Verify your identity",
+  "@ricaVerifyYourIdentity": {
+    "description": "Customer copy in rica page."
+  },
+  "ricaLookAtTheCameraAndBlink": "Look at the camera and blink slowly…",
+  "@ricaLookAtTheCameraAndBlink": {
+    "description": "Customer copy in rica page."
+  },
+  "ricaReadyToVerifyWhenYouAre": "Ready to verify when you are.",
+  "@ricaReadyToVerifyWhenYouAre": {
+    "description": "Customer copy in rica page."
+  },
+  "ricaWeCouldnTReachOurServers": "We couldn't reach our servers. Check your connection and try again.",
+  "@ricaWeCouldnTReachOurServers": {
+    "description": "Customer copy in rica page."
+  },
+  "ricaWeCouldnTUpdateYourOrder": "We couldn't update your order. Try again in a moment.",
+  "@ricaWeCouldnTUpdateYourOrder": {
+    "description": "Customer copy in rica page."
+  },
+  "ricaWeCouldnTVerifyYourIdentity": "We couldn't verify your identity. Keep your face well lit and fully in the frame. Please try again. You haven't been charged.",
+  "@ricaWeCouldnTVerifyYourIdentity": {
+    "description": "Customer copy in rica page."
+  },
+  "promotionsPoints": "{count} points",
+  "@promotionsPoints": {
+    "description": "Customer copy in promotions page.",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "promotionsExpires": "Expires {date}",
+  "@promotionsExpires": {
+    "description": "Customer copy in promotions page.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "promotionsPromotionsLoyalty": "Promotions & loyalty",
+  "@promotionsPromotionsLoyalty": {
+    "description": "Customer copy in promotions page."
+  },
+  "promotionsYourSentechLoyaltyBalance": "Your Sentech loyalty balance",
+  "@promotionsYourSentechLoyaltyBalance": {
+    "description": "Customer copy in promotions page."
+  },
+  "promotionsCurrentOffers": "CURRENT OFFERS",
+  "@promotionsCurrentOffers": {
+    "description": "Customer copy in promotions page."
+  },
+  "routerPageNotFound": "Page not found",
+  "@routerPageNotFound": {
+    "description": "Customer copy in app router."
+  },
+  "routerBackToHome": "Back to Home",
+  "@routerBackToHome": {
+    "description": "Customer copy in app router."
+  },
+  "mapDataAttribution": "Map data {attribution}",
+  "@mapDataAttribution": {
+    "description": "Customer copy in osm map.",
+    "placeholders": {
+      "attribution": {
+        "type": "String"
+      }
+    }
+  },
+  "paymentClosePayment": "Close payment",
+  "@paymentClosePayment": {
+    "description": "Customer copy in payment web view page."
+  },
+  "paymentSecurePayment": "Secure payment",
+  "@paymentSecurePayment": {
+    "description": "Customer copy in payment web view page."
+  },
+  "paymentTestExplanation": "No money moves. This simulates payment for {price}.",
+  "@paymentTestExplanation": {
+    "description": "Customer copy in fake gateway sheet.",
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "paymentTestPaymentLocalStack": "Test payment (local stack)",
+  "@paymentTestPaymentLocalStack": {
+    "description": "Customer copy in fake gateway sheet."
+  },
+  "paymentApproveTestPayment": "Approve test payment",
+  "@paymentApproveTestPayment": {
+    "description": "Customer copy in fake gateway sheet."
+  },
+  "paymentDeclineTestPayment": "Decline test payment",
+  "@paymentDeclineTestPayment": {
+    "description": "Customer copy in fake gateway sheet."
+  },
+  "bootSentechConnectIsStarting": "Sentech Connect is starting",
+  "@bootSentechConnectIsStarting": {
+    "description": "Customer copy in boot video screen."
+  },
+  "bootSkipIntro": "Skip intro",
+  "@bootSkipIntro": {
+    "description": "Customer copy in boot video screen."
+  },
+  "bootSkip": "Skip",
+  "@bootSkip": {
+    "description": "Customer copy in boot video screen."
+  },
+  "failureYouReOfflineCheckYourConnection": "You're offline. Check your connection and try again.",
+  "@failureYouReOfflineCheckYourConnection": {
+    "description": "Customer copy in failure view."
+  },
+  "failureSomethingWentWrongPleaseTryAgain": "Something went wrong. Please try again.",
+  "@failureSomethingWentWrongPleaseTryAgain": {
+    "description": "Customer copy in failure view."
+  },
+  "productCategoryHome5g": "Home 5G",
+  "@productCategoryHome5g": {
+    "description": "Shop category."
+  },
+  "productCategoryMifi": "MiFi",
+  "@productCategoryMifi": {
+    "description": "Shop category."
+  },
+  "productCategoryVoucher": "Vouchers",
+  "@productCategoryVoucher": {
+    "description": "Shop category."
+  },
+  "productCategoryHotspotPass": "WiFi passes",
+  "@productCategoryHotspotPass": {
+    "description": "Shop category."
+  },
+  "startupErrorMessage": "App configuration error — please reinstall or contact support",
+  "@startupErrorMessage": {
+    "description": "Startup failure; must work before services initialize."
+  },
+  "languageEnglish": "English",
+  "@languageEnglish": {
+    "description": "Language name shown in its own language (autonym)."
+  },
+  "languageZulu": "isiZulu",
+  "@languageZulu": {
+    "description": "Language name shown in its own language (autonym)."
+  },
+  "languageAfrikaans": "Afrikaans",
+  "@languageAfrikaans": {
+    "description": "Language name shown in its own language (autonym)."
+  },
+  "hotspotMetersAway": "{distance} m away",
+  "@hotspotMetersAway": {
+    "description": "Hotspot distance in meters.",
+    "placeholders": {
+      "distance": {
+        "type": "String"
+      }
+    }
+  },
+  "hotspotKilometersAway": "{distance} km away",
+  "@hotspotKilometersAway": {
+    "description": "Hotspot distance in kilometers.",
+    "placeholders": {
+      "distance": {
+        "type": "String"
+      }
+    }
+  },
+  "demoFaq1Question": "Why is my speed slower than expected?",
+  "@demoFaq1Question": {
+    "description": "Demo FAQ question."
+  },
+  "demoFaq1Answer": "Speed can dip during peak hours (6–10pm) or if your router is placed near thick walls or other electronics. Try moving the router to an open, central spot. If it persists after that, report the issue below.",
+  "@demoFaq1Answer": {
+    "description": "Demo FAQ answer; not a promise of configured payment methods."
+  },
+  "demoFaq2Question": "How do I top up my data?",
+  "@demoFaq2Question": {
+    "description": "Demo FAQ question."
+  },
+  "demoFaq2Answer": "Go to the Shop tab, choose a top-up or voucher, and pay with card, Ozow, or PayShap. Top-ups apply to your account within a few minutes.",
+  "@demoFaq2Answer": {
+    "description": "Demo FAQ answer; not a promise of configured payment methods."
+  },
+  "demoFaq3Question": "My router lights are red",
+  "@demoFaq3Question": {
+    "description": "Demo FAQ question."
+  },
+  "demoFaq3Answer": "A solid red light usually means a signal or power issue. Check the power cable is fully seated, then wait 2 minutes for the router to reconnect. If it stays red, report the issue below.",
+  "@demoFaq3Answer": {
+    "description": "Demo FAQ answer; not a promise of configured payment methods."
+  },
+  "demoPromotion1Title": "Upgrade and save",
+  "@demoPromotion1Title": {
+    "description": "Demo promotional copy; available in demo only."
+  },
+  "demoPromotion1Description": "Move to Home 100 this month and get your first month at 20% off.",
+  "@demoPromotion1Description": {
+    "description": "Demo promotional copy; available in demo only."
+  },
+  "demoPromotion1Badge": "20% OFF",
+  "@demoPromotion1Badge": {
+    "description": "Demo promotional copy; available in demo only."
+  },
+  "demoPromotion1Expiry": "31 Aug",
+  "@demoPromotion1Expiry": {
+    "description": "Demo promotional copy; available in demo only."
+  },
+  "demoPromotion2Title": "Refer a friend",
+  "@demoPromotion2Title": {
+    "description": "Demo promotional copy; available in demo only."
+  },
+  "demoPromotion2Description": "Give a friend a free installation — you both get 10GB bonus data.",
+  "@demoPromotion2Description": {
+    "description": "Demo promotional copy; available in demo only."
+  },
+  "demoPromotion2Badge": "REFERRAL",
+  "@demoPromotion2Badge": {
+    "description": "Demo promotional copy; available in demo only."
+  },
+  "demoPromotion2Expiry": "Ongoing",
+  "@demoPromotion2Expiry": {
+    "description": "Demo promotional copy; available in demo only."
+  },
+  "demoPromotion3Title": "Loyalty reward",
+  "@demoPromotion3Title": {
+    "description": "Demo promotional copy; available in demo only."
+  },
+  "demoPromotion3Description": "You've earned enough points for a free Wi-Fi voucher — redeem it in Vouchers.",
+  "@demoPromotion3Description": {
+    "description": "Demo promotional copy; available in demo only."
+  },
+  "demoPromotion3Badge": "LOYALTY",
+  "@demoPromotion3Badge": {
+    "description": "Demo promotional copy; available in demo only."
+  },
+  "demoPromotion3Expiry": "15 Sep",
+  "@demoPromotion3Expiry": {
+    "description": "Demo promotional copy; available in demo only."
+  },
+  "supportChatGreeting": "Hi Sentech, I need help with my account.",
+  "@supportChatGreeting": {
+    "description": "Pre-filled WhatsApp message."
+  },
+  "supportEmailSubject": "[{category}] Support request",
+  "@supportEmailSubject": {
+    "description": "Support email subject.",
+    "placeholders": {
+      "category": {
+        "type": "String"
+      }
+    }
+  },
+  "@commonContinue": {
+    "description": "Customer app copy: common continue."
+  },
+  "@commonRetry": {
+    "description": "Customer app copy: common retry."
+  },
+  "@loginWelcomeBack": {
+    "description": "Customer app copy: login welcome back."
+  },
+  "@loginSubtitle": {
+    "description": "Customer app copy: login subtitle."
+  },
+  "@loginUseBiometrics": {
+    "description": "Customer app copy: login use biometrics."
+  },
+  "@loginOr": {
+    "description": "Customer app copy: login or."
+  },
+  "@loginMobileHint": {
+    "description": "Customer app copy: login mobile hint."
+  },
+  "@biometricPromptReason": {
+    "description": "Customer app copy: biometric prompt reason."
+  },
+  "@biometricNotEnrolled": {
+    "description": "Customer app copy: biometric not enrolled."
+  },
+  "@biometricUnavailable": {
+    "description": "Customer app copy: biometric unavailable."
+  },
+  "@biometricLockedOut": {
+    "description": "Customer app copy: biometric locked out."
+  },
+  "@biometricPermanentlyLockedOut": {
+    "description": "Customer app copy: biometric permanently locked out."
+  },
+  "@signedOutProviderUnavailable": {
+    "description": "Customer app copy: signed out provider unavailable."
+  },
+  "@biometricFailed": {
+    "description": "Customer app copy: biometric failed."
+  },
+  "@registerTitle": {
+    "description": "Customer app copy: register title."
+  },
+  "@registerPersonalDetails": {
+    "description": "Customer app copy: register personal details."
+  },
+  "@registerFullName": {
+    "description": "Customer app copy: register full name."
+  },
+  "@registerEmail": {
+    "description": "Customer app copy: register email."
+  },
+  "@registerMobile": {
+    "description": "Customer app copy: register mobile."
+  },
+  "@registerInstallationAddress": {
+    "description": "Customer app copy: register installation address."
+  },
+  "@registerAddressHint": {
+    "description": "Customer app copy: register address hint."
+  },
+  "@registerLocationCaptured": {
+    "description": "Customer app copy: register location captured."
+  },
+  "@registerUseLocation": {
+    "description": "Customer app copy: register use location."
+  },
+  "@registerLocationHelp": {
+    "description": "Customer app copy: register location help."
+  },
+  "@registerContactHeading": {
+    "description": "Customer app copy: register contact heading."
+  },
+  "@registerMarketingHeading": {
+    "description": "Customer app copy: register marketing heading."
+  },
+  "@registerMarketingEmail": {
+    "description": "Customer app copy: register marketing email."
+  },
+  "@registerMarketingSms": {
+    "description": "Customer app copy: register marketing sms."
+  },
+  "@registerMarketingPush": {
+    "description": "Customer app copy: register marketing push."
+  },
+  "@registerCreateAccount": {
+    "description": "Customer app copy: register create account."
+  },
+  "@registerSaveFailed": {
+    "description": "Customer app copy: register save failed."
+  },
+  "@registerLocationDenied": {
+    "description": "Customer app copy: register location denied."
+  },
+  "@registerLocationFailed": {
+    "description": "Customer app copy: register location failed."
+  },
+  "@accountTitle": {
+    "description": "Customer app copy: account title."
+  },
+  "@accountNotLoggedIn": {
+    "description": "Customer app copy: account not logged in."
+  },
+  "@accountAppearance": {
+    "description": "Customer app copy: account appearance."
+  },
+  "@accountThemeSystem": {
+    "description": "Customer app copy: account theme system."
+  },
+  "@accountThemeLight": {
+    "description": "Customer app copy: account theme light."
+  },
+  "@accountThemeDark": {
+    "description": "Customer app copy: account theme dark."
+  },
+  "@accountLanguage": {
+    "description": "Customer app copy: account language."
+  },
+  "@accountLanguageSystem": {
+    "description": "Customer app copy: account language system."
+  },
+  "@accountLogOut": {
+    "description": "Customer app copy: account log out."
+  },
+  "@accountLogOutTitle": {
+    "description": "Customer app copy: account log out title."
+  },
+  "@accountLogOutBody": {
+    "description": "Customer app copy: account log out body."
+  },
+  "@accountNotifications": {
+    "description": "Customer app copy: account notifications."
+  },
+  "@accountPushTitle": {
+    "description": "Customer app copy: account push title."
+  },
+  "@accountPushOn": {
+    "description": "Customer app copy: account push on."
+  },
+  "@accountPushOff": {
+    "description": "Customer app copy: account push off."
+  },
+  "@accountPushBlocked": {
+    "description": "Customer app copy: account push blocked."
+  },
+  "@accountPushTurnOn": {
+    "description": "Customer app copy: account push turn on."
+  },
+  "@accountPushOpenSettings": {
+    "description": "Customer app copy: account push open settings."
+  },
+  "@accountPrivacy": {
+    "description": "Customer app copy: account privacy."
+  },
+  "@accountPrivacyPolicy": {
+    "description": "Customer app copy: account privacy policy."
+  },
+  "@accountDownloadData": {
+    "description": "Customer app copy: account download data."
+  },
+  "@accountDownloadDataDone": {
+    "description": "Customer app copy: account download data done."
+  },
+  "@accountDeleteData": {
+    "description": "Customer app copy: account delete data."
+  },
+  "@accountDeleteTitle": {
+    "description": "Customer app copy: account delete title."
+  },
+  "@accountDeleteBody": {
+    "description": "Customer app copy: account delete body."
+  },
+  "@accountDeleteConfirm": {
+    "description": "Customer app copy: account delete confirm."
+  },
+  "@accountRequestFailed": {
+    "description": "Customer app copy: account request failed."
+  },
+  "@accountLinkFailed": {
+    "description": "Customer app copy: account link failed."
+  },
+  "@supportTitle": {
+    "description": "Customer app copy: support title."
+  },
+  "@supportSearchHint": {
+    "description": "Customer app copy: support search hint."
+  },
+  "@supportNoResults": {
+    "description": "Customer app copy: support no results.",
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "@supportStillStuck": {
+    "description": "Customer app copy: support still stuck."
+  },
+  "@supportWhatsApp": {
+    "description": "Customer app copy: support whats app."
+  },
+  "@supportSubmitTicket": {
+    "description": "Customer app copy: support submit ticket."
+  },
+  "@supportTicketCategory": {
+    "description": "Customer app copy: support ticket category."
+  },
+  "@supportTicketDescribe": {
+    "description": "Customer app copy: support ticket describe."
+  },
+  "@supportCategoryBilling": {
+    "description": "Customer app copy: support category billing."
+  },
+  "@supportCategoryTechnical": {
+    "description": "Customer app copy: support category technical."
+  },
+  "@supportCategoryOther": {
+    "description": "Customer app copy: support category other."
+  },
+  "@supportWhatsAppFailed": {
+    "description": "Customer app copy: support whats app failed."
+  },
+  "@supportTicketOpened": {
+    "description": "Customer app copy: support ticket opened."
+  },
+  "@supportTicketNoEmail": {
+    "description": "Customer app copy: support ticket no email."
+  },
+  "@consentTitle": {
+    "description": "Customer app copy: consent title."
+  },
+  "@consentLocationBody": {
+    "description": "Customer app copy: consent location body."
+  },
+  "@consentLocationMapService": {
+    "description": "Customer app copy: consent location map service."
+  },
+  "@coverageAddressLookupNotice": {
+    "description": "Customer app copy: coverage address lookup notice."
+  },
+  "@consentRicaBody": {
+    "description": "Customer app copy: consent rica body."
+  },
+  "@consentPolicyLink": {
+    "description": "Customer app copy: consent policy link."
+  },
+  "@consentAgree": {
+    "description": "Customer app copy: consent agree."
+  },
+  "@consentDecline": {
+    "description": "Customer app copy: consent decline."
+  },
+  "@notifRationaleTitle": {
+    "description": "Customer app copy: notif rationale title."
+  },
+  "@notifRationaleBody": {
+    "description": "Customer app copy: notif rationale body."
+  },
+  "@notifRationaleAllow": {
+    "description": "Customer app copy: notif rationale allow."
+  },
+  "@notifRationaleLater": {
+    "description": "Customer app copy: notif rationale later."
+  },
+  "@a11yCart": {
+    "description": "Customer app copy: a11y cart."
+  },
+  "@a11yDecreaseQuantity": {
+    "description": "Customer app copy: a11y decrease quantity."
+  },
+  "@a11yIncreaseQuantity": {
+    "description": "Customer app copy: a11y increase quantity."
+  },
+  "@a11yToggleTorch": {
+    "description": "Customer app copy: a11y toggle torch."
+  },
+  "@a11yEnterCode": {
+    "description": "Customer app copy: a11y enter code."
+  },
+  "@loginSendCode": {
+    "description": "Customer app copy: login send code."
+  },
+  "@loginPhoneInvalid": {
+    "description": "Customer app copy: login phone invalid."
+  },
+  "@loginNewCustomerHint": {
+    "description": "Customer app copy: login new customer hint."
+  },
+  "@loginWelcomeBackName": {
+    "description": "Customer app copy: login welcome back name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@loginNotYou": {
+    "description": "Customer app copy: login not you."
+  },
+  "@otpSentTo": {
+    "description": "Customer app copy: otp sent to.",
+    "placeholders": {
+      "phone": {
+        "type": "String"
+      }
+    }
+  },
+  "@otpCodeHint": {
+    "description": "Customer app copy: otp code hint."
+  },
+  "@otpVerify": {
+    "description": "Customer app copy: otp verify."
+  },
+  "@otpResend": {
+    "description": "Customer app copy: otp resend."
+  },
+  "@otpResendIn": {
+    "description": "Customer app copy: otp resend in.",
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "@otpChangeNumber": {
+    "description": "Customer app copy: otp change number."
+  },
+  "@otpInvalidCode": {
+    "description": "Customer app copy: otp invalid code."
+  },
+  "@otpRateLimited": {
+    "description": "Customer app copy: otp rate limited."
+  },
+  "@otpServerError": {
+    "description": "Customer app copy: otp server error."
+  },
+  "@otpSessionSetupFailed": {
+    "description": "Customer app copy: otp session setup failed."
+  },
+  "@registerCompleteProfileTitle": {
+    "description": "Customer app copy: register complete profile title."
+  },
+  "@legalGateTitle": {
+    "description": "Customer app copy: legal gate title."
+  },
+  "@legalGateChecking": {
+    "description": "Customer app copy: legal gate checking."
+  },
+  "@legalGateUnavailable": {
+    "description": "Customer app copy: legal gate unavailable."
+  },
+  "@legalGateSignOut": {
+    "description": "Customer app copy: legal gate sign out."
+  },
+  "@otpDemoHint": {
+    "description": "Customer app copy: otp demo hint."
+  },
+  "@otpOffline": {
+    "description": "Customer app copy: otp offline."
+  },
+  "@registerAcceptTerms": {
+    "description": "Customer app copy: register accept terms."
+  },
+  "@accountRequestOffline": {
+    "description": "Customer app copy: account request offline."
+  },
+  "@accountRequestRateLimited": {
+    "description": "Customer app copy: account request rate limited."
+  },
+  "@consentLegalBody": {
+    "description": "Customer app copy: consent legal body."
+  },
+  "@dataExportTitle": {
+    "description": "Customer app copy: data export title."
+  },
+  "@dataExportBody": {
+    "description": "Customer app copy: data export body."
+  },
+  "@tenantPickerTitle": {
+    "description": "Customer app copy: tenant picker title."
+  },
+  "@tenantPickerSubtitle": {
+    "description": "Customer app copy: tenant picker subtitle."
+  },
+  "@tenantTypeOperator": {
+    "description": "Customer app copy: tenant type operator."
+  },
+  "@tenantTypeReseller": {
+    "description": "Customer app copy: tenant type reseller."
+  },
+  "@tenantChangeTitle": {
+    "description": "Customer app copy: tenant change title."
+  },
+  "@tenantChangeBody": {
+    "description": "Customer app copy: tenant change body."
+  },
+  "@tenantChangeConfirm": {
+    "description": "Customer app copy: tenant change confirm."
+  },
+  "@updateRequiredTitle": {
+    "description": "Customer app copy: update required title."
+  },
+  "@updateRequiredBody": {
+    "description": "Customer app copy: update required body."
+  },
+  "@paymentClosedExpired": {
+    "description": "Customer app copy: payment closed expired."
+  },
+  "@paymentClosedCancelled": {
+    "description": "Customer app copy: payment closed cancelled."
+  },
+  "@paymentStillPending": {
+    "description": "Customer app copy: payment still pending."
+  },
+  "@paymentPayAgainHint": {
+    "description": "Customer app copy: payment pay again hint."
+  },
+  "@paymentHandoffInvalid": {
+    "description": "Customer app copy: payment handoff invalid."
+  },
+  "@paymentCheckAgain": {
+    "description": "Customer app copy: payment check again."
+  },
+  "@paymentPayAgain": {
+    "description": "Customer app copy: payment pay again."
+  },
+  "@paymentBackToDashboard": {
+    "description": "Customer app copy: payment back to dashboard."
+  },
+  "@accountProvider": {
+    "description": "Customer app copy: account provider."
+  },
+  "@accountChangeProvider": {
+    "description": "Customer app copy: account change provider."
+  },
+  "@passesTitle": {
+    "description": "Customer app copy: passes title."
+  },
+  "@passesEmpty": {
+    "description": "Customer app copy: passes empty."
+  },
+  "@passesShowExpired": {
+    "description": "Customer app copy: passes show expired."
+  },
+  "@passesStatusActive": {
+    "description": "Customer app copy: passes status active."
+  },
+  "@passesStatusScheduled": {
+    "description": "Customer app copy: passes status scheduled."
+  },
+  "@passesStatusExpired": {
+    "description": "Customer app copy: passes status expired."
+  },
+  "@passesStatusExhausted": {
+    "description": "Customer app copy: passes status exhausted."
+  },
+  "@passesStatusRevoked": {
+    "description": "Customer app copy: passes status revoked."
+  },
+  "@passesExpires": {
+    "description": "Customer app copy: passes expires.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@passesStarts": {
+    "description": "Customer app copy: passes starts.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@passesDevices": {
+    "description": "Customer app copy: passes devices.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@dashboardMyPasses": {
+    "description": "Customer app copy: dashboard my passes."
+  },
+  "@dashboardBuyPass": {
+    "description": "Customer app copy: dashboard buy pass."
+  },
+  "@dashboardNoPass": {
+    "description": "Customer app copy: dashboard no pass."
+  },
+  "@dashboardNoPassHint": {
+    "description": "Customer app copy: dashboard no pass hint."
+  },
+  "@dashboardTimeLeft": {
+    "description": "Customer app copy: dashboard time left.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "@dashboardDataLeft": {
+    "description": "Customer app copy: dashboard data left.",
+    "placeholders": {
+      "left": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "@dashboardUncapped": {
+    "description": "Customer app copy: dashboard uncapped."
+  },
+  "@confirmationViewPasses": {
+    "description": "Customer app copy: confirmation view passes."
+  },
+  "@passesExpiredAt": {
+    "description": "Customer app copy: passes expired at.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@passesEndedAt": {
+    "description": "Customer app copy: passes ended at.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@passesJustPaidHint": {
+    "description": "Customer app copy: passes just paid hint."
+  },
+  "@durationDaysHours": {
+    "description": "Customer app copy: duration days hours.",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      },
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "@durationHoursMinutes": {
+    "description": "Customer app copy: duration hours minutes.",
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "@durationMinutes": {
+    "description": "Customer app copy: duration minutes.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "@sizeGigabytes": {
+    "description": "Customer app copy: size gigabytes.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@dashboardTopUp": {
+    "description": "Customer app copy: dashboard top up."
+  },
+  "@dashboardUpgrade": {
+    "description": "Customer app copy: dashboard upgrade."
+  },
+  "@dashboardReportIssue": {
+    "description": "Customer app copy: dashboard report issue."
+  },
+  "homePromotionsLabel": "Promotions & loyalty — see what's on offer",
+  "@homePromotionsLabel": {
+    "description": "Customer copy in dashboard page."
+  },
+  "checkoutIdentityNotice": "Next we verify your identity (required by RICA). You are only charged after that succeeds.",
+  "@checkoutIdentityNotice": {
+    "description": "Customer copy in checkout page."
+  },
+  "checkoutPaymentNotice": "Pay on a secure payment page. Your pass starts when payment is confirmed.",
+  "@checkoutPaymentNotice": {
+    "description": "Customer copy in checkout page."
+  },
+  "ricaLawNotice": "Required by South African law (RICA) before we can activate your service.",
+  "@ricaLawNotice": {
+    "description": "Customer copy in rica page."
+  },
+  "confirmationReady": "You're all set!",
+  "@confirmationReady": {
+    "description": "Customer copy in confirmation page."
+  },
+  "confirmationPassPaid": "Your WiFi pass is paid",
+  "@confirmationPassPaid": {
+    "description": "Customer copy in confirmation page."
+  },
+  "confirmationConnectHint": "You're all set. Connect at a WiFi hotspot to start.",
+  "@confirmationConnectHint": {
+    "description": "Customer copy in confirmation page."
+  },
+  "mapUnavailable": "Map not available.",
+  "@mapUnavailable": {
+    "description": "Customer copy in osm map."
+  },
+  "offlineBanner": "You're offline. Some things won't work until you reconnect.",
+  "@offlineBanner": {
+    "description": "Customer copy in connectivity cubit."
+  },
+  "failureNoInternetConnection": "No internet connection.",
+  "@failureNoInternetConnection": {
+    "description": "Customer error matching an internal failure message; external details remain data."
+  },
+  "failureSomethingWentWrongOnOurEnd": "Something went wrong on our end.",
+  "@failureSomethingWentWrongOnOurEnd": {
+    "description": "Customer error matching an internal failure message; external details remain data."
+  },
+  "failureThisAddressIsNotYetInOur": "This address is not yet in our coverage area.",
+  "@failureThisAddressIsNotYetInOur": {
+    "description": "Customer error matching an internal failure message; external details remain data."
+  },
+  "failureWeCouldNotFinishSigningYouIn": "We could not finish signing you in. Please try again.",
+  "@failureWeCouldNotFinishSigningYouIn": {
+    "description": "Customer error matching an internal failure message; external details remain data."
+  },
+  "failureYourSessionHasEndedSignInAgain": "Your session has ended. Sign in again.",
+  "@failureYourSessionHasEndedSignInAgain": {
+    "description": "Customer error matching an internal failure message; external details remain data."
+  },
+  "failureThisProviderIsCurrentlyUnavailable": "This provider is currently unavailable.",
+  "@failureThisProviderIsCurrentlyUnavailable": {
+    "description": "Customer error matching an internal failure message; external details remain data."
+  },
+  "failureWeCouldNotFindThat": "We could not find that.",
+  "@failureWeCouldNotFindThat": {
+    "description": "Customer error matching an internal failure message; external details remain data."
+  },
+  "failureTooManyAttemptsPleaseWaitAndTry": "Too many attempts. Please wait and try again.",
+  "@failureTooManyAttemptsPleaseWaitAndTry": {
+    "description": "Customer error matching an internal failure message; external details remain data."
+  },
+  "failureWeReceivedAnUnexpectedResponsePleaseTry": "We received an unexpected response. Please try again.",
+  "@failureWeReceivedAnUnexpectedResponsePleaseTry": {
+    "description": "Customer error matching an internal failure message; external details remain data."
+  },
+  "failureTheRequestWasCancelled": "The request was cancelled.",
+  "@failureTheRequestWasCancelled": {
+    "description": "Customer error matching an internal failure message; external details remain data."
+  },
+  "failureWeCouldNotMakeASecureConnection": "We could not make a secure connection. Check your network and try again.",
+  "@failureWeCouldNotMakeASecureConnection": {
+    "description": "Customer error matching an internal failure message; external details remain data."
+  },
+  "failureBlockedARequestToAnUnexpectedAddress": "Blocked a request to an unexpected address.",
+  "@failureBlockedARequestToAnUnexpectedAddress": {
+    "description": "Customer error matching an internal failure message; external details remain data."
+  },
+  "failureEnterAValidSouthAfricanMobileNumber": "Enter a valid South African mobile number.",
+  "@failureEnterAValidSouthAfricanMobileNumber": {
+    "description": "Customer error matching an internal failure message; external details remain data."
+  },
+  "failureEnterThe6DigitCode": "Enter the 6-digit code.",
+  "@failureEnterThe6DigitCode": {
+    "description": "Customer error matching an internal failure message; external details remain data."
+  },
+  "failureCouldNotSaveYourDetailsOnThis": "Could not save your details on this device.",
+  "@failureCouldNotSaveYourDetailsOnThis": {
+    "description": "Customer error matching an internal failure message; external details remain data."
+  },
+  "failureCouldNotReadYourSavedDetails": "Could not read your saved details.",
+  "@failureCouldNotReadYourSavedDetails": {
+    "description": "Customer error matching an internal failure message; external details remain data."
+  },
+  "failureTheCodeIsInvalidOrHasExpired": "The code is invalid or has expired.",
+  "@failureTheCodeIsInvalidOrHasExpired": {
+    "description": "Customer error matching an internal failure message; external details remain data."
+  },
+  "failureYourSessionCouldNotBeVerifiedSign": "Your session could not be verified. Sign in again.",
+  "@failureYourSessionCouldNotBeVerifiedSign": {
+    "description": "Customer error matching an internal failure message; external details remain data."
+  },
+  "failureWeCouldNotLoadTheCompleteCatalogue": "We could not load the complete catalogue. Please try again.",
+  "@failureWeCouldNotLoadTheCompleteCatalogue": {
+    "description": "Customer error matching an internal failure message; external details remain data."
+  },
+  "failureYourCartIsEmpty": "Your cart is empty.",
+  "@failureYourCartIsEmpty": {
+    "description": "Customer error matching an internal failure message; external details remain data."
+  },
+  "failureWeCouldNotLoadYourOpenOrder": "We could not load your open order. Please try again.",
+  "@failureWeCouldNotLoadYourOpenOrder": {
+    "description": "Customer error matching an internal failure message; external details remain data."
+  },
+  "failureIdentityChecksAreNotNeededForThis": "Identity checks are not needed for this order.",
+  "@failureIdentityChecksAreNotNeededForThis": {
+    "description": "Customer error matching an internal failure message; external details remain data."
+  },
+  "failureWeCouldNotFindThatOrder": "We could not find that order.",
+  "@failureWeCouldNotFindThatOrder": {
+    "description": "Customer error matching an internal failure message; external details remain data."
+  },
+  "failureThisOrderWasReplacedByANewer": "This order was replaced by a newer one and can no longer be paid.",
+  "@failureThisOrderWasReplacedByANewer": {
+    "description": "Customer error matching an internal failure message; external details remain data."
+  },
+  "failureThisOrderCanNoLongerBePaid": "This order can no longer be paid.",
+  "@failureThisOrderCanNoLongerBePaid": {
+    "description": "Customer error matching an internal failure message; external details remain data."
+  },
+  "failureVerifyYourIdentityBeforePaying": "Verify your identity before paying.",
+  "@failureVerifyYourIdentityBeforePaying": {
+    "description": "Customer error matching an internal failure message; external details remain data."
+  },
+  "failureThePaymentWasNotCompletedYouHave": "The payment was not completed. You have not been charged.",
+  "@failureThePaymentWasNotCompletedYouHave": {
+    "description": "Customer error matching an internal failure message; external details remain data."
+  },
+  "failureWeCouldNotOpenThePaymentPage": "We could not open the payment page safely.",
+  "@failureWeCouldNotOpenThePaymentPage": {
+    "description": "Customer error matching an internal failure message; external details remain data."
+  },
+  "failureWeCouldNotLoadAllOfYour": "We could not load all of your passes. Please try again.",
+  "@failureWeCouldNotLoadAllOfYour": {
+    "description": "Customer error matching an internal failure message; external details remain data."
+  },
+  "failureWeCouldNotLoadTheLegalDocuments": "We could not load the legal documents. Try again.",
+  "@failureWeCouldNotLoadTheLegalDocuments": {
+    "description": "Customer error matching an internal failure message; external details remain data."
+  },
+  "failureCouldNotSaveYourConsentOnThis": "Could not save your consent on this device.",
+  "@failureCouldNotSaveYourConsentOnThis": {
+    "description": "Customer error matching an internal failure message; external details remain data."
+  },
+  "failureCouldNotSaveYourChoiceOnThis": "Could not save your choice on this device.",
+  "@failureCouldNotSaveYourChoiceOnThis": {
+    "description": "Customer error matching an internal failure message; external details remain data."
+  },
+  "failureUnknownProvider": "Unknown provider.",
+  "@failureUnknownProvider": {
+    "description": "Customer error matching an internal failure message; external details remain data."
+  },
+  "failureYourPhoneSDateOrTimeLooks": "Your phone's date or time looks wrong. Set it to automatic and try again.",
+  "@failureYourPhoneSDateOrTimeLooks": {
+    "description": "Customer error matching an internal failure message; external details remain data."
+  },
+  "failureYouAlreadyHaveAFreeWifiSession": "You already have a free WiFi session running.",
+  "@failureYouAlreadyHaveAFreeWifiSession": {
+    "description": "Customer error matching an internal failure message; external details remain data."
+  },
+  "failureYouVeReachedTodaySFreeWifi": "You've reached today's free WiFi limit.",
+  "@failureYouVeReachedTodaySFreeWifi": {
+    "description": "Customer error matching an internal failure message; external details remain data."
+  },
+  "failureNotAllowed": "You are not allowed to do that.",
+  "@failureNotAllowed": {
+    "description": "Permission failure when the server sends no customer-facing detail."
+  },
+  "contactMethodEmail": "Email",
+  "@contactMethodEmail": {
+    "description": "Preferred contact method label in registration."
+  },
+  "contactMethodSms": "SMS",
+  "@contactMethodSms": {
+    "description": "Preferred contact method label in registration."
+  },
+  "mapUnavailableNearestSpots": "Map not available. Here are the nearest spots.",
+  "@mapUnavailableNearestSpots": {
+    "description": "Fallback above a list sorted by known customer distance."
+  },
+  "mapUnavailableWifiSpots": "Map not available. Here are the WiFi spots.",
+  "@mapUnavailableWifiSpots": {
+    "description": "Fallback above a hotspot list when customer location is unavailable."
+  }
 }

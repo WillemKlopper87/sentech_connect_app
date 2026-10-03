@@ -1,3 +1,4 @@
+import 'package:sentech_connect_app/l10n/l10n.dart';
 import 'dart:async';
 import 'dart:convert';
 
@@ -117,13 +118,13 @@ class _PaymentWebViewPageState extends State<PaymentWebViewPage> {
         appBar: AppBar(
           leading: IconButton(
             icon: const Icon(Icons.close),
-            tooltip: 'Close payment',
+            tooltip: context.l10n.paymentClosePayment,
             onPressed: () => _close(false),
           ),
           title: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Secure payment'),
+              Text(context.l10n.paymentSecurePayment),
               Text(
                 widget.handoff.url.host,
                 style: theme.textTheme.bodyMedium?.copyWith(

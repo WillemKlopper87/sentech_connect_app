@@ -1,3 +1,4 @@
+import 'package:sentech_connect_app/l10n/l10n.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sentech_connect_app/core/money/money.dart';
@@ -23,7 +24,7 @@ class CheckoutPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Checkout')),
+      appBar: AppBar(title: Text(context.l10n.checkoutCheckout)),
       body: BlocConsumer<CheckoutCubit, CheckoutState>(
         listener: (context, state) {
           if (state.status == CheckoutStatus.created && state.order != null) {
@@ -46,8 +47,8 @@ class CheckoutPage extends StatelessWidget {
                           items: state.items,
                           totalCents: state.totalCents,
                           dueLabel: requiresIdentityCheck
-                              ? 'Due after verification'
-                              : 'Total due',
+                              ? context.l10n.checkoutToPay
+                              : context.l10n.checkoutTotalDue,
                         ),
                         const SizedBox(height: 18),
                         Container(
@@ -70,8 +71,8 @@ class CheckoutPage extends StatelessWidget {
                               Expanded(
                                 child: Text(
                                   requiresIdentityCheck
-                                      ? 'Next we verify your identity (required by RICA). You are only charged after that succeeds.'
-                                      : 'You pay on a secure payment page. Your pass starts as soon as the payment is confirmed.',
+                                      ? context.l10n.checkoutIdentityNotice
+                                      : context.l10n.checkoutPaymentNotice,
                                   style: theme.textTheme.bodyMedium,
                                 ),
                               ),
@@ -108,8 +109,8 @@ class CheckoutPage extends StatelessWidget {
                           )
                         : Text(
                             requiresIdentityCheck
-                                ? 'Verify identity to continue'
-                                : 'Continue to payment',
+                                ? context.l10n.checkoutVerifyIdentityToContinue
+                                : context.l10n.checkoutContinueToPayment,
                           ),
                   ),
                 ),
@@ -150,11 +151,15 @@ class _SummaryCard extends StatelessWidget {
                   : theme.textTheme.bodyMedium,
             ),
           ),
-          Text(
-            value,
-            style: total
-                ? theme.textTheme.titleMedium
-                : theme.textTheme.bodyMedium,
+          const SizedBox(width: 12),
+          Flexible(
+            child: Text(
+              value,
+              textAlign: TextAlign.end,
+              style: total
+                  ? theme.textTheme.titleMedium
+                  : theme.textTheme.bodyMedium,
+            ),
           ),
         ],
       ),
@@ -172,13 +177,17 @@ class _SummaryCard extends StatelessWidget {
               item.quantity > 1
                   ? '${item.plan.name} × ${item.quantity}'
                   : item.plan.name,
-              formatRands(item.lineTotalCents),
+              context.l10n.priceInclVat(formatRands(item.lineTotalCents)),
             ),
           const Padding(
             padding: EdgeInsets.symmetric(vertical: 6),
             child: Divider(height: 1),
           ),
-          row(dueLabel, formatRands(totalCents), total: true),
+          row(
+            dueLabel,
+            context.l10n.priceInclVat(formatRands(totalCents)),
+            total: true,
+          ),
         ],
       ),
     );

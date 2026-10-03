@@ -42,7 +42,10 @@ class _RegistrationViewState extends State<_RegistrationView> {
   @override
   void initState() {
     super.initState();
-    _mobileController.text = context.read<RegistrationCubit>().state.mobileNumber;
+    _mobileController.text = context
+        .read<RegistrationCubit>()
+        .state
+        .mobileNumber;
   }
 
   @override
@@ -85,48 +88,62 @@ class _RegistrationViewState extends State<_RegistrationView> {
       appBar: AppBar(
         title: Text(l10n.registerCompleteProfileTitle),
         automaticallyImplyLeading: false,
-        actions: [TextButton(onPressed: _signOut, child: Text(l10n.loginNotYou))],
+        actions: [
+          TextButton(onPressed: _signOut, child: Text(l10n.loginNotYou)),
+        ],
       ),
       body: BlocConsumer<RegistrationCubit, RegistrationState>(
         listener: (context, state) {
           if (state.submitStatus == SubmitStatus.submitted) {
             // The router guard then moves the customer on (coverage for a fresh sign-in).
             final auth = context.read<AuthCubit>();
-            auth.profileUpdated(User(
-              id: auth.state.user?.id ?? 'usr_new',
-              fullName: state.fullName.trim(),
-              mobileNumber: auth.state.user?.mobileNumber ?? state.mobileNumber,
-            ), legalAccepted: true);
+            auth.profileUpdated(
+              User(
+                id: auth.state.user?.id ?? 'usr_new',
+                fullName: state.fullName.trim(),
+                mobileNumber:
+                    auth.state.user?.mobileNumber ?? state.mobileNumber,
+              ),
+              legalAccepted: true,
+            );
           }
           if (state.submitStatus == SubmitStatus.failed) {
             ScaffoldMessenger.of(context)
               ..hideCurrentSnackBar()
               ..showSnackBar(SnackBar(content: Text(l10n.registerSaveFailed)));
           }
-          if (state.locationStatus == LocationFetchStatus.fetched && _addressController.text != state.address) {
+          if (state.locationStatus == LocationFetchStatus.fetched &&
+              _addressController.text != state.address) {
             _addressController.text = state.address;
           }
           if (state.locationStatus == LocationFetchStatus.denied) {
             ScaffoldMessenger.of(context)
               ..hideCurrentSnackBar()
-              ..showSnackBar(SnackBar(content: Text(l10n.registerLocationDenied)));
+              ..showSnackBar(
+                SnackBar(content: Text(l10n.registerLocationDenied)),
+              );
           }
           if (state.locationStatus == LocationFetchStatus.failed) {
             ScaffoldMessenger.of(context)
               ..hideCurrentSnackBar()
-              ..showSnackBar(SnackBar(content: Text(l10n.registerLocationFailed)));
+              ..showSnackBar(
+                SnackBar(content: Text(l10n.registerLocationFailed)),
+              );
           }
         },
         builder: (context, state) {
           final cubit = context.read<RegistrationCubit>();
           final submitting = state.submitStatus == SubmitStatus.submitting;
           final locating = state.locationStatus == LocationFetchStatus.fetching;
-          final canSubmit = state.acceptedTerms &&
+          final canSubmit =
+              state.acceptedTerms &&
               state.fullName.trim().isNotEmpty &&
               state.email.isNotEmpty &&
               state.mobileNumber.isNotEmpty &&
               state.address.isNotEmpty;
-          final heading = theme.textTheme.labelLarge?.copyWith(letterSpacing: 0.6);
+          final heading = theme.textTheme.labelLarge?.copyWith(
+            letterSpacing: 0.6,
+          );
 
           return SafeArea(
             child: SingleChildScrollView(
@@ -140,7 +157,9 @@ class _RegistrationViewState extends State<_RegistrationView> {
                     controller: _nameController,
                     onChanged: cubit.setFullName,
                     textCapitalization: TextCapitalization.words,
-                    decoration: InputDecoration(hintText: l10n.registerFullName),
+                    decoration: InputDecoration(
+                      hintText: l10n.registerFullName,
+                    ),
                   ),
                   const SizedBox(height: 10),
                   TextField(
@@ -163,21 +182,39 @@ class _RegistrationViewState extends State<_RegistrationView> {
                     controller: _addressController,
                     onChanged: cubit.setAddress,
                     maxLines: 2,
-                    decoration: InputDecoration(hintText: l10n.registerAddressHint),
+                    decoration: InputDecoration(
+                      hintText: l10n.registerAddressHint,
+                    ),
                   ),
                   const SizedBox(height: 10),
                   OutlinedButton.icon(
                     onPressed: locating ? null : () => _useLocation(cubit),
                     icon: locating
-                        ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
-                        : Icon(state.hasLocation ? Icons.check_circle : Icons.my_location, size: 18),
-                    label: Text(state.hasLocation ? l10n.registerLocationCaptured : l10n.registerUseLocation),
+                        ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : Icon(
+                            state.hasLocation
+                                ? Icons.check_circle
+                                : Icons.my_location,
+                            size: 18,
+                          ),
+                    label: Text(
+                      state.hasLocation
+                          ? l10n.registerLocationCaptured
+                          : l10n.registerUseLocation,
+                    ),
                   ),
                   Padding(
                     padding: const EdgeInsets.only(top: 6),
                     child: Text(
                       l10n.registerLocationHelp,
-                      style: theme.textTheme.bodyMedium?.copyWith(fontSize: 11.5, color: theme.colorScheme.onSurfaceVariant),
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        fontSize: 11.5,
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 22),
@@ -185,10 +222,20 @@ class _RegistrationViewState extends State<_RegistrationView> {
                   const SizedBox(height: 10),
                   SegmentedButton<ContactMethod>(
                     segments: ContactMethod.values
-                        .map((m) => ButtonSegment(value: m, label: Text(m.label)))
+                        .map(
+                          (m) => ButtonSegment(
+                            value: m,
+                            label: Text(switch (m) {
+                              ContactMethod.email => l10n.contactMethodEmail,
+                              ContactMethod.sms => l10n.contactMethodSms,
+                              ContactMethod.whatsapp => l10n.supportWhatsApp,
+                            }),
+                          ),
+                        )
                         .toList(),
                     selected: {state.preferredContactMethod},
-                    onSelectionChanged: (s) => cubit.setPreferredContactMethod(s.first),
+                    onSelectionChanged: (s) =>
+                        cubit.setPreferredContactMethod(s.first),
                   ),
                   const SizedBox(height: 22),
                   Text(l10n.registerMarketingHeading, style: heading),
@@ -228,7 +275,10 @@ class _RegistrationViewState extends State<_RegistrationView> {
                         ? const SizedBox(
                             width: 20,
                             height: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
                           )
                         : Text(l10n.registerCreateAccount),
                   ),

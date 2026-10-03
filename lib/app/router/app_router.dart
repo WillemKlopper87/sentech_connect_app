@@ -1,3 +1,4 @@
+import 'package:sentech_connect_app/l10n/l10n.dart';
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
@@ -215,7 +216,13 @@ class AppRouter {
     String initialLocation = AppRoutes.splash,
     bool quickSplash = false,
   }) : _refresh = _GuardRefresh(authCubit, tenantCubit) {
-    router = _buildRouter(authCubit, tenantCubit, _refresh, initialLocation, quickSplash);
+    router = _buildRouter(
+      authCubit,
+      tenantCubit,
+      _refresh,
+      initialLocation,
+      quickSplash,
+    );
   }
 
   final _GuardRefresh _refresh;
@@ -243,11 +250,11 @@ GoRouter _buildRouter(
             : tenantRedirect(tenantCubit.state, state.uri)) ??
         authRedirect(authCubit.state, state.uri),
     errorBuilder: (context, state) => Scaffold(
-      appBar: AppBar(title: const Text('Page not found')),
+      appBar: AppBar(title: Text(context.l10n.routerPageNotFound)),
       body: Center(
         child: TextButton(
           onPressed: () => context.go(AppRoutes.main),
-          child: const Text('Back to dashboard'),
+          child: Text(context.l10n.routerBackToHome),
         ),
       ),
     ),

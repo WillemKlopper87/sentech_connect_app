@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sentech_connect_app/l10n/failure_copy.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sentech_connect_app/app/locator.dart';
@@ -28,7 +29,8 @@ class LoginPage extends StatelessWidget {
           locator(),
           // Verification and sign-in are ONE operation (AuthCubit.signInWithOtp). The legal consent
           // step that follows is enforced by the router for every kind of session.
-          verifier: (challenge, code) => auth.signInWithOtp(challenge: challenge, code: code),
+          verifier: (challenge, code) =>
+              auth.signInWithOtp(challenge: challenge, code: code),
         );
       },
       child: _LoginView(demoMode: demoMode),
@@ -63,13 +65,14 @@ class _LoginViewState extends State<_LoginView> {
   }
 
   String? _biometricMessage(BiometricIssue? issue) => switch (issue) {
-        null || BiometricIssue.cancelled => null,
-        BiometricIssue.notEnrolled => context.l10n.biometricNotEnrolled,
-        BiometricIssue.unavailable => context.l10n.biometricUnavailable,
-        BiometricIssue.lockedOut => context.l10n.biometricLockedOut,
-        BiometricIssue.permanentlyLockedOut => context.l10n.biometricPermanentlyLockedOut,
-        BiometricIssue.failed => context.l10n.biometricFailed,
-      };
+    null || BiometricIssue.cancelled => null,
+    BiometricIssue.notEnrolled => context.l10n.biometricNotEnrolled,
+    BiometricIssue.unavailable => context.l10n.biometricUnavailable,
+    BiometricIssue.lockedOut => context.l10n.biometricLockedOut,
+    BiometricIssue.permanentlyLockedOut =>
+      context.l10n.biometricPermanentlyLockedOut,
+    BiometricIssue.failed => context.l10n.biometricFailed,
+  };
 
   String _otpMessage(Failure failure) {
     final l10n = context.l10n;
@@ -106,20 +109,29 @@ class _LoginViewState extends State<_LoginView> {
           BlocListener<AuthCubit, AuthState>(
             listenWhen: (previous, current) =>
                 !previous.providerUnavailable && current.providerUnavailable,
-            listener: (context, state) => _snack(l10n.signedOutProviderUnavailable),
+            listener: (context, state) =>
+                _snack(l10n.signedOutProviderUnavailable),
           ),
           BlocListener<AuthCubit, AuthState>(
-            listenWhen: (previous, current) => previous.status != current.status,
+            listenWhen: (previous, current) =>
+                previous.status != current.status,
             listener: (context, state) {
               if (state.status != AuthStatus.failure) return;
-              final message = state.errorMessage ?? _biometricMessage(state.biometricIssue);
+              final message = state.errorMessage == null
+                  ? _biometricMessage(state.biometricIssue)
+                  : localizedFailureText(l10n, state.errorMessage!);
               if (message != null) _snack(message);
             },
           ),
           BlocListener<OtpLoginCubit, OtpLoginState>(
-            listenWhen: (previous, current) => previous.status != current.status || previous.step != current.step,
+            listenWhen: (previous, current) =>
+                previous.status != current.status ||
+                previous.step != current.step,
             listener: (context, state) {
-              if (state.status == OtpLoginStatus.failure && state.failure != null) _snack(_otpMessage(state.failure!));
+              if (state.status == OtpLoginStatus.failure &&
+                  state.failure != null) {
+                _snack(_otpMessage(state.failure!));
+              }
               if (state.step == OtpStep.phone) _codeController.clear();
             },
           ),
@@ -130,7 +142,9 @@ class _LoginViewState extends State<_LoginView> {
               final busy = auth.status == AuthStatus.loading || otp.busy;
               final locked = otp.locked;
               final name = auth.isSignedIn ? null : auth.user?.fullName.trim();
-              final firstName = (name == null || name.isEmpty) ? null : name.split(' ').first;
+              final firstName = (name == null || name.isEmpty)
+                  ? null
+                  : name.split(' ').first;
               return SafeArea(
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
@@ -142,25 +156,35 @@ class _LoginViewState extends State<_LoginView> {
                       const DotGridPanel(height: 130),
                       const SizedBox(height: 24),
                       Text(
-                        firstName == null ? l10n.loginWelcomeBack : l10n.loginWelcomeBackName(firstName),
+                        firstName == null
+                            ? l10n.loginWelcomeBack
+                            : l10n.loginWelcomeBackName(firstName),
                         style: theme.textTheme.headlineMedium,
                       ),
                       const SizedBox(height: 4),
                       Text(
                         l10n.loginSubtitle,
-                        style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
                       ),
                       const SizedBox(height: 20),
                       if (auth.biometricsReady) ...[
                         OutlinedButton.icon(
                           onPressed: busy
                               ? null
-                              : () => context.read<AuthCubit>().logInWithBiometrics(reason: l10n.biometricPromptReason),
+                              : () => context
+                                    .read<AuthCubit>()
+                                    .logInWithBiometrics(
+                                      reason: l10n.biometricPromptReason,
+                                    ),
                           icon: const Icon(Icons.fingerprint),
                           label: Text(l10n.loginUseBiometrics),
                         ),
                         TextButton(
-                          onPressed: busy ? null : () => context.read<AuthCubit>().logOut(),
+                          onPressed: busy
+                              ? null
+                              : () => context.read<AuthCubit>().logOut(),
                           child: Text(l10n.loginNotYou),
                         ),
                         const SizedBox(height: 8),
@@ -168,15 +192,23 @@ class _LoginViewState extends State<_LoginView> {
                           children: [
                             const Expanded(child: Divider()),
                             Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 10),
-                              child: Text(l10n.loginOr, style: theme.textTheme.bodyMedium),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                              ),
+                              child: Text(
+                                l10n.loginOr,
+                                style: theme.textTheme.bodyMedium,
+                              ),
                             ),
                             const Expanded(child: Divider()),
                           ],
                         ),
                         const SizedBox(height: 16),
                       ],
-                      if (otp.step == OtpStep.phone) ..._phoneStep(context, otp, busy || locked) else ..._codeStep(context, otp, busy, locked),
+                      if (otp.step == OtpStep.phone)
+                        ..._phoneStep(context, otp, busy || locked)
+                      else
+                        ..._codeStep(context, otp, busy, locked),
                     ],
                   ),
                 ),
@@ -204,28 +236,43 @@ class _LoginViewState extends State<_LoginView> {
       const SizedBox(height: 8),
       Text(
         l10n.loginNewCustomerHint,
-        style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+        style: theme.textTheme.bodyMedium?.copyWith(
+          color: theme.colorScheme.onSurfaceVariant,
+        ),
       ),
       const SizedBox(height: 20),
       ElevatedButton(
         onPressed: busy ? null : () => cubit.submitPhone(_phoneController.text),
-        child: otp.status == OtpLoginStatus.sending ? const _ButtonSpinner() : Text(l10n.loginSendCode),
+        child: otp.status == OtpLoginStatus.sending
+            ? const _ButtonSpinner()
+            : Text(l10n.loginSendCode),
       ),
     ];
   }
 
-  List<Widget> _codeStep(BuildContext context, OtpLoginState otp, bool busy, bool locked) {
+  List<Widget> _codeStep(
+    BuildContext context,
+    OtpLoginState otp,
+    bool busy,
+    bool locked,
+  ) {
     final l10n = context.l10n;
     final theme = Theme.of(context);
     final cubit = context.read<OtpLoginCubit>();
     return [
-      Text(l10n.otpSentTo(maskPhone(otp.challenge!.phoneE164)), style: theme.textTheme.bodyLarge),
+      Text(
+        l10n.otpSentTo(maskPhone(otp.challenge!.phoneE164)),
+        style: theme.textTheme.bodyLarge,
+      ),
       const SizedBox(height: 12),
       TextField(
         controller: _codeController,
         keyboardType: TextInputType.number,
         autofillHints: const [AutofillHints.oneTimeCode],
-        inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(6)],
+        inputFormatters: [
+          FilteringTextInputFormatter.digitsOnly,
+          LengthLimitingTextInputFormatter(6),
+        ],
         textInputAction: TextInputAction.done,
         autofocus: true,
         onSubmitted: busy || locked ? null : cubit.submitCode,
@@ -233,12 +280,21 @@ class _LoginViewState extends State<_LoginView> {
       ),
       if (widget.demoMode) ...[
         const SizedBox(height: 6),
-        Text(l10n.otpDemoHint, style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+        Text(
+          l10n.otpDemoHint,
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+        ),
       ],
       const SizedBox(height: 16),
       ElevatedButton(
-        onPressed: busy || locked ? null : () => cubit.submitCode(_codeController.text),
-        child: otp.status == OtpLoginStatus.verifying ? const _ButtonSpinner() : Text(l10n.otpVerify),
+        onPressed: busy || locked
+            ? null
+            : () => cubit.submitCode(_codeController.text),
+        child: otp.status == OtpLoginStatus.verifying
+            ? const _ButtonSpinner()
+            : Text(l10n.otpVerify),
       ),
       const SizedBox(height: 8),
       Wrap(
@@ -246,9 +302,16 @@ class _LoginViewState extends State<_LoginView> {
         children: [
           TextButton(
             onPressed: busy || otp.resendIn > 0 ? null : cubit.resend,
-            child: Text(otp.resendIn > 0 ? l10n.otpResendIn(otp.resendIn) : l10n.otpResend),
+            child: Text(
+              otp.resendIn > 0
+                  ? l10n.otpResendIn(otp.resendIn)
+                  : l10n.otpResend,
+            ),
           ),
-          TextButton(onPressed: busy ? null : cubit.changeNumber, child: Text(l10n.otpChangeNumber)),
+          TextButton(
+            onPressed: busy ? null : cubit.changeNumber,
+            child: Text(l10n.otpChangeNumber),
+          ),
         ],
       ),
     ];
@@ -260,8 +323,8 @@ class _ButtonSpinner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => const SizedBox(
-        width: 20,
-        height: 20,
-        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-      );
+    width: 20,
+    height: 20,
+    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+  );
 }

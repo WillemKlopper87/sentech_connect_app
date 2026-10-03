@@ -13,17 +13,17 @@ enum TicketCategory { billing, technical, other }
 extension TicketCategoryLabel on TicketCategory {
   /// English label used in the email subject that support staff read.
   String get label => switch (this) {
-        TicketCategory.billing => 'Billing',
-        TicketCategory.technical => 'Technical',
-        TicketCategory.other => 'Other',
-      };
+    TicketCategory.billing => 'Billing',
+    TicketCategory.technical => 'Technical',
+    TicketCategory.other => 'Other',
+  };
 
   /// Label shown to the customer, in their language.
   String localizedLabel(BuildContext context) => switch (this) {
-        TicketCategory.billing => context.l10n.supportCategoryBilling,
-        TicketCategory.technical => context.l10n.supportCategoryTechnical,
-        TicketCategory.other => context.l10n.supportCategoryOther,
-      };
+    TicketCategory.billing => context.l10n.supportCategoryBilling,
+    TicketCategory.technical => context.l10n.supportCategoryTechnical,
+    TicketCategory.other => context.l10n.supportCategoryOther,
+  };
 }
 
 /// Opens a WhatsApp chat with Sentech support. Shared between the Support
@@ -32,13 +32,15 @@ extension TicketCategoryLabel on TicketCategory {
 /// and the pre-filled message.
 Future<void> openWhatsAppChat(BuildContext context) async {
   final uri = Uri.parse(
-    'https://wa.me/$whatsAppNumber?text=${Uri.encodeComponent("Hi Sentech, I need help with my account.")}',
+    'https://wa.me/$whatsAppNumber?text=${Uri.encodeComponent(context.l10n.supportChatGreeting)}',
   );
   final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
   if (!launched && context.mounted) {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(context.l10n.supportWhatsAppFailed)));
+      ..showSnackBar(
+        SnackBar(content: Text(context.l10n.supportWhatsAppFailed)),
+      );
   }
 }
 
@@ -60,16 +62,23 @@ Future<void> submitSupportTicket(
   final uri = Uri(
     scheme: 'mailto',
     path: supportEmail,
-    query: 'subject=${Uri.encodeComponent('[${category.label}] Support request')}'
+    query:
+        'subject=${Uri.encodeComponent(context.l10n.supportEmailSubject(category.localizedLabel(context)))}'
         '&body=${Uri.encodeComponent(description)}',
   );
   final launched = await launchUrl(uri);
   if (!context.mounted) return;
   ScaffoldMessenger.of(context)
     ..hideCurrentSnackBar()
-    ..showSnackBar(SnackBar(
-      content: Text(launched ? context.l10n.supportTicketOpened : context.l10n.supportTicketNoEmail),
-    ));
+    ..showSnackBar(
+      SnackBar(
+        content: Text(
+          launched
+              ? context.l10n.supportTicketOpened
+              : context.l10n.supportTicketNoEmail,
+        ),
+      ),
+    );
 }
 
 class _TicketDialog extends StatefulWidget {
@@ -104,7 +113,12 @@ class _TicketDialogState extends State<_TicketDialog> {
             initialValue: _category,
             decoration: InputDecoration(labelText: l10n.supportTicketCategory),
             items: TicketCategory.values
-                .map((c) => DropdownMenuItem(value: c, child: Text(c.localizedLabel(context))))
+                .map(
+                  (c) => DropdownMenuItem(
+                    value: c,
+                    child: Text(c.localizedLabel(context)),
+                  ),
+                )
                 .toList(),
             onChanged: (c) => setState(() => _category = c!),
           ),
@@ -121,11 +135,17 @@ class _TicketDialogState extends State<_TicketDialog> {
         ],
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: Text(l10n.commonCancel)),
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text(l10n.commonCancel),
+        ),
         FilledButton(
           onPressed: _descriptionController.text.trim().isEmpty
               ? null
-              : () => Navigator.pop(context, (_category, _descriptionController.text.trim())),
+              : () => Navigator.pop(context, (
+                  _category,
+                  _descriptionController.text.trim(),
+                )),
           child: Text(l10n.commonContinue),
         ),
       ],

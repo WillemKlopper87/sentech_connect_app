@@ -1,3 +1,4 @@
+import 'package:sentech_connect_app/l10n/l10n.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -9,7 +10,6 @@ import 'package:sentech_connect_app/features/catalog_checkout/domain/entities/pa
 import 'package:sentech_connect_app/features/catalog_checkout/presentation/bloc/payment_cubit.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/presentation/payment/fake_gateway_sheet.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/presentation/payment/payment_web_view_page.dart';
-import 'package:sentech_connect_app/l10n/app_localizations.dart';
 import 'package:sentech_connect_app/shared/widgets/failure_view.dart';
 
 /// Pay for an order on the gateway's hosted page, then wait for the server
@@ -74,7 +74,7 @@ class PaymentPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Payment')),
+      appBar: AppBar(title: Text(context.l10n.paymentPayment)),
       body: BlocConsumer<PaymentCubit, PaymentState>(
         listenWhen: (previous, current) => previous.status != current.status,
         listener: (context, state) {
@@ -108,9 +108,8 @@ class PaymentPage extends StatelessWidget {
                 ),
               );
             case PaymentStatus.confirming:
-              return const _Message(
-                text:
-                    'Confirming your payment. This can take a minute; your order is saved if you leave this screen.',
+              return _Message(
+                text: context.l10n.paymentConfirmingYourPaymentThisCanTake,
                 action: CircularProgressIndicator(),
               );
             case PaymentStatus.stillPending:
@@ -173,7 +172,7 @@ class PaymentPage extends StatelessWidget {
                             const SizedBox(width: 10),
                             Expanded(
                               child: Text(
-                                'You choose how to pay on the secure payment page.',
+                                context.l10n.paymentChooseHowToPayOnThe,
                                 style: theme.textTheme.bodyMedium,
                               ),
                             ),
@@ -207,7 +206,7 @@ class PaymentPage extends StatelessWidget {
                           const SizedBox(width: 6),
                           Expanded(
                             child: Text(
-                              "You pay on the provider's secure page. We never see or store your card details.",
+                              context.l10n.paymentPayOnASecurePaymentPage,
                               style: theme.textTheme.bodyMedium?.copyWith(
                                 fontSize: 11.5,
                                 color: theme.colorScheme.onSurfaceVariant,
@@ -229,7 +228,11 @@ class PaymentPage extends StatelessWidget {
                                 ),
                               )
                             : Text(
-                                'Pay ${formatRands(order.totalCents)} securely',
+                                context.l10n.paymentPaySecurely(
+                                  context.l10n.priceInclVat(
+                                    formatRands(order.totalCents),
+                                  ),
+                                ),
                               ),
                       ),
                     ],
@@ -281,10 +284,10 @@ class _OrderCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final label = showIdentityVerified
-        ? 'Identity verified'
+        ? context.l10n.paymentIdentityVerified
         : order.isHotspotPass
-        ? 'Wi-Fi pass order'
-        : 'Your order';
+        ? context.l10n.paymentWifiPassOrder
+        : context.l10n.paymentYourOrder;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -313,9 +316,13 @@ class _OrderCard extends StatelessWidget {
               Expanded(
                 child: Text(order.planName, style: theme.textTheme.titleMedium),
               ),
-              Text(
-                formatRands(order.totalCents),
-                style: theme.textTheme.titleMedium,
+              const SizedBox(width: 12),
+              Flexible(
+                child: Text(
+                  context.l10n.priceInclVat(formatRands(order.totalCents)),
+                  textAlign: TextAlign.end,
+                  style: theme.textTheme.titleMedium,
+                ),
               ),
             ],
           ),

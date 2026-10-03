@@ -1,3 +1,4 @@
+import 'package:sentech_connect_app/l10n/l10n.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sentech_connect_app/app/locator.dart';
@@ -107,9 +108,9 @@ class _MainShellState extends State<MainShell> {
           onUpgrade: () => _goToShop(ProductCategory.home5g),
           onReportIssue: widget.showMockFeatures
               ? () => submitSupportTicket(
-                    context,
-                    initialCategory: TicketCategory.technical,
-                  )
+                  context,
+                  initialCategory: TicketCategory.technical,
+                )
               : null,
           onOpenPromotions: widget.onOpenPromotions,
           onResumeOrder: widget.onResumeOrder,
@@ -121,8 +122,9 @@ class _MainShellState extends State<MainShell> {
         value: _catalogCubit,
         child: CatalogPage(
           onOpenCart: widget.onOpenCart,
-          onFindHotspots:
-              widget.showMockFeatures ? widget.onFindHotspots : null,
+          onFindHotspots: widget.showMockFeatures
+              ? widget.onFindHotspots
+              : null,
         ),
       ),
       const VoucherScannerPage(),
@@ -157,29 +159,29 @@ class _MainShellState extends State<MainShell> {
           NavigationDestination(
             icon: Icon(Icons.home_outlined),
             selectedIcon: Icon(Icons.home),
-            label: 'Home',
+            label: context.l10n.navHome,
           ),
           NavigationDestination(
             icon: Icon(Icons.shopping_bag_outlined),
             selectedIcon: Icon(Icons.shopping_bag),
-            label: 'Shop',
+            label: context.l10n.navShop,
           ),
           NavigationDestination(
             icon: Icon(Icons.qr_code_scanner_outlined),
             selectedIcon: Icon(Icons.qr_code_scanner),
-            label: 'Scan',
+            label: context.l10n.navScan,
           ),
-          if (widget.showMockFeatures) ...const [
+          if (widget.showMockFeatures) ...[
             NavigationDestination(
               icon: Icon(Icons.support_agent_outlined),
               selectedIcon: Icon(Icons.support_agent),
-              label: 'Support',
+              label: context.l10n.navHelp,
             ),
           ],
           NavigationDestination(
             icon: Icon(Icons.person_outline),
             selectedIcon: Icon(Icons.person),
-            label: 'Account',
+            label: context.l10n.navAccount,
           ),
         ],
       ),

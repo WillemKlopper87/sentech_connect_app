@@ -122,9 +122,16 @@ void main() {
       Order? paid;
       await _pumpPage(tester, cubit, onPaid: (o) => paid = o);
       expect(find.textContaining('Identity verified'), findsNothing);
-      expect(find.text('Wi-Fi pass order'), findsOneWidget);
+      expect(find.text('WiFi pass order'), findsOneWidget);
+      expect(find.text('Pay R49.00 incl. VAT securely'), findsOneWidget);
+      expect(find.textContaining('incl. VAT incl. VAT'), findsNothing);
 
-      await tester.tap(find.textContaining('Pay '));
+      await tester.tap(
+        find.descendant(
+          of: find.byType(ElevatedButton),
+          matching: find.textContaining('Pay '),
+        ),
+      );
       await tester.pumpAndSettle();
       expect(cubit.state.status, PaymentStatus.paid);
       expect(paid?.id, order.id);
@@ -152,7 +159,13 @@ void main() {
       final cubit = PaymentCubit(repo, cart, order.id);
       addTearDown(cubit.close);
       await _pumpPage(tester, cubit);
-      expect(find.textContaining('Pay '), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byType(ElevatedButton),
+          matching: find.textContaining('Pay '),
+        ),
+        findsOneWidget,
+      );
       expect(find.textContaining('Identity'), findsNothing);
       expect(find.byIcon(Icons.verified), findsNothing);
     },
@@ -199,7 +212,12 @@ void main() {
       final cubit = PaymentCubit(repo, cart, order.id, pollDelays: const []);
       addTearDown(cubit.close);
       await _pumpPage(tester, cubit);
-      await tester.tap(find.textContaining('Pay '));
+      await tester.tap(
+        find.descendant(
+          of: find.byType(ElevatedButton),
+          matching: find.textContaining('Pay '),
+        ),
+      );
       await tester.pumpAndSettle();
       expect(cubit.state.status, PaymentStatus.stillPending);
       expect(find.text('Check again'), findsOneWidget);

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sentech_connect_app/l10n/demo_copy.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sentech_connect_app/features/support/domain/entities/faq.dart';
 import 'package:sentech_connect_app/features/support/presentation/bloc/support_cubit.dart';
@@ -19,14 +20,22 @@ class SupportPage extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
           }
           final theme = Theme.of(context);
-          final faqs = state.visibleFaqs;
+          final query = state.query.trim().toLowerCase();
+          final faqs = state.allFaqs
+              .map((faq) => localizeDemoFaq(faq, l10n))
+              .where(
+                (faq) =>
+                    query.isEmpty || faq.question.toLowerCase().contains(query),
+              )
+              .toList();
           return Padding(
             padding: const EdgeInsets.all(20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 TextField(
-                  onChanged: (value) => context.read<SupportCubit>().search(value),
+                  onChanged: (value) =>
+                      context.read<SupportCubit>().search(value),
                   decoration: InputDecoration(
                     hintText: l10n.supportSearchHint,
                     prefixIcon: const Icon(Icons.search, size: 20),
@@ -38,7 +47,9 @@ class SupportPage extends StatelessWidget {
                       ? Center(
                           child: Text(
                             l10n.supportNoResults(state.query),
-                            style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
                           ),
                         )
                       : ListView.separated(
@@ -47,12 +58,19 @@ class SupportPage extends StatelessWidget {
                           itemBuilder: (context, i) => _FaqTile(
                             faq: faqs[i],
                             expanded: state.expandedId == faqs[i].id,
-                            onTap: () => context.read<SupportCubit>().toggleExpanded(faqs[i].id),
+                            onTap: () => context
+                                .read<SupportCubit>()
+                                .toggleExpanded(faqs[i].id),
                           ),
                         ),
                 ),
                 const SizedBox(height: 8),
-                Text(l10n.supportStillStuck, style: theme.textTheme.labelLarge?.copyWith(letterSpacing: 0.6)),
+                Text(
+                  l10n.supportStillStuck,
+                  style: theme.textTheme.labelLarge?.copyWith(
+                    letterSpacing: 0.6,
+                  ),
+                ),
                 const SizedBox(height: 8),
                 Row(
                   children: [
@@ -67,7 +85,10 @@ class SupportPage extends StatelessWidget {
                     Expanded(
                       child: ElevatedButton.icon(
                         onPressed: () => submitSupportTicket(context),
-                        icon: const Icon(Icons.confirmation_number_outlined, size: 18),
+                        icon: const Icon(
+                          Icons.confirmation_number_outlined,
+                          size: 18,
+                        ),
                         label: Text(l10n.supportSubmitTicket),
                       ),
                     ),
@@ -83,7 +104,11 @@ class SupportPage extends StatelessWidget {
 }
 
 class _FaqTile extends StatelessWidget {
-  const _FaqTile({required this.faq, required this.expanded, required this.onTap});
+  const _FaqTile({
+    required this.faq,
+    required this.expanded,
+    required this.onTap,
+  });
 
   final Faq faq;
   final bool expanded;
@@ -105,7 +130,12 @@ class _FaqTile extends StatelessWidget {
               child: Row(
                 children: [
                   Expanded(
-                    child: Text(faq.question, style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600)),
+                    child: Text(
+                      faq.question,
+                      style: theme.textTheme.bodyLarge?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ),
                   AnimatedRotation(
                     turns: expanded ? 0.5 : 0,
@@ -121,10 +151,14 @@ class _FaqTile extends StatelessWidget {
                 padding: const EdgeInsets.only(top: 8),
                 child: Text(
                   faq.answer,
-                  style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
                 ),
               ),
-              crossFadeState: expanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+              crossFadeState: expanded
+                  ? CrossFadeState.showSecond
+                  : CrossFadeState.showFirst,
               duration: const Duration(milliseconds: 180),
             ),
           ],

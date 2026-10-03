@@ -1,3 +1,4 @@
+import 'package:sentech_connect_app/l10n/l10n.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -48,16 +49,27 @@ class OfflineBannerHost extends StatelessWidget {
               child: Padding(
                 // The banner sits where the status bar inset would be consumed
                 // by the screen below, so it takes that inset itself.
-                padding: EdgeInsets.fromLTRB(16, MediaQuery.paddingOf(context).top + 6, 16, 6),
+                padding: EdgeInsets.fromLTRB(
+                  16,
+                  MediaQuery.paddingOf(context).top + 6,
+                  16,
+                  6,
+                ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.wifi_off, size: 16, color: theme.colorScheme.onErrorContainer),
+                    Icon(
+                      Icons.wifi_off,
+                      size: 16,
+                      color: theme.colorScheme.onErrorContainer,
+                    ),
                     const SizedBox(width: 8),
                     Flexible(
                       child: Text(
-                        "You're offline. Some things won't work until you reconnect.",
-                        style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onErrorContainer),
+                        context.l10n.offlineBanner,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: theme.colorScheme.onErrorContainer,
+                        ),
                       ),
                     ),
                   ],
@@ -67,7 +79,13 @@ class OfflineBannerHost extends StatelessWidget {
           )
         else
           const SizedBox.shrink(),
-        Expanded(child: MediaQuery.removePadding(context: context, removeTop: !online, child: child)),
+        Expanded(
+          child: MediaQuery.removePadding(
+            context: context,
+            removeTop: !online,
+            child: child,
+          ),
+        ),
       ],
     );
   }

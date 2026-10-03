@@ -1,3 +1,4 @@
+import 'package:sentech_connect_app/l10n/l10n.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -45,7 +46,9 @@ abstract class MapTileSource {
       return ConfiguredTileSource(
         urlTemplate: url,
         apiKey: apiKey.isEmpty ? null : apiKey,
-        attribution: attribution.isEmpty ? '© OpenStreetMap contributors' : attribution,
+        attribution: attribution.isEmpty
+            ? '© OpenStreetMap contributors'
+            : attribution,
       );
     }
     return release ? const UnavailableTileSource() : const OsmDemoTileSource();
@@ -61,7 +64,11 @@ abstract class MapTileSource {
 
 /// A commercial / self-hosted provider supplied via `--dart-define`.
 class ConfiguredTileSource extends MapTileSource {
-  const ConfiguredTileSource({required this.urlTemplate, required this.attribution, this.apiKey});
+  const ConfiguredTileSource({
+    required this.urlTemplate,
+    required this.attribution,
+    this.apiKey,
+  });
 
   @override
   final String urlTemplate;
@@ -70,7 +77,8 @@ class ConfiguredTileSource extends MapTileSource {
   final String attribution;
 
   @override
-  Map<String, String> get additionalOptions => apiKey == null ? const {} : {'apiKey': apiKey!};
+  Map<String, String> get additionalOptions =>
+      apiKey == null ? const {} : {'apiKey': apiKey!};
 }
 
 /// Public OSM tiles — debug/demo builds only.
@@ -118,12 +126,14 @@ class OsmMap extends StatelessWidget {
     required this.center,
     this.zoom = 14,
     this.markers = const [],
+    this.unavailableMessage,
     this.borderRadius = const BorderRadius.all(Radius.circular(16)),
   });
 
   final LatLng center;
   final double zoom;
   final List<Marker> markers;
+  final String? unavailableMessage;
   final BorderRadius borderRadius;
 
   @override
@@ -131,7 +141,10 @@ class OsmMap extends StatelessWidget {
     final source = sourceOverride ?? _buildSource;
     final template = source.urlTemplate;
     if (template == null) {
-      return ClipRRect(borderRadius: borderRadius, child: const _MapUnavailable());
+      return ClipRRect(
+        borderRadius: borderRadius,
+        child: _MapUnavailable(message: unavailableMessage),
+      );
     }
     return ClipRRect(
       borderRadius: borderRadius,
@@ -165,12 +178,15 @@ class _MapAttribution extends StatelessWidget {
     return Align(
       alignment: Alignment.bottomRight,
       child: Semantics(
-        label: 'Map data $text',
+        label: context.l10n.mapDataAttribution(text),
         child: ColoredBox(
           color: Colors.white.withValues(alpha: 0.8),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-            child: Text(text, style: const TextStyle(fontSize: 10, color: Colors.black87)),
+            child: Text(
+              text,
+              style: const TextStyle(fontSize: 10, color: Colors.black87),
+            ),
           ),
         ),
       ),
@@ -179,7 +195,9 @@ class _MapAttribution extends StatelessWidget {
 }
 
 class _MapUnavailable extends StatelessWidget {
-  const _MapUnavailable();
+  const _MapUnavailable({this.message});
+
+  final String? message;
 
   @override
   Widget build(BuildContext context) {
@@ -192,12 +210,17 @@ class _MapUnavailable extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.map_outlined, color: theme.colorScheme.onSurfaceVariant),
+              Icon(
+                Icons.map_outlined,
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
               const SizedBox(height: 6),
               Text(
-                'Map unavailable in this build — no map provider is configured.',
+                message ?? context.l10n.mapUnavailable,
                 textAlign: TextAlign.center,
-                style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
               ),
             ],
           ),

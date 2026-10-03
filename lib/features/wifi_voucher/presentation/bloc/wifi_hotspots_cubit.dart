@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:sentech_connect_app/l10n/app_localizations_en.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:sentech_connect_app/features/wifi_voucher/domain/entities/wifi_hotspot.dart';
@@ -14,8 +15,14 @@ class HotspotDistance extends Equatable {
 
   String get distanceLabel {
     if (distanceMeters == null) return '';
-    if (distanceMeters! < 1000) return '${distanceMeters!.round()} m away';
-    return '${(distanceMeters! / 1000).toStringAsFixed(1)} km away';
+    if (distanceMeters! < 1000) {
+      return AppLocalizationsEn().hotspotMetersAway(
+        distanceMeters!.round().toString(),
+      );
+    }
+    return AppLocalizationsEn().hotspotKilometersAway(
+      (distanceMeters! / 1000).toStringAsFixed(1),
+    );
   }
 
   @override
@@ -60,32 +67,42 @@ class WifiHotspotsCubit extends Cubit<WifiHotspotsState> {
         permission = await Geolocator.requestPermission();
       }
       final hasPermission =
-          permission == LocationPermission.always || permission == LocationPermission.whileInUse;
+          permission == LocationPermission.always ||
+          permission == LocationPermission.whileInUse;
       if (serviceEnabled && hasPermission) {
         position = await Geolocator.getCurrentPosition(
-          locationSettings: const LocationSettings(accuracy: LocationAccuracy.medium),
+          locationSettings: const LocationSettings(
+            accuracy: LocationAccuracy.medium,
+          ),
         );
       }
     } catch (_) {
       // Fall through with sorting disabled — the list still renders.
     }
 
-    final withDistance = hotspots.map((h) {
-      final distance = position == null
-          ? null
-          : Geolocator.distanceBetween(position.latitude, position.longitude, h.latitude, h.longitude);
-      return HotspotDistance(hotspot: h, distanceMeters: distance);
-    }).toList()
-      ..sort((a, b) {
-        if (a.distanceMeters == null || b.distanceMeters == null) return 0;
-        return a.distanceMeters!.compareTo(b.distanceMeters!);
-      });
+    final withDistance =
+        hotspots.map((h) {
+          final distance = position == null
+              ? null
+              : Geolocator.distanceBetween(
+                  position.latitude,
+                  position.longitude,
+                  h.latitude,
+                  h.longitude,
+                );
+          return HotspotDistance(hotspot: h, distanceMeters: distance);
+        }).toList()..sort((a, b) {
+          if (a.distanceMeters == null || b.distanceMeters == null) return 0;
+          return a.distanceMeters!.compareTo(b.distanceMeters!);
+        });
 
-    emit(WifiHotspotsState(
-      status: WifiHotspotsStatus.loaded,
-      hotspots: withDistance,
-      userLatitude: position?.latitude,
-      userLongitude: position?.longitude,
-    ));
+    emit(
+      WifiHotspotsState(
+        status: WifiHotspotsStatus.loaded,
+        hotspots: withDistance,
+        userLatitude: position?.latitude,
+        userLongitude: position?.longitude,
+      ),
+    );
   }
 }

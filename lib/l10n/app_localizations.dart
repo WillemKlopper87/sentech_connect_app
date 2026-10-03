@@ -100,1031 +100,2369 @@ abstract class AppLocalizations {
     Locale('zu'),
   ];
 
-  /// No description provided for @commonCancel.
+  /// Customer copy in voucher result sheet.
   ///
   /// In en, this message translates to:
   /// **'Cancel'**
   String get commonCancel;
 
-  /// No description provided for @commonContinue.
+  /// Customer app copy: common continue.
   ///
   /// In en, this message translates to:
   /// **'Continue'**
   String get commonContinue;
 
-  /// No description provided for @commonRetry.
+  /// Customer app copy: common retry.
   ///
   /// In en, this message translates to:
   /// **'Retry'**
   String get commonRetry;
 
-  /// No description provided for @commonDone.
+  /// Customer copy in voucher result sheet.
   ///
   /// In en, this message translates to:
   /// **'Done'**
   String get commonDone;
 
-  /// No description provided for @loginWelcomeBack.
+  /// Customer app copy: login welcome back.
   ///
   /// In en, this message translates to:
   /// **'Welcome back'**
   String get loginWelcomeBack;
 
-  /// No description provided for @loginSubtitle.
+  /// Customer app copy: login subtitle.
   ///
   /// In en, this message translates to:
   /// **'Log in to manage your connection'**
   String get loginSubtitle;
 
-  /// No description provided for @loginUseBiometrics.
+  /// Customer app copy: login use biometrics.
   ///
   /// In en, this message translates to:
   /// **'Use biometrics'**
   String get loginUseBiometrics;
 
-  /// No description provided for @loginOr.
+  /// Customer app copy: login or.
   ///
   /// In en, this message translates to:
   /// **'or'**
   String get loginOr;
 
-  /// No description provided for @loginMobileHint.
+  /// Customer app copy: login mobile hint.
   ///
   /// In en, this message translates to:
   /// **'Mobile number'**
   String get loginMobileHint;
 
-  /// No description provided for @biometricPromptReason.
+  /// Customer app copy: biometric prompt reason.
   ///
   /// In en, this message translates to:
   /// **'Confirm it is you to log in to Sentech Connect'**
   String get biometricPromptReason;
 
-  /// No description provided for @biometricNotEnrolled.
+  /// Customer app copy: biometric not enrolled.
   ///
   /// In en, this message translates to:
   /// **'No fingerprint or face is set up on this phone. Add one in system settings.'**
   String get biometricNotEnrolled;
 
-  /// No description provided for @biometricUnavailable.
+  /// Customer app copy: biometric unavailable.
   ///
   /// In en, this message translates to:
   /// **'Biometrics are not available right now. Log in with your mobile number and SMS code.'**
   String get biometricUnavailable;
 
-  /// No description provided for @biometricLockedOut.
+  /// Customer app copy: biometric locked out.
   ///
   /// In en, this message translates to:
   /// **'Too many attempts. Wait a moment and try again.'**
   String get biometricLockedOut;
 
-  /// No description provided for @biometricPermanentlyLockedOut.
+  /// Customer app copy: biometric permanently locked out.
   ///
   /// In en, this message translates to:
   /// **'Biometrics are locked. Unlock your phone with your PIN or pattern first.'**
   String get biometricPermanentlyLockedOut;
 
-  /// No description provided for @loginSendCode.
+  /// Customer app copy: login send code.
   ///
   /// In en, this message translates to:
   /// **'Send code'**
   String get loginSendCode;
 
-  /// No description provided for @loginPhoneInvalid.
+  /// Customer app copy: login phone invalid.
   ///
   /// In en, this message translates to:
   /// **'Enter a valid South African mobile number, e.g. 082 123 4567.'**
   String get loginPhoneInvalid;
 
-  /// No description provided for @loginNewCustomerHint.
+  /// Customer app copy: login new customer hint.
   ///
   /// In en, this message translates to:
   /// **'New here? Enter your number and we\'ll create your account.'**
   String get loginNewCustomerHint;
 
-  /// No description provided for @loginWelcomeBackName.
+  /// Customer app copy: login welcome back name.
   ///
   /// In en, this message translates to:
   /// **'Welcome back, {name}'**
   String loginWelcomeBackName(String name);
 
-  /// No description provided for @loginNotYou.
+  /// Customer app copy: login not you.
   ///
   /// In en, this message translates to:
   /// **'Not you? Sign out'**
   String get loginNotYou;
 
-  /// No description provided for @otpSentTo.
+  /// Customer app copy: otp sent to.
   ///
   /// In en, this message translates to:
   /// **'We sent a 6-digit code to {phone}.'**
   String otpSentTo(String phone);
 
-  /// No description provided for @otpCodeHint.
+  /// Customer app copy: otp code hint.
   ///
   /// In en, this message translates to:
   /// **'6-digit code'**
   String get otpCodeHint;
 
-  /// No description provided for @otpVerify.
+  /// Customer app copy: otp verify.
   ///
   /// In en, this message translates to:
   /// **'Verify'**
   String get otpVerify;
 
-  /// No description provided for @otpResend.
+  /// Customer app copy: otp resend.
   ///
   /// In en, this message translates to:
   /// **'Resend code'**
   String get otpResend;
 
-  /// No description provided for @otpResendIn.
+  /// Customer app copy: otp resend in.
   ///
   /// In en, this message translates to:
   /// **'Resend code in {seconds}s'**
   String otpResendIn(int seconds);
 
-  /// No description provided for @otpChangeNumber.
+  /// Customer app copy: otp change number.
   ///
   /// In en, this message translates to:
   /// **'Change number'**
   String get otpChangeNumber;
 
-  /// No description provided for @otpInvalidCode.
+  /// Customer app copy: otp invalid code.
   ///
   /// In en, this message translates to:
   /// **'That code is not right or has expired. Try again or ask for a new code.'**
   String get otpInvalidCode;
 
-  /// No description provided for @otpRateLimited.
+  /// Customer app copy: otp rate limited.
   ///
   /// In en, this message translates to:
   /// **'Too many attempts. Please wait a moment before trying again.'**
   String get otpRateLimited;
 
-  /// No description provided for @otpServerError.
+  /// Customer app copy: otp server error.
   ///
   /// In en, this message translates to:
   /// **'Something went wrong on our end. Please try again.'**
   String get otpServerError;
 
-  /// No description provided for @otpSessionSetupFailed.
+  /// Customer app copy: otp session setup failed.
   ///
   /// In en, this message translates to:
   /// **'We could not finish signing you in. Please request a new code.'**
   String get otpSessionSetupFailed;
 
-  /// No description provided for @registerCompleteProfileTitle.
+  /// Customer app copy: register complete profile title.
   ///
   /// In en, this message translates to:
   /// **'Complete your profile'**
   String get registerCompleteProfileTitle;
 
-  /// No description provided for @legalGateTitle.
+  /// Customer app copy: legal gate title.
   ///
   /// In en, this message translates to:
   /// **'Terms of Service'**
   String get legalGateTitle;
 
-  /// No description provided for @legalGateChecking.
+  /// Customer app copy: legal gate checking.
   ///
   /// In en, this message translates to:
   /// **'Checking your Terms of Service…'**
   String get legalGateChecking;
 
-  /// No description provided for @legalGateUnavailable.
+  /// Customer app copy: legal gate unavailable.
   ///
   /// In en, this message translates to:
   /// **'We could not check the Terms of Service right now. Check your connection and try again.'**
   String get legalGateUnavailable;
 
-  /// No description provided for @legalGateSignOut.
+  /// Customer app copy: legal gate sign out.
   ///
   /// In en, this message translates to:
   /// **'Sign out'**
   String get legalGateSignOut;
 
-  /// No description provided for @otpDemoHint.
+  /// Customer app copy: otp demo hint.
   ///
   /// In en, this message translates to:
   /// **'Demo mode: any 6-digit code except 000000 works.'**
   String get otpDemoHint;
 
-  /// No description provided for @otpOffline.
+  /// Customer app copy: otp offline.
   ///
   /// In en, this message translates to:
   /// **'You\'re offline. Check your connection and try again.'**
   String get otpOffline;
 
-  /// No description provided for @registerAcceptTerms.
+  /// Customer app copy: register accept terms.
   ///
   /// In en, this message translates to:
   /// **'I accept the Terms of Service and the Privacy notice'**
   String get registerAcceptTerms;
 
-  /// No description provided for @accountRequestOffline.
+  /// Customer app copy: account request offline.
   ///
   /// In en, this message translates to:
   /// **'You\'re offline. Check your connection and try again.'**
   String get accountRequestOffline;
 
-  /// No description provided for @accountRequestRateLimited.
+  /// Customer app copy: account request rate limited.
   ///
   /// In en, this message translates to:
   /// **'Too many requests. Please wait a moment and try again.'**
   String get accountRequestRateLimited;
 
-  /// No description provided for @signedOutProviderUnavailable.
+  /// Customer app copy: signed out provider unavailable.
   ///
   /// In en, this message translates to:
   /// **'Your provider is currently unavailable, so you have been signed out. Please try again later.'**
   String get signedOutProviderUnavailable;
 
-  /// No description provided for @biometricFailed.
+  /// Customer app copy: biometric failed.
   ///
   /// In en, this message translates to:
   /// **'Biometric check failed. Try again or log in with your SMS code.'**
   String get biometricFailed;
 
-  /// No description provided for @registerTitle.
+  /// Customer app copy: register title.
   ///
   /// In en, this message translates to:
   /// **'Create an account'**
   String get registerTitle;
 
-  /// No description provided for @registerPersonalDetails.
+  /// Customer app copy: register personal details.
   ///
   /// In en, this message translates to:
   /// **'PERSONAL DETAILS'**
   String get registerPersonalDetails;
 
-  /// No description provided for @registerFullName.
+  /// Customer app copy: register full name.
   ///
   /// In en, this message translates to:
   /// **'Full name'**
   String get registerFullName;
 
-  /// No description provided for @registerEmail.
+  /// Customer app copy: register email.
   ///
   /// In en, this message translates to:
   /// **'Email address'**
   String get registerEmail;
 
-  /// No description provided for @registerMobile.
+  /// Customer app copy: register mobile.
   ///
   /// In en, this message translates to:
   /// **'Mobile number'**
   String get registerMobile;
 
-  /// No description provided for @registerInstallationAddress.
+  /// Customer app copy: register installation address.
   ///
   /// In en, this message translates to:
   /// **'INSTALLATION ADDRESS'**
   String get registerInstallationAddress;
 
-  /// No description provided for @registerAddressHint.
+  /// Customer app copy: register address hint.
   ///
   /// In en, this message translates to:
   /// **'Street address, suburb, city'**
   String get registerAddressHint;
 
-  /// No description provided for @registerLocationCaptured.
+  /// Customer app copy: register location captured.
   ///
   /// In en, this message translates to:
   /// **'Location captured'**
   String get registerLocationCaptured;
 
-  /// No description provided for @registerUseLocation.
+  /// Customer app copy: register use location.
   ///
   /// In en, this message translates to:
   /// **'Use my current location'**
   String get registerUseLocation;
 
-  /// No description provided for @registerLocationHelp.
+  /// Customer app copy: register location help.
   ///
   /// In en, this message translates to:
   /// **'Narrows your coverage check to your exact location — you can still edit the address above.'**
   String get registerLocationHelp;
 
-  /// No description provided for @registerContactHeading.
+  /// Customer app copy: register contact heading.
   ///
   /// In en, this message translates to:
   /// **'HOW SHOULD WE CONTACT YOU?'**
   String get registerContactHeading;
 
-  /// No description provided for @registerMarketingHeading.
+  /// Customer app copy: register marketing heading.
   ///
   /// In en, this message translates to:
   /// **'MARKETING PREFERENCES'**
   String get registerMarketingHeading;
 
-  /// No description provided for @registerMarketingEmail.
+  /// Customer app copy: register marketing email.
   ///
   /// In en, this message translates to:
   /// **'Send me offers by email'**
   String get registerMarketingEmail;
 
-  /// No description provided for @registerMarketingSms.
+  /// Customer app copy: register marketing sms.
   ///
   /// In en, this message translates to:
   /// **'Send me offers by SMS'**
   String get registerMarketingSms;
 
-  /// No description provided for @registerMarketingPush.
+  /// Customer app copy: register marketing push.
   ///
   /// In en, this message translates to:
   /// **'Send me push notifications'**
   String get registerMarketingPush;
 
-  /// No description provided for @registerCreateAccount.
+  /// Customer app copy: register create account.
   ///
   /// In en, this message translates to:
   /// **'Create account'**
   String get registerCreateAccount;
 
-  /// No description provided for @registerSaveFailed.
+  /// Customer app copy: register save failed.
   ///
   /// In en, this message translates to:
   /// **'Could not save your details — please try again.'**
   String get registerSaveFailed;
 
-  /// No description provided for @registerLocationDenied.
+  /// Customer app copy: register location denied.
   ///
   /// In en, this message translates to:
   /// **'Location permission denied — enter your address manually.'**
   String get registerLocationDenied;
 
-  /// No description provided for @registerLocationFailed.
+  /// Customer app copy: register location failed.
   ///
   /// In en, this message translates to:
   /// **'Could not get your location — check that location services are on.'**
   String get registerLocationFailed;
 
-  /// No description provided for @accountTitle.
+  /// Customer app copy: account title.
   ///
   /// In en, this message translates to:
   /// **'Account'**
   String get accountTitle;
 
-  /// No description provided for @accountNotLoggedIn.
+  /// Customer app copy: account not logged in.
   ///
   /// In en, this message translates to:
   /// **'Not logged in'**
   String get accountNotLoggedIn;
 
-  /// No description provided for @accountAppearance.
+  /// Customer app copy: account appearance.
   ///
   /// In en, this message translates to:
   /// **'APPEARANCE'**
   String get accountAppearance;
 
-  /// No description provided for @accountThemeSystem.
+  /// Customer app copy: account theme system.
   ///
   /// In en, this message translates to:
   /// **'Match device setting'**
   String get accountThemeSystem;
 
-  /// No description provided for @accountThemeLight.
+  /// Customer app copy: account theme light.
   ///
   /// In en, this message translates to:
   /// **'Light'**
   String get accountThemeLight;
 
-  /// No description provided for @accountThemeDark.
+  /// Customer app copy: account theme dark.
   ///
   /// In en, this message translates to:
   /// **'Dark'**
   String get accountThemeDark;
 
-  /// No description provided for @accountLanguage.
+  /// Customer app copy: account language.
   ///
   /// In en, this message translates to:
   /// **'LANGUAGE'**
   String get accountLanguage;
 
-  /// No description provided for @accountLanguageSystem.
+  /// Customer app copy: account language system.
   ///
   /// In en, this message translates to:
   /// **'Match device language'**
   String get accountLanguageSystem;
 
-  /// No description provided for @accountLogOut.
+  /// Customer app copy: account log out.
   ///
   /// In en, this message translates to:
   /// **'Log out'**
   String get accountLogOut;
 
-  /// No description provided for @accountLogOutTitle.
+  /// Customer app copy: account log out title.
   ///
   /// In en, this message translates to:
   /// **'Log out?'**
   String get accountLogOutTitle;
 
-  /// No description provided for @accountLogOutBody.
+  /// Customer app copy: account log out body.
   ///
   /// In en, this message translates to:
   /// **'You can log back in at any time.'**
   String get accountLogOutBody;
 
-  /// No description provided for @accountNotifications.
+  /// Customer app copy: account notifications.
   ///
   /// In en, this message translates to:
   /// **'NOTIFICATIONS'**
   String get accountNotifications;
 
-  /// No description provided for @accountPushTitle.
+  /// Customer app copy: account push title.
   ///
   /// In en, this message translates to:
   /// **'Push notifications'**
   String get accountPushTitle;
 
-  /// No description provided for @accountPushOn.
+  /// Customer app copy: account push on.
   ///
   /// In en, this message translates to:
   /// **'On — usage alerts, outages and order updates'**
   String get accountPushOn;
 
-  /// No description provided for @accountPushOff.
+  /// Customer app copy: account push off.
   ///
   /// In en, this message translates to:
   /// **'Off — turn on to get usage alerts, outages and order updates'**
   String get accountPushOff;
 
-  /// No description provided for @accountPushBlocked.
+  /// Customer app copy: account push blocked.
   ///
   /// In en, this message translates to:
   /// **'Blocked — change this in system settings'**
   String get accountPushBlocked;
 
-  /// No description provided for @accountPushTurnOn.
+  /// Customer app copy: account push turn on.
   ///
   /// In en, this message translates to:
   /// **'Turn on'**
   String get accountPushTurnOn;
 
-  /// No description provided for @accountPushOpenSettings.
+  /// Customer app copy: account push open settings.
   ///
   /// In en, this message translates to:
   /// **'Open settings'**
   String get accountPushOpenSettings;
 
-  /// No description provided for @accountPrivacy.
+  /// Customer app copy: account privacy.
   ///
   /// In en, this message translates to:
   /// **'PRIVACY & DATA'**
   String get accountPrivacy;
 
-  /// No description provided for @accountPrivacyPolicy.
+  /// Customer app copy: account privacy policy.
   ///
   /// In en, this message translates to:
   /// **'Privacy policy'**
   String get accountPrivacyPolicy;
 
-  /// No description provided for @accountDownloadData.
+  /// Customer app copy: account download data.
   ///
   /// In en, this message translates to:
   /// **'Download my data'**
   String get accountDownloadData;
 
-  /// No description provided for @accountDownloadDataDone.
+  /// Customer app copy: account download data done.
   ///
   /// In en, this message translates to:
   /// **'Request received. We will send your data to your email once it is ready.'**
   String get accountDownloadDataDone;
 
-  /// No description provided for @accountDeleteData.
+  /// Customer app copy: account delete data.
   ///
   /// In en, this message translates to:
   /// **'Delete my account & data'**
   String get accountDeleteData;
 
-  /// No description provided for @accountDeleteTitle.
+  /// Customer app copy: account delete title.
   ///
   /// In en, this message translates to:
   /// **'Delete your account?'**
   String get accountDeleteTitle;
 
-  /// No description provided for @accountDeleteBody.
+  /// Customer app copy: account delete body.
   ///
   /// In en, this message translates to:
   /// **'This permanently deletes your Sentech account and all personal data stored on this phone. This cannot be undone.'**
   String get accountDeleteBody;
 
-  /// No description provided for @accountDeleteConfirm.
+  /// Customer app copy: account delete confirm.
   ///
   /// In en, this message translates to:
   /// **'Delete everything'**
   String get accountDeleteConfirm;
 
-  /// No description provided for @accountRequestFailed.
+  /// Customer app copy: account request failed.
   ///
   /// In en, this message translates to:
   /// **'We could not complete that request. Please try again.'**
   String get accountRequestFailed;
 
-  /// No description provided for @accountLinkFailed.
+  /// Customer app copy: account link failed.
   ///
   /// In en, this message translates to:
   /// **'Could not open the link.'**
   String get accountLinkFailed;
 
-  /// No description provided for @supportTitle.
+  /// Customer app copy: support title.
   ///
   /// In en, this message translates to:
   /// **'Help & support'**
   String get supportTitle;
 
-  /// No description provided for @supportSearchHint.
+  /// Customer app copy: support search hint.
   ///
   /// In en, this message translates to:
   /// **'Search FAQs'**
   String get supportSearchHint;
 
-  /// No description provided for @supportNoResults.
+  /// Customer app copy: support no results.
   ///
   /// In en, this message translates to:
   /// **'No results for \"{query}\"'**
   String supportNoResults(String query);
 
-  /// No description provided for @supportStillStuck.
+  /// Customer app copy: support still stuck.
   ///
   /// In en, this message translates to:
   /// **'STILL STUCK?'**
   String get supportStillStuck;
 
-  /// No description provided for @supportWhatsApp.
+  /// Customer app copy: support whats app.
   ///
   /// In en, this message translates to:
   /// **'WhatsApp'**
   String get supportWhatsApp;
 
-  /// No description provided for @supportSubmitTicket.
+  /// Customer app copy: support submit ticket.
   ///
   /// In en, this message translates to:
   /// **'Submit a ticket'**
   String get supportSubmitTicket;
 
-  /// No description provided for @supportTicketCategory.
+  /// Customer app copy: support ticket category.
   ///
   /// In en, this message translates to:
   /// **'Category'**
   String get supportTicketCategory;
 
-  /// No description provided for @supportTicketDescribe.
+  /// Customer app copy: support ticket describe.
   ///
   /// In en, this message translates to:
   /// **'Describe the issue'**
   String get supportTicketDescribe;
 
-  /// No description provided for @supportCategoryBilling.
+  /// Customer app copy: support category billing.
   ///
   /// In en, this message translates to:
   /// **'Billing'**
   String get supportCategoryBilling;
 
-  /// No description provided for @supportCategoryTechnical.
+  /// Customer app copy: support category technical.
   ///
   /// In en, this message translates to:
   /// **'Technical'**
   String get supportCategoryTechnical;
 
-  /// No description provided for @supportCategoryOther.
+  /// Customer app copy: support category other.
   ///
   /// In en, this message translates to:
   /// **'Other'**
   String get supportCategoryOther;
 
-  /// No description provided for @supportWhatsAppFailed.
+  /// Customer app copy: support whats app failed.
   ///
   /// In en, this message translates to:
   /// **'Could not open WhatsApp — is it installed?'**
   String get supportWhatsAppFailed;
 
-  /// No description provided for @supportTicketOpened.
+  /// Customer app copy: support ticket opened.
   ///
   /// In en, this message translates to:
   /// **'Ticket opened in your email app — send it to submit.'**
   String get supportTicketOpened;
 
-  /// No description provided for @supportTicketNoEmail.
+  /// Customer app copy: support ticket no email.
   ///
   /// In en, this message translates to:
   /// **'Could not open an email app on this device.'**
   String get supportTicketNoEmail;
 
-  /// No description provided for @consentTitle.
+  /// Customer app copy: consent title.
   ///
   /// In en, this message translates to:
   /// **'Your privacy'**
   String get consentTitle;
 
-  /// No description provided for @consentLocationBody.
+  /// Customer app copy: consent location body.
   ///
   /// In en, this message translates to:
   /// **'We use your phone\'s location once to check 5G coverage at your address. It is not stored on your phone or kept after the check.'**
   String get consentLocationBody;
 
-  /// No description provided for @consentLocationMapService.
+  /// Customer app copy: consent location map service.
   ///
   /// In en, this message translates to:
   /// **'To turn your location into an address, your phone\'s map service (Google or Apple) looks it up.'**
   String get consentLocationMapService;
 
-  /// No description provided for @coverageAddressLookupNotice.
+  /// Customer app copy: coverage address lookup notice.
   ///
   /// In en, this message translates to:
   /// **'Your phone\'s map service (Google or Apple) finds the address you type.'**
   String get coverageAddressLookupNotice;
 
-  /// No description provided for @consentRicaBody.
+  /// Customer app copy: consent rica body.
   ///
   /// In en, this message translates to:
   /// **'South African law (RICA) requires us to verify your identity. We will process your face and ID information for verification only, under POPIA.'**
   String get consentRicaBody;
 
-  /// No description provided for @consentLegalBody.
+  /// Customer app copy: consent legal body.
   ///
   /// In en, this message translates to:
   /// **'To use the app you need to accept the Terms of Service and the Privacy notice.'**
   String get consentLegalBody;
 
-  /// No description provided for @dataExportTitle.
+  /// Customer app copy: data export title.
   ///
   /// In en, this message translates to:
   /// **'Your data'**
   String get dataExportTitle;
 
-  /// No description provided for @dataExportBody.
+  /// Customer app copy: data export body.
   ///
   /// In en, this message translates to:
   /// **'This is the personal information we hold about you. Keep it private.'**
   String get dataExportBody;
 
-  /// No description provided for @consentPolicyLink.
+  /// Customer app copy: consent policy link.
   ///
   /// In en, this message translates to:
   /// **'Read our privacy policy'**
   String get consentPolicyLink;
 
-  /// No description provided for @consentAgree.
+  /// Customer app copy: consent agree.
   ///
   /// In en, this message translates to:
   /// **'I agree'**
   String get consentAgree;
 
-  /// No description provided for @consentDecline.
+  /// Customer app copy: consent decline.
   ///
   /// In en, this message translates to:
   /// **'Not now'**
   String get consentDecline;
 
-  /// No description provided for @notifRationaleTitle.
+  /// Customer app copy: notif rationale title.
   ///
   /// In en, this message translates to:
   /// **'Stay in the loop'**
   String get notifRationaleTitle;
 
-  /// No description provided for @notifRationaleBody.
+  /// Customer app copy: notif rationale body.
   ///
   /// In en, this message translates to:
   /// **'Allow notifications so we can tell you when your data is running low, when there is an outage in your area, and when your order moves forward. You can turn this off at any time.'**
   String get notifRationaleBody;
 
-  /// No description provided for @notifRationaleAllow.
+  /// Customer app copy: notif rationale allow.
   ///
   /// In en, this message translates to:
   /// **'Allow notifications'**
   String get notifRationaleAllow;
 
-  /// No description provided for @notifRationaleLater.
+  /// Customer app copy: notif rationale later.
   ///
   /// In en, this message translates to:
   /// **'Not now'**
   String get notifRationaleLater;
 
-  /// No description provided for @a11yCart.
+  /// Customer app copy: a11y cart.
   ///
   /// In en, this message translates to:
   /// **'Shopping cart'**
   String get a11yCart;
 
-  /// No description provided for @a11yDecreaseQuantity.
+  /// Customer app copy: a11y decrease quantity.
   ///
   /// In en, this message translates to:
   /// **'Decrease quantity'**
   String get a11yDecreaseQuantity;
 
-  /// No description provided for @a11yIncreaseQuantity.
+  /// Customer app copy: a11y increase quantity.
   ///
   /// In en, this message translates to:
   /// **'Increase quantity'**
   String get a11yIncreaseQuantity;
 
-  /// No description provided for @a11yToggleTorch.
+  /// Customer app copy: a11y toggle torch.
   ///
   /// In en, this message translates to:
   /// **'Toggle flashlight'**
   String get a11yToggleTorch;
 
-  /// No description provided for @a11yEnterCode.
+  /// Customer app copy: a11y enter code.
   ///
   /// In en, this message translates to:
   /// **'Enter code manually'**
   String get a11yEnterCode;
 
-  /// No description provided for @tenantPickerTitle.
+  /// Customer app copy: tenant picker title.
   ///
   /// In en, this message translates to:
   /// **'Choose your internet provider'**
   String get tenantPickerTitle;
 
-  /// No description provided for @tenantPickerSubtitle.
+  /// Customer app copy: tenant picker subtitle.
   ///
   /// In en, this message translates to:
   /// **'Pick the provider you buy Wi-Fi passes from. You can change this later in Account.'**
   String get tenantPickerSubtitle;
 
-  /// No description provided for @tenantTypeOperator.
+  /// Customer app copy: tenant type operator.
   ///
   /// In en, this message translates to:
   /// **'Network operator'**
   String get tenantTypeOperator;
 
-  /// No description provided for @tenantTypeReseller.
+  /// Customer app copy: tenant type reseller.
   ///
   /// In en, this message translates to:
   /// **'Reseller'**
   String get tenantTypeReseller;
 
-  /// No description provided for @tenantChangeTitle.
+  /// Customer app copy: tenant change title.
   ///
   /// In en, this message translates to:
   /// **'Change provider?'**
   String get tenantChangeTitle;
 
-  /// No description provided for @tenantChangeBody.
+  /// Customer app copy: tenant change body.
   ///
   /// In en, this message translates to:
   /// **'Switching provider signs you out on this phone. Your account with the current provider is not affected.'**
   String get tenantChangeBody;
 
-  /// No description provided for @tenantChangeConfirm.
+  /// Customer app copy: tenant change confirm.
   ///
   /// In en, this message translates to:
   /// **'Switch'**
   String get tenantChangeConfirm;
 
-  /// No description provided for @updateRequiredTitle.
+  /// Customer app copy: update required title.
   ///
   /// In en, this message translates to:
   /// **'Update required'**
   String get updateRequiredTitle;
 
-  /// No description provided for @updateRequiredBody.
+  /// Customer app copy: update required body.
   ///
   /// In en, this message translates to:
   /// **'This version of the app is no longer supported. Install the latest version from your app store to continue.'**
   String get updateRequiredBody;
 
-  /// No description provided for @paymentClosedExpired.
+  /// Customer app copy: payment closed expired.
   ///
   /// In en, this message translates to:
   /// **'This order has expired and can no longer be paid. If you already paid, it will still be applied once the payment provider confirms it.'**
   String get paymentClosedExpired;
 
-  /// No description provided for @paymentClosedCancelled.
+  /// Customer app copy: payment closed cancelled.
   ///
   /// In en, this message translates to:
   /// **'This order was cancelled and can no longer be paid. A payment received after cancellation is held for review and refunded or applied by our team.'**
   String get paymentClosedCancelled;
 
-  /// No description provided for @paymentStillPending.
+  /// Customer app copy: payment still pending.
   ///
   /// In en, this message translates to:
   /// **'We have not received confirmation from the payment provider yet. If you completed the payment, check again in a moment. A payment that needs a manual check is held for review: our team will apply or refund it.'**
   String get paymentStillPending;
 
-  /// No description provided for @paymentPayAgainHint.
+  /// Customer app copy: payment pay again hint.
   ///
   /// In en, this message translates to:
   /// **'Only pay again if you did not complete the payment.'**
   String get paymentPayAgainHint;
 
-  /// No description provided for @paymentHandoffInvalid.
+  /// Customer app copy: payment handoff invalid.
   ///
   /// In en, this message translates to:
   /// **'We could not open the payment page safely. You have not been charged. Please try again.'**
   String get paymentHandoffInvalid;
 
-  /// No description provided for @paymentCheckAgain.
+  /// Customer app copy: payment check again.
   ///
   /// In en, this message translates to:
   /// **'Check again'**
   String get paymentCheckAgain;
 
-  /// No description provided for @paymentPayAgain.
+  /// Customer app copy: payment pay again.
   ///
   /// In en, this message translates to:
   /// **'Pay again'**
   String get paymentPayAgain;
 
-  /// No description provided for @paymentBackToDashboard.
+  /// Customer app copy: payment back to dashboard.
   ///
   /// In en, this message translates to:
-  /// **'Back to dashboard'**
+  /// **'Back to Home'**
   String get paymentBackToDashboard;
 
-  /// No description provided for @accountProvider.
+  /// Customer app copy: account provider.
   ///
   /// In en, this message translates to:
   /// **'PROVIDER'**
   String get accountProvider;
 
-  /// No description provided for @accountChangeProvider.
+  /// Customer app copy: account change provider.
   ///
   /// In en, this message translates to:
   /// **'Change provider'**
   String get accountChangeProvider;
 
-  /// No description provided for @passesTitle.
+  /// Customer app copy: passes title.
   ///
   /// In en, this message translates to:
   /// **'My passes'**
   String get passesTitle;
 
-  /// No description provided for @passesEmpty.
+  /// Customer app copy: passes empty.
   ///
   /// In en, this message translates to:
   /// **'You have no active passes. Buy one in Shop.'**
   String get passesEmpty;
 
-  /// No description provided for @passesShowExpired.
+  /// Customer app copy: passes show expired.
   ///
   /// In en, this message translates to:
   /// **'Show expired passes'**
   String get passesShowExpired;
 
-  /// No description provided for @passesStatusActive.
+  /// Customer app copy: passes status active.
   ///
   /// In en, this message translates to:
   /// **'Active'**
   String get passesStatusActive;
 
-  /// No description provided for @passesStatusScheduled.
+  /// Customer app copy: passes status scheduled.
   ///
   /// In en, this message translates to:
   /// **'Starts later'**
   String get passesStatusScheduled;
 
-  /// No description provided for @passesStatusExpired.
+  /// Customer app copy: passes status expired.
   ///
   /// In en, this message translates to:
   /// **'Expired'**
   String get passesStatusExpired;
 
-  /// No description provided for @passesStatusExhausted.
+  /// Customer app copy: passes status exhausted.
   ///
   /// In en, this message translates to:
   /// **'Used up'**
   String get passesStatusExhausted;
 
-  /// No description provided for @passesStatusRevoked.
+  /// Customer app copy: passes status revoked.
   ///
   /// In en, this message translates to:
   /// **'Cancelled'**
   String get passesStatusRevoked;
 
-  /// No description provided for @passesExpires.
+  /// Customer app copy: passes expires.
   ///
   /// In en, this message translates to:
   /// **'Expires {date}'**
   String passesExpires(String date);
 
-  /// No description provided for @passesStarts.
+  /// Customer app copy: passes starts.
   ///
   /// In en, this message translates to:
   /// **'Starts {date}'**
   String passesStarts(String date);
 
-  /// No description provided for @passesDevices.
+  /// Customer app copy: passes devices.
   ///
   /// In en, this message translates to:
   /// **'Up to {count} devices'**
   String passesDevices(int count);
 
-  /// No description provided for @dashboardMyPasses.
+  /// Customer app copy: dashboard my passes.
   ///
   /// In en, this message translates to:
   /// **'My passes'**
   String get dashboardMyPasses;
 
-  /// No description provided for @dashboardBuyPass.
+  /// Customer app copy: dashboard buy pass.
   ///
   /// In en, this message translates to:
   /// **'Buy a pass'**
   String get dashboardBuyPass;
 
-  /// No description provided for @dashboardNoPass.
+  /// Customer app copy: dashboard no pass.
   ///
   /// In en, this message translates to:
   /// **'No active pass'**
   String get dashboardNoPass;
 
-  /// No description provided for @dashboardNoPassHint.
+  /// Customer app copy: dashboard no pass hint.
   ///
   /// In en, this message translates to:
   /// **'Buy a Wi-Fi pass to get online.'**
   String get dashboardNoPassHint;
 
-  /// No description provided for @dashboardTimeLeft.
+  /// Customer app copy: dashboard time left.
   ///
   /// In en, this message translates to:
   /// **'{time} left'**
   String dashboardTimeLeft(String time);
 
-  /// No description provided for @dashboardDataLeft.
+  /// Customer app copy: dashboard data left.
   ///
   /// In en, this message translates to:
   /// **'{left} of {total} left'**
   String dashboardDataLeft(String left, String total);
 
-  /// No description provided for @dashboardUncapped.
+  /// Customer app copy: dashboard uncapped.
   ///
   /// In en, this message translates to:
   /// **'Uncapped data'**
   String get dashboardUncapped;
 
-  /// No description provided for @confirmationViewPasses.
+  /// Customer app copy: confirmation view passes.
   ///
   /// In en, this message translates to:
   /// **'View my passes'**
   String get confirmationViewPasses;
 
-  /// No description provided for @passesExpiredAt.
+  /// Customer app copy: passes expired at.
   ///
   /// In en, this message translates to:
   /// **'Expired {date}'**
   String passesExpiredAt(String date);
 
-  /// No description provided for @passesEndedAt.
+  /// Customer app copy: passes ended at.
   ///
   /// In en, this message translates to:
   /// **'Ended {date}'**
   String passesEndedAt(String date);
 
-  /// No description provided for @passesJustPaidHint.
+  /// Customer app copy: passes just paid hint.
   ///
   /// In en, this message translates to:
   /// **'Just paid? It can take a minute to appear. Pull down to refresh.'**
   String get passesJustPaidHint;
 
-  /// No description provided for @durationDaysHours.
+  /// Customer app copy: duration days hours.
   ///
   /// In en, this message translates to:
   /// **'{days}d {hours}h'**
   String durationDaysHours(int days, int hours);
 
-  /// No description provided for @durationHoursMinutes.
+  /// Customer app copy: duration hours minutes.
   ///
   /// In en, this message translates to:
   /// **'{hours}h {minutes}m'**
   String durationHoursMinutes(int hours, int minutes);
 
-  /// No description provided for @durationMinutes.
+  /// Customer app copy: duration minutes.
   ///
   /// In en, this message translates to:
   /// **'{minutes}m'**
   String durationMinutes(int minutes);
 
-  /// No description provided for @sizeMegabytes.
+  /// Customer app copy: size megabytes.
   ///
   /// In en, this message translates to:
   /// **'{amount} MB'**
   String sizeMegabytes(String amount);
 
-  /// No description provided for @sizeGigabytes.
+  /// Customer app copy: size gigabytes.
   ///
   /// In en, this message translates to:
   /// **'{amount} GB'**
   String sizeGigabytes(String amount);
 
-  /// No description provided for @dashboardTopUp.
+  /// Customer app copy: dashboard top up.
   ///
   /// In en, this message translates to:
   /// **'Top up'**
   String get dashboardTopUp;
 
-  /// No description provided for @dashboardUpgrade.
+  /// Customer app copy: dashboard upgrade.
   ///
   /// In en, this message translates to:
   /// **'Upgrade'**
   String get dashboardUpgrade;
 
-  /// No description provided for @dashboardReportIssue.
+  /// Customer app copy: dashboard report issue.
   ///
   /// In en, this message translates to:
   /// **'Report issue'**
   String get dashboardReportIssue;
+
+  /// Navigation or common action label.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get navHome;
+
+  /// Navigation or common action label.
+  ///
+  /// In en, this message translates to:
+  /// **'Shop'**
+  String get navShop;
+
+  /// Navigation or common action label.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan'**
+  String get navScan;
+
+  /// Navigation or common action label.
+  ///
+  /// In en, this message translates to:
+  /// **'Help'**
+  String get navHelp;
+
+  /// Navigation or common action label.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get navAccount;
+
+  /// Navigation or common action label.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get homeTitle;
+
+  /// Navigation or common action label.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get commonTryAgain;
+
+  /// Price including VAT.
+  ///
+  /// In en, this message translates to:
+  /// **'{price} incl. VAT'**
+  String priceInclVat(String price);
+
+  /// Customer copy in dashboard page.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish your order #{number}'**
+  String homeFinishOrder(String number);
+
+  /// Customer copy in dashboard page.
+  ///
+  /// In en, this message translates to:
+  /// **'{used} GB of {total} GB'**
+  String homeDataUsed(String used, String total);
+
+  /// Customer copy in dashboard page.
+  ///
+  /// In en, this message translates to:
+  /// **'{plan} · renews {date}'**
+  String homePlanRenews(String plan, String date);
+
+  /// Customer copy in dashboard page.
+  ///
+  /// In en, this message translates to:
+  /// **'MAC •• •• {suffix}'**
+  String homeRouterAddress(String suffix);
+
+  /// Customer copy in dashboard page.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify your identity to continue'**
+  String get homeVerifyYourIdentityToContinue;
+
+  /// Customer copy in dashboard page.
+  ///
+  /// In en, this message translates to:
+  /// **'Your last payment did not go through. Try again.'**
+  String get homeYourLastPaymentDidNotGo;
+
+  /// Customer copy in dashboard page.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete your payment'**
+  String get homeCompleteYourPayment;
+
+  /// Customer copy in dashboard page.
+  ///
+  /// In en, this message translates to:
+  /// **'USED'**
+  String get homeUsed;
+
+  /// Customer copy in catalog page.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy'**
+  String get shopTitle;
+
+  /// Customer copy in catalog page.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} added to cart'**
+  String shopAddedToCart(String name);
+
+  /// Customer copy in catalog page.
+  ///
+  /// In en, this message translates to:
+  /// **'Our pick'**
+  String get planBadgeOurPick;
+
+  /// Customer copy in catalog page.
+  ///
+  /// In en, this message translates to:
+  /// **'/month'**
+  String get pricePerMonth;
+
+  /// Customer copy in catalog page.
+  ///
+  /// In en, this message translates to:
+  /// **'{data} · up to {speed} Mbps'**
+  String shopPlanSpeed(String data, String speed);
+
+  /// Customer copy in catalog page.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to cart'**
+  String get shopAddToCart;
+
+  /// Customer copy in cart page.
+  ///
+  /// In en, this message translates to:
+  /// **'{price} each'**
+  String cartPriceEach(String price);
+
+  /// Customer copy in cart page.
+  ///
+  /// In en, this message translates to:
+  /// **'Your cart'**
+  String get cartYourCart;
+
+  /// Customer copy in cart page.
+  ///
+  /// In en, this message translates to:
+  /// **'Your cart is empty'**
+  String get cartYourCartIsEmpty;
+
+  /// Customer copy in cart page.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get cartTotal;
+
+  /// Customer copy in cart page.
+  ///
+  /// In en, this message translates to:
+  /// **'Checkout'**
+  String get cartCheckout;
+
+  /// Customer copy in checkout page.
+  ///
+  /// In en, this message translates to:
+  /// **'Checkout'**
+  String get checkoutCheckout;
+
+  /// Customer copy in checkout page.
+  ///
+  /// In en, this message translates to:
+  /// **'To pay'**
+  String get checkoutToPay;
+
+  /// Customer copy in checkout page.
+  ///
+  /// In en, this message translates to:
+  /// **'Total due'**
+  String get checkoutTotalDue;
+
+  /// Customer copy in checkout page.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify identity to continue'**
+  String get checkoutVerifyIdentityToContinue;
+
+  /// Customer copy in checkout page.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue to payment'**
+  String get checkoutContinueToPayment;
+
+  /// Customer copy in confirmation page.
+  ///
+  /// In en, this message translates to:
+  /// **'Order #{number} expired before payment was confirmed.'**
+  String orderExpiredBeforePayment(String number);
+
+  /// Customer copy in confirmation page.
+  ///
+  /// In en, this message translates to:
+  /// **'Order #{number} was cancelled.'**
+  String orderCancelled(String number);
+
+  /// Customer copy in confirmation page.
+  ///
+  /// In en, this message translates to:
+  /// **'Order #{number} is not complete yet.'**
+  String orderNotComplete(String number);
+
+  /// Customer copy in confirmation page.
+  ///
+  /// In en, this message translates to:
+  /// **'Order #{number}'**
+  String orderNumberLabel(String number);
+
+  /// Customer copy in confirmation page.
+  ///
+  /// In en, this message translates to:
+  /// **'Order'**
+  String get confirmationOrder;
+
+  /// Customer copy in confirmation page.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to Home'**
+  String get confirmationBackToHome;
+
+  /// Customer copy in confirmation page.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue your order'**
+  String get confirmationContinueYourOrder;
+
+  /// Customer copy in confirmation page.
+  ///
+  /// In en, this message translates to:
+  /// **'Track my installation'**
+  String get confirmationTrackMyInstallation;
+
+  /// Customer copy in confirmation page.
+  ///
+  /// In en, this message translates to:
+  /// **'Courier dispatched'**
+  String get confirmationCourierDispatched;
+
+  /// Customer copy in confirmation page.
+  ///
+  /// In en, this message translates to:
+  /// **'Router kit on its way'**
+  String get confirmationRouterKitOnItsWay;
+
+  /// Customer copy in confirmation page.
+  ///
+  /// In en, this message translates to:
+  /// **'Self-install'**
+  String get confirmationSelfInstall;
+
+  /// Customer copy in confirmation page.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow the setup guide in the app'**
+  String get confirmationFollowTheSetupGuideInThe;
+
+  /// Customer copy in confirmation page.
+  ///
+  /// In en, this message translates to:
+  /// **'Activation'**
+  String get confirmationActivation;
+
+  /// Customer copy in confirmation page.
+  ///
+  /// In en, this message translates to:
+  /// **'Signal confirmed, service live'**
+  String get confirmationSignalConfirmedServiceLive;
+
+  /// Customer copy in payment page.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay {price} securely'**
+  String paymentPaySecurely(String price);
+
+  /// Customer copy in payment page.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment'**
+  String get paymentPayment;
+
+  /// Customer copy in payment page.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirming your payment. This can take a minute. Your order stays saved if you leave this screen.'**
+  String get paymentConfirmingYourPaymentThisCanTake;
+
+  /// Customer copy in payment page.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose how to pay on the secure payment page.'**
+  String get paymentChooseHowToPayOnThe;
+
+  /// Customer copy in payment page.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay on a secure payment page. We never see or store your card details.'**
+  String get paymentPayOnASecurePaymentPage;
+
+  /// Customer copy in payment page.
+  ///
+  /// In en, this message translates to:
+  /// **'Identity verified'**
+  String get paymentIdentityVerified;
+
+  /// Customer copy in payment page.
+  ///
+  /// In en, this message translates to:
+  /// **'WiFi pass order'**
+  String get paymentWifiPassOrder;
+
+  /// Customer copy in payment page.
+  ///
+  /// In en, this message translates to:
+  /// **'Your order'**
+  String get paymentYourOrder;
+
+  /// Customer copy in voucher result sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'{product} is ready'**
+  String voucherProductReady(String product);
+
+  /// Customer copy in voucher result sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} GB has been added to your account.'**
+  String voucherDataAdded(String amount);
+
+  /// Customer copy in voucher result sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many tries'**
+  String get voucherTooManyTries;
+
+  /// Customer copy in voucher result sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Wait a few minutes, then try again.'**
+  String get voucherWaitAFewMinutesThenTry;
+
+  /// Customer copy in voucher result sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re offline'**
+  String get voucherYouReOffline;
+
+  /// Customer copy in voucher result sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong'**
+  String get voucherSomethingWentWrong;
+
+  /// Customer copy in voucher result sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Check your connection and try again. We could not confirm whether this voucher was used.'**
+  String get voucherCheckYourConnectionAndTryAgain;
+
+  /// Customer copy in voucher result sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'We could not check this voucher. Please try again.'**
+  String get voucherWeCouldNotCheckThisVoucher;
+
+  /// Customer copy in voucher result sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Voucher redeemed'**
+  String get voucherVoucherRedeemed;
+
+  /// Customer copy in voucher result sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Data has been added to your account.'**
+  String get voucherDataHasBeenAddedToYour;
+
+  /// Customer copy in voucher result sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Your pass is on your account. Find it under My passes.'**
+  String get voucherYourPassIsOnYourAccount;
+
+  /// Customer copy in voucher result sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Already used'**
+  String get voucherAlreadyUsed;
+
+  /// Customer copy in voucher result sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'This voucher has already been redeemed.'**
+  String get voucherThisVoucherHasAlreadyBeenRedeemed;
+
+  /// Customer copy in voucher result sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Voucher expired'**
+  String get voucherVoucherExpired;
+
+  /// Customer copy in voucher result sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'This voucher is no longer valid.'**
+  String get voucherThisVoucherIsNoLongerValid;
+
+  /// Customer copy in voucher result sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'One character looks wrong'**
+  String get voucherOneCharacterLooksWrong;
+
+  /// Customer copy in voucher result sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Compare the code with your voucher card, then try again.'**
+  String get voucherCompareTheCodeWithYourVoucher;
+
+  /// Customer copy in voucher result sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the code'**
+  String get voucherCheckTheCode;
+
+  /// Customer copy in voucher result sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Voucher codes never use 0, 1, I, L, O or U. Check those characters.'**
+  String get voucherVoucherCodesNeverUse01;
+
+  /// Customer copy in voucher result sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Voucher codes have 12 letters and numbers.'**
+  String get voucherVoucherCodesHave12LettersAnd;
+
+  /// Customer copy in voucher result sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not a voucher code'**
+  String get voucherNotAVoucherCode;
+
+  /// Customer copy in voucher result sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the code on your voucher card and try again.'**
+  String get voucherCheckTheCodeOnYourVoucher;
+
+  /// Customer copy in voucher result sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'That code didn\'t work'**
+  String get voucherThatCodeDidnTWork;
+
+  /// Customer copy in voucher result sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'It may be mistyped, already used or not active yet. Check it, or ask the shop.'**
+  String get voucherItMayBeMistypedAlreadyUsed;
+
+  /// Customer copy in voucher scanner page.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan voucher'**
+  String get scanScanVoucher;
+
+  /// Customer copy in voucher scanner page.
+  ///
+  /// In en, this message translates to:
+  /// **'Align the voucher\'s QR code within the frame'**
+  String get scanAlignTheVoucherSQrCode;
+
+  /// Customer copy in voucher scanner page.
+  ///
+  /// In en, this message translates to:
+  /// **'Type the code instead'**
+  String get scanTypeTheCodeInstead;
+
+  /// Customer copy in voucher scanner page.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter voucher code'**
+  String get scanEnterVoucherCode;
+
+  /// Customer copy in voucher scanner page.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. ABCD-2345-EFGH'**
+  String get scanEGAbcd2345Efgh;
+
+  /// Customer copy in voucher scanner page.
+  ///
+  /// In en, this message translates to:
+  /// **'12 letters and numbers, on your voucher card'**
+  String get scan12LettersAndNumbersOnYour;
+
+  /// Customer copy in voucher scanner page.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste'**
+  String get scanPaste;
+
+  /// Customer copy in voucher scanner page.
+  ///
+  /// In en, this message translates to:
+  /// **'Redeem'**
+  String get scanRedeem;
+
+  /// Customer copy in voucher scanner page.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable the camera in system settings, or type the code below.'**
+  String get scanEnableTheCameraInSystemSettings;
+
+  /// Customer copy in voucher scanner page.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera unavailable. Please type the code below.'**
+  String get scanCameraUnavailablePleaseTypeTheCode;
+
+  /// Customer copy in free wifi card.
+  ///
+  /// In en, this message translates to:
+  /// **'Watch an ad for 45 minutes of free WiFi. {remaining} of 3 free views left today.'**
+  String freeWifiAdOffer(String remaining);
+
+  /// Customer copy in free wifi card.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes}m {seconds}s'**
+  String freeWifiTimeRemaining(String minutes, String seconds);
+
+  /// Customer copy in free wifi card.
+  ///
+  /// In en, this message translates to:
+  /// **'Free WiFi'**
+  String get freeWifiFreeWifi;
+
+  /// Customer copy in free wifi card.
+  ///
+  /// In en, this message translates to:
+  /// **'Watch ad'**
+  String get freeWifiWatchAd;
+
+  /// Customer copy in free wifi card.
+  ///
+  /// In en, this message translates to:
+  /// **'Hotspots'**
+  String get freeWifiHotspots;
+
+  /// Customer copy in free wifi card.
+  ///
+  /// In en, this message translates to:
+  /// **'Free WiFi active'**
+  String get freeWifiFreeWifiActive;
+
+  /// Customer copy in free wifi card.
+  ///
+  /// In en, this message translates to:
+  /// **'TIME LEFT'**
+  String get freeWifiTimeLeft;
+
+  /// Customer copy in free wifi card.
+  ///
+  /// In en, this message translates to:
+  /// **'DATA LEFT'**
+  String get freeWifiDataLeft;
+
+  /// Customer copy in free wifi card.
+  ///
+  /// In en, this message translates to:
+  /// **'Find hotspots near me'**
+  String get freeWifiFindHotspotsNearMe;
+
+  /// Customer copy in free wifi card.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ve used all 3 free WiFi ads today. Come back tomorrow.'**
+  String get freeWifiYouVeUsedAll3Free;
+
+  /// Customer copy in free wifi card.
+  ///
+  /// In en, this message translates to:
+  /// **'Updates from your account as you use it.'**
+  String get freeWifiUpdatesFromYourAccountAsYou;
+
+  /// Customer copy in watch ad dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Your free WiFi ad is playing…'**
+  String get freeWifiYourFreeWifiAdIsPlaying;
+
+  /// Customer copy in watch ad dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'(simulated — no skip until it finishes)'**
+  String get freeWifiSimulatedNoSkipUntilItFinishes;
+
+  /// Customer copy in wifi hotspots page.
+  ///
+  /// In en, this message translates to:
+  /// **'WiFi hotspots near you'**
+  String get hotspotsWifiHotspotsNearYou;
+
+  /// Customer copy in wifi hotspots page.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable location to see which hotspot is closest to you.'**
+  String get hotspotsEnableLocationToSeeWhichHotspot;
+
+  /// Customer copy in wifi hotspots page.
+  ///
+  /// In en, this message translates to:
+  /// **'CLOSEST'**
+  String get hotspotsClosest;
+
+  /// Customer copy in coverage page.
+  ///
+  /// In en, this message translates to:
+  /// **'Current location ({latitude}, {longitude})'**
+  String coverageCurrentLocation(String latitude, String longitude);
+
+  /// Customer copy in coverage page.
+  ///
+  /// In en, this message translates to:
+  /// **'Estimated speed: up to {speed} Mbps'**
+  String coverageEstimatedSpeed(String speed);
+
+  /// Customer copy in coverage page.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on location services to use this.'**
+  String get coverageTurnOnLocationServicesToUse;
+
+  /// Customer copy in coverage page.
+  ///
+  /// In en, this message translates to:
+  /// **'Location permission denied — enter your address manually.'**
+  String get coverageLocationPermissionDeniedEnterYourAddress;
+
+  /// Customer copy in coverage page.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not get your location — check that location services are on.'**
+  String get coverageCouldNotGetYourLocationCheck;
+
+  /// Customer copy in coverage page.
+  ///
+  /// In en, this message translates to:
+  /// **'Coverage check'**
+  String get coverageCoverageCheck;
+
+  /// Customer copy in coverage page.
+  ///
+  /// In en, this message translates to:
+  /// **'Address'**
+  String get coverageAddress;
+
+  /// Customer copy in coverage page.
+  ///
+  /// In en, this message translates to:
+  /// **'Use my current location'**
+  String get coverageUseMyCurrentLocation;
+
+  /// Customer copy in coverage page.
+  ///
+  /// In en, this message translates to:
+  /// **'View plans for this address'**
+  String get coverageViewPlansForThisAddress;
+
+  /// Customer copy in coverage page.
+  ///
+  /// In en, this message translates to:
+  /// **'Check a different address'**
+  String get coverageCheckADifferentAddress;
+
+  /// Customer copy in coverage page.
+  ///
+  /// In en, this message translates to:
+  /// **'Check this address'**
+  String get coverageCheckThisAddress;
+
+  /// Customer copy in coverage page.
+  ///
+  /// In en, this message translates to:
+  /// **'Not yet covered'**
+  String get coverageNotYetCovered;
+
+  /// Customer copy in coverage page.
+  ///
+  /// In en, this message translates to:
+  /// **'Home internet is available here'**
+  String get coverageHomeInternetIsAvailableHere;
+
+  /// Identity verification privacy explanation.
+  ///
+  /// In en, this message translates to:
+  /// **'Your face and ID information are used for verification only, under POPIA. You will be asked to confirm your consent before the check starts.'**
+  String get ricaPrivacyNotice;
+
+  /// Customer copy in rica page.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify your identity'**
+  String get ricaVerifyYourIdentity;
+
+  /// Customer copy in rica page.
+  ///
+  /// In en, this message translates to:
+  /// **'Look at the camera and blink slowly…'**
+  String get ricaLookAtTheCameraAndBlink;
+
+  /// Customer copy in rica page.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready to verify when you are.'**
+  String get ricaReadyToVerifyWhenYouAre;
+
+  /// Customer copy in rica page.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t reach our servers. Check your connection and try again.'**
+  String get ricaWeCouldnTReachOurServers;
+
+  /// Customer copy in rica page.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t update your order. Try again in a moment.'**
+  String get ricaWeCouldnTUpdateYourOrder;
+
+  /// Customer copy in rica page.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t verify your identity. Keep your face well lit and fully in the frame. Please try again. You haven\'t been charged.'**
+  String get ricaWeCouldnTVerifyYourIdentity;
+
+  /// Customer copy in promotions page.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} points'**
+  String promotionsPoints(String count);
+
+  /// Customer copy in promotions page.
+  ///
+  /// In en, this message translates to:
+  /// **'Expires {date}'**
+  String promotionsExpires(String date);
+
+  /// Customer copy in promotions page.
+  ///
+  /// In en, this message translates to:
+  /// **'Promotions & loyalty'**
+  String get promotionsPromotionsLoyalty;
+
+  /// Customer copy in promotions page.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Sentech loyalty balance'**
+  String get promotionsYourSentechLoyaltyBalance;
+
+  /// Customer copy in promotions page.
+  ///
+  /// In en, this message translates to:
+  /// **'CURRENT OFFERS'**
+  String get promotionsCurrentOffers;
+
+  /// Customer copy in app router.
+  ///
+  /// In en, this message translates to:
+  /// **'Page not found'**
+  String get routerPageNotFound;
+
+  /// Customer copy in app router.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to Home'**
+  String get routerBackToHome;
+
+  /// Customer copy in osm map.
+  ///
+  /// In en, this message translates to:
+  /// **'Map data {attribution}'**
+  String mapDataAttribution(String attribution);
+
+  /// Customer copy in payment web view page.
+  ///
+  /// In en, this message translates to:
+  /// **'Close payment'**
+  String get paymentClosePayment;
+
+  /// Customer copy in payment web view page.
+  ///
+  /// In en, this message translates to:
+  /// **'Secure payment'**
+  String get paymentSecurePayment;
+
+  /// Customer copy in fake gateway sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'No money moves. This simulates payment for {price}.'**
+  String paymentTestExplanation(String price);
+
+  /// Customer copy in fake gateway sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Test payment (local stack)'**
+  String get paymentTestPaymentLocalStack;
+
+  /// Customer copy in fake gateway sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve test payment'**
+  String get paymentApproveTestPayment;
+
+  /// Customer copy in fake gateway sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Decline test payment'**
+  String get paymentDeclineTestPayment;
+
+  /// Customer copy in boot video screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Sentech Connect is starting'**
+  String get bootSentechConnectIsStarting;
+
+  /// Customer copy in boot video screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip intro'**
+  String get bootSkipIntro;
+
+  /// Customer copy in boot video screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get bootSkip;
+
+  /// Customer copy in failure view.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re offline. Check your connection and try again.'**
+  String get failureYouReOfflineCheckYourConnection;
+
+  /// Customer copy in failure view.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong. Please try again.'**
+  String get failureSomethingWentWrongPleaseTryAgain;
+
+  /// Shop category.
+  ///
+  /// In en, this message translates to:
+  /// **'Home 5G'**
+  String get productCategoryHome5g;
+
+  /// Shop category.
+  ///
+  /// In en, this message translates to:
+  /// **'MiFi'**
+  String get productCategoryMifi;
+
+  /// Shop category.
+  ///
+  /// In en, this message translates to:
+  /// **'Vouchers'**
+  String get productCategoryVoucher;
+
+  /// Shop category.
+  ///
+  /// In en, this message translates to:
+  /// **'WiFi passes'**
+  String get productCategoryHotspotPass;
+
+  /// Startup failure; must work before services initialize.
+  ///
+  /// In en, this message translates to:
+  /// **'App configuration error — please reinstall or contact support'**
+  String get startupErrorMessage;
+
+  /// Language name shown in its own language (autonym).
+  ///
+  /// In en, this message translates to:
+  /// **'English'**
+  String get languageEnglish;
+
+  /// Language name shown in its own language (autonym).
+  ///
+  /// In en, this message translates to:
+  /// **'isiZulu'**
+  String get languageZulu;
+
+  /// Language name shown in its own language (autonym).
+  ///
+  /// In en, this message translates to:
+  /// **'Afrikaans'**
+  String get languageAfrikaans;
+
+  /// Hotspot distance in meters.
+  ///
+  /// In en, this message translates to:
+  /// **'{distance} m away'**
+  String hotspotMetersAway(String distance);
+
+  /// Hotspot distance in kilometers.
+  ///
+  /// In en, this message translates to:
+  /// **'{distance} km away'**
+  String hotspotKilometersAway(String distance);
+
+  /// Demo FAQ question.
+  ///
+  /// In en, this message translates to:
+  /// **'Why is my speed slower than expected?'**
+  String get demoFaq1Question;
+
+  /// Demo FAQ answer; not a promise of configured payment methods.
+  ///
+  /// In en, this message translates to:
+  /// **'Speed can dip during peak hours (6–10pm) or if your router is placed near thick walls or other electronics. Try moving the router to an open, central spot. If it persists after that, report the issue below.'**
+  String get demoFaq1Answer;
+
+  /// Demo FAQ question.
+  ///
+  /// In en, this message translates to:
+  /// **'How do I top up my data?'**
+  String get demoFaq2Question;
+
+  /// Demo FAQ answer; not a promise of configured payment methods.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to the Shop tab, choose a top-up or voucher, and pay with card, Ozow, or PayShap. Top-ups apply to your account within a few minutes.'**
+  String get demoFaq2Answer;
+
+  /// Demo FAQ question.
+  ///
+  /// In en, this message translates to:
+  /// **'My router lights are red'**
+  String get demoFaq3Question;
+
+  /// Demo FAQ answer; not a promise of configured payment methods.
+  ///
+  /// In en, this message translates to:
+  /// **'A solid red light usually means a signal or power issue. Check the power cable is fully seated, then wait 2 minutes for the router to reconnect. If it stays red, report the issue below.'**
+  String get demoFaq3Answer;
+
+  /// Demo promotional copy; available in demo only.
+  ///
+  /// In en, this message translates to:
+  /// **'Upgrade and save'**
+  String get demoPromotion1Title;
+
+  /// Demo promotional copy; available in demo only.
+  ///
+  /// In en, this message translates to:
+  /// **'Move to Home 100 this month and get your first month at 20% off.'**
+  String get demoPromotion1Description;
+
+  /// Demo promotional copy; available in demo only.
+  ///
+  /// In en, this message translates to:
+  /// **'20% OFF'**
+  String get demoPromotion1Badge;
+
+  /// Demo promotional copy; available in demo only.
+  ///
+  /// In en, this message translates to:
+  /// **'31 Aug'**
+  String get demoPromotion1Expiry;
+
+  /// Demo promotional copy; available in demo only.
+  ///
+  /// In en, this message translates to:
+  /// **'Refer a friend'**
+  String get demoPromotion2Title;
+
+  /// Demo promotional copy; available in demo only.
+  ///
+  /// In en, this message translates to:
+  /// **'Give a friend a free installation — you both get 10GB bonus data.'**
+  String get demoPromotion2Description;
+
+  /// Demo promotional copy; available in demo only.
+  ///
+  /// In en, this message translates to:
+  /// **'REFERRAL'**
+  String get demoPromotion2Badge;
+
+  /// Demo promotional copy; available in demo only.
+  ///
+  /// In en, this message translates to:
+  /// **'Ongoing'**
+  String get demoPromotion2Expiry;
+
+  /// Demo promotional copy; available in demo only.
+  ///
+  /// In en, this message translates to:
+  /// **'Loyalty reward'**
+  String get demoPromotion3Title;
+
+  /// Demo promotional copy; available in demo only.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ve earned enough points for a free Wi-Fi voucher — redeem it in Vouchers.'**
+  String get demoPromotion3Description;
+
+  /// Demo promotional copy; available in demo only.
+  ///
+  /// In en, this message translates to:
+  /// **'LOYALTY'**
+  String get demoPromotion3Badge;
+
+  /// Demo promotional copy; available in demo only.
+  ///
+  /// In en, this message translates to:
+  /// **'15 Sep'**
+  String get demoPromotion3Expiry;
+
+  /// Pre-filled WhatsApp message.
+  ///
+  /// In en, this message translates to:
+  /// **'Hi Sentech, I need help with my account.'**
+  String get supportChatGreeting;
+
+  /// Support email subject.
+  ///
+  /// In en, this message translates to:
+  /// **'[{category}] Support request'**
+  String supportEmailSubject(String category);
+
+  /// Customer copy in dashboard page.
+  ///
+  /// In en, this message translates to:
+  /// **'Promotions & loyalty — see what\'s on offer'**
+  String get homePromotionsLabel;
+
+  /// Customer copy in checkout page.
+  ///
+  /// In en, this message translates to:
+  /// **'Next we verify your identity (required by RICA). You are only charged after that succeeds.'**
+  String get checkoutIdentityNotice;
+
+  /// Customer copy in checkout page.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay on a secure payment page. Your pass starts when payment is confirmed.'**
+  String get checkoutPaymentNotice;
+
+  /// Customer copy in rica page.
+  ///
+  /// In en, this message translates to:
+  /// **'Required by South African law (RICA) before we can activate your service.'**
+  String get ricaLawNotice;
+
+  /// Customer copy in confirmation page.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re all set!'**
+  String get confirmationReady;
+
+  /// Customer copy in confirmation page.
+  ///
+  /// In en, this message translates to:
+  /// **'Your WiFi pass is paid'**
+  String get confirmationPassPaid;
+
+  /// Customer copy in confirmation page.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re all set. Connect at a WiFi hotspot to start.'**
+  String get confirmationConnectHint;
+
+  /// Customer copy in osm map.
+  ///
+  /// In en, this message translates to:
+  /// **'Map not available.'**
+  String get mapUnavailable;
+
+  /// Customer copy in connectivity cubit.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re offline. Some things won\'t work until you reconnect.'**
+  String get offlineBanner;
+
+  /// Customer error matching an internal failure message; external details remain data.
+  ///
+  /// In en, this message translates to:
+  /// **'No internet connection.'**
+  String get failureNoInternetConnection;
+
+  /// Customer error matching an internal failure message; external details remain data.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong on our end.'**
+  String get failureSomethingWentWrongOnOurEnd;
+
+  /// Customer error matching an internal failure message; external details remain data.
+  ///
+  /// In en, this message translates to:
+  /// **'This address is not yet in our coverage area.'**
+  String get failureThisAddressIsNotYetInOur;
+
+  /// Customer error matching an internal failure message; external details remain data.
+  ///
+  /// In en, this message translates to:
+  /// **'We could not finish signing you in. Please try again.'**
+  String get failureWeCouldNotFinishSigningYouIn;
+
+  /// Customer error matching an internal failure message; external details remain data.
+  ///
+  /// In en, this message translates to:
+  /// **'Your session has ended. Sign in again.'**
+  String get failureYourSessionHasEndedSignInAgain;
+
+  /// Customer error matching an internal failure message; external details remain data.
+  ///
+  /// In en, this message translates to:
+  /// **'This provider is currently unavailable.'**
+  String get failureThisProviderIsCurrentlyUnavailable;
+
+  /// Customer error matching an internal failure message; external details remain data.
+  ///
+  /// In en, this message translates to:
+  /// **'We could not find that.'**
+  String get failureWeCouldNotFindThat;
+
+  /// Customer error matching an internal failure message; external details remain data.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many attempts. Please wait and try again.'**
+  String get failureTooManyAttemptsPleaseWaitAndTry;
+
+  /// Customer error matching an internal failure message; external details remain data.
+  ///
+  /// In en, this message translates to:
+  /// **'We received an unexpected response. Please try again.'**
+  String get failureWeReceivedAnUnexpectedResponsePleaseTry;
+
+  /// Customer error matching an internal failure message; external details remain data.
+  ///
+  /// In en, this message translates to:
+  /// **'The request was cancelled.'**
+  String get failureTheRequestWasCancelled;
+
+  /// Customer error matching an internal failure message; external details remain data.
+  ///
+  /// In en, this message translates to:
+  /// **'We could not make a secure connection. Check your network and try again.'**
+  String get failureWeCouldNotMakeASecureConnection;
+
+  /// Customer error matching an internal failure message; external details remain data.
+  ///
+  /// In en, this message translates to:
+  /// **'Blocked a request to an unexpected address.'**
+  String get failureBlockedARequestToAnUnexpectedAddress;
+
+  /// Customer error matching an internal failure message; external details remain data.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid South African mobile number.'**
+  String get failureEnterAValidSouthAfricanMobileNumber;
+
+  /// Customer error matching an internal failure message; external details remain data.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the 6-digit code.'**
+  String get failureEnterThe6DigitCode;
+
+  /// Customer error matching an internal failure message; external details remain data.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save your details on this device.'**
+  String get failureCouldNotSaveYourDetailsOnThis;
+
+  /// Customer error matching an internal failure message; external details remain data.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not read your saved details.'**
+  String get failureCouldNotReadYourSavedDetails;
+
+  /// Customer error matching an internal failure message; external details remain data.
+  ///
+  /// In en, this message translates to:
+  /// **'The code is invalid or has expired.'**
+  String get failureTheCodeIsInvalidOrHasExpired;
+
+  /// Customer error matching an internal failure message; external details remain data.
+  ///
+  /// In en, this message translates to:
+  /// **'Your session could not be verified. Sign in again.'**
+  String get failureYourSessionCouldNotBeVerifiedSign;
+
+  /// Customer error matching an internal failure message; external details remain data.
+  ///
+  /// In en, this message translates to:
+  /// **'We could not load the complete catalogue. Please try again.'**
+  String get failureWeCouldNotLoadTheCompleteCatalogue;
+
+  /// Customer error matching an internal failure message; external details remain data.
+  ///
+  /// In en, this message translates to:
+  /// **'Your cart is empty.'**
+  String get failureYourCartIsEmpty;
+
+  /// Customer error matching an internal failure message; external details remain data.
+  ///
+  /// In en, this message translates to:
+  /// **'We could not load your open order. Please try again.'**
+  String get failureWeCouldNotLoadYourOpenOrder;
+
+  /// Customer error matching an internal failure message; external details remain data.
+  ///
+  /// In en, this message translates to:
+  /// **'Identity checks are not needed for this order.'**
+  String get failureIdentityChecksAreNotNeededForThis;
+
+  /// Customer error matching an internal failure message; external details remain data.
+  ///
+  /// In en, this message translates to:
+  /// **'We could not find that order.'**
+  String get failureWeCouldNotFindThatOrder;
+
+  /// Customer error matching an internal failure message; external details remain data.
+  ///
+  /// In en, this message translates to:
+  /// **'This order was replaced by a newer one and can no longer be paid.'**
+  String get failureThisOrderWasReplacedByANewer;
+
+  /// Customer error matching an internal failure message; external details remain data.
+  ///
+  /// In en, this message translates to:
+  /// **'This order can no longer be paid.'**
+  String get failureThisOrderCanNoLongerBePaid;
+
+  /// Customer error matching an internal failure message; external details remain data.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify your identity before paying.'**
+  String get failureVerifyYourIdentityBeforePaying;
+
+  /// Customer error matching an internal failure message; external details remain data.
+  ///
+  /// In en, this message translates to:
+  /// **'The payment was not completed. You have not been charged.'**
+  String get failureThePaymentWasNotCompletedYouHave;
+
+  /// Customer error matching an internal failure message; external details remain data.
+  ///
+  /// In en, this message translates to:
+  /// **'We could not open the payment page safely.'**
+  String get failureWeCouldNotOpenThePaymentPage;
+
+  /// Customer error matching an internal failure message; external details remain data.
+  ///
+  /// In en, this message translates to:
+  /// **'We could not load all of your passes. Please try again.'**
+  String get failureWeCouldNotLoadAllOfYour;
+
+  /// Customer error matching an internal failure message; external details remain data.
+  ///
+  /// In en, this message translates to:
+  /// **'We could not load the legal documents. Try again.'**
+  String get failureWeCouldNotLoadTheLegalDocuments;
+
+  /// Customer error matching an internal failure message; external details remain data.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save your consent on this device.'**
+  String get failureCouldNotSaveYourConsentOnThis;
+
+  /// Customer error matching an internal failure message; external details remain data.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save your choice on this device.'**
+  String get failureCouldNotSaveYourChoiceOnThis;
+
+  /// Customer error matching an internal failure message; external details remain data.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown provider.'**
+  String get failureUnknownProvider;
+
+  /// Customer error matching an internal failure message; external details remain data.
+  ///
+  /// In en, this message translates to:
+  /// **'Your phone\'s date or time looks wrong. Set it to automatic and try again.'**
+  String get failureYourPhoneSDateOrTimeLooks;
+
+  /// Customer error matching an internal failure message; external details remain data.
+  ///
+  /// In en, this message translates to:
+  /// **'You already have a free WiFi session running.'**
+  String get failureYouAlreadyHaveAFreeWifiSession;
+
+  /// Customer error matching an internal failure message; external details remain data.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ve reached today\'s free WiFi limit.'**
+  String get failureYouVeReachedTodaySFreeWifi;
+
+  /// Permission failure when the server sends no customer-facing detail.
+  ///
+  /// In en, this message translates to:
+  /// **'You are not allowed to do that.'**
+  String get failureNotAllowed;
+
+  /// Preferred contact method label in registration.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get contactMethodEmail;
+
+  /// Preferred contact method label in registration.
+  ///
+  /// In en, this message translates to:
+  /// **'SMS'**
+  String get contactMethodSms;
+
+  /// Fallback above a list sorted by known customer distance.
+  ///
+  /// In en, this message translates to:
+  /// **'Map not available. Here are the nearest spots.'**
+  String get mapUnavailableNearestSpots;
+
+  /// Fallback above a hotspot list when customer location is unavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Map not available. Here are the WiFi spots.'**
+  String get mapUnavailableWifiSpots;
 }
 
 class _AppLocalizationsDelegate

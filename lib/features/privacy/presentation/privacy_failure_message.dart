@@ -1,5 +1,6 @@
 import 'package:sentech_connect_app/core/error/failure.dart';
 import 'package:sentech_connect_app/l10n/app_localizations.dart';
+import 'package:sentech_connect_app/l10n/failure_copy.dart';
 
 /// The generic [ServerFailure] texts the API client uses when the response had
 /// no customer-facing detail (a 5xx, a body it could not read). They are not
@@ -19,8 +20,13 @@ String privacyFailureMessage(AppLocalizations l10n, Failure? failure) {
   return switch (failure) {
     NetworkFailure() => l10n.accountRequestOffline,
     RateLimitedFailure() => l10n.accountRequestRateLimited,
-    ValidationFailure(:final message, :final messageIsDetail) when messageIsDetail && message.trim().isNotEmpty => message,
-    ServerFailure(:final message) when message.trim().isNotEmpty && !_genericServerTexts.contains(message) => message,
+    ValidationFailure(:final message, :final messageIsDetail)
+        when messageIsDetail && message.trim().isNotEmpty =>
+      localizedFailureText(l10n, message),
+    ServerFailure(:final message)
+        when message.trim().isNotEmpty &&
+            !_genericServerTexts.contains(message) =>
+      localizedFailureText(l10n, message),
     _ => l10n.accountRequestFailed,
   };
 }

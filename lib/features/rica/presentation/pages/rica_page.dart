@@ -1,3 +1,4 @@
+import 'package:sentech_connect_app/l10n/l10n.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sentech_connect_app/features/privacy/domain/entities/consent_record.dart';
@@ -25,7 +26,7 @@ class RicaPage extends StatelessWidget {
     // Identity capture: block screenshots / screen recording / recents preview.
     return SecureScreen(
       child: Scaffold(
-        appBar: AppBar(title: const Text('Verify your identity')),
+        appBar: AppBar(title: Text(context.l10n.ricaVerifyYourIdentity)),
         body: BlocConsumer<RicaCubit, RicaState>(
           listener: (context, state) {
             if (state.status == RicaStatus.verified) onVerified();
@@ -49,7 +50,9 @@ class RicaPage extends StatelessWidget {
                                   margin: EdgeInsets.only(right: i < 2 ? 5 : 0),
                                   height: 4,
                                   decoration: BoxDecoration(
-                                    color: done ? theme.colorScheme.primary : theme.colorScheme.outlineVariant,
+                                    color: done
+                                        ? theme.colorScheme.primary
+                                        : theme.colorScheme.outlineVariant,
                                     borderRadius: BorderRadius.circular(3),
                                   ),
                                 ),
@@ -58,8 +61,10 @@ class RicaPage extends StatelessWidget {
                           ),
                           const SizedBox(height: 12),
                           Text(
-                            'Required by South African law (RICA) before we can activate your service.',
-                            style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                            context.l10n.ricaLawNotice,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
                           ),
                           const SizedBox(height: 20),
                           _Viewfinder(active: verifying),
@@ -71,14 +76,21 @@ class RicaPage extends StatelessWidget {
                                   width: 8,
                                   height: 8,
                                   child: DecoratedBox(
-                                    decoration: BoxDecoration(shape: BoxShape.circle, color: theme.colorScheme.primary),
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: theme.colorScheme.primary,
+                                    ),
                                   ),
                                 ),
                                 const SizedBox(width: 8),
                               ],
                               Expanded(
                                 child: Text(
-                                  verifying ? 'Look at the camera and blink slowly…' : 'Ready to verify when you are.',
+                                  verifying
+                                      ? context.l10n.ricaLookAtTheCameraAndBlink
+                                      : context
+                                            .l10n
+                                            .ricaReadyToVerifyWhenYouAre,
                                   style: theme.textTheme.bodyMedium?.copyWith(
                                     color: theme.colorScheme.onSurfaceVariant,
                                   ),
@@ -92,8 +104,7 @@ class RicaPage extends StatelessWidget {
                           ],
                           const SizedBox(height: 20),
                           Text(
-                            'Your face and ID information are used for verification only, under POPIA. '
-                            'You will be asked to confirm your consent before the check starts.',
+                            context.l10n.ricaPrivacyNotice,
                             style: theme.textTheme.bodyMedium,
                           ),
                         ],
@@ -108,9 +119,16 @@ class RicaPage extends StatelessWidget {
                           ? const SizedBox(
                               width: 20,
                               height: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
                             )
-                          : Text(state.status == RicaStatus.failure ? 'Try again' : 'Continue'),
+                          : Text(
+                              state.status == RicaStatus.failure
+                                  ? context.l10n.commonTryAgain
+                                  : context.l10n.commonContinue,
+                            ),
                     ),
                   ),
                 ],
@@ -135,17 +153,18 @@ class _FailureNotice extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final message = switch (reason) {
-      RicaFailureReason.network => "We couldn't reach our servers. Check your connection and try again.",
-      RicaFailureReason.orderError => "We couldn't update your order. Try again in a moment.",
-      _ =>
-        "We couldn't verify your identity. Make sure your face is well lit and fully in the frame, then try again. You haven't been charged.",
+      RicaFailureReason.network => context.l10n.ricaWeCouldnTReachOurServers,
+      RicaFailureReason.orderError => context.l10n.ricaWeCouldnTUpdateYourOrder,
+      _ => context.l10n.ricaWeCouldnTVerifyYourIdentity,
     };
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: theme.colorScheme.error.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(10),
-        border: Border(left: BorderSide(color: theme.colorScheme.error, width: 3)),
+        border: Border(
+          left: BorderSide(color: theme.colorScheme.error, width: 3),
+        ),
       ),
       child: Text(message, style: theme.textTheme.bodyMedium),
     );
@@ -161,13 +180,17 @@ class _Viewfinder extends StatefulWidget {
   State<_Viewfinder> createState() => _ViewfinderState();
 }
 
-class _ViewfinderState extends State<_Viewfinder> with SingleTickerProviderStateMixin {
+class _ViewfinderState extends State<_Viewfinder>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 1600));
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1600),
+    );
     if (widget.active) _controller.repeat(reverse: true);
   }
 
@@ -212,7 +235,10 @@ class _ViewfinderState extends State<_Viewfinder> with SingleTickerProviderState
               height: 124,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                border: Border.all(color: Colors.white.withValues(alpha: 0.7), width: 2),
+                border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.7),
+                  width: 2,
+                ),
               ),
             ),
             if (widget.active && !reduceMotion)
@@ -224,7 +250,10 @@ class _ViewfinderState extends State<_Viewfinder> with SingleTickerProviderState
                     child: Container(
                       width: 8,
                       height: 8,
-                      decoration: const BoxDecoration(shape: BoxShape.circle, color: Color(0xFF4FD3EA)),
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Color(0xFF4FD3EA),
+                      ),
                     ),
                   );
                 },

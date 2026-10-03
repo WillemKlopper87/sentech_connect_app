@@ -1,3 +1,4 @@
+import 'package:sentech_connect_app/l10n/l10n.dart';
 import 'package:flutter/material.dart';
 
 /// A simulated rewarded-ad experience (countdown, skip disabled until
@@ -12,7 +13,8 @@ class WatchAdDialog extends StatefulWidget {
   State<WatchAdDialog> createState() => _WatchAdDialogState();
 }
 
-class _WatchAdDialogState extends State<WatchAdDialog> with SingleTickerProviderStateMixin {
+class _WatchAdDialogState extends State<WatchAdDialog>
+    with SingleTickerProviderStateMixin {
   static const _adDuration = Duration(seconds: 6);
   late final AnimationController _controller;
 
@@ -46,15 +48,23 @@ class _WatchAdDialogState extends State<WatchAdDialog> with SingleTickerProvider
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.play_circle_outline, color: Colors.white, size: 72),
+                const Icon(
+                  Icons.play_circle_outline,
+                  color: Colors.white,
+                  size: 72,
+                ),
                 const SizedBox(height: 20),
-                const Text(
-                  'Your free WiFi ad is playing…',
-                  style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700),
+                Text(
+                  context.l10n.freeWifiYourFreeWifiAdIsPlaying,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
                 const SizedBox(height: 8),
-                const Text(
-                  '(simulated — no skip until it finishes)',
+                Text(
+                  context.l10n.freeWifiSimulatedNoSkipUntilItFinishes,
                   style: TextStyle(color: Colors.white54, fontSize: 12),
                 ),
                 const SizedBox(height: 28),

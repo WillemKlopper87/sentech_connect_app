@@ -7,8 +7,10 @@ class Promotion extends Equatable {
     required this.description,
     required this.badge,
     required this.expiresOn,
+    this.isDemoCopy = false,
   });
 
+  final bool isDemoCopy;
   final String id;
   final String title;
   final String description;
@@ -16,5 +18,12 @@ class Promotion extends Equatable {
   final String expiresOn;
 
   @override
-  List<Object?> get props => [id, title, description, badge, expiresOn];
+  List<Object?> get props => [
+    id,
+    title,
+    description,
+    badge,
+    expiresOn,
+    isDemoCopy,
+  ];
 }

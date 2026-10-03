@@ -45,14 +45,16 @@ class ConfirmationPage extends StatelessWidget {
               order.status == OrderStatus.expired ||
               order.status == OrderStatus.cancelled;
           final message = switch (order.status) {
-            OrderStatus.expired =>
-              'Order #${order.orderNumber} expired before payment was confirmed.',
-            OrderStatus.cancelled =>
-              'Order #${order.orderNumber} was cancelled.',
-            _ => 'Order #${order.orderNumber} is not complete yet.',
+            OrderStatus.expired => context.l10n.orderExpiredBeforePayment(
+              order.orderNumber,
+            ),
+            OrderStatus.cancelled => context.l10n.orderCancelled(
+              order.orderNumber,
+            ),
+            _ => context.l10n.orderNotComplete(order.orderNumber),
           };
           return Scaffold(
-            appBar: AppBar(title: const Text('Order')),
+            appBar: AppBar(title: Text(context.l10n.confirmationOrder)),
             body: Center(
               child: Padding(
                 padding: const EdgeInsets.all(24),
@@ -64,11 +66,13 @@ class ConfirmationPage extends StatelessWidget {
                     closed
                         ? ElevatedButton(
                             onPressed: onDone,
-                            child: const Text('Back to dashboard'),
+                            child: Text(context.l10n.confirmationBackToHome),
                           )
                         : ElevatedButton(
                             onPressed: () => onResume(order),
-                            child: const Text('Continue your order'),
+                            child: Text(
+                              context.l10n.confirmationContinueYourOrder,
+                            ),
                           ),
                   ],
                 ),
@@ -126,14 +130,14 @@ class _ConfirmationView extends StatelessWidget {
               const SizedBox(height: 14),
               Text(
                 order.isHotspotPass
-                    ? 'Your Wi-Fi pass is paid'
-                    : "You're connected!",
+                    ? context.l10n.confirmationPassPaid
+                    : context.l10n.confirmationReady,
                 textAlign: TextAlign.center,
                 style: theme.textTheme.headlineMedium,
               ),
               const SizedBox(height: 4),
               Text(
-                'Order #${order.orderNumber}',
+                context.l10n.orderNumberLabel(order.orderNumber),
                 textAlign: TextAlign.center,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
@@ -147,8 +151,8 @@ class _ConfirmationView extends StatelessWidget {
                   style: theme.textTheme.titleMedium,
                 ),
                 const SizedBox(height: 12),
-                const Text(
-                  'Payment confirmed. View your Wi-Fi passes on the dashboard.',
+                Text(
+                  context.l10n.confirmationConnectHint,
                   textAlign: TextAlign.center,
                 ),
               ] else
@@ -165,15 +169,15 @@ class _ConfirmationView extends StatelessWidget {
                 onPressed: onDone,
                 child: Text(
                   order.isHotspotPass
-                      ? 'Back to dashboard'
-                      : 'Track my installation',
+                      ? context.l10n.confirmationBackToHome
+                      : context.l10n.confirmationTrackMyInstallation,
                 ),
               ),
               const SizedBox(height: 8),
               if (!order.isHotspotPass)
                 TextButton(
                   onPressed: onDone,
-                  child: const Text('Back to dashboard'),
+                  child: Text(context.l10n.confirmationBackToHome),
                 ),
             ],
           ),
@@ -189,10 +193,25 @@ class _Timeline extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final items = const [
-      ('Courier dispatched', 'Router kit on its way', true, false),
-      ('Self-install', 'Follow the in-app setup guide', false, true),
-      ('Activation', 'Signal confirmed, service live', false, false),
+    final items = [
+      (
+        context.l10n.confirmationCourierDispatched,
+        context.l10n.confirmationRouterKitOnItsWay,
+        true,
+        false,
+      ),
+      (
+        context.l10n.confirmationSelfInstall,
+        context.l10n.confirmationFollowTheSetupGuideInThe,
+        false,
+        true,
+      ),
+      (
+        context.l10n.confirmationActivation,
+        context.l10n.confirmationSignalConfirmedServiceLive,
+        false,
+        false,
+      ),
     ];
     return Column(
       children: [

@@ -35,7 +35,9 @@ class VoucherScannerPage extends StatelessWidget {
   Widget build(BuildContext context) {
     // Only the demo flavor's mock understands the old SEN-XXXX-XXXX codes;
     // prod accepts exactly what the server accepts.
-    final isDemo = !locator.isRegistered<AppEnvironment>() || locator<AppEnvironment>().isDemo;
+    final isDemo =
+        !locator.isRegistered<AppEnvironment>() ||
+        locator<AppEnvironment>().isDemo;
     return BlocProvider(
       create: (_) => VoucherCubit(locator(), allowDemoCodes: isDemo),
       child: _VoucherScannerView(controller: controller),
@@ -52,9 +54,11 @@ class _VoucherScannerView extends StatefulWidget {
   State<_VoucherScannerView> createState() => _VoucherScannerViewState();
 }
 
-class _VoucherScannerViewState extends State<_VoucherScannerView> with WidgetsBindingObserver {
+class _VoucherScannerViewState extends State<_VoucherScannerView>
+    with WidgetsBindingObserver {
   late final MobileScannerController _controller =
-      widget.controller ?? MobileScannerController(detectionSpeed: DetectionSpeed.noDuplicates);
+      widget.controller ??
+      MobileScannerController(detectionSpeed: DetectionSpeed.noDuplicates);
   bool _wasTabActive = false;
 
   /// What the customer last typed, kept on this screen only (never logged,
@@ -65,7 +69,8 @@ class _VoucherScannerViewState extends State<_VoucherScannerView> with WidgetsBi
 
   /// Scanning is paused from the moment a code is submitted until its
   /// result sheet is dismissed (see [VoucherCubit]).
-  bool get _scanning => context.read<VoucherCubit>().state.status == VoucherStatus.scanning;
+  bool get _scanning =>
+      context.read<VoucherCubit>().state.status == VoucherStatus.scanning;
 
   @override
   void initState() {
@@ -179,14 +184,18 @@ class _VoucherScannerViewState extends State<_VoucherScannerView> with WidgetsBi
       listener: _onVoucherState,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Scan voucher'),
+          title: Text(context.l10n.scanScanVoucher),
           actions: [
             IconButton(
               tooltip: context.l10n.a11yToggleTorch,
               icon: ValueListenableBuilder(
                 valueListenable: _controller,
                 builder: (context, state, child) {
-                  return Icon(state.torchState == TorchState.on ? Icons.flash_on : Icons.flash_off);
+                  return Icon(
+                    state.torchState == TorchState.on
+                        ? Icons.flash_on
+                        : Icons.flash_off,
+                  );
                 },
               ),
               onPressed: () => _controller.toggleTorch(),
@@ -214,7 +223,8 @@ class _VoucherScannerViewState extends State<_VoucherScannerView> with WidgetsBi
                       MobileScanner(
                         controller: _controller,
                         onDetect: _onDetect,
-                        errorBuilder: (context, error) => _CameraError(error: error),
+                        errorBuilder: (context, error) =>
+                            _CameraError(error: error),
                       ),
                       const ViewfinderCorners(color: Colors.white),
                     ],
@@ -223,12 +233,17 @@ class _VoucherScannerViewState extends State<_VoucherScannerView> with WidgetsBi
               ),
               const SizedBox(height: 16),
               Text(
-                "Align the voucher's QR code within the frame",
+                context.l10n.scanAlignTheVoucherSQrCode,
                 textAlign: TextAlign.center,
-                style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
               ),
               const Spacer(),
-              OutlinedButton(onPressed: _enterCodeManually, child: const Text('Type the code instead')),
+              OutlinedButton(
+                onPressed: _enterCodeManually,
+                child: Text(context.l10n.scanTypeTheCodeInstead),
+              ),
             ],
           ),
         ),
@@ -269,14 +284,17 @@ class _ManualEntryDialogState extends State<_ManualEntryDialog> {
     if (text == null || !mounted) return;
     _controller.value = const VoucherCodeFormatter().formatEditUpdate(
       _controller.value,
-      TextEditingValue(text: text.trim(), selection: TextSelection.collapsed(offset: text.trim().length)),
+      TextEditingValue(
+        text: text.trim(),
+        selection: TextSelection.collapsed(offset: text.trim().length),
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Enter voucher code'),
+      title: Text(context.l10n.scanEnterVoucherCode),
       content: TextField(
         controller: _controller,
         autofocus: true,
@@ -287,18 +305,21 @@ class _ManualEntryDialogState extends State<_ManualEntryDialog> {
         inputFormatters: const [VoucherCodeFormatter()],
         onSubmitted: (_) => _submit(),
         decoration: InputDecoration(
-          hintText: 'e.g. ABCD-2345-EFGH',
-          helperText: '12 letters and numbers, on your voucher card',
+          hintText: context.l10n.scanEGAbcd2345Efgh,
+          helperText: context.l10n.scan12LettersAndNumbersOnYour,
           suffixIcon: IconButton(
-            tooltip: 'Paste',
+            tooltip: context.l10n.scanPaste,
             icon: const Icon(Icons.content_paste),
             onPressed: _paste,
           ),
         ),
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
-        FilledButton(onPressed: _submit, child: const Text('Redeem')),
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text(context.l10n.commonCancel),
+        ),
+        FilledButton(onPressed: _submit, child: Text(context.l10n.scanRedeem)),
       ],
     );
   }
@@ -313,8 +334,8 @@ class _CameraError extends StatelessWidget {
   Widget build(BuildContext context) {
     final message = switch (error.errorCode) {
       MobileScannerErrorCode.permissionDenied =>
-        'Camera permission denied — enable it in system settings, or enter the code manually below.',
-      _ => 'Camera unavailable — enter the code manually below.',
+        context.l10n.scanEnableTheCameraInSystemSettings,
+      _ => context.l10n.scanCameraUnavailablePleaseTypeTheCode,
     };
     return ColoredBox(
       color: const Color(0xFF0D2033),

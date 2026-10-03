@@ -11,11 +11,7 @@ import 'package:sentech_connect_app/features/wifi_voucher/presentation/pages/fre
 import 'package:sentech_connect_app/shared/widgets/failure_view.dart';
 
 class CatalogPage extends StatelessWidget {
-  const CatalogPage({
-    super.key,
-    required this.onOpenCart,
-    this.onFindHotspots,
-  });
+  const CatalogPage({super.key, required this.onOpenCart, this.onFindHotspots});
 
   final VoidCallback onOpenCart;
 
@@ -35,10 +31,7 @@ class CatalogPage extends StatelessWidget {
 }
 
 class _CatalogScaffold extends StatelessWidget {
-  const _CatalogScaffold({
-    required this.onOpenCart,
-    this.onFindHotspots,
-  });
+  const _CatalogScaffold({required this.onOpenCart, this.onFindHotspots});
 
   final VoidCallback onOpenCart;
 
@@ -49,7 +42,7 @@ class _CatalogScaffold extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Plans'),
+        title: Text(context.l10n.shopTitle),
         actions: [
           BlocBuilder<CartCubit, CartState>(
             builder: (context, cartState) {
@@ -132,7 +125,9 @@ class _CatalogScaffold extends StatelessWidget {
                       ..hideCurrentSnackBar()
                       ..showSnackBar(
                         SnackBar(
-                          content: Text('${plan.name} added to cart'),
+                          content: Text(
+                            context.l10n.shopAddedToCart(plan.name),
+                          ),
                           duration: const Duration(seconds: 3),
                         ),
                       );
@@ -185,7 +180,14 @@ class _SegmentedRow extends StatelessWidget {
                     : null,
               ),
               child: Text(
-                category.label,
+                switch (category) {
+                  ProductCategory.home5g => context.l10n.productCategoryHome5g,
+                  ProductCategory.mifi => context.l10n.productCategoryMifi,
+                  ProductCategory.voucher =>
+                    context.l10n.productCategoryVoucher,
+                  ProductCategory.hotspotPass =>
+                    context.l10n.productCategoryHotspotPass,
+                },
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 12,
@@ -248,8 +250,8 @@ class _PlanCard extends StatelessWidget {
                   color: const Color(0xFFFAA61A),
                   borderRadius: BorderRadius.circular(999),
                 ),
-                child: const Text(
-                  'MOST POPULAR',
+                child: Text(
+                  context.l10n.planBadgeOurPick,
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w800,
@@ -269,24 +271,29 @@ class _PlanCard extends StatelessWidget {
                     child: Text(plan.name, style: theme.textTheme.titleMedium),
                   ),
                   const SizedBox(width: 8),
-                  RichText(
-                    text: TextSpan(
-                      style: theme.textTheme.titleMedium,
-                      children: [
-                        TextSpan(
-                          text: formatRands(plan.priceCents, wholeRands: true),
-                        ),
-                        TextSpan(
-                          text:
-                              plan.category == ProductCategory.home5g ||
-                                  plan.category == ProductCategory.mifi
-                              ? '/mo'
-                              : '',
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: theme.colorScheme.onSurfaceVariant,
+                  Flexible(
+                    child: RichText(
+                      textAlign: TextAlign.end,
+                      text: TextSpan(
+                        style: theme.textTheme.titleMedium,
+                        children: [
+                          TextSpan(
+                            text: context.l10n.priceInclVat(
+                              formatRands(plan.priceCents, wholeRands: true),
+                            ),
                           ),
-                        ),
-                      ],
+                          TextSpan(
+                            text:
+                                plan.category == ProductCategory.home5g ||
+                                    plan.category == ProductCategory.mifi
+                                ? context.l10n.pricePerMonth
+                                : '',
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ],
@@ -294,7 +301,10 @@ class _PlanCard extends StatelessWidget {
               const SizedBox(height: 4),
               Text(
                 plan.speedMbps > 0
-                    ? '${plan.dataDescription} · up to ${plan.speedMbps} Mbps'
+                    ? context.l10n.shopPlanSpeed(
+                        plan.dataDescription,
+                        plan.speedMbps.toString(),
+                      )
                     : plan.dataDescription,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
@@ -304,11 +314,11 @@ class _PlanCard extends StatelessWidget {
               plan.isFeatured
                   ? ElevatedButton(
                       onPressed: onSelect,
-                      child: const Text('Add to cart'),
+                      child: Text(context.l10n.shopAddToCart),
                     )
                   : OutlinedButton(
                       onPressed: onSelect,
-                      child: const Text('Add to cart'),
+                      child: Text(context.l10n.shopAddToCart),
                     ),
             ],
           ),

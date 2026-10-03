@@ -13,14 +13,16 @@ class CartPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('Your cart')),
+      appBar: AppBar(title: Text(context.l10n.cartYourCart)),
       body: BlocBuilder<CartCubit, CartState>(
         builder: (context, state) {
           if (state.items.isEmpty) {
             return Center(
               child: Text(
-                'Your cart is empty',
-                style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                context.l10n.cartYourCartIsEmpty,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
               ),
             );
           }
@@ -36,7 +38,9 @@ class CartPage extends StatelessWidget {
                     return Container(
                       padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
-                        border: Border.all(color: theme.colorScheme.outlineVariant),
+                        border: Border.all(
+                          color: theme.colorScheme.outlineVariant,
+                        ),
                         borderRadius: BorderRadius.circular(14),
                       ),
                       child: Row(
@@ -45,17 +49,28 @@ class CartPage extends StatelessWidget {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(item.plan.name, style: theme.textTheme.titleMedium),
                                 Text(
-                                  '${formatRands(item.plan.priceCents)} each',
-                                  style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                                  item.plan.name,
+                                  style: theme.textTheme.titleMedium,
+                                ),
+                                Text(
+                                  context.l10n.cartPriceEach(
+                                    context.l10n.priceInclVat(
+                                      formatRands(item.plan.priceCents),
+                                    ),
+                                  ),
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    color: theme.colorScheme.onSurfaceVariant,
+                                  ),
                                 ),
                               ],
                             ),
                           ),
                           _QtyStepper(
                             quantity: item.quantity,
-                            onChanged: (q) => context.read<CartCubit>().setQuantity(item.plan.id, q),
+                            onChanged: (q) => context
+                                .read<CartCubit>()
+                                .setQuantity(item.plan.id, q),
                           ),
                         ],
                       ),
@@ -73,12 +88,17 @@ class CartPage extends StatelessWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text('Total', style: theme.textTheme.titleLarge),
+                          Text(
+                            context.l10n.cartTotal,
+                            style: theme.textTheme.titleLarge,
+                          ),
                           const SizedBox(width: 12),
                           // Flexible so a large text size wraps instead of overflowing.
                           Flexible(
                             child: Text(
-                              formatRands(state.totalCents),
+                              context.l10n.priceInclVat(
+                                formatRands(state.totalCents),
+                              ),
                               textAlign: TextAlign.end,
                               style: theme.textTheme.titleLarge,
                             ),
@@ -86,7 +106,10 @@ class CartPage extends StatelessWidget {
                         ],
                       ),
                       const SizedBox(height: 12),
-                      ElevatedButton(onPressed: onCheckout, child: const Text('Checkout')),
+                      ElevatedButton(
+                        onPressed: onCheckout,
+                        child: Text(context.l10n.cartCheckout),
+                      ),
                     ],
                   ),
                 ),
