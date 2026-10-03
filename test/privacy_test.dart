@@ -112,6 +112,10 @@ void main() {
       await tester.tap(find.text('capture'));
       await tester.pumpAndSettle();
       expect(find.text('Your privacy'), findsOneWidget);
+      // The notice is truthful: nothing kept on the phone, and the address
+      // lookup goes through the phone's own map service.
+      expect(find.textContaining('not stored on your phone'), findsOneWidget);
+      expect(find.textContaining("phone's map service (Google or Apple)"), findsOneWidget);
       expect(store.snapshot, isEmpty); // nothing recorded before agreeing
 
       await tester.tap(find.text('I agree'));

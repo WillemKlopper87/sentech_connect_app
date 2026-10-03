@@ -34,7 +34,7 @@ void main() {
   });
 
   group('HttpRegistrationRepository', () {
-    test('sends the name and email to the profile; the address stays on the device', () async {
+    test('sends the name and email to the profile; the address is neither sent nor kept on the device', () async {
       final localStore = InMemorySecureStore();
       final repo = HttpRegistrationRepository(h.api, local: LocalRegistrationRepository(localStore));
       h.adapter.on('PATCH', '/v1/me/profile', (_) => FakeReply(200, fixture('profile_complete.json')));
@@ -43,7 +43,8 @@ void main() {
       final sent = h.adapter.requestsTo('PATCH', '/v1/me/profile').single;
       expect(sent.data, {'display_name': 'Thandi Mokoena', 'email': 'thandi@example.test'});
       expect(sent.data.toString(), isNot(contains('Soweto')));
-      expect((await repo.getSaved()).getOrElse((_) => null)?.address, '12 Main Road, Soweto');
+      expect((await repo.getSaved()).getOrElse((_) => null)?.address, isEmpty);
+      expect(localStore.snapshot.values.join(), isNot(contains('Soweto')));
     });
 
     test('an empty email is left out of the profile update (it would clear the stored one)', () async {

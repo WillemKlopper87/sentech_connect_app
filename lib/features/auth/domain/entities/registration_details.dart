@@ -55,7 +55,8 @@ class RegistrationDetails extends Equatable {
       fullName: json['fullName'] as String,
       email: json['email'] as String,
       mobileNumber: json['mobileNumber'] as String,
-      address: json['address'] as String,
+      // Not stored on the device (LocalRegistrationRepository).
+      address: json['address'] as String? ?? '',
       latitude: json['latitude'] as double?,
       longitude: json['longitude'] as double?,
       marketingEmail: json['marketingEmail'] as bool? ?? false,

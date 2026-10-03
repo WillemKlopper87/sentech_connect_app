@@ -359,6 +359,14 @@ class AppLocalizationsEn extends AppLocalizations {
       'We use your phone\'s location once to check 5G coverage at your address. It is not stored on your phone or kept after the check.';
 
   @override
+  String get consentLocationMapService =>
+      'To turn your location into an address, your phone\'s map service (Google or Apple) looks it up.';
+
+  @override
+  String get coverageAddressLookupNotice =>
+      'Your phone\'s map service (Google or Apple) finds the address you type.';
+
+  @override
   String get consentRicaBody =>
       'South African law (RICA) requires us to verify your identity. We will process your face and ID information for verification only, under POPIA.';
 

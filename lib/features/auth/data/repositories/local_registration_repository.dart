@@ -13,15 +13,17 @@ class LocalRegistrationRepository implements RegistrationRepository {
 
   final SecureStore _store;
 
+  /// Location-derived fields never written to the phone. The location notice
+  /// (`consentLocationBody`) says the location is used once and not stored
+  /// on the phone, and the address is often reverse-geocoded from GPS. The
+  /// platform has no address endpoint yet, so the address lives only in
+  /// memory for the registration screen; nothing in the app reads it back.
+  static const _notKept = ['address', 'latitude', 'longitude'];
+
   @override
   Future<Either<Failure, Unit>> save(RegistrationDetails details) async {
     try {
-      // GPS coordinates are only needed transiently (coverage check); the
-      // typed/geocoded address is what a backend would receive, so the
-      // coordinates are deliberately not persisted.
-      final json = details.toJson()
-        ..remove('latitude')
-        ..remove('longitude');
+      final json = details.toJson()..removeWhere((k, _) => _notKept.contains(k));
       await _store.write(_key, jsonEncode(json));
       return Right(unit);
     } catch (_) {
@@ -34,7 +36,14 @@ class LocalRegistrationRepository implements RegistrationRepository {
     try {
       final raw = await _store.read(_key);
       if (raw == null) return const Right(null);
-      return Right(RegistrationDetails.fromJson(jsonDecode(raw) as Map<String, dynamic>));
+      final json = jsonDecode(raw) as Map<String, dynamic>;
+      if (_notKept.any(json.containsKey)) {
+        // Written by an earlier version: drop the address and coordinates
+        // from the phone now.
+        json.removeWhere((k, _) => _notKept.contains(k));
+        await _store.write(_key, jsonEncode(json));
+      }
+      return Right(RegistrationDetails.fromJson(json));
     } catch (_) {
       return const Left(ServerFailure('Could not read your saved details.'));
     }

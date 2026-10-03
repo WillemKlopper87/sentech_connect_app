@@ -65,6 +65,12 @@ class ConsentDialog extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(body),
+            // Reverse geocoding uses the platform geocoder (Google or Apple):
+            // say so before any location is read.
+            if (purpose == ConsentPurpose.locationCapture) ...[
+              const SizedBox(height: 8),
+              Text(l10n.consentLocationMapService),
+            ],
             const SizedBox(height: 12),
             TextButton(
               style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: const Size(48, 48)),

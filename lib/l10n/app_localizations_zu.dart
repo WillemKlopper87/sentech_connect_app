@@ -360,6 +360,14 @@ class AppLocalizationsZu extends AppLocalizations {
       'Sisebenzisa indawo yefoni yakho kanye kuphela ukuhlola ukufinyeleleka kwe-5G ekhelini lakho. Ayigcinwa efonini yakho noma ngemva kokuhlolwa.';
 
   @override
+  String get consentLocationMapService =>
+      'To turn your location into an address, your phone\'s map service (Google or Apple) looks it up.';
+
+  @override
+  String get coverageAddressLookupNotice =>
+      'Your phone\'s map service (Google or Apple) finds the address you type.';
+
+  @override
   String get consentRicaBody =>
       'Umthetho waseNingizimu Afrika (i-RICA) udinga ukuthi siqinisekise ubunikazi bakho. Sizocubungula ubuso bakho nolwazi lwe-ID ukuze siqinisekise kuphela, ngokwe-POPIA.';
 

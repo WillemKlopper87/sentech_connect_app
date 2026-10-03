@@ -5,8 +5,8 @@ import 'package:sentech_connect_app/features/auth/domain/entities/registration_d
 import 'package:sentech_connect_app/features/auth/domain/repositories/registration_repository.dart';
 
 /// Completes the customer's profile on the platform (`PATCH /v1/me/profile`:
-/// display name and email). The installation address has no M1 endpoint and
-/// stays in secure storage on the device via [local].
+/// display name and email). The installation address has no M1 endpoint; it
+/// is neither sent nor kept on the device ([local] drops it).
 class HttpRegistrationRepository implements RegistrationRepository {
   HttpRegistrationRepository(this._api, {required this._local});
 

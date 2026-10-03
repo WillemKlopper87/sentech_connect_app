@@ -724,6 +724,18 @@ abstract class AppLocalizations {
   /// **'We use your phone\'s location once to check 5G coverage at your address. It is not stored on your phone or kept after the check.'**
   String get consentLocationBody;
 
+  /// No description provided for @consentLocationMapService.
+  ///
+  /// In en, this message translates to:
+  /// **'To turn your location into an address, your phone\'s map service (Google or Apple) looks it up.'**
+  String get consentLocationMapService;
+
+  /// No description provided for @coverageAddressLookupNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Your phone\'s map service (Google or Apple) finds the address you type.'**
+  String get coverageAddressLookupNotice;
+
   /// No description provided for @consentRicaBody.
   ///
   /// In en, this message translates to:

@@ -51,6 +51,8 @@ void main() {
     // 2. Coverage check
     expect(find.text('Coverage check'), findsOneWidget);
     expect(find.text('5G FWA available'), findsOneWidget);
+    // A typed address is looked up by the phone's map service: say so.
+    expect(find.textContaining("phone's map service (Google or Apple)"), findsOneWidget);
     await tester.tap(find.text('View plans for this address'));
     await tester.pump(); // navigate
     await tester.pump(const Duration(milliseconds: 500)); // account cubit load delay (Home tab)

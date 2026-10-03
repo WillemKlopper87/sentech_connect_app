@@ -7,6 +7,7 @@ import 'package:sentech_connect_app/core/utils/reverse_geocode.dart';
 import 'package:sentech_connect_app/features/coverage/presentation/bloc/coverage_cubit.dart';
 import 'package:sentech_connect_app/features/privacy/domain/entities/consent_record.dart';
 import 'package:sentech_connect_app/features/privacy/presentation/widgets/consent_gate.dart';
+import 'package:sentech_connect_app/l10n/l10n.dart';
 import 'package:sentech_connect_app/shared/widgets/failure_view.dart';
 import 'package:sentech_connect_app/shared/widgets/osm_map.dart';
 
@@ -115,6 +116,17 @@ class _CoveragePageState extends State<CoveragePage> {
                           decoration: const InputDecoration(
                             labelText: 'Address',
                             prefixIcon: Icon(Icons.location_on_outlined, size: 20),
+                          ),
+                        ),
+                        // A typed address is forward-geocoded by the platform
+                        // geocoder (Google or Apple) to centre the map.
+                        Padding(
+                          padding: const EdgeInsets.only(top: 6),
+                          child: Text(
+                            context.l10n.coverageAddressLookupNotice,
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                ),
                           ),
                         ),
                         const SizedBox(height: 10),

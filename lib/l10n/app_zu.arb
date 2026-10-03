@@ -85,6 +85,8 @@
 
   "consentTitle": "Ubumfihlo bakho",
   "consentLocationBody": "Sisebenzisa indawo yefoni yakho kanye kuphela ukuhlola ukufinyeleleka kwe-5G ekhelini lakho. Ayigcinwa efonini yakho noma ngemva kokuhlolwa.",
+  "consentLocationMapService": "To turn your location into an address, your phone's map service (Google or Apple) looks it up.",
+  "coverageAddressLookupNotice": "Your phone's map service (Google or Apple) finds the address you type.",
   "consentRicaBody": "Umthetho waseNingizimu Afrika (i-RICA) udinga ukuthi siqinisekise ubunikazi bakho. Sizocubungula ubuso bakho nolwazi lwe-ID ukuze siqinisekise kuphela, ngokwe-POPIA.",
   "consentPolicyLink": "Funda inqubomgomo yethu yobumfihlo",
   "consentAgree": "Ngiyavuma",

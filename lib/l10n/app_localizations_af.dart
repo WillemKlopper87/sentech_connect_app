@@ -360,6 +360,14 @@ class AppLocalizationsAf extends AppLocalizations {
       'Ons gebruik jou foon se ligging een keer om 5G-dekking by jou adres te kontroleer. Dit word nie op jou foon gestoor of ná die kontrole behou nie.';
 
   @override
+  String get consentLocationMapService =>
+      'To turn your location into an address, your phone\'s map service (Google or Apple) looks it up.';
+
+  @override
+  String get coverageAddressLookupNotice =>
+      'Your phone\'s map service (Google or Apple) finds the address you type.';
+
+  @override
   String get consentRicaBody =>
       'Suid-Afrikaanse wetgewing (RICA) vereis dat ons jou identiteit verifieer. Ons verwerk jou gesig- en ID-inligting slegs vir verifikasie, ingevolge POPIA.';
 
