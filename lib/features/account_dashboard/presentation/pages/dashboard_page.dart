@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:sentech_connect_app/app/theme/app_colors.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:sentech_connect_app/features/account_dashboard/domain/entities/account_summary.dart';
@@ -376,7 +377,7 @@ class _PromoBanner extends StatelessWidget {
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           gradient: const LinearGradient(
-            colors: [Color(0xFF00335C), Color(0xFF00ACC6)],
+            colors: [AppColors.darkBlue, AppColors.gradientEnd],
           ),
           borderRadius: BorderRadius.circular(14),
         ),

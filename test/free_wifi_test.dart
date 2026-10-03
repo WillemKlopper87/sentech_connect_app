@@ -7,22 +7,47 @@ import 'package:sentech_connect_app/features/wifi_voucher/data/repositories/mock
 import 'package:sentech_connect_app/features/wifi_voucher/presentation/bloc/free_wifi_cubit.dart';
 import 'package:sentech_connect_app/features/wifi_voucher/presentation/pages/free_wifi_card.dart';
 
+import 'helpers/pump_themed.dart';
+
 void main() {
   MockFreeWifiRepository newRepo() => MockFreeWifiRepository(InMemorySecureStore(), clock: FakePlatformClock());
 
-  Widget buildCard() {
-    return MaterialApp(
-      home: Scaffold(
-        body: BlocProvider(
-          create: (_) => FreeWifiCubit(newRepo()),
+  // The real AppTheme: its full-width button minimumSize is what broke the
+  // card's button row, which Flutter's default theme never showed.
+  Future<void> pumpCard(WidgetTester tester, {MockFreeWifiRepository? repo}) => pumpThemed(
+        tester,
+        BlocProvider(
+          create: (_) => FreeWifiCubit(repo ?? newRepo()),
           child: FreeWifiCard(onFindHotspots: () {}),
         ),
-      ),
-    );
-  }
+      );
+
+  testWidgets('Watch ad and Hotspots render under the real theme', (tester) async {
+    await pumpCard(tester);
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isNull);
+    expect(find.widgetWithText(FilledButton, 'Watch ad'), findsOneWidget);
+    expect(find.widgetWithText(OutlinedButton, 'Hotspots'), findsOneWidget);
+    for (final label in ['Watch ad', 'Hotspots']) {
+      final size = tester.getSize(find.ancestor(of: find.text(label), matching: find.byWidgetPredicate((w) => w is ButtonStyleButton)));
+      expect(size.width, greaterThan(80), reason: label);
+      expect(size.height, greaterThanOrEqualTo(48), reason: label);
+    }
+  });
+
+  testWidgets('the active session button renders under the real theme', (tester) async {
+    final repo = newRepo();
+    await repo.recordAdWatchedAndGrantSession();
+    await pumpCard(tester, repo: repo);
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(tester.takeException(), isNull);
+    expect(find.widgetWithText(OutlinedButton, 'Find hotspots near me'), findsOneWidget);
+  });
 
   testWidgets('offers to watch an ad with 3 free views available initially', (tester) async {
-    await tester.pumpWidget(buildCard());
+    await pumpCard(tester);
     await tester.pumpAndSettle();
 
     expect(find.text('Free WiFi'), findsOneWidget);
@@ -31,7 +56,7 @@ void main() {
   });
 
   testWidgets('watching an ad grants a session and shows a live countdown', (tester) async {
-    await tester.pumpWidget(buildCard());
+    await pumpCard(tester);
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Watch ad'));
@@ -53,14 +78,7 @@ void main() {
     // simulated ad. The full cap is covered in free_wifi_repository_test.dart.
     await repo.recordAdWatchedAndGrantSession();
 
-    await tester.pumpWidget(MaterialApp(
-      home: Scaffold(
-        body: BlocProvider(
-          create: (_) => FreeWifiCubit(repo),
-          child: FreeWifiCard(onFindHotspots: () {}),
-        ),
-      ),
-    ));
+    await pumpCard(tester, repo: repo);
     await tester.pumpAndSettle();
 
     // A session is active, so the countdown shows; assert on cubit state.

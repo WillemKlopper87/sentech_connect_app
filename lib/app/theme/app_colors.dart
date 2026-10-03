@@ -15,6 +15,11 @@ abstract class AppColors {
   static const lightBlue = Color(0xFF00ACC6); // dark-mode primary accent
   static const red = Color(0xFFED1C24);
 
+  /// End stop of the navy-to-teal brand gradient behind white text: a deeper
+  /// teal than [lightBlue] (white on [lightBlue] is only 2.7:1), so white
+  /// body text on every part of the gradient is at least 4.5:1 (WCAG AA).
+  static const gradientEnd = Color(0xFF00788A);
+
   // Neutrals used only for chrome, not in the CI manual itself
   static const lightBg = Color(0xFFEEF2F6);
   static const lightSurface = Color(0xFFFFFFFF);
