@@ -54,6 +54,7 @@ import 'package:sentech_connect_app/features/support/domain/repositories/support
 import 'package:sentech_connect_app/features/tenant/data/repositories/http_tenant_repository.dart';
 import 'package:sentech_connect_app/features/tenant/data/repositories/mock_tenant_repository.dart';
 import 'package:sentech_connect_app/features/tenant/domain/repositories/tenant_repository.dart';
+import 'package:sentech_connect_app/features/voucher_scanner/data/repositories/http_voucher_repository.dart';
 import 'package:sentech_connect_app/features/voucher_scanner/data/repositories/mock_voucher_repository.dart';
 import 'package:sentech_connect_app/features/voucher_scanner/domain/repositories/voucher_repository.dart';
 import 'package:sentech_connect_app/features/wifi_voucher/data/repositories/mock_free_wifi_repository.dart';
@@ -71,7 +72,6 @@ const stillMockInProd = <Type>[
   CoverageRepository,
   FreeWifiRepository,
   WifiHotspotsRepository,
-  VoucherRepository,
   AccountRepository,
   PromotionsRepository,
   SupportRepository,
@@ -158,9 +158,6 @@ void _registerStillMockRepositories() {
   locator.registerLazySingleton<PromotionsRepository>(
     () => MockPromotionsRepository(),
   );
-  locator.registerLazySingleton<VoucherRepository>(
-    () => MockVoucherRepository(locator(), network: locator()),
-  );
   locator.registerLazySingleton<FreeWifiRepository>(
     () => MockFreeWifiRepository(locator(), clock: locator()),
   );
@@ -191,6 +188,9 @@ void _registerDemoRepositories() {
   );
   locator.registerLazySingleton<RegistrationRepository>(
     () => LocalRegistrationRepository(locator()),
+  );
+  locator.registerLazySingleton<VoucherRepository>(
+    () => MockVoucherRepository(locator(), network: locator()),
   );
 }
 
@@ -228,6 +228,9 @@ void _registerProdRepositories(Uri baseUrl) {
   );
   locator.registerLazySingleton<CheckoutRepository>(
     () => HttpCheckoutRepository(locator()),
+  );
+  locator.registerLazySingleton<VoucherRepository>(
+    () => HttpVoucherRepository(locator()),
   );
   // The dev simulate endpoint only exists on dev/test APIs; the app offers it
   // only in debug builds talking to a local host (ruling R-M4-13).

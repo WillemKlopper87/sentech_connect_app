@@ -17,6 +17,8 @@ class VoucherState extends Equatable {
     this.failure,
     this.maskedCode,
     this.dataMb,
+    this.productName,
+    this.inputProblem,
   });
 
   final VoucherStatus status;
@@ -30,15 +32,24 @@ class VoucherState extends Equatable {
   /// payload is never kept, let alone shown).
   final String? maskedCode;
   final int? dataMb;
+  final String? productName;
+
+  /// Set when the input was refused on the device (no request was sent),
+  /// so the result can say what to fix.
+  final VoucherCodeProblem? inputProblem;
 
   @override
-  List<Object?> get props => [status, outcome, failure, maskedCode, dataMb];
+  List<Object?> get props => [status, outcome, failure, maskedCode, dataMb, productName, inputProblem];
 }
 
 class VoucherCubit extends Cubit<VoucherState> {
-  VoucherCubit(this._repository) : super(const VoucherState());
+  VoucherCubit(this._repository, {this.allowDemoCodes = false}) : super(const VoucherState());
 
   final VoucherRepository _repository;
+
+  /// Demo flavor only: also accept the mock's `SEN-XXXX-XXXX` codes. Prod
+  /// accepts exactly what the server accepts.
+  final bool allowDemoCodes;
   VoucherCode? _lastCode; // kept so "try again" after a network error needs no re-scan
 
   /// Entry point for both the camera and manual entry. Ignored unless
@@ -46,9 +57,14 @@ class VoucherCubit extends Cubit<VoucherState> {
   /// no-ops.
   Future<void> submit(String? raw) async {
     if (state.status != VoucherStatus.scanning) return;
-    final code = VoucherCode.tryParse(raw);
+    final code = VoucherCode.tryParse(raw, allowDemo: allowDemoCodes);
     if (code == null) {
-      emit(const VoucherState(status: VoucherStatus.result, outcome: VoucherOutcome.invalid));
+      // The server would refuse it: no request, and say what to fix.
+      emit(VoucherState(
+        status: VoucherStatus.result,
+        outcome: VoucherOutcome.invalid,
+        inputProblem: VoucherCode.problemWith(raw, allowDemo: allowDemoCodes),
+      ));
       return;
     }
     _lastCode = code;
@@ -73,6 +89,7 @@ class VoucherCubit extends Cubit<VoucherState> {
         outcome: r.outcome,
         maskedCode: code.masked,
         dataMb: r.dataMb,
+        productName: r.productName,
       )),
     );
   }

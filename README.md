@@ -15,7 +15,7 @@ The app has two flavors (`--dart-define=APP_FLAVOR=demo|prod`):
 - **`demo`** (default in debug/profile): every repository is a mock; works fully offline. All tests run in this flavor.
 - **`prod`**: tenants, sign-in (SMS one-time code), catalogue (hotspot passes), orders, payment hand-off, "My passes", profile, consents, data export and account deletion use the Sentech Connect platform API. It **requires** `--dart-define=API_BASE_URL=https://...` (an origin only; https, except cleartext to local dev hosts in debug builds). **Release builds must set `APP_FLAVOR` explicitly** (`demo` or `prod`); a release build without it stops at startup.
 
-Still mock in **both** flavors because the platform has no API for them yet (listed in `stillMockInProd`, `lib/app/locator.dart`): coverage, free Wi-Fi, hotspot map, voucher redemption, account usage/router summary, promotions, support and RICA liveness. In a prod build the mock-backed Scan, Support and free Wi-Fi entry points and the router/usage card are hidden (shown in demo only), so customers never see fabricated account data.
+Still mock in **both** flavors because the platform has no API for them yet (listed in `stillMockInProd`, `lib/app/locator.dart`): coverage, free Wi-Fi, hotspot map, account usage/router summary, promotions, support and RICA liveness. Voucher redemption is real in prod (`HttpVoucherRepository`, `POST /v1/me/vouchers/redeem`), so the Scan tab shows in both flavors. In a prod build the mock-backed Support and free Wi-Fi entry points and the router/usage card are hidden (shown in demo only), so customers never see fabricated account data.
 
 ## Quick start
 
@@ -94,7 +94,7 @@ Nothing below contains a real secret; each item needs an input from the owner be
 | **iOS** | `ios/` generated with `--org za.co.sentech` (bundle id `za.co.sentech.sentechConnectApp`); Info.plist has camera, location-when-in-use and Face ID descriptions. Not built or signed. `permission_handler` needs the `PERMISSION_NOTIFICATIONS=1` macro in the Podfile once it exists. | Apple team id, final bundle id, signing, APNs key |
 | **Privacy policy** | `privacyPolicyUrl` placeholder in `lib/core/privacy/privacy_constants.dart` | Published policy URL |
 | **Platform API** | `--dart-define=APP_FLAVOR=prod --dart-define=API_BASE_URL=https://…`; tenants, OTP sign-in, passes, orders, payments, entitlements, profile/consents/export/delete. | Production API hostname (then certificate pinning with a backup pin), SMS provider, Netcash merchant account per tenant |
-| **Still mock** | Coverage, free Wi-Fi, hotspots, vouchers, usage/router, promotions, support, RICA liveness (`stillMockInProd`). | Backend APIs for each |
+| **Still mock** | Coverage, free Wi-Fi, hotspots, usage/router, promotions, support, RICA liveness (`stillMockInProd`). | Backend APIs for each |
 
 ### Localisation
 

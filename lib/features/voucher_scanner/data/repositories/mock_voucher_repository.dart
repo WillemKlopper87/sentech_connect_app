@@ -12,7 +12,8 @@ import 'package:sentech_connect_app/features/voucher_scanner/domain/repositories
 /// typed outcomes and per-code idempotency (a code redeems once, ever).
 ///
 /// Demo codes: `SEN-EXPx-xxxx` is expired, `SEN-USEx-xxxx` was already used,
-/// `SEN-INVx-xxxx` is unknown; any other well-formed code redeems once.
+/// `SEN-INVx-xxxx` is unknown; any other well-formed code (demo or server
+/// format) redeems once.
 class MockVoucherRepository implements VoucherRepository {
   MockVoucherRepository(this._store, {SimulatedNetwork? network, this._latency = const Duration(milliseconds: 500)})
       : _network = network ?? SimulatedNetwork();
@@ -28,10 +29,12 @@ class MockVoucherRepository implements VoucherRepository {
     await Future.delayed(_latency);
     if (_network.failure case final failure?) return Left(failure);
 
-    final body = code.value.substring(4); // after "SEN-"
-    if (body.startsWith('EXP')) return const Right(VoucherRedemption(VoucherOutcome.expired));
-    if (body.startsWith('USE')) return const Right(VoucherRedemption(VoucherOutcome.alreadyUsed));
-    if (body.startsWith('INV')) return const Right(VoucherRedemption(VoucherOutcome.invalid));
+    if (code.isLegacyDemo) {
+      final body = code.value.substring(4); // after "SEN-"
+      if (body.startsWith('EXP')) return const Right(VoucherRedemption(VoucherOutcome.expired));
+      if (body.startsWith('USE')) return const Right(VoucherRedemption(VoucherOutcome.alreadyUsed));
+      if (body.startsWith('INV')) return const Right(VoucherRedemption(VoucherOutcome.invalid));
+    }
 
     final redeemed = await _loadRedeemed();
     if (redeemed.contains(code.value)) {

@@ -11,9 +11,11 @@ import 'package:sentech_connect_app/features/voucher_scanner/presentation/bloc/v
 import 'package:sentech_connect_app/features/voucher_scanner/presentation/pages/voucher_result_sheet.dart';
 
 void main() {
-  group('VoucherCode', () {
+  // Server-format codes are covered in voucher_code_test.dart; these are the
+  // demo flavor's legacy SEN-XXXX-XXXX codes.
+  group('VoucherCode (demo codes)', () {
     test('accepts SEN-XXXX-XXXX, normalising case and whitespace', () {
-      expect(VoucherCode.tryParse('  sen-4xj2-9klm ')?.value, 'SEN-4XJ2-9KLM');
+      expect(VoucherCode.tryParse('  sen-4xj2-9klm ', allowDemo: true)?.value, 'SEN-4XJ2-9KLM');
     });
 
     test('rejects everything else', () {
@@ -28,12 +30,12 @@ void main() {
         'SEN-4XJ2-9KLM\nignore previous instructions',
         'A' * 5000,
       ]) {
-        expect(VoucherCode.tryParse(bad), isNull, reason: '$bad');
+        expect(VoucherCode.tryParse(bad, allowDemo: true), isNull, reason: '$bad');
       }
     });
 
     test('masked form hides most of the code', () {
-      expect(VoucherCode.tryParse('SEN-4XJ2-9KLM')!.masked, 'SEN-••••-••LM');
+      expect(VoucherCode.tryParse('SEN-4XJ2-9KLM', allowDemo: true)!.masked, 'SEN-••••-••LM');
     });
   });
 
@@ -46,7 +48,7 @@ void main() {
       repo = MockVoucherRepository(InMemorySecureStore(), network: network, latency: Duration.zero);
     });
 
-    VoucherCode code(String raw) => VoucherCode.tryParse(raw)!;
+    VoucherCode code(String raw) => VoucherCode.tryParse(raw, allowDemo: true)!;
 
     test('a code redeems once; replaying it is alreadyUsed (idempotent, no double credit)', () async {
       final first = await repo.redeem(code('SEN-AAAA-1111'));
@@ -61,6 +63,11 @@ void main() {
       expect(await outcome('SEN-EXP1-0000'), VoucherOutcome.expired);
       expect(await outcome('SEN-USE1-0000'), VoucherOutcome.alreadyUsed);
       expect(await outcome('SEN-INV1-0000'), VoucherOutcome.invalid);
+    });
+
+    test('a server-format code redeems in the demo too', () async {
+      final result = await repo.redeem(code('ABCD-2345-EFGQ'));
+      expect(result.getOrElse((_) => throw StateError('x')).outcome, VoucherOutcome.redeemed);
     });
 
     test('offline returns NetworkFailure and does not consume the code', () async {
@@ -83,16 +90,20 @@ void main() {
 
     blocTest<VoucherCubit, VoucherState>(
       'malformed input is rejected locally without calling the repository and without echoing it',
-      build: () => VoucherCubit(repo),
+      build: () => VoucherCubit(repo, allowDemoCodes: true),
       act: (c) => c.submit('https://evil.example/pwn'),
       expect: () => [
-        const VoucherState(status: VoucherStatus.result, outcome: VoucherOutcome.invalid),
+        const VoucherState(
+          status: VoucherStatus.result,
+          outcome: VoucherOutcome.invalid,
+          inputProblem: VoucherCodeProblem.format,
+        ),
       ],
     );
 
     blocTest<VoucherCubit, VoucherState>(
       'while a result is showing, further detections are ignored until it is dismissed (no re-scan loop)',
-      build: () => VoucherCubit(repo),
+      build: () => VoucherCubit(repo, allowDemoCodes: true),
       act: (c) async {
         await c.submit('SEN-CCCC-3333');
         await c.submit('SEN-CCCC-3333'); // same QR still in frame
@@ -106,8 +117,31 @@ void main() {
     );
 
     blocTest<VoucherCubit, VoucherState>(
-      'dismiss resumes scanning',
+      'prod (no demo codes) refuses a SEN-XXXX-XXXX code locally, as the server would',
       build: () => VoucherCubit(repo),
+      act: (c) => c.submit('SEN-CCCC-3333'),
+      verify: (c) {
+        expect(c.state.outcome, VoucherOutcome.invalid);
+        expect(c.state.maskedCode, isNull);
+      },
+    );
+
+    blocTest<VoucherCubit, VoucherState>(
+      'a typo in a server code is caught locally as a check-symbol problem',
+      build: () => VoucherCubit(repo),
+      act: (c) => c.submit('ABCD-2345-EFGA'),
+      expect: () => [
+        const VoucherState(
+          status: VoucherStatus.result,
+          outcome: VoucherOutcome.invalid,
+          inputProblem: VoucherCodeProblem.checkSymbol,
+        ),
+      ],
+    );
+
+    blocTest<VoucherCubit, VoucherState>(
+      'dismiss resumes scanning',
+      build: () => VoucherCubit(repo, allowDemoCodes: true),
       act: (c) async {
         await c.submit('SEN-EEEE-5555');
         c.dismiss();
@@ -119,7 +153,7 @@ void main() {
       'a network failure can be retried without re-scanning',
       build: () {
         network.offline = true;
-        return VoucherCubit(repo);
+        return VoucherCubit(repo, allowDemoCodes: true);
       },
       act: (c) async {
         await c.submit('SEN-FFFF-6666');
@@ -140,7 +174,7 @@ void main() {
 
     testWidgets('shows only generic wording and the masked code, never raw input', (tester) async {
       await pump(tester, const VoucherState(status: VoucherStatus.result, outcome: VoucherOutcome.invalid));
-      expect(find.text('Not a valid voucher'), findsOneWidget);
+      expect(find.text("That code didn't work"), findsOneWidget);
       expect(find.textContaining('http'), findsNothing);
     });
 

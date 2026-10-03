@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:sentech_connect_app/app/locator.dart';
+import 'package:sentech_connect_app/core/config/app_environment.dart';
+import 'package:sentech_connect_app/features/voucher_scanner/presentation/voucher_code_formatter.dart';
+import 'package:sentech_connect_app/features/voucher_scanner/domain/entities/voucher_redemption.dart';
 import 'package:sentech_connect_app/features/voucher_scanner/presentation/bloc/voucher_cubit.dart';
 import 'package:sentech_connect_app/l10n/l10n.dart';
 import 'package:sentech_connect_app/features/voucher_scanner/presentation/pages/voucher_result_sheet.dart';
@@ -26,7 +30,13 @@ class VoucherScannerPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(create: (_) => VoucherCubit(locator()), child: const _VoucherScannerView());
+    // Only the demo flavor's mock understands the old SEN-XXXX-XXXX codes;
+    // prod accepts exactly what the server accepts.
+    final isDemo = !locator.isRegistered<AppEnvironment>() || locator<AppEnvironment>().isDemo;
+    return BlocProvider(
+      create: (_) => VoucherCubit(locator(), allowDemoCodes: isDemo),
+      child: const _VoucherScannerView(),
+    );
   }
 }
 
@@ -40,6 +50,12 @@ class _VoucherScannerView extends StatefulWidget {
 class _VoucherScannerViewState extends State<_VoucherScannerView> with WidgetsBindingObserver {
   final MobileScannerController _controller = MobileScannerController(detectionSpeed: DetectionSpeed.noDuplicates);
   bool _wasTabActive = false;
+
+  /// What the customer last typed, kept on this screen only (never logged,
+  /// never stored) so a refused code can be shown back and fixed. Null when
+  /// the last submission came from the camera: a scanned payload is never
+  /// echoed, so a hostile QR cannot put text in front of the customer.
+  String? _typed;
 
   /// Scanning is paused from the moment a code is submitted until its
   /// result sheet is dismissed (see [VoucherCubit]).
@@ -56,7 +72,7 @@ class _VoucherScannerViewState extends State<_VoucherScannerView> with WidgetsBi
     super.didChangeDependencies();
     final isTabActive = TickerMode.valuesOf(context).enabled;
     if (isTabActive && !_wasTabActive) {
-      if (_scanning) _controller.start();
+      if (_scanning) _startCamera();
     } else if (!isTabActive && _wasTabActive) {
       _controller.stop();
     }
@@ -68,12 +84,24 @@ class _VoucherScannerViewState extends State<_VoucherScannerView> with WidgetsBi
     if (!_wasTabActive) return; // don't fight the tab-visibility logic above
     switch (state) {
       case AppLifecycleState.resumed:
-        if (_scanning) _controller.start();
+        if (_scanning) _startCamera();
       case AppLifecycleState.inactive:
       case AppLifecycleState.paused:
       case AppLifecycleState.detached:
       case AppLifecycleState.hidden:
         _controller.stop();
+    }
+  }
+
+  /// Starting while a start is still in progress throws
+  /// `controllerInitializing`; the camera is already on its way up then, so
+  /// that is not an error. Other camera errors reach the errorBuilder.
+  Future<void> _startCamera() async {
+    if (_controller.value.isStarting) return;
+    try {
+      await _controller.start();
+    } on MobileScannerException catch (e) {
+      if (e.errorCode != MobileScannerErrorCode.controllerInitializing) rethrow;
     }
   }
 
@@ -87,7 +115,9 @@ class _VoucherScannerViewState extends State<_VoucherScannerView> with WidgetsBi
   void _onDetect(BarcodeCapture capture) {
     // The cubit ignores submissions unless it is in the scanning state, so a
     // QR that stays in frame cannot be re-submitted while a result is open.
-    context.read<VoucherCubit>().submit(capture.barcodes.firstOrNull?.rawValue);
+    final cubit = context.read<VoucherCubit>();
+    if (cubit.state.status == VoucherStatus.scanning) _typed = null;
+    cubit.submit(capture.barcodes.firstOrNull?.rawValue);
   }
 
   Future<void> _onVoucherState(BuildContext context, VoucherState state) async {
@@ -95,48 +125,45 @@ class _VoucherScannerViewState extends State<_VoucherScannerView> with WidgetsBi
     if (state.status == VoucherStatus.redeeming) {
       await _controller.stop();
     } else if (state.status == VoucherStatus.result) {
-      await showModalBottomSheet<void>(
+      final typed = _typed;
+      final editAgain = await showModalBottomSheet<bool>(
         context: context,
         isDismissible: state.failure == null,
         isScrollControlled: true,
         builder: (sheetContext) => VoucherResultSheet(
           state: state,
+          enteredCode: state.outcome == VoucherOutcome.redeemed ? null : typed,
           onRetry: () {
             Navigator.pop(sheetContext);
             cubit.retry();
           },
+          onTryAgain: () => Navigator.pop(sheetContext, true),
         ),
       );
       // Sheet closed. If "Try again" started a new redemption the cubit is
       // already past the result state; otherwise resume scanning.
       if (cubit.state.status == VoucherStatus.result) {
         cubit.dismiss();
-        if (mounted && _wasTabActive) await _controller.start();
+        _typed = null;
+        if (!mounted) return;
+        if (_wasTabActive) await _startCamera();
+        if (editAgain == true && typed != null && mounted) {
+          // Reopen the field with the code still in it, ready to fix.
+          await _enterCodeManually(initial: typed);
+        }
       }
     } else if (mounted && _wasTabActive) {
-      await _controller.start();
+      await _startCamera();
     }
   }
 
-  Future<void> _enterCodeManually() async {
-    final controller = TextEditingController();
+  Future<void> _enterCodeManually({String initial = ''}) async {
     final code = await showDialog<String>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Enter voucher code'),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          textCapitalization: TextCapitalization.characters,
-          decoration: const InputDecoration(hintText: 'e.g. SEN-4XJ2-9KLM'),
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
-          FilledButton(onPressed: () => Navigator.pop(context, controller.text.trim()), child: const Text('Redeem')),
-        ],
-      ),
+      builder: (context) => _ManualEntryDialog(initial: initial),
     );
-    if (code == null || code.isEmpty || !mounted) return;
+    if (code == null || code.trim().isEmpty || !mounted) return;
+    _typed = code.trim();
     context.read<VoucherCubit>().submit(code);
   }
 
@@ -196,11 +223,73 @@ class _VoucherScannerViewState extends State<_VoucherScannerView> with WidgetsBi
                 style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
               ),
               const Spacer(),
-              OutlinedButton(onPressed: _enterCodeManually, child: const Text('Enter code manually instead')),
+              OutlinedButton(onPressed: _enterCodeManually, child: const Text('Type the code instead')),
             ],
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Manual entry: formats as the customer types, pastes, and submits on the
+/// keyboard's Done key as well as the Redeem button.
+class _ManualEntryDialog extends StatefulWidget {
+  const _ManualEntryDialog({required this.initial});
+
+  final String initial;
+
+  @override
+  State<_ManualEntryDialog> createState() => _ManualEntryDialogState();
+}
+
+class _ManualEntryDialogState extends State<_ManualEntryDialog> {
+  late final _controller = TextEditingController(text: widget.initial);
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _submit() => Navigator.pop(context, _controller.text);
+
+  Future<void> _paste() async {
+    final text = (await Clipboard.getData(Clipboard.kTextPlain))?.text;
+    if (text == null || !mounted) return;
+    _controller.value = const VoucherCodeFormatter().formatEditUpdate(
+      _controller.value,
+      TextEditingValue(text: text.trim(), selection: TextSelection.collapsed(offset: text.trim().length)),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Enter voucher code'),
+      content: TextField(
+        controller: _controller,
+        autofocus: true,
+        autocorrect: false,
+        enableSuggestions: false,
+        textCapitalization: TextCapitalization.characters,
+        textInputAction: TextInputAction.done,
+        inputFormatters: const [VoucherCodeFormatter()],
+        onSubmitted: (_) => _submit(),
+        decoration: InputDecoration(
+          hintText: 'e.g. ABCD-2345-EFGH',
+          helperText: '12 letters and numbers, on your voucher card',
+          suffixIcon: IconButton(
+            tooltip: 'Paste',
+            icon: const Icon(Icons.content_paste),
+            onPressed: _paste,
+          ),
+        ),
+      ),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+        FilledButton(onPressed: _submit, child: const Text('Redeem')),
+      ],
     );
   }
 }

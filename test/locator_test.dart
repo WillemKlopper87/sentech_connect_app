@@ -14,6 +14,9 @@ import 'package:sentech_connect_app/features/auth/domain/repositories/auth_repos
 import 'package:sentech_connect_app/features/tenant/data/repositories/http_tenant_repository.dart';
 import 'package:sentech_connect_app/features/tenant/data/repositories/mock_tenant_repository.dart';
 import 'package:sentech_connect_app/features/tenant/domain/repositories/tenant_repository.dart';
+import 'package:sentech_connect_app/features/voucher_scanner/data/repositories/http_voucher_repository.dart';
+import 'package:sentech_connect_app/features/voucher_scanner/data/repositories/mock_voucher_repository.dart';
+import 'package:sentech_connect_app/features/voucher_scanner/domain/repositories/voucher_repository.dart';
 
 import 'helpers/test_setup.dart';
 
@@ -65,6 +68,13 @@ void main() {
     expect(locator<AuthRepository>(), isA<HttpAuthRepository>());
     expect(locator<CatalogRepository>(), isA<HttpCatalogRepository>());
     expect(locator<CheckoutRepository>(), isA<HttpCheckoutRepository>());
+    expect(locator<VoucherRepository>(), isA<HttpVoucherRepository>());
+  });
+
+  test('demo keeps the mock voucher service', () {
+    setupLocator();
+    registerTestFakes();
+    expect(locator<VoucherRepository>(), isA<MockVoucherRepository>());
   });
 
   test('repositories without a backend stay mock in prod (and are listed)', () {

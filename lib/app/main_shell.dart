@@ -42,8 +42,10 @@ class MainShell extends StatefulWidget {
   /// The tenant's `cpe` flag: router and fixed-plan content is hidden when off.
   final bool showRouterCard;
 
-  /// Scan (voucher redemption), Support tickets and free Wi-Fi are backed by
+  /// Support tickets and free Wi-Fi (and the hotspot finder) are backed by
   /// mock repositories until real APIs exist: shown in demo only, never prod.
+  /// Scan (voucher redemption) is real (`POST /v1/me/vouchers/redeem`) and
+  /// shows in both flavors.
   final bool showMockFeatures;
   final VoidCallback? onChangeProvider;
   final String? providerName;
@@ -123,7 +125,7 @@ class _MainShellState extends State<MainShell> {
               widget.showMockFeatures ? widget.onFindHotspots : null,
         ),
       ),
-      if (widget.showMockFeatures) const VoucherScannerPage(),
+      const VoucherScannerPage(),
       if (widget.showMockFeatures)
         BlocProvider(
           create: (_) => SupportCubit(locator()),
@@ -162,12 +164,12 @@ class _MainShellState extends State<MainShell> {
             selectedIcon: Icon(Icons.shopping_bag),
             label: 'Shop',
           ),
+          NavigationDestination(
+            icon: Icon(Icons.qr_code_scanner_outlined),
+            selectedIcon: Icon(Icons.qr_code_scanner),
+            label: 'Scan',
+          ),
           if (widget.showMockFeatures) ...const [
-            NavigationDestination(
-              icon: Icon(Icons.qr_code_scanner_outlined),
-              selectedIcon: Icon(Icons.qr_code_scanner),
-              label: 'Scan',
-            ),
             NavigationDestination(
               icon: Icon(Icons.support_agent_outlined),
               selectedIcon: Icon(Icons.support_agent),
