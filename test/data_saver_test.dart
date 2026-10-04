@@ -7,6 +7,12 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+// Existing transitive test interface lets this test exercise the real cache.
+// ignore: depend_on_referenced_packages
+import 'package:shared_preferences_platform_interface/shared_preferences_platform_interface.dart';
+// ignore: depend_on_referenced_packages
+import 'package:shared_preferences_platform_interface/types.dart'
+    show GetAllParameters;
 import 'package:sentech_connect_app/core/error/failure.dart';
 import 'package:sentech_connect_app/core/local/app_preferences.dart';
 import 'package:sentech_connect_app/core/local/data_saver.dart';
@@ -60,6 +66,27 @@ class _LoadedHotspotsCubit extends WifiHotspotsCubit {
   }
 }
 
+class _FailingPreferenceStore extends InMemorySharedPreferencesStore {
+  _FailingPreferenceStore.withData(super.data) : super.withData();
+
+  bool failReload = false;
+  bool throwOnWrite = false;
+
+  @override
+  Future<bool> setValue(String valueType, String key, Object value) async {
+    if (throwOnWrite) throw StateError('platform rejected write');
+    return false;
+  }
+
+  @override
+  Future<Map<String, Object>> getAllWithParameters(
+    GetAllParameters parameters,
+  ) {
+    if (failReload) throw StateError('storage unreadable');
+    return super.getAllWithParameters(parameters);
+  }
+}
+
 void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({});
@@ -82,6 +109,53 @@ void main() {
     await second.load();
     expect(second.state, isTrue);
     await second.close();
+  });
+
+  test(
+    'rejected platform write does not poison the cached saver or seen setting',
+    () async {
+      final store = _FailingPreferenceStore.withData({
+        'flutter.pref_data_saver': false,
+        'flutter.pref_boot_video_seen': false,
+      });
+      SharedPreferencesStorePlatform.instance = store;
+      SharedPreferences.resetStatic();
+      await expectLater(AppPreferences.saveDataSaver(true), throwsStateError);
+      expect(await AppPreferences.loadDataSaver(), isFalse);
+      await expectLater(AppPreferences.markBootVideoSeen(), throwsStateError);
+      expect(await AppPreferences.loadBootVideoSeen(), isFalse);
+    },
+  );
+
+  test(
+    'unreadable refresh after rejected write keeps media conservative',
+    () async {
+      final store = _FailingPreferenceStore.withData({
+        'flutter.pref_data_saver': false,
+        'flutter.pref_boot_video_seen': false,
+      });
+      SharedPreferencesStorePlatform.instance = store;
+      SharedPreferences.resetStatic();
+      await SharedPreferences.getInstance();
+      store.failReload = true;
+      await expectLater(AppPreferences.saveDataSaver(true), throwsStateError);
+      expect(await AppPreferences.loadDataSaver(), isTrue);
+      await expectLater(AppPreferences.markBootVideoSeen(), throwsStateError);
+      expect(await AppPreferences.loadBootVideoSeen(), isTrue);
+      store.failReload = false;
+      expect(await AppPreferences.loadDataSaver(), isFalse);
+      expect(await AppPreferences.loadBootVideoSeen(), isFalse);
+    },
+  );
+
+  test('thrown platform write also reloads the mutated legacy cache', () async {
+    final store = _FailingPreferenceStore.withData({
+      'flutter.pref_data_saver': false,
+    })..throwOnWrite = true;
+    SharedPreferencesStorePlatform.instance = store;
+    SharedPreferences.resetStatic();
+    await expectLater(AppPreferences.saveDataSaver(true), throwsStateError);
+    expect(await AppPreferences.loadDataSaver(), isFalse);
   });
 
   test('failed save leaves the visible state at its saved value', () async {
@@ -114,6 +188,27 @@ void main() {
       third.complete();
       await pending;
       expect(closing.state, isFalse);
+      await saver.close();
+    },
+  );
+
+  test(
+    'newer failure reconciles to an older queued successful write',
+    () async {
+      final first = Completer<void>();
+      final second = Completer<void>();
+      var writes = 0;
+      final saver = DataSaverCubit(
+        initial: true,
+        save: (_) => ++writes == 1 ? first.future : second.future,
+      );
+      final older = saver.set(false);
+      final newer = saver.set(true);
+      first.complete();
+      await older;
+      second.completeError(StateError('later failed'));
+      await expectLater(newer, throwsStateError);
+      expect(saver.state, isFalse);
       await saver.close();
     },
   );
