@@ -1468,4 +1468,24 @@ class AppLocalizationsAf extends AppLocalizations {
   String passReadyOrderDetail(String price, String orderNumber) {
     return '$price incl. VAT · Order #$orderNumber';
   }
+
+  @override
+  String get commonCheckCode => 'Check the code';
+
+  @override
+  String get scanVoucherCodeHelper =>
+      'Enter the code printed on your voucher card.';
+
+  @override
+  String get voucherUncappedData => 'Uncapped data';
+
+  @override
+  String voucherDataMb(int amount) {
+    return '$amount MB';
+  }
+
+  @override
+  String voucherPassDetail(String data, int minutes, int devices) {
+    return '$data · $minutes min · Devices: $devices';
+  }
 }

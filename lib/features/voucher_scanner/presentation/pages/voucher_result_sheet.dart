@@ -4,6 +4,7 @@ import 'package:sentech_connect_app/core/error/failure.dart';
 import 'package:sentech_connect_app/features/voucher_scanner/domain/entities/voucher_code.dart';
 import 'package:sentech_connect_app/features/voucher_scanner/domain/entities/voucher_redemption.dart';
 import 'package:sentech_connect_app/features/voucher_scanner/presentation/bloc/voucher_cubit.dart';
+import 'package:sentech_connect_app/features/catalog_checkout/presentation/widgets/pass_ready_view.dart';
 
 /// Result of a redemption attempt. Shows fixed wording plus the masked code;
 /// a scanned payload is never shown, so a hostile QR code cannot put
@@ -52,16 +53,12 @@ class VoucherResultSheet extends StatelessWidget {
     return switch (state.outcome) {
       VoucherOutcome.redeemed => (
         icon: Icons.check_circle,
-        title: state.productName == null
+        title: (state.productName ?? state.pass?.productName) == null
             ? context.l10n.voucherVoucherRedeemed
-            : context.l10n.voucherProductReady(state.productName!),
-        body: state.dataMb == null
-            ? (state.productName == null
-                  ? context.l10n.voucherDataHasBeenAddedToYour
-                  : context.l10n.voucherYourPassIsOnYourAccount)
-            : context.l10n.voucherDataAdded(
-                (state.dataMb! / 1024).toStringAsFixed(0),
+            : context.l10n.voucherProductReady(
+                (state.productName ?? state.pass?.productName)!,
               ),
+        body: context.l10n.voucherYourPassIsOnYourAccount,
       ),
       VoucherOutcome.alreadyUsed => (
         icon: Icons.block,
@@ -109,7 +106,29 @@ class VoucherResultSheet extends StatelessWidget {
     final theme = Theme.of(context);
     final content = _content(context);
     final success = state.outcome == VoucherOutcome.redeemed;
-    final color = success ? const Color(0xFF6F9126) : theme.colorScheme.error;
+    if (success) {
+      final pass = state.pass;
+      final data = pass == null ? state.dataMb : pass.dataMb;
+      final detail = pass != null
+          ? context.l10n.voucherPassDetail(
+              data == null
+                  ? context.l10n.voucherUncappedData
+                  : context.l10n.voucherDataMb(data),
+              pass.durationMinutes,
+              pass.maxDevices,
+            )
+          : data == null
+          ? context.l10n.voucherYourPassIsOnYourAccount
+          : context.l10n.voucherDataMb(data);
+      return PassReadyView(
+        title: content.title,
+        detail: [
+          detail,
+          if (state.maskedCode != null) state.maskedCode!,
+        ].join('\n'),
+        onDone: () => Navigator.pop(context),
+      );
+    }
     return SafeArea(
       child: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(24, 20, 24, 20),
@@ -117,7 +136,7 @@ class VoucherResultSheet extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Icon(content.icon, size: 40, color: color),
+            Icon(content.icon, size: 40, color: theme.colorScheme.error),
             const SizedBox(height: 12),
             Text(
               content.title,
@@ -128,7 +147,7 @@ class VoucherResultSheet extends StatelessWidget {
             Text(
               content.body,
               textAlign: TextAlign.center,
-              style: theme.textTheme.bodyMedium,
+              style: theme.textTheme.bodyLarge,
             ),
             if ((enteredCode ?? state.maskedCode) != null) ...[
               const SizedBox(height: 10),
@@ -136,6 +155,7 @@ class VoucherResultSheet extends StatelessWidget {
                 enteredCode ?? state.maskedCode!,
                 textAlign: TextAlign.center,
                 style: theme.textTheme.bodyMedium?.copyWith(
+                  fontSize: 15,
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
               ),
@@ -143,26 +163,41 @@ class VoucherResultSheet extends StatelessWidget {
             const SizedBox(height: 18),
             if (state.failure != null) ...[
               ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  textStyle: const TextStyle(fontSize: 15),
+                ),
                 onPressed: onRetry,
                 child: Text(context.l10n.commonTryAgain),
               ),
               const SizedBox(height: 8),
               TextButton(
+                style: TextButton.styleFrom(
+                  textStyle: const TextStyle(fontSize: 15),
+                ),
                 onPressed: () => Navigator.pop(context),
                 child: Text(context.l10n.commonCancel),
               ),
-            ] else if (!success && onTryAgain != null) ...[
+            ] else if (onTryAgain != null) ...[
               ElevatedButton(
                 onPressed: onTryAgain,
-                child: Text(context.l10n.commonTryAgain),
+                style: ElevatedButton.styleFrom(
+                  textStyle: const TextStyle(fontSize: 15),
+                ),
+                child: Text(context.l10n.commonCheckCode),
               ),
               const SizedBox(height: 8),
               TextButton(
+                style: TextButton.styleFrom(
+                  textStyle: const TextStyle(fontSize: 15),
+                ),
                 onPressed: () => Navigator.pop(context),
                 child: Text(context.l10n.commonDone),
               ),
             ] else
               ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  textStyle: const TextStyle(fontSize: 15),
+                ),
                 onPressed: () => Navigator.pop(context),
                 child: Text(context.l10n.commonDone),
               ),

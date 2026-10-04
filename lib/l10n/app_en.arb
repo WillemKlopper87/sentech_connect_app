@@ -1909,5 +1909,41 @@
         "example": "SEN-48213"
       }
     }
+  },
+  "commonCheckCode": "Check the code",
+  "scanVoucherCodeHelper": "Enter the code printed on your voucher card.",
+  "voucherUncappedData": "Uncapped data",
+  "voucherDataMb": "{amount} MB",
+  "@voucherDataMb": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    },
+    "description": "Actual voucher pass data allowance in megabytes; do not round it."
+  },
+  "voucherPassDetail": "{data} · {minutes} min · Devices: {devices}",
+  "@voucherPassDetail": {
+    "placeholders": {
+      "data": {
+        "type": "String"
+      },
+      "minutes": {
+        "type": "int"
+      },
+      "devices": {
+        "type": "int"
+      }
+    },
+    "description": "Actual voucher pass allowance, duration in minutes and maximum device count."
+  },
+  "@commonCheckCode": {
+    "description": "Action to reopen voucher entry and correct the code during this flow."
+  },
+  "@scanVoucherCodeHelper": {
+    "description": "Manual voucher entry helper; display prefixes and demo formats also exist."
+  },
+  "@voucherUncappedData": {
+    "description": "Data allowance of an actual pass without a data cap."
   }
 }

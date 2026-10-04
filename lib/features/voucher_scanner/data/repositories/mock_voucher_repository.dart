@@ -14,7 +14,7 @@ import 'package:sentech_connect_app/features/voucher_scanner/domain/repositories
 /// Demo codes: `SEN-EXPx-xxxx` is expired, `SEN-USEx-xxxx` was already used,
 /// `SEN-INVx-xxxx` is unknown; any other well-formed code (demo or server
 /// format) redeems once.
-class MockVoucherRepository implements VoucherRepository {
+class MockVoucherRepository extends VoucherRepository {
   MockVoucherRepository(this._store, {SimulatedNetwork? network, this._latency = const Duration(milliseconds: 500)})
       : _network = network ?? SimulatedNetwork();
 

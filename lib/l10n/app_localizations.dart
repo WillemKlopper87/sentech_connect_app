@@ -2571,6 +2571,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{price} incl. VAT · Order #{orderNumber}'**
   String passReadyOrderDetail(String price, String orderNumber);
+
+  /// Action to reopen voucher entry and correct the code during this flow.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the code'**
+  String get commonCheckCode;
+
+  /// Manual voucher entry helper; display prefixes and demo formats also exist.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the code printed on your voucher card.'**
+  String get scanVoucherCodeHelper;
+
+  /// Data allowance of an actual pass without a data cap.
+  ///
+  /// In en, this message translates to:
+  /// **'Uncapped data'**
+  String get voucherUncappedData;
+
+  /// Actual voucher pass data allowance in megabytes; do not round it.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} MB'**
+  String voucherDataMb(int amount);
+
+  /// Actual voucher pass allowance, duration in minutes and maximum device count.
+  ///
+  /// In en, this message translates to:
+  /// **'{data} · {minutes} min · Devices: {devices}'**
+  String voucherPassDetail(String data, int minutes, int devices);
 }
 
 class _AppLocalizationsDelegate

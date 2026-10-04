@@ -1,4 +1,5 @@
 import 'package:bloc_test/bloc_test.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentech_connect_app/core/error/failure.dart';
 import 'package:sentech_connect_app/core/network/simulated_network.dart';
@@ -8,6 +9,8 @@ import 'package:sentech_connect_app/features/voucher_scanner/domain/entities/vou
 import 'package:sentech_connect_app/features/voucher_scanner/domain/entities/voucher_redemption.dart';
 import 'package:sentech_connect_app/features/voucher_scanner/presentation/bloc/voucher_cubit.dart';
 import 'package:sentech_connect_app/features/voucher_scanner/presentation/pages/voucher_result_sheet.dart';
+import 'package:sentech_connect_app/features/passes/domain/entities/pass.dart';
+import 'package:sentech_connect_app/features/catalog_checkout/presentation/widgets/pass_ready_view.dart';
 
 import 'helpers/pump_themed.dart';
 
@@ -211,6 +214,43 @@ void main() {
   });
 
   group('VoucherResultSheet', () {
+    for (final locale in ['en', 'zu']) {
+      testWidgets('actual pass detail fits 360x690 at 2x in $locale', (
+        tester,
+      ) async {
+        await pumpThemed(
+          tester,
+          VoucherResultSheet(
+            state: VoucherState(
+              status: VoucherStatus.result,
+              outcome: VoucherOutcome.redeemed,
+              pass: Pass(
+                id: 'voucher-pass',
+                source: PassSource.voucher,
+                productName: 'Evening Pass',
+                status: PassStatus.active,
+                startsAt: DateTime.utc(2026, 10, 4),
+                expiresAt: DateTime.utc(2026, 10, 5),
+                durationMinutes: 137,
+                dataMb: 750,
+                maxDevices: 3,
+              ),
+            ),
+            onRetry: () {},
+          ),
+          locale: Locale(locale),
+          size: const Size(360, 690),
+          textScale: 2,
+        );
+        expect(find.byType(PassReadyView), findsOneWidget);
+        expect(find.text('Evening Pass is ready'), findsOneWidget);
+        await tester.ensureVisible(find.text('750 MB · 137 min · Devices: 3'));
+        expect(find.text('750 MB · 137 min · Devices: 3'), findsOneWidget);
+        expect(find.text('Connect to WiFi'), findsOneWidget);
+        expect(find.textContaining('Connected'), findsNothing);
+        expect(tester.takeException(), isNull);
+      });
+    }
     Future<void> pump(WidgetTester tester, VoucherState state) =>
         pumpThemed(tester, VoucherResultSheet(state: state, onRetry: () {}));
 
@@ -240,8 +280,8 @@ void main() {
         ),
       );
       expect(find.text('Voucher redeemed'), findsOneWidget);
-      expect(find.text('SEN-••••-••LM'), findsOneWidget);
-      expect(find.textContaining('5 GB'), findsOneWidget);
+      expect(find.textContaining('SEN-••••-••LM'), findsOneWidget);
+      expect(find.textContaining('5120 MB'), findsOneWidget);
     });
 
     testWidgets('offline result offers a retry', (tester) async {

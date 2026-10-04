@@ -10,4 +10,8 @@ abstract class VoucherRepository {
   /// Redeeming the same code again must never credit twice: later calls
   /// return [VoucherOutcome.alreadyUsed].
   Future<Either<Failure, VoucherRedemption>> redeem(VoucherCode code);
+
+  /// End the ephemeral UI flow. A transport retry keeps its identity only
+  /// until the customer dismisses the result or leaves the session.
+  void endRedemptionFlow() {}
 }

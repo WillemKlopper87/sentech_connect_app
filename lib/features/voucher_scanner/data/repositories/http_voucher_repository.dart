@@ -12,7 +12,7 @@ import 'package:sentech_connect_app/features/voucher_scanner/domain/repositories
 /// endpoint). The server answers every reason a code cannot be redeemed with
 /// the same 422 `voucher_invalid`, on purpose, so the app cannot (and does
 /// not) tell expired, used and unknown codes apart.
-class HttpVoucherRepository implements VoucherRepository {
+class HttpVoucherRepository extends VoucherRepository {
   HttpVoucherRepository(this._api);
 
   static const path = '/v1/me/vouchers/redeem';
@@ -26,6 +26,14 @@ class HttpVoucherRepository implements VoucherRepository {
   // (success, refusal, rate limit, server error) clears it.
   String? _lastCode;
   String? _lastKey;
+  int _flow = 0;
+
+  @override
+  void endRedemptionFlow() {
+    _flow++;
+    _lastCode = null;
+    _lastKey = null;
+  }
 
   @visibleForTesting
   String? get heldCodeForTest => _lastCode;
@@ -36,6 +44,7 @@ class HttpVoucherRepository implements VoucherRepository {
       _lastCode = code.value;
       _lastKey = newIdempotencyKey();
     }
+    final flow = _flow;
     final result = await _api.post<VoucherRedemption>(
       path,
       body: {'code': code.value},
@@ -55,7 +64,7 @@ class HttpVoucherRepository implements VoucherRepository {
     );
     if (result case Left(value: NetworkFailure())) {
       // Kept for the retry.
-    } else {
+    } else if (flow == _flow) {
       _lastCode = null;
       _lastKey = null;
     }

@@ -60,6 +60,12 @@ class _VoucherScannerViewState extends State<_VoucherScannerView>
       widget.controller ??
       MobileScannerController(detectionSpeed: DetectionSpeed.noDuplicates);
   bool _wasTabActive = false;
+  bool _cameraPaused = false;
+  bool _entryOpen = false;
+  TextEditingController? _entryController;
+  ModalRoute<dynamic>? _entryRoute;
+  ModalRoute<dynamic>? _resultRoute;
+  int _resultVersion = 0;
 
   /// What the customer last typed, kept on this screen only (never logged,
   /// never stored) so a refused code can be shown back and fixed. Null when
@@ -85,7 +91,7 @@ class _VoucherScannerViewState extends State<_VoucherScannerView>
     if (isTabActive && !_wasTabActive) {
       if (_scanning) _startCamera();
     } else if (!isTabActive && _wasTabActive) {
-      _controller.stop();
+      _pauseCamera();
     }
     _wasTabActive = isTabActive;
   }
@@ -100,14 +106,15 @@ class _VoucherScannerViewState extends State<_VoucherScannerView>
       case AppLifecycleState.paused:
       case AppLifecycleState.detached:
       case AppLifecycleState.hidden:
-        _controller.stop();
+        _pauseCamera();
     }
   }
 
   /// A start that races another start or a running camera is harmless
   /// ([isBenignCameraStartError]). Other camera errors reach the errorBuilder.
   Future<void> _startCamera() async {
-    if (_controller.value.isStarting) return;
+    if (!_scanning || _controller.value.isStarting) return;
+    _cameraPaused = false;
     try {
       await _controller.start();
     } on MobileScannerException catch (e) {
@@ -115,9 +122,27 @@ class _VoucherScannerViewState extends State<_VoucherScannerView>
     }
   }
 
+  Future<void> _pauseCamera() async {
+    if (_cameraPaused) return;
+    _cameraPaused = true;
+    await _controller.stop();
+  }
+
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    _typed = null;
+    // Popup routes can outlive their underlying page during auth redirects.
+    // Erase the field immediately and remove only our own routes afterward.
+    _entryController?.clear();
+    for (final route in [_entryRoute, _resultRoute]) {
+      final navigator = route?.navigator;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (route != null && route.isActive && navigator?.mounted == true) {
+          navigator!.removeRoute(route);
+        }
+      });
+    }
     if (widget.controller == null) _controller.dispose();
     super.dispose();
   }
@@ -126,40 +151,57 @@ class _VoucherScannerViewState extends State<_VoucherScannerView>
     // The cubit ignores submissions unless it is in the scanning state, so a
     // QR that stays in frame cannot be re-submitted while a result is open.
     final cubit = context.read<VoucherCubit>();
-    if (cubit.state.status == VoucherStatus.scanning) _typed = null;
+    if (cubit.state.status != VoucherStatus.scanning) return;
+    _typed = null;
     cubit.submit(capture.barcodes.firstOrNull?.rawValue);
   }
 
   Future<void> _onVoucherState(BuildContext context, VoucherState state) async {
     final cubit = context.read<VoucherCubit>();
-    if (state.status == VoucherStatus.redeeming) {
-      await _controller.stop();
+    if (state.status == VoucherStatus.redeeming ||
+        state.status == VoucherStatus.entering) {
+      await _pauseCamera();
     } else if (state.status == VoucherStatus.result) {
+      await _pauseCamera();
+      if (!context.mounted || cubit.isClosed) return;
+      final version = ++_resultVersion;
+      var retrying = false;
       final typed = _typed;
       final editAgain = await showModalBottomSheet<bool>(
         context: context,
         isDismissible: state.failure == null,
         isScrollControlled: true,
-        builder: (sheetContext) => VoucherResultSheet(
-          state: state,
-          enteredCode: state.outcome == VoucherOutcome.redeemed ? null : typed,
-          onRetry: () {
-            Navigator.pop(sheetContext);
-            cubit.retry();
-          },
-          onTryAgain: () => Navigator.pop(sheetContext, true),
-        ),
+        builder: (sheetContext) {
+          _resultRoute = ModalRoute.of(sheetContext);
+          return VoucherResultSheet(
+            state: state,
+            enteredCode: state.outcome == VoucherOutcome.redeemed
+                ? null
+                : typed,
+            onRetry: () {
+              if (retrying) return;
+              retrying = true;
+              Navigator.pop(sheetContext);
+              cubit.retry();
+            },
+            onTryAgain: () => Navigator.pop(sheetContext, true),
+          );
+        },
       );
+      if (version == _resultVersion) _resultRoute = null;
+      if (!mounted || cubit.isClosed) return;
+      if (retrying) return;
       // Sheet closed. If "Try again" started a new redemption the cubit is
       // already past the result state; otherwise resume scanning.
       if (cubit.state.status == VoucherStatus.result) {
         // dismiss() emits the scanning state, and this listener's last
         // branch restarts the camera: no second start here.
-        cubit.dismiss();
-        _typed = null;
-        if (editAgain == true && typed != null && mounted) {
+        if (editAgain == true && mounted) {
           // Reopen the field with the code still in it, ready to fix.
-          await _enterCodeManually(initial: typed);
+          await _enterCodeManually(initial: typed ?? '');
+        } else {
+          _typed = null;
+          cubit.dismiss();
         }
       }
     } else if (mounted && _wasTabActive) {
@@ -168,13 +210,33 @@ class _VoucherScannerViewState extends State<_VoucherScannerView>
   }
 
   Future<void> _enterCodeManually({String initial = ''}) async {
-    final code = await showDialog<String>(
+    final cubit = context.read<VoucherCubit>();
+    if (_entryOpen || !cubit.beginEntry()) return;
+    _entryOpen = true;
+    await _pauseCamera();
+    if (!mounted) return;
+    final controller = TextEditingController(text: initial);
+    _entryController = controller;
+    final code = await showModalBottomSheet<String>(
       context: context,
-      builder: (context) => _ManualEntryDialog(initial: initial),
+      isScrollControlled: true,
+      builder: (sheetContext) {
+        _entryRoute = ModalRoute.of(sheetContext);
+        return _ManualEntrySheet(controller: controller);
+      },
     );
-    if (code == null || code.trim().isEmpty || !mounted) return;
+    _entryOpen = false;
+    _entryRoute = null;
+    _entryController = null;
+    controller.clear();
+    if (!mounted || cubit.isClosed) return;
+    if (code == null || code.trim().isEmpty) {
+      _typed = null;
+      cubit.dismiss();
+      return;
+    }
     _typed = code.trim();
-    context.read<VoucherCubit>().submit(code);
+    cubit.submit(code);
   }
 
   @override
@@ -208,7 +270,7 @@ class _VoucherScannerViewState extends State<_VoucherScannerView>
             const SizedBox(width: 4),
           ],
         ),
-        body: Padding(
+        body: SingleChildScrollView(
           padding: const EdgeInsets.all(20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -236,11 +298,15 @@ class _VoucherScannerViewState extends State<_VoucherScannerView>
                 context.l10n.scanAlignTheVoucherSQrCode,
                 textAlign: TextAlign.center,
                 style: theme.textTheme.bodyMedium?.copyWith(
+                  fontSize: 15,
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
               ),
-              const Spacer(),
+              const SizedBox(height: 24),
               OutlinedButton(
+                style: OutlinedButton.styleFrom(
+                  textStyle: const TextStyle(fontSize: 15),
+                ),
                 onPressed: _enterCodeManually,
                 child: Text(context.l10n.scanTypeTheCodeInstead),
               ),
@@ -252,36 +318,50 @@ class _VoucherScannerViewState extends State<_VoucherScannerView>
   }
 }
 
-/// Manual entry: formats as the customer types, pastes, and submits on the
-/// keyboard's Done key as well as the Redeem button.
 /// The camera is already starting or running: nothing to do, not an error.
 bool isBenignCameraStartError(MobileScannerException e) =>
     e.errorCode == MobileScannerErrorCode.controllerInitializing ||
     e.errorCode == MobileScannerErrorCode.controllerAlreadyInitialized;
 
-class _ManualEntryDialog extends StatefulWidget {
-  const _ManualEntryDialog({required this.initial});
+/// Formats customer input and reads the clipboard only after tapping Paste.
+class _ManualEntrySheet extends StatefulWidget {
+  const _ManualEntrySheet({required this.controller});
 
-  final String initial;
+  final TextEditingController controller;
 
   @override
-  State<_ManualEntryDialog> createState() => _ManualEntryDialogState();
+  State<_ManualEntrySheet> createState() => _ManualEntrySheetState();
 }
 
-class _ManualEntryDialogState extends State<_ManualEntryDialog> {
-  late final _controller = TextEditingController(text: widget.initial);
+class _ManualEntrySheetState extends State<_ManualEntrySheet> {
+  TextEditingController get _controller => widget.controller;
+  bool _submitted = false;
+  bool _pasting = false;
 
   @override
   void dispose() {
+    _controller.clear();
     _controller.dispose();
     super.dispose();
   }
 
-  void _submit() => Navigator.pop(context, _controller.text);
+  void _submit() {
+    if (_submitted) return;
+    _submitted = true;
+    Navigator.pop(context, _controller.text);
+  }
 
   Future<void> _paste() async {
+    if (_pasting || _submitted) return;
+    _pasting = true;
     final text = (await Clipboard.getData(Clipboard.kTextPlain))?.text;
-    if (text == null || !mounted) return;
+    _pasting = false;
+    if (text == null ||
+        !mounted ||
+        _submitted ||
+        ModalRoute.of(context)?.isCurrent != true) {
+      return;
+    }
     _controller.value = const VoucherCodeFormatter().formatEditUpdate(
       _controller.value,
       TextEditingValue(
@@ -293,34 +373,62 @@ class _ManualEntryDialogState extends State<_ManualEntryDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Text(context.l10n.scanEnterVoucherCode),
-      content: TextField(
-        controller: _controller,
-        autofocus: true,
-        autocorrect: false,
-        enableSuggestions: false,
-        textCapitalization: TextCapitalization.characters,
-        textInputAction: TextInputAction.done,
-        inputFormatters: const [VoucherCodeFormatter()],
-        onSubmitted: (_) => _submit(),
-        decoration: InputDecoration(
-          hintText: context.l10n.scanEGAbcd2345Efgh,
-          helperText: context.l10n.scan12LettersAndNumbersOnYour,
-          suffixIcon: IconButton(
-            tooltip: context.l10n.scanPaste,
-            icon: const Icon(Icons.content_paste),
-            onPressed: _paste,
-          ),
+    const buttonText = TextStyle(fontSize: 15, fontWeight: FontWeight.w700);
+    return SafeArea(
+      child: SingleChildScrollView(
+        padding: EdgeInsets.fromLTRB(
+          24,
+          24,
+          24,
+          24 + MediaQuery.viewInsetsOf(context).bottom,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              context.l10n.scanEnterVoucherCode,
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              style: Theme.of(context).textTheme.bodyLarge,
+              controller: _controller,
+              autofocus: true,
+              autocorrect: false,
+              enableSuggestions: false,
+              textCapitalization: TextCapitalization.characters,
+              textInputAction: TextInputAction.done,
+              inputFormatters: const [VoucherCodeFormatter()],
+              onSubmitted: (_) => _submit(),
+              decoration: InputDecoration(
+                hintText: context.l10n.scanEGAbcd2345Efgh,
+                helperText: context.l10n.scanVoucherCodeHelper,
+                helperMaxLines: 4,
+                helperStyle: const TextStyle(fontSize: 13),
+              ),
+            ),
+            const SizedBox(height: 12),
+            OutlinedButton.icon(
+              onPressed: _paste,
+              icon: const Icon(Icons.content_paste),
+              style: OutlinedButton.styleFrom(textStyle: buttonText),
+              label: Text(context.l10n.scanPaste),
+            ),
+            const SizedBox(height: 12),
+            FilledButton(
+              onPressed: _submit,
+              style: FilledButton.styleFrom(textStyle: buttonText),
+              child: Text(context.l10n.scanRedeem),
+            ),
+            TextButton(
+              style: TextButton.styleFrom(textStyle: buttonText),
+              onPressed: () => Navigator.pop(context),
+              child: Text(context.l10n.commonCancel),
+            ),
+          ],
         ),
       ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text(context.l10n.commonCancel),
-        ),
-        FilledButton(onPressed: _submit, child: Text(context.l10n.scanRedeem)),
-      ],
     );
   }
 }
@@ -345,7 +453,7 @@ class _CameraError extends StatelessWidget {
           child: Text(
             message,
             textAlign: TextAlign.center,
-            style: const TextStyle(color: Colors.white),
+            style: const TextStyle(color: Colors.white, fontSize: 15),
           ),
         ),
       ),
