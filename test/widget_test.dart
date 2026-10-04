@@ -11,7 +11,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 1300)); // splash auto-advance delay
     await tester.pumpAndSettle();
 
-    expect(find.text('Welcome back'), findsOneWidget);
+    expect(find.text('Hello!'), findsOneWidget);
     expect(find.text('Send code'), findsOneWidget);
   });
 }

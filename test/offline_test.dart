@@ -42,7 +42,7 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 1300));
       await tester.pumpAndSettle();
-      expect(find.text('Welcome back'), findsOneWidget);
+      expect(find.text('Hello!'), findsOneWidget);
       expect(find.textContaining("You're offline"), findsNothing);
 
       final connectivity =
@@ -52,7 +52,7 @@ void main() {
       await tester.pump();
       expect(find.textContaining("You're offline"), findsOneWidget);
       expect(
-        find.text('Welcome back'),
+        find.text('Hello!'),
         findsOneWidget,
       ); // screen state is preserved
 

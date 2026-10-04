@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:sentech_connect_app/core/privacy/privacy_constants.dart';
+import 'package:sentech_connect_app/features/privacy/presentation/widgets/legal_reading_links.dart';
+import 'package:sentech_connect_app/shared/widgets/language_chip.dart';
 import 'package:sentech_connect_app/features/auth/presentation/bloc/auth_cubit.dart';
 import 'package:sentech_connect_app/l10n/l10n.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 /// The consent step every signed-in session passes before the app opens:
 /// the CURRENT terms and privacy notice must be accepted, whether the session
@@ -51,7 +51,11 @@ class _LegalGatePageState extends State<LegalGatePage> {
     final l10n = context.l10n;
     final theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.legalGateTitle), automaticallyImplyLeading: false),
+      appBar: AppBar(
+        title: Text(l10n.legalGateTitle),
+        automaticallyImplyLeading: false,
+        actions: const [LanguageChip()],
+      ),
       body: SafeArea(
         child: BlocBuilder<AuthCubit, AuthState>(
           buildWhen: (a, b) => a.legal != b.legal,
@@ -67,23 +71,47 @@ class _LegalGatePageState extends State<LegalGatePage> {
                   const SizedBox(height: 16),
                   Center(child: Text(l10n.legalGateChecking)),
                 ] else ...[
-                  Text(unavailable ? l10n.legalGateUnavailable : l10n.consentLegalBody, style: theme.textTheme.bodyLarge),
-                  const SizedBox(height: 12),
-                  TextButton(
-                    style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: const Size(48, 48), alignment: Alignment.centerLeft),
-                    onPressed: () => launchUrl(Uri.parse(privacyPolicyUrl), mode: LaunchMode.externalApplication),
-                    child: Text(l10n.consentPolicyLink),
+                  if (!unavailable)
+                    LegalLanguageNote(
+                      body: l10n.consentLegalBody,
+                      englishBody: lookupAppLocalizations(
+                        const Locale('en'),
+                      ).consentLegalBody,
+                    ),
+                  Text(
+                    unavailable
+                        ? l10n.legalGateUnavailable
+                        : l10n.consentLegalBody,
+                    style: theme.textTheme.bodyLarge,
                   ),
+                  const SizedBox(height: 12),
+                  const LegalReadingLinks(),
                   const SizedBox(height: 16),
                   FilledButton(
-                    onPressed: _working ? null : (unavailable ? () => context.read<AuthCubit>().checkLegal() : _accept),
+                    onPressed: _working
+                        ? null
+                        : (unavailable
+                              ? () => context.read<AuthCubit>().checkLegal()
+                              : _accept),
                     child: _working
-                        ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                        : Text(unavailable ? l10n.commonRetry : l10n.consentAgree),
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : Text(
+                            unavailable ? l10n.commonRetry : l10n.consentAgree,
+                          ),
                   ),
                 ],
                 const SizedBox(height: 8),
-                TextButton(onPressed: _working ? null : _signOut, child: Text(l10n.legalGateSignOut)),
+                TextButton(
+                  onPressed: _working ? null : _signOut,
+                  child: Text(l10n.legalGateSignOut),
+                ),
               ],
             );
           },

@@ -116,7 +116,11 @@ class _GuardRefresh extends ChangeNotifier {
 ///   terms/privacy not accepted yet -> `/consent`. The route asked for travels as `from`.
 /// - Signed in + `/login`/`/register` -> the intended route (`from`), else
 ///   coverage right after a fresh sign-in (first-time onboarding), else `/main`.
-String? authRedirect(AuthState auth, Uri uri) {
+String? authRedirect(
+  AuthState auth,
+  Uri uri, {
+  bool coverageOnboarding = true,
+}) {
   final location = uri.path;
   if (!auth.isSignedIn) {
     if (!AppRoutes.isProtected(location)) return null;
@@ -149,7 +153,9 @@ String? authRedirect(AuthState auth, Uri uri) {
       location == AppRoutes.consent) {
     final from = safeFrom(uri.queryParameters[AppRoutes.fromParam]);
     if (from != null) return from;
-    return auth.freshSignIn ? AppRoutes.coverage : AppRoutes.main;
+    return auth.freshSignIn && coverageOnboarding
+        ? AppRoutes.coverage
+        : AppRoutes.main;
   }
   return null;
 }
@@ -248,7 +254,14 @@ GoRouter _buildRouter(
         (tenantCubit == null
             ? null
             : tenantRedirect(tenantCubit.state, state.uri)) ??
-        authRedirect(authCubit.state, state.uri),
+        authRedirect(
+          authCubit.state,
+          state.uri,
+          coverageOnboarding:
+              tenantCubit == null ||
+              tenantCubit.state.featureFlags.cpe ||
+              !tenantCubit.state.featureFlags.hotspotPasses,
+        ),
     errorBuilder: (context, state) => Scaffold(
       appBar: AppBar(title: Text(context.l10n.routerPageNotFound)),
       body: Center(

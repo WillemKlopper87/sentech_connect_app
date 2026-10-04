@@ -45,11 +45,11 @@ void main() {
     await tester.pumpWidget(const SentechConnectApp());
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 1500)); // past the splash delay
-    expect(find.text('Welcome back'), findsNothing, reason: 'tenant still loading');
+    expect(find.text('Hello!'), findsNothing, reason: 'tenant still loading');
 
     repo.gate.complete();
     await tester.pumpAndSettle();
-    expect(find.text('Welcome back'), findsOneWidget);
+    expect(find.text('Hello!'), findsOneWidget);
   });
 
   testWidgets('a tenant directory failure settles on the picker with a retry, not a hang', (tester) async {

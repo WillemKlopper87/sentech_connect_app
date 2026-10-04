@@ -56,9 +56,9 @@ void main() {
 
   group('login page', () {
     for (final (locale, welcome) in [
-      (const Locale('en'), 'Welcome back'),
-      (const Locale('af'), 'Welkom terug'),
-      (const Locale('zu'), 'Siyakwamukela futhi'),
+      (const Locale('en'), 'Hello!'),
+      (const Locale('af'), 'Hello!'),
+      (const Locale('zu'), 'Hello!'),
     ]) {
       testWidgets('renders in ${locale.languageCode}', (tester) async {
         final auth = newAuth();
@@ -141,6 +141,7 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 1300));
     await tester.pumpAndSettle();
-    expect(find.text('Welkom terug'), findsOneWidget);
+    expect(find.text('Hello!'), findsOneWidget);
+    expect(find.widgetWithText(ElevatedButton, lookupAppLocalizations(const Locale('af')).loginSendCode), findsOneWidget);
   });
 }

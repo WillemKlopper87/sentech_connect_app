@@ -8,6 +8,8 @@ import 'package:sentech_connect_app/features/auth/presentation/bloc/registration
 import 'package:sentech_connect_app/features/privacy/domain/entities/consent_record.dart';
 import 'package:sentech_connect_app/features/privacy/presentation/widgets/consent_gate.dart';
 import 'package:sentech_connect_app/l10n/l10n.dart';
+import 'package:sentech_connect_app/features/tenant/presentation/bloc/tenant_cubit.dart';
+import 'package:sentech_connect_app/features/privacy/presentation/widgets/legal_reading_links.dart';
 import 'package:sentech_connect_app/shared/widgets/notification_rationale_sheet.dart';
 
 class RegistrationPage extends StatelessWidget {
@@ -84,13 +86,12 @@ class _RegistrationViewState extends State<_RegistrationView> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = context.l10n;
+    final cpe = context.watch<TenantCubit?>()?.state.featureFlags.cpe ?? true;
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.registerCompleteProfileTitle),
         automaticallyImplyLeading: false,
-        actions: [
-          TextButton(onPressed: _signOut, child: Text(l10n.loginNotYou)),
-        ],
+        toolbarHeight: 56 * MediaQuery.textScalerOf(context).scale(1),
       ),
       body: BlocConsumer<RegistrationCubit, RegistrationState>(
         listener: (context, state) {
@@ -140,8 +141,9 @@ class _RegistrationViewState extends State<_RegistrationView> {
               state.fullName.trim().isNotEmpty &&
               state.email.isNotEmpty &&
               state.mobileNumber.isNotEmpty &&
-              state.address.isNotEmpty;
+              (!cpe || state.address.trim().isNotEmpty);
           final heading = theme.textTheme.labelLarge?.copyWith(
+            fontSize: 13,
             letterSpacing: 0.6,
           );
 
@@ -151,6 +153,13 @@ class _RegistrationViewState extends State<_RegistrationView> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton(
+                      onPressed: _signOut,
+                      child: Text(l10n.loginNotYou),
+                    ),
+                  ),
                   Text(l10n.registerPersonalDetails, style: heading),
                   const SizedBox(height: 10),
                   TextField(
@@ -176,66 +185,71 @@ class _RegistrationViewState extends State<_RegistrationView> {
                     decoration: InputDecoration(hintText: l10n.registerMobile),
                   ),
                   const SizedBox(height: 22),
-                  Text(l10n.registerInstallationAddress, style: heading),
-                  const SizedBox(height: 10),
-                  TextField(
-                    controller: _addressController,
-                    onChanged: cubit.setAddress,
-                    maxLines: 2,
-                    decoration: InputDecoration(
-                      hintText: l10n.registerAddressHint,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  OutlinedButton.icon(
-                    onPressed: locating ? null : () => _useLocation(cubit),
-                    icon: locating
-                        ? const SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : Icon(
-                            state.hasLocation
-                                ? Icons.check_circle
-                                : Icons.my_location,
-                            size: 18,
-                          ),
-                    label: Text(
-                      state.hasLocation
-                          ? l10n.registerLocationCaptured
-                          : l10n.registerUseLocation,
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 6),
-                    child: Text(
-                      l10n.registerLocationHelp,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        fontSize: 11.5,
-                        color: theme.colorScheme.onSurfaceVariant,
+                  if (cpe) ...[
+                    Text(l10n.registerInstallationAddress, style: heading),
+                    const SizedBox(height: 10),
+                    TextField(
+                      controller: _addressController,
+                      onChanged: cubit.setAddress,
+                      maxLines: 2,
+                      decoration: InputDecoration(
+                        hintText: l10n.registerAddressHint,
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 22),
+                    const SizedBox(height: 10),
+                    OutlinedButton.icon(
+                      onPressed: locating ? null : () => _useLocation(cubit),
+                      icon: locating
+                          ? const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : Icon(
+                              state.hasLocation
+                                  ? Icons.check_circle
+                                  : Icons.my_location,
+                              size: 18,
+                            ),
+                      label: Text(
+                        state.hasLocation
+                            ? l10n.registerLocationCaptured
+                            : l10n.registerUseLocation,
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 6),
+                      child: Text(
+                        l10n.registerLocationHelp,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          fontSize: 15,
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 22),
+                  ],
                   Text(l10n.registerContactHeading, style: heading),
                   const SizedBox(height: 10),
-                  SegmentedButton<ContactMethod>(
-                    segments: ContactMethod.values
-                        .map(
-                          (m) => ButtonSegment(
-                            value: m,
-                            label: Text(switch (m) {
-                              ContactMethod.email => l10n.contactMethodEmail,
-                              ContactMethod.sms => l10n.contactMethodSms,
-                              ContactMethod.whatsapp => l10n.supportWhatsApp,
-                            }),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      for (final method in ContactMethod.values)
+                        ChoiceChip(
+                          labelStyle: theme.textTheme.labelLarge?.copyWith(
+                            fontSize: 13,
                           ),
-                        )
-                        .toList(),
-                    selected: {state.preferredContactMethod},
-                    onSelectionChanged: (s) =>
-                        cubit.setPreferredContactMethod(s.first),
+                          label: Text(switch (method) {
+                            ContactMethod.email => l10n.contactMethodEmail,
+                            ContactMethod.sms => l10n.contactMethodSms,
+                            ContactMethod.whatsapp => l10n.supportWhatsApp,
+                          }),
+                          selected: state.preferredContactMethod == method,
+                          onSelected: (_) =>
+                              cubit.setPreferredContactMethod(method),
+                        ),
+                    ],
                   ),
                   const SizedBox(height: 22),
                   Text(l10n.registerMarketingHeading, style: heading),
@@ -261,6 +275,13 @@ class _RegistrationViewState extends State<_RegistrationView> {
                     title: Text(l10n.registerMarketingPush),
                   ),
                   const SizedBox(height: 20),
+                  LegalLanguageNote(
+                    body: l10n.registerAcceptTerms,
+                    englishBody: lookupAppLocalizations(
+                      const Locale('en'),
+                    ).registerAcceptTerms,
+                  ),
+                  const LegalReadingLinks(),
                   CheckboxListTile(
                     contentPadding: EdgeInsets.zero,
                     controlAffinity: ListTileControlAffinity.leading,

@@ -1403,4 +1403,30 @@ class AppLocalizationsAf extends AppLocalizations {
   @override
   String get mapUnavailableWifiSpots =>
       'Map not available. Here are the WiFi spots.';
+
+  @override
+  String get loginTitleNew => 'Hello!';
+
+  @override
+  String get otpPasteCode => 'Paste code';
+
+  @override
+  String get otpPasteOnlyCode => 'Paste only the 6-digit code.';
+
+  @override
+  String get legalBodyLanguageNote => 'This text is only in English for now.';
+
+  @override
+  String get consentTermsLink => 'Read the Terms';
+
+  @override
+  String get consentTermsUnavailable =>
+      'Terms link is unavailable. Please try again later.';
+
+  @override
+  String get legalLinkOpenFailed =>
+      'Could not open the link. Please try again.';
+
+  @override
+  String get loginEnterPhone => 'Enter your phone number';
 }

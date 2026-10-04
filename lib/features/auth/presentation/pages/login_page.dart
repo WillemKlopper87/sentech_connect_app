@@ -10,6 +10,7 @@ import 'package:sentech_connect_app/features/auth/presentation/bloc/otp_login_cu
 import 'package:sentech_connect_app/l10n/l10n.dart';
 import 'package:sentech_connect_app/shared/widgets/dot_grid_panel.dart';
 import 'package:sentech_connect_app/shared/widgets/sentech_logo.dart';
+import 'package:sentech_connect_app/shared/widgets/language_chip.dart';
 
 /// Sign-in and sign-up in one: mobile number -> SMS code. New customers
 /// complete their profile next (router rule). A locked session (cold start
@@ -50,6 +51,91 @@ class _LoginView extends StatefulWidget {
 class _LoginViewState extends State<_LoginView> {
   final _phoneController = TextEditingController();
   final _codeController = TextEditingController();
+
+  bool _invalidCodeInput = false;
+  int _challengeRevision = 0;
+
+  String? _normalizedCode(String text) {
+    // Accept code formatting, never extract a prefix from a message/phone.
+    if (!RegExp(r'^[0-9\s-]+$').hasMatch(text)) return null;
+    final digits = text.replaceAll(RegExp(r'[\s-]'), '');
+    return RegExp(r'^[0-9]{6}$').hasMatch(digits) ? digits : null;
+  }
+
+  void _codeChanged(String input) {
+    final cubit = context.read<OtpLoginCubit>();
+    if (cubit.state.busy ||
+        cubit.state.locked ||
+        cubit.state.status == OtpLoginStatus.verified) {
+      return;
+    }
+    final normalized = _normalizedCode(input);
+    final invalid =
+        input.isNotEmpty &&
+        (input.replaceAll(RegExp(r'[\s-]'), '').length > 6 ||
+            !RegExp(r'^[0-9\s-]+$').hasMatch(input));
+    setState(() => _invalidCodeInput = invalid);
+    if (normalized != null) {
+      if (input != normalized) {
+        _codeController.value = TextEditingValue(
+          text: normalized,
+          selection: TextSelection.collapsed(offset: normalized.length),
+        );
+      }
+      cubit.submitCode(normalized);
+    }
+  }
+
+  void _submitCode(String input) {
+    final cubit = context.read<OtpLoginCubit>();
+    if (cubit.state.busy ||
+        cubit.state.locked ||
+        cubit.state.status == OtpLoginStatus.verified) {
+      return;
+    }
+    final normalized = _normalizedCode(input);
+    if (normalized == null) {
+      setState(() => _invalidCodeInput = true);
+      return;
+    }
+    setState(() => _invalidCodeInput = false);
+    cubit.submitCode(normalized);
+  }
+
+  Future<void> _pasteCode() async {
+    final cubit = context.read<OtpLoginCubit>();
+    final challenge = cubit.state.challenge;
+    final revision = _challengeRevision;
+    if (challenge == null ||
+        cubit.state.busy ||
+        cubit.state.locked ||
+        cubit.state.status == OtpLoginStatus.verified) {
+      return;
+    }
+    ClipboardData? data;
+    try {
+      data = await Clipboard.getData('text/plain');
+    } catch (_) {
+      // Clipboard access may fail; show the same local guidance below.
+    }
+    if (!mounted ||
+        cubit.isClosed ||
+        revision != _challengeRevision ||
+        cubit.state.step != OtpStep.code ||
+        !identical(challenge, cubit.state.challenge) ||
+        cubit.state.busy ||
+        cubit.state.locked ||
+        cubit.state.status == OtpLoginStatus.verified) {
+      return;
+    }
+    final normalized = _normalizedCode(data?.text ?? '');
+    if (normalized == null) {
+      setState(() => _invalidCodeInput = true);
+      return;
+    }
+    _codeController.text = normalized;
+    _submitCode(normalized);
+  }
 
   @override
   void initState() {
@@ -124,15 +210,19 @@ class _LoginViewState extends State<_LoginView> {
             },
           ),
           BlocListener<OtpLoginCubit, OtpLoginState>(
-            listenWhen: (previous, current) =>
-                previous.status != current.status ||
-                previous.step != current.step,
             listener: (context, state) {
-              if (state.status == OtpLoginStatus.failure &&
-                  state.failure != null) {
-                _snack(_otpMessage(state.failure!));
+              // A send/verify invalidates clipboard reads begun earlier, even
+              // when a resend returns the same challenge id.
+              if (state.busy ||
+                  state.status == OtpLoginStatus.verified ||
+                  state.step == OtpStep.phone) {
+                _challengeRevision++;
               }
-              if (state.step == OtpStep.phone) _codeController.clear();
+              if (state.step == OtpStep.phone ||
+                  state.status == OtpLoginStatus.sending) {
+                _codeController.clear();
+                _invalidCodeInput = false;
+              }
             },
           ),
         ],
@@ -151,20 +241,26 @@ class _LoginViewState extends State<_LoginView> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
+                      const Align(
+                        alignment: Alignment.centerRight,
+                        child: LanguageChip(),
+                      ),
+                      const SizedBox(height: 8),
                       const Center(child: SentechLogo(height: 44)),
                       const SizedBox(height: 24),
-                      const DotGridPanel(height: 130),
+                      const DotGridPanel(height: 96),
                       const SizedBox(height: 24),
                       Text(
                         firstName == null
-                            ? l10n.loginWelcomeBack
+                            ? l10n.loginTitleNew
                             : l10n.loginWelcomeBackName(firstName),
                         style: theme.textTheme.headlineMedium,
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        l10n.loginSubtitle,
+                        l10n.loginEnterPhone,
                         style: theme.textTheme.bodyMedium?.copyWith(
+                          fontSize: 15,
                           color: theme.colorScheme.onSurfaceVariant,
                         ),
                       ),
@@ -231,12 +327,19 @@ class _LoginViewState extends State<_LoginView> {
         autofillHints: const [AutofillHints.telephoneNumber],
         textInputAction: TextInputAction.send,
         onSubmitted: busy ? null : cubit.submitPhone,
-        decoration: InputDecoration(hintText: l10n.loginMobileHint),
+        decoration: InputDecoration(
+          hintText: l10n.loginMobileHint,
+          border: OutlineInputBorder(
+            borderSide: BorderSide(color: theme.colorScheme.outline),
+          ),
+          errorText: otp.failure == null ? null : _otpMessage(otp.failure!),
+        ),
       ),
       const SizedBox(height: 8),
       Text(
         l10n.loginNewCustomerHint,
         style: theme.textTheme.bodyMedium?.copyWith(
+          fontSize: 15,
           color: theme.colorScheme.onSurfaceVariant,
         ),
       ),
@@ -269,29 +372,48 @@ class _LoginViewState extends State<_LoginView> {
         controller: _codeController,
         keyboardType: TextInputType.number,
         autofillHints: const [AutofillHints.oneTimeCode],
-        inputFormatters: [
-          FilteringTextInputFormatter.digitsOnly,
-          LengthLimitingTextInputFormatter(6),
-        ],
+        maxLength: 6,
+        // Keep overlong/ambiguous paste intact so it can be rejected visibly.
+        maxLengthEnforcement: MaxLengthEnforcement.none,
+        onChanged: _codeChanged,
         textInputAction: TextInputAction.done,
         autofocus: true,
-        onSubmitted: busy || locked ? null : cubit.submitCode,
-        decoration: InputDecoration(labelText: l10n.otpCodeHint),
+        onSubmitted: busy || locked ? null : _submitCode,
+        decoration: InputDecoration(
+          labelText: l10n.otpCodeHint,
+          border: OutlineInputBorder(
+            borderSide: BorderSide(color: theme.colorScheme.outline),
+          ),
+          errorText: _invalidCodeInput
+              ? l10n.otpPasteOnlyCode
+              : (otp.failure == null ? null : _otpMessage(otp.failure!)),
+        ),
+      ),
+      Align(
+        alignment: Alignment.centerLeft,
+        child: TextButton.icon(
+          onPressed: busy || locked || otp.status == OtpLoginStatus.verified
+              ? null
+              : _pasteCode,
+          icon: const Icon(Icons.content_paste),
+          label: Text(l10n.otpPasteCode),
+        ),
       ),
       if (widget.demoMode) ...[
         const SizedBox(height: 6),
         Text(
           l10n.otpDemoHint,
           style: theme.textTheme.bodyMedium?.copyWith(
+            fontSize: 15,
             color: theme.colorScheme.onSurfaceVariant,
           ),
         ),
       ],
       const SizedBox(height: 16),
       ElevatedButton(
-        onPressed: busy || locked
+        onPressed: busy || locked || otp.status == OtpLoginStatus.verified
             ? null
-            : () => cubit.submitCode(_codeController.text),
+            : () => _submitCode(_codeController.text),
         child: otp.status == OtpLoginStatus.verifying
             ? const _ButtonSpinner()
             : Text(l10n.otpVerify),

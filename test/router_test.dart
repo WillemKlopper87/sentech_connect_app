@@ -1,3 +1,5 @@
+import 'package:sentech_connect_app/features/tenant/presentation/bloc/tenant_cubit.dart';
+import 'helpers/first_run_tenant.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -32,21 +34,101 @@ void main() {
     ];
 
     for (final path in protectedPaths) {
-      test('signed-out user is sent to /login from $path, remembering the destination', () {
-        final redirect = authRedirect(signedOut, Uri.parse(path));
-        if (path == '/main') {
-          expect(redirect, '/login'); // default landing needs no "from"
-        } else {
-          expect(Uri.parse(redirect!).path, '/login');
-          expect(Uri.parse(redirect).queryParameters['from'], path);
-          expect(safeFrom(Uri.parse(redirect).queryParameters['from']), path);
-        }
-      });
+      test(
+        'signed-out user is sent to /login from $path, remembering the destination',
+        () {
+          final redirect = authRedirect(signedOut, Uri.parse(path));
+          if (path == '/main') {
+            expect(redirect, '/login'); // default landing needs no "from"
+          } else {
+            expect(Uri.parse(redirect!).path, '/login');
+            expect(Uri.parse(redirect).queryParameters['from'], path);
+            expect(safeFrom(Uri.parse(redirect).queryParameters['from']), path);
+          }
+        },
+      );
 
       test('signed-in user may open $path', () {
         expect(authRedirect(_signedIn, Uri.parse(path)), isNull);
       });
     }
+
+    test(
+      'hotspot skip preserves profile, current consent, safe deep links and restore',
+      () {
+        const fresh = AuthState(
+          status: AuthStatus.success,
+          user: _user,
+          freshSignIn: true,
+        );
+        expect(
+          authRedirect(fresh, Uri.parse('/login'), coverageOnboarding: false),
+          AppRoutes.main,
+        );
+        expect(authRedirect(fresh, Uri.parse('/login')), AppRoutes.coverage);
+        expect(
+          authRedirect(
+            _signedIn,
+            Uri.parse('/login'),
+            coverageOnboarding: false,
+          ),
+          AppRoutes.main,
+        );
+        expect(
+          authRedirect(
+            fresh,
+            Uri.parse('/login?from=%2Fpayment%2Ford_1'),
+            coverageOnboarding: false,
+          ),
+          '/payment/ord_1',
+        );
+        expect(
+          authRedirect(
+            fresh,
+            Uri.parse('/login?from=%2F%2Fevil.example'),
+            coverageOnboarding: false,
+          ),
+          AppRoutes.main,
+        );
+        for (final legal in [
+          LegalStatus.unchecked,
+          LegalStatus.required,
+          LegalStatus.unavailable,
+        ]) {
+          final blocked = AuthState(
+            status: AuthStatus.success,
+            user: _user,
+            freshSignIn: true,
+            legal: legal,
+          );
+          final uri = Uri.parse(
+            authRedirect(
+              blocked,
+              Uri.parse('/login?from=%2Fcart'),
+              coverageOnboarding: false,
+            )!,
+          );
+          expect(uri.path, AppRoutes.consent);
+          expect(uri.queryParameters['from'], '/cart');
+        }
+        const nameless = AuthState(
+          status: AuthStatus.success,
+          user: User(id: 'c1', fullName: '', mobileNumber: '+27821234567'),
+          freshSignIn: true,
+          legal: LegalStatus.required,
+        );
+        expect(
+          Uri.parse(
+            authRedirect(
+              nameless,
+              Uri.parse('/login?from=%2Fcart'),
+              coverageOnboarding: false,
+            )!,
+          ).path,
+          AppRoutes.register,
+        );
+      },
+    );
 
     test('public routes stay reachable when signed out', () {
       for (final path in ['/', '/login']) {
@@ -59,58 +141,121 @@ void main() {
       expect(authRedirect(_signedIn, Uri.parse('/register')), '/main');
     });
 
-    test('a fresh sign-in on /login goes through coverage once, or to the requested route', () {
-      const fresh = AuthState(status: AuthStatus.success, user: _user, freshSignIn: true);
-      expect(authRedirect(fresh, Uri.parse('/login')), '/coverage');
-      expect(authRedirect(fresh, Uri.parse('/login?from=%2Fcart')), '/cart');
-    });
+    test(
+      'a fresh sign-in on /login goes through coverage once, or to the requested route',
+      () {
+        const fresh = AuthState(
+          status: AuthStatus.success,
+          user: _user,
+          freshSignIn: true,
+        );
+        expect(authRedirect(fresh, Uri.parse('/login')), '/coverage');
+        expect(authRedirect(fresh, Uri.parse('/login?from=%2Fcart')), '/cart');
+      },
+    );
 
     test('a new customer without a name must complete the profile first', () {
-      const fresh = AuthState(status: AuthStatus.success, user: User(id: 'c1', fullName: '', mobileNumber: '+27821234567'), freshSignIn: true);
+      const fresh = AuthState(
+        status: AuthStatus.success,
+        user: User(id: 'c1', fullName: '', mobileNumber: '+27821234567'),
+        freshSignIn: true,
+      );
       expect(authRedirect(fresh, Uri.parse('/main')), AppRoutes.register);
       expect(authRedirect(fresh, Uri.parse(AppRoutes.register)), isNull);
     });
 
-    test('a nameless customer is not pulled off splash or the tenant screens', () {
-      const fresh = AuthState(status: AuthStatus.success, user: User(id: 'c1', fullName: ' ', mobileNumber: '+27821234567'));
-      for (final path in [AppRoutes.splash, AppRoutes.tenantPicker, AppRoutes.updateRequired]) {
-        expect(authRedirect(fresh, Uri.parse(path)), isNull, reason: path);
-      }
-      expect(authRedirect(fresh, Uri.parse(AppRoutes.login)), AppRoutes.register);
-    });
+    test(
+      'a nameless customer is not pulled off splash or the tenant screens',
+      () {
+        const fresh = AuthState(
+          status: AuthStatus.success,
+          user: User(id: 'c1', fullName: ' ', mobileNumber: '+27821234567'),
+        );
+        for (final path in [
+          AppRoutes.splash,
+          AppRoutes.tenantPicker,
+          AppRoutes.updateRequired,
+        ]) {
+          expect(authRedirect(fresh, Uri.parse(path)), isNull, reason: path);
+        }
+        expect(
+          authRedirect(fresh, Uri.parse(AppRoutes.login)),
+          AppRoutes.register,
+        );
+      },
+    );
 
     test('a customer with a name never lands on /register', () {
-      expect(authRedirect(_signedIn, Uri.parse(AppRoutes.register)), AppRoutes.main);
+      expect(
+        authRedirect(_signedIn, Uri.parse(AppRoutes.register)),
+        AppRoutes.main,
+      );
     });
 
     test('/register is protected', () {
-      expect(authRedirect(const AuthState(), Uri.parse(AppRoutes.register)), startsWith(AppRoutes.login));
+      expect(
+        authRedirect(const AuthState(), Uri.parse(AppRoutes.register)),
+        startsWith(AppRoutes.login),
+      );
     });
 
     group('the legal consent step (terms + privacy)', () {
-      AuthState signedInWith(LegalStatus legal) => AuthState(status: AuthStatus.success, user: _user, legal: legal);
+      AuthState signedInWith(LegalStatus legal) =>
+          AuthState(status: AuthStatus.success, user: _user, legal: legal);
 
-      test('every state but accepted keeps a signed-in customer on /consent', () {
-        for (final legal in [LegalStatus.unchecked, LegalStatus.required, LegalStatus.unavailable]) {
-          final state = signedInWith(legal);
-          expect(authRedirect(state, Uri.parse('/main')), AppRoutes.consent, reason: '$legal');
-          expect(authRedirect(state, Uri.parse(AppRoutes.consent)), isNull, reason: '$legal');
-          expect(authRedirect(state, Uri.parse(AppRoutes.login)), AppRoutes.consent, reason: '$legal');
-        }
-      });
+      test(
+        'every state but accepted keeps a signed-in customer on /consent',
+        () {
+          for (final legal in [
+            LegalStatus.unchecked,
+            LegalStatus.required,
+            LegalStatus.unavailable,
+          ]) {
+            final state = signedInWith(legal);
+            expect(
+              authRedirect(state, Uri.parse('/main')),
+              AppRoutes.consent,
+              reason: '$legal',
+            );
+            expect(
+              authRedirect(state, Uri.parse(AppRoutes.consent)),
+              isNull,
+              reason: '$legal',
+            );
+            expect(
+              authRedirect(state, Uri.parse(AppRoutes.login)),
+              AppRoutes.consent,
+              reason: '$legal',
+            );
+          }
+        },
+      );
 
       test('splash and the tenant screens keep their own flow', () {
         final state = signedInWith(LegalStatus.required);
-        for (final path in [AppRoutes.splash, AppRoutes.tenantPicker, AppRoutes.updateRequired]) {
+        for (final path in [
+          AppRoutes.splash,
+          AppRoutes.tenantPicker,
+          AppRoutes.updateRequired,
+        ]) {
           expect(authRedirect(state, Uri.parse(path)), isNull, reason: path);
         }
       });
 
-      test('once accepted, /consent leads on to the app (or the requested route)', () {
-        final state = signedInWith(LegalStatus.accepted);
-        expect(authRedirect(state, Uri.parse(AppRoutes.consent)), AppRoutes.main);
-        expect(authRedirect(state, Uri.parse('${AppRoutes.consent}?from=%2Fcart')), '/cart');
-      });
+      test(
+        'once accepted, /consent leads on to the app (or the requested route)',
+        () {
+          final state = signedInWith(LegalStatus.accepted);
+          expect(
+            authRedirect(state, Uri.parse(AppRoutes.consent)),
+            AppRoutes.main,
+          );
+          expect(
+            authRedirect(state, Uri.parse('${AppRoutes.consent}?from=%2Fcart')),
+            '/cart',
+          );
+        },
+      );
 
       test('the profile step comes before the consent step', () {
         const nameless = AuthState(
@@ -118,21 +263,42 @@ void main() {
           user: User(id: 'c1', fullName: '', mobileNumber: '+27821234567'),
           legal: LegalStatus.required,
         );
-        expect(authRedirect(nameless, Uri.parse(AppRoutes.consent)), AppRoutes.register);
+        expect(
+          authRedirect(nameless, Uri.parse(AppRoutes.consent)),
+          AppRoutes.register,
+        );
         expect(authRedirect(nameless, Uri.parse(AppRoutes.register)), isNull);
       });
 
-      test('a customer with a name but no consent is never let into /register either', () {
-        expect(authRedirect(signedInWith(LegalStatus.required), Uri.parse(AppRoutes.register)), AppRoutes.consent);
-      });
+      test(
+        'a customer with a name but no consent is never let into /register either',
+        () {
+          expect(
+            authRedirect(
+              signedInWith(LegalStatus.required),
+              Uri.parse(AppRoutes.register),
+            ),
+            AppRoutes.consent,
+          );
+        },
+      );
 
       test('the deep link survives the consent and profile steps as from', () {
-        final consent = authRedirect(signedInWith(LegalStatus.unchecked), Uri.parse('/cart'))!;
+        final consent = authRedirect(
+          signedInWith(LegalStatus.unchecked),
+          Uri.parse('/cart'),
+        )!;
         expect(Uri.parse(consent).path, AppRoutes.consent);
         expect(Uri.parse(consent).queryParameters['from'], '/cart');
 
-        const nameless = AuthState(status: AuthStatus.success, user: User(id: 'c1', fullName: '', mobileNumber: '+27821234567'));
-        final register = authRedirect(nameless, Uri.parse('/login?from=%2Fpayment%2Ford_1'))!;
+        const nameless = AuthState(
+          status: AuthStatus.success,
+          user: User(id: 'c1', fullName: '', mobileNumber: '+27821234567'),
+        );
+        final register = authRedirect(
+          nameless,
+          Uri.parse('/login?from=%2Fpayment%2Ford_1'),
+        )!;
         expect(Uri.parse(register).path, AppRoutes.register);
         expect(Uri.parse(register).queryParameters['from'], '/payment/ord_1');
         // and after the profile is complete it leads there
@@ -146,10 +312,19 @@ void main() {
     });
 
     test('unsafe "from" values are ignored', () {
-      for (final bad in ['//evil.example', 'https://evil.example', '/login', 'cart', '']) {
+      for (final bad in [
+        '//evil.example',
+        'https://evil.example',
+        '/login',
+        'cart',
+        '',
+      ]) {
         expect(safeFrom(bad), isNull, reason: bad);
       }
-      expect(authRedirect(_signedIn, Uri.parse('/login?from=%2F%2Fevil.example')), '/main');
+      expect(
+        authRedirect(_signedIn, Uri.parse('/login?from=%2F%2Fevil.example')),
+        '/main',
+      );
     });
   });
 
@@ -159,7 +334,13 @@ void main() {
     late AuthCubit auth;
     late AppRouter appRouter;
 
-    Future<void> pumpRouter(WidgetTester tester, {required AuthState initial, required String at, bool gated = false}) async {
+    Future<void> pumpRouter(
+      WidgetTester tester, {
+      required AuthState initial,
+      required String at,
+      bool gated = false,
+      TenantCubit? tenant,
+    }) async {
       auth = AuthCubit(
         locator(),
         sessionStore: locator(),
@@ -168,56 +349,163 @@ void main() {
         initial: initial,
         consents: gated ? locator<ConsentRepository>() : null,
       );
-      appRouter = AppRouter(auth, initialLocation: at);
+      appRouter = AppRouter(auth, initialLocation: at, tenantCubit: tenant);
       addTearDown(() async {
         appRouter.dispose();
         await auth.close();
       });
-      await tester.pumpWidget(MultiBlocProvider(
-        providers: [
-          BlocProvider.value(value: auth),
-          BlocProvider(create: (_) => CartCubit()),
-          BlocProvider(create: (_) => ThemeCubit()),
-          BlocProvider(create: (_) => LocaleCubit()),
-        ],
-        child: MaterialApp.router(routerConfig: appRouter.router),
-      ));
+      await tester.pumpWidget(
+        MultiBlocProvider(
+          providers: [
+            BlocProvider.value(value: auth),
+            if (tenant != null) BlocProvider.value(value: tenant),
+            BlocProvider(create: (_) => CartCubit()),
+            BlocProvider(create: (_) => ThemeCubit()),
+            BlocProvider(create: (_) => LocaleCubit()),
+          ],
+          child: MaterialApp.router(routerConfig: appRouter.router),
+        ),
+      );
       await tester.pumpAndSettle();
       // The hotspot-only dashboard no longer shows a long-running spinner, so
       // let the mock shell repositories (catalog, support) finish their delays.
       await tester.pump(const Duration(seconds: 1));
     }
 
-    testWidgets('signed-out deep link to /cart lands on login, then returns to /cart after sign-in', (tester) async {
-      await pumpRouter(tester, initial: const AuthState(), at: '/cart', gated: true);
-      expect(find.text('Welcome back'), findsOneWidget);
-      expect(find.text('Your cart'), findsNothing);
+    for (final flags in [
+      (false, true, '/main'),
+      (true, false, '/coverage'),
+      (true, true, '/coverage'),
+    ]) {
+      testWidgets('fresh sign-in routes cpe=${flags.$1} hotspot=${flags.$2}', (
+        tester,
+      ) async {
+        final tenant = await firstRunTenant(cpe: flags.$1, hotspot: flags.$2);
+        addTearDown(tenant.close);
+        await pumpRouter(
+          tester,
+          initial: const AuthState(
+            status: AuthStatus.success,
+            user: _user,
+            freshSignIn: true,
+          ),
+          at: '/login',
+          tenant: tenant,
+        );
+        expect(appRouter.router.state.uri.path, flags.$3);
+      });
+    }
 
-      await tester.enterText(find.widgetWithText(TextField, 'Mobile number'), '0810000000');
-      await tester.tap(find.widgetWithText(ElevatedButton, 'Send code'));
-      await tester.pump(const Duration(seconds: 1));
-      await tester.enterText(find.widgetWithText(TextField, '6-digit code'), '123456');
-      await tester.tap(find.widgetWithText(ElevatedButton, 'Verify'));
-      await tester.pump(const Duration(seconds: 1));
-      // A returning customer meets the consent step (terms + privacy) before anything else.
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('I agree')); // the consent step
-      await tester.pumpAndSettle();
-
-      expect(find.text('Your cart'), findsOneWidget);
+    testWidgets('fresh no-tenant login keeps coverage onboarding', (
+      tester,
+    ) async {
+      await pumpRouter(
+        tester,
+        initial: const AuthState(
+          status: AuthStatus.success,
+          user: _user,
+          freshSignIn: true,
+        ),
+        at: '/login',
+      );
+      expect(appRouter.router.state.uri.path, '/coverage');
     });
 
-    testWidgets('a restored session without current consent meets the consent step first, then reaches the deep link', (tester) async {
-      await pumpRouter(tester, initial: _signedIn, at: '/cart', gated: true);
-      expect(find.text('Terms of Service'), findsOneWidget);
-      expect(find.text('Your cart'), findsNothing);
+    testWidgets(
+      'hotspot profile and legal gates retain protected destination',
+      (tester) async {
+        final tenant = await firstRunTenant(cpe: false);
+        addTearDown(tenant.close);
+        await pumpRouter(
+          tester,
+          initial: const AuthState(
+            status: AuthStatus.success,
+            user: User(id: 'c1', fullName: '', mobileNumber: '+27821234567'),
+            freshSignIn: true,
+          ),
+          at: '/login?from=%2Fcart',
+          tenant: tenant,
+          gated: true,
+        );
+        expect(appRouter.router.state.uri.path, '/register');
+        expect(appRouter.router.state.uri.queryParameters['from'], '/cart');
+        await auth.profileUpdated(_user);
+        await tester.pumpAndSettle();
+        expect(appRouter.router.state.uri.path, '/consent');
+        await tester.tap(find.text('I agree'));
+        await tester.pumpAndSettle();
+        expect(appRouter.router.state.uri.path, '/cart');
+      },
+    );
 
+    testWidgets('restored hotspot session reaches Home after current consent', (
+      tester,
+    ) async {
+      final tenant = await firstRunTenant(cpe: false);
+      addTearDown(tenant.close);
+      await pumpRouter(
+        tester,
+        initial: _signedIn,
+        at: '/login',
+        tenant: tenant,
+        gated: true,
+      );
+      expect(appRouter.router.state.uri.path, '/consent');
       await tester.tap(find.text('I agree'));
       await tester.pumpAndSettle();
-      expect(find.text('Your cart'), findsOneWidget);
+      expect(appRouter.router.state.uri.path, '/main');
+      await tester.pump(const Duration(seconds: 1));
     });
 
-    testWidgets('a restored session that already agreed is not asked again', (tester) async {
+    testWidgets(
+      'signed-out deep link to /cart lands on login, then returns to /cart after sign-in',
+      (tester) async {
+        await pumpRouter(
+          tester,
+          initial: const AuthState(),
+          at: '/cart',
+          gated: true,
+        );
+        expect(find.text('Hello!'), findsOneWidget);
+        expect(find.text('Your cart'), findsNothing);
+
+        await tester.enterText(
+          find.widgetWithText(TextField, 'Mobile number'),
+          '0810000000',
+        );
+        await tester.tap(find.widgetWithText(ElevatedButton, 'Send code'));
+        await tester.pump(const Duration(seconds: 1));
+        await tester.enterText(
+          find.widgetWithText(TextField, '6-digit code'),
+          '123456',
+        );
+        await tester.tap(find.widgetWithText(ElevatedButton, 'Verify'));
+        await tester.pump(const Duration(seconds: 1));
+        // A returning customer meets the consent step (terms + privacy) before anything else.
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('I agree')); // the consent step
+        await tester.pumpAndSettle();
+
+        expect(find.text('Your cart'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'a restored session without current consent meets the consent step first, then reaches the deep link',
+      (tester) async {
+        await pumpRouter(tester, initial: _signedIn, at: '/cart', gated: true);
+        expect(find.text('Terms of Service'), findsOneWidget);
+        expect(find.text('Your cart'), findsNothing);
+
+        await tester.tap(find.text('I agree'));
+        await tester.pumpAndSettle();
+        expect(find.text('Your cart'), findsOneWidget);
+      },
+    );
+
+    testWidgets('a restored session that already agreed is not asked again', (
+      tester,
+    ) async {
       await locator<ConsentRepository>().grant(ConsentPurpose.terms);
       await locator<ConsentRepository>().grant(ConsentPurpose.privacy);
       await pumpRouter(tester, initial: _signedIn, at: '/cart', gated: true);
@@ -231,33 +519,47 @@ void main() {
       await tester.tap(find.text('Sign out'));
       await tester.pumpAndSettle();
       expect(auth.state.isSignedIn, isFalse);
-      expect(find.text('Welcome back'), findsOneWidget);
+      expect(find.text('Hello!'), findsOneWidget);
     });
 
-    testWidgets('unknown order ids fail gracefully instead of throwing on a missing extra', (tester) async {
-      await pumpRouter(tester, initial: _signedIn, at: '/confirmation/does-not-exist');
-      expect(tester.takeException(), isNull);
-      expect(find.text('Retry'), findsOneWidget);
-    });
+    testWidgets(
+      'unknown order ids fail gracefully instead of throwing on a missing extra',
+      (tester) async {
+        await pumpRouter(
+          tester,
+          initial: _signedIn,
+          at: '/confirmation/does-not-exist',
+        );
+        expect(tester.takeException(), isNull);
+        expect(find.text('Retry'), findsOneWidget);
+      },
+    );
 
-    testWidgets('direct navigation to /rica/:id works without any extra object', (tester) async {
-      await pumpRouter(tester, initial: _signedIn, at: '/rica/whatever');
-      expect(tester.takeException(), isNull);
-      expect(find.text('Verify your identity'), findsOneWidget);
-    });
+    testWidgets(
+      'direct navigation to /rica/:id works without any extra object',
+      (tester) async {
+        await pumpRouter(tester, initial: _signedIn, at: '/rica/whatever');
+        expect(tester.takeException(), isNull);
+        expect(find.text('Verify your identity'), findsOneWidget);
+      },
+    );
 
-    testWidgets('logging out from a protected screen redirects to /login', (tester) async {
+    testWidgets('logging out from a protected screen redirects to /login', (
+      tester,
+    ) async {
       await pumpRouter(tester, initial: _signedIn, at: '/cart');
       expect(find.text('Your cart'), findsOneWidget);
 
       await auth.logOut();
       await tester.pumpAndSettle();
 
-      expect(find.text('Welcome back'), findsOneWidget);
+      expect(find.text('Hello!'), findsOneWidget);
       expect(appRouter.router.state.uri.path, '/login');
     });
 
-    testWidgets('a signed-in user opening /login is sent to /main', (tester) async {
+    testWidgets('a signed-in user opening /login is sent to /main', (
+      tester,
+    ) async {
       await pumpRouter(tester, initial: _signedIn, at: '/login');
       // No TenantCubit in this router: the cpe flag defaults to OFF, so no router card.
       expect(find.text('Living room router'), findsNothing);

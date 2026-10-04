@@ -1809,5 +1809,37 @@
   "mapUnavailableWifiSpots": "Map not available. Here are the WiFi spots.",
   "@mapUnavailableWifiSpots": {
     "description": "Fallback above a hotspot list when customer location is unavailable."
+  },
+  "loginTitleNew": "Hello!",
+  "@loginTitleNew": {
+    "description": "Greeting for an unknown or signed-out customer."
+  },
+  "otpPasteCode": "Paste code",
+  "@otpPasteCode": {
+    "description": "Explicitly read the clipboard for the SMS verification code."
+  },
+  "otpPasteOnlyCode": "Paste only the 6-digit code.",
+  "@otpPasteOnlyCode": {
+    "description": "Inline error for ambiguous, empty or overlong pasted verification text."
+  },
+  "legalBodyLanguageNote": "This text is only in English for now.",
+  "@legalBodyLanguageNote": {
+    "description": "Honest disclosure when legal consent text uses the English fallback."
+  },
+  "consentTermsLink": "Read the Terms",
+  "@consentTermsLink": {
+    "description": "Opens the configured public tenant Terms document."
+  },
+  "consentTermsUnavailable": "Terms link is unavailable. Please try again later.",
+  "@consentTermsUnavailable": {
+    "description": "Shown when the tenant has no valid public Terms URL."
+  },
+  "legalLinkOpenFailed": "Could not open the link. Please try again.",
+  "@legalLinkOpenFailed": {
+    "description": "A legal document could not be opened externally."
+  },
+  "loginEnterPhone": "Enter your phone number",
+  "@loginEnterPhone": {
+    "description": "Plain first-run instruction above the mobile number field."
   }
 }

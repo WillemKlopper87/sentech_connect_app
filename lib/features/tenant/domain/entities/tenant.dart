@@ -4,10 +4,15 @@ import 'package:equatable/equatable.dart';
 import 'package:sentech_connect_app/core/utils/tenant_slug.dart';
 
 /// Public, per-tenant look (spec §12: branding is public and never holds
-/// secrets). Only `primary_color` (#RRGGBB) and `logo_url` (https) are read
-/// (ruling R-M4-6); anything else is ignored.
+/// secrets). Reads color, logo and optional public Terms/privacy URLs.
+/// Unknown branding fields are ignored.
 class TenantBranding extends Equatable {
-  const TenantBranding({this.primaryColor, this.logoUrl});
+  const TenantBranding({
+    this.primaryColor,
+    this.logoUrl,
+    this.termsUrl,
+    this.privacyUrl,
+  });
 
   static final _hex = RegExp(r'^#([0-9a-fA-F]{6})$');
 
@@ -16,6 +21,22 @@ class TenantBranding extends Equatable {
 
   final Color? primaryColor;
   final Uri? logoUrl;
+  final Uri? termsUrl;
+  final Uri? privacyUrl;
+
+  /// Matches the existing public legal URL contract (maximum 500 chars).
+  static Uri? _legalUrl(Object? value) {
+    if (value is! String || value.length > 500 || RegExp(r'\s').hasMatch(value)) {
+      return null;
+    }
+    final uri = Uri.tryParse(value);
+    return uri != null &&
+            uri.scheme == 'https' &&
+            uri.host.isNotEmpty &&
+            uri.userInfo.isEmpty
+        ? uri
+        : null;
+  }
 
   factory TenantBranding.fromJson(Map<String, Object?> json) {
     final colour = json['primary_color'];
@@ -23,46 +44,81 @@ class TenantBranding extends Equatable {
     Color? parsedColour;
     if (colour is String) {
       final match = _hex.firstMatch(colour);
-      if (match != null) parsedColour = Color(0xFF000000 | int.parse(match.group(1)!, radix: 16));
+      if (match != null) {
+        parsedColour = Color(
+          0xFF000000 | int.parse(match.group(1)!, radix: 16),
+        );
+      }
     }
     Uri? parsedLogo;
     if (logo is String) {
       final uri = logo.length <= maxLogoUrlLength ? Uri.tryParse(logo) : null;
       // https only, a real host, and no embedded credentials (userinfo).
-      if (uri != null && uri.scheme == 'https' && uri.host.isNotEmpty && uri.userInfo.isEmpty) parsedLogo = uri;
+      if (uri != null &&
+          uri.scheme == 'https' &&
+          uri.host.isNotEmpty &&
+          uri.userInfo.isEmpty) {
+        parsedLogo = uri;
+      }
     }
-    return TenantBranding(primaryColor: parsedColour, logoUrl: parsedLogo);
+    final legal = json['legal_urls'];
+    return TenantBranding(
+      primaryColor: parsedColour,
+      logoUrl: parsedLogo,
+      termsUrl: legal is Map ? _legalUrl(legal['terms']) : null,
+      privacyUrl: legal is Map ? _legalUrl(legal['privacy']) : null,
+    );
   }
 
   Map<String, Object?> toJson() => {
-        if (primaryColor case final colour?)
-          'primary_color': '#${(colour.toARGB32() & 0xFFFFFF).toRadixString(16).padLeft(6, '0')}',
-        if (logoUrl case final logo?) 'logo_url': logo.toString(),
-      };
+    if (primaryColor case final colour?)
+      'primary_color':
+          '#${(colour.toARGB32() & 0xFFFFFF).toRadixString(16).padLeft(6, '0')}',
+    if (logoUrl case final logo?) 'logo_url': logo.toString(),
+    if (termsUrl != null || privacyUrl != null)
+      'legal_urls': {
+        if (termsUrl case final terms?) 'terms': terms.toString(),
+        if (privacyUrl case final privacy?) 'privacy': privacy.toString(),
+      },
+  };
 
   @override
-  List<Object?> get props => [primaryColor, logoUrl];
+  List<Object?> get props => [primaryColor, logoUrl, termsUrl, privacyUrl];
 }
 
 /// An ISP served by the platform (spec §12). Customers belong to one tenant.
 class Tenant extends Equatable {
-  const Tenant({required this.slug, required this.name, required this.type, this.branding = const TenantBranding()});
+  const Tenant({
+    required this.slug,
+    required this.name,
+    required this.type,
+    this.branding = const TenantBranding(),
+  });
 
   factory Tenant.fromJson(Map<String, Object?> json) {
     final slug = json['slug'];
     final name = json['name'];
     final type = json['type'];
     final branding = json['branding'];
-    if (slug is! String || name is! String || type is! String) throw const FormatException('Malformed tenant');
-    if (!slugPattern.hasMatch(slug)) throw const FormatException('Malformed tenant slug');
-    if (name.isEmpty || name.length > maxTextLength || type.isEmpty || type.length > maxTextLength) {
+    if (slug is! String || name is! String || type is! String) {
+      throw const FormatException('Malformed tenant');
+    }
+    if (!slugPattern.hasMatch(slug)) {
+      throw const FormatException('Malformed tenant slug');
+    }
+    if (name.isEmpty ||
+        name.length > maxTextLength ||
+        type.isEmpty ||
+        type.length > maxTextLength) {
       throw const FormatException('Malformed tenant');
     }
     return Tenant(
       slug: slug,
       name: name,
       type: type,
-      branding: branding is Map ? TenantBranding.fromJson(Map<String, Object?>.from(branding)) : const TenantBranding(),
+      branding: branding is Map
+          ? TenantBranding.fromJson(Map<String, Object?>.from(branding))
+          : const TenantBranding(),
     );
   }
 
@@ -82,7 +138,12 @@ class Tenant extends Equatable {
 
   bool get isReseller => type == 'reseller';
 
-  Map<String, Object?> toJson() => {'slug': slug, 'name': name, 'type': type, 'branding': branding.toJson()};
+  Map<String, Object?> toJson() => {
+    'slug': slug,
+    'name': name,
+    'type': type,
+    'branding': branding.toJson(),
+  };
 
   @override
   List<Object?> get props => [slug, name, type, branding];

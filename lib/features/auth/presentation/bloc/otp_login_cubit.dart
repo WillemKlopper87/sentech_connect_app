@@ -163,7 +163,7 @@ class OtpLoginCubit extends Cubit<OtpLoginState> {
 
   Future<void> submitCode(String code) async {
     final challenge = state.challenge;
-    if (state.busy || state.locked || challenge == null) return;
+    if (state.busy || state.locked || state.status == OtpLoginStatus.verified || challenge == null) return;
     final trimmed = code.trim();
     if (!_sixDigits.hasMatch(trimmed)) {
       emit(state.copyWith(status: OtpLoginStatus.failure, failure: const ValidationFailure('Enter the 6-digit code.', 'invalid_code')));

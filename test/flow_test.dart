@@ -1,3 +1,6 @@
+import 'package:sentech_connect_app/app/locator.dart';
+import 'package:sentech_connect_app/features/tenant/domain/repositories/tenant_repository.dart';
+import 'helpers/first_run_tenant.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentech_connect_app/app/app.dart';
@@ -27,6 +30,10 @@ void main() {
   testWidgets(
     'splash -> login -> coverage -> catalog -> cart -> checkout -> rica -> confirmation -> dashboard',
     (tester) async {
+      // Physical-product demo explicitly includes home-internet onboarding.
+      locator.registerSingleton<TenantRepository>(
+        FirstRunTenantRepository(cpe: true, rica: true),
+      );
       await tester.pumpWidget(const SentechConnectApp());
       await tester.pump(); // splash first frame
       await tester.pump(
@@ -35,7 +42,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // 1. Login
-      expect(find.text('Welcome back'), findsOneWidget);
+      expect(find.text('Hello!'), findsOneWidget);
       expect(
         find.text('Use biometrics'),
         findsNothing,
@@ -80,9 +87,9 @@ void main() {
 
       // 3. Catalog — MainShell lands on Home/Dashboard by default, switch to Shop
       expect(find.text('Home'), findsNWidgets(2));
-      // Demo dashboard is about hotspot passes, not a router.
+      // Home includes the router for this physical-product tenant.
       expect(find.text('Buy a pass'), findsWidgets);
-      expect(find.text('Living room router'), findsNothing);
+      expect(find.text('Living room router'), findsOneWidget);
       await tester.tap(find.text('Shop'));
       await tester.pump();
       await tester.pump(
@@ -218,8 +225,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('I agree'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('View plans for this address'));
-    await tester.pump();
+    expect(find.text('Coverage check'), findsNothing);
     await tester.pump(const Duration(milliseconds: 500));
 
     await tester.tap(find.text('Shop'));

@@ -2463,6 +2463,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Map not available. Here are the WiFi spots.'**
   String get mapUnavailableWifiSpots;
+
+  /// Greeting for an unknown or signed-out customer.
+  ///
+  /// In en, this message translates to:
+  /// **'Hello!'**
+  String get loginTitleNew;
+
+  /// Explicitly read the clipboard for the SMS verification code.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste code'**
+  String get otpPasteCode;
+
+  /// Inline error for ambiguous, empty or overlong pasted verification text.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste only the 6-digit code.'**
+  String get otpPasteOnlyCode;
+
+  /// Honest disclosure when legal consent text uses the English fallback.
+  ///
+  /// In en, this message translates to:
+  /// **'This text is only in English for now.'**
+  String get legalBodyLanguageNote;
+
+  /// Opens the configured public tenant Terms document.
+  ///
+  /// In en, this message translates to:
+  /// **'Read the Terms'**
+  String get consentTermsLink;
+
+  /// Shown when the tenant has no valid public Terms URL.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms link is unavailable. Please try again later.'**
+  String get consentTermsUnavailable;
+
+  /// A legal document could not be opened externally.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open the link. Please try again.'**
+  String get legalLinkOpenFailed;
+
+  /// Plain first-run instruction above the mobile number field.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your phone number'**
+  String get loginEnterPhone;
 }
 
 class _AppLocalizationsDelegate
