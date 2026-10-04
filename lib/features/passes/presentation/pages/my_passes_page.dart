@@ -96,14 +96,12 @@ class _PassCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
+            Wrap(
+              spacing: 12,
+              runSpacing: 8,
+              crossAxisAlignment: WrapCrossAlignment.center,
               children: [
-                Expanded(
-                  child: Text(
-                    pass.productName,
-                    style: theme.textTheme.titleMedium,
-                  ),
-                ),
+                Text(pass.productName, style: theme.textTheme.titleMedium),
                 Chip(label: Text(status), visualDensity: VisualDensity.compact),
               ],
             ),

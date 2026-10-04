@@ -410,8 +410,8 @@ class _ManualEntrySheetState extends State<_ManualEntrySheet> {
               decoration: InputDecoration(
                 hintText: context.l10n.scanEGAbcd2345Efgh,
                 helperText: context.l10n.scanVoucherCodeHelper,
-                helperMaxLines: 4,
-                helperStyle: const TextStyle(fontSize: 13),
+                helperMaxLines: 8,
+                helperStyle: const TextStyle(fontSize: 15),
               ),
             ),
             const SizedBox(height: 12),

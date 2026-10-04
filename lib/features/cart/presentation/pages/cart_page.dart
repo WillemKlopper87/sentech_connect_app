@@ -85,23 +85,20 @@ class CartPage extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      Wrap(
+                        alignment: WrapAlignment.spaceBetween,
+                        spacing: 12,
+                        runSpacing: 8,
                         children: [
                           Text(
                             context.l10n.cartTotal,
                             style: theme.textTheme.titleLarge,
                           ),
-                          const SizedBox(width: 12),
-                          // Flexible so a large text size wraps instead of overflowing.
-                          Flexible(
-                            child: Text(
-                              context.l10n.priceInclVat(
-                                formatRands(state.totalCents),
-                              ),
-                              textAlign: TextAlign.end,
-                              style: theme.textTheme.titleLarge,
+                          Text(
+                            context.l10n.priceInclVat(
+                              formatRands(state.totalCents),
                             ),
+                            style: theme.textTheme.titleLarge,
                           ),
                         ],
                       ),

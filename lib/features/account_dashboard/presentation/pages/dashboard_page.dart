@@ -63,7 +63,7 @@ class DashboardPage extends StatelessWidget {
           children: [
             const SentechLogo(height: 20),
             const SizedBox(width: 10),
-            Text(context.l10n.homeTitle),
+            Expanded(child: Text(context.l10n.homeTitle)),
           ],
         ),
         actions: const [
@@ -243,6 +243,7 @@ class _UsageCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final ringSize = MediaQuery.textScalerOf(context).scale(84);
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -252,14 +253,14 @@ class _UsageCard extends StatelessWidget {
       child: Row(
         children: [
           SizedBox(
-            width: 84,
-            height: 84,
+            width: ringSize,
+            height: ringSize,
             child: Stack(
               alignment: Alignment.center,
               children: [
                 SizedBox(
-                  width: 84,
-                  height: 84,
+                  width: ringSize,
+                  height: ringSize,
                   child: CircularProgressIndicator(
                     value: summary.usageFraction,
                     strokeWidth: 8,
@@ -277,7 +278,7 @@ class _UsageCard extends StatelessWidget {
                     ),
                     Text(
                       context.l10n.homeUsed,
-                      style: theme.textTheme.bodyMedium?.copyWith(fontSize: 9),
+                      style: theme.textTheme.bodyMedium?.copyWith(fontSize: 15),
                     ),
                   ],
                 ),
@@ -405,7 +406,7 @@ class _PromoBanner extends StatelessWidget {
                 style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.w700,
-                  fontSize: 13,
+                  fontSize: 15,
                 ),
               ),
             ),

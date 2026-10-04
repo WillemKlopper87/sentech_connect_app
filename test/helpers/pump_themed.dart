@@ -15,6 +15,7 @@ Future<void> pumpThemed(
   Locale locale = const Locale('en'),
   double textScale = 1.0,
   Size size = const Size(390, 844),
+  LocalizationsDelegate<AppLocalizations>? localizationDelegate,
 }) async {
   tester.view.physicalSize = size * tester.view.devicePixelRatio;
   addTearDown(tester.view.resetPhysicalSize);
@@ -26,13 +27,18 @@ Future<void> pumpThemed(
           ? ThemeMode.dark
           : ThemeMode.light,
       locale: locale,
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      localizationsDelegates: [
+        ?localizationDelegate,
+        ...AppLocalizations.localizationsDelegates,
+      ],
       supportedLocales: AppLocalizations.supportedLocales,
-      home: MediaQuery.withClampedTextScaling(
-        minScaleFactor: textScale,
-        maxScaleFactor: textScale,
-        child: Scaffold(body: child),
+      builder: (context, route) => MediaQuery(
+        data: MediaQuery.of(
+          context,
+        ).copyWith(textScaler: TextScaler.linear(textScale)),
+        child: route!,
       ),
+      home: Scaffold(body: child),
     ),
   );
 }

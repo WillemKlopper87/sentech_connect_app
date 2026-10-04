@@ -62,8 +62,8 @@ class _CatalogScaffold extends StatelessWidget {
                         top: 4,
                         child: Container(
                           padding: const EdgeInsets.all(3),
-                          decoration: const BoxDecoration(
-                            color: Color(0xFFED1C24),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.error,
                             shape: BoxShape.circle,
                           ),
                           constraints: const BoxConstraints(
@@ -73,9 +73,9 @@ class _CatalogScaffold extends StatelessWidget {
                           child: Text(
                             '${cartState.itemCount}',
                             textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 10,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onError,
+                              fontSize: 13,
                               fontWeight: FontWeight.w800,
                             ),
                           ),
@@ -190,7 +190,7 @@ class _SegmentedRow extends StatelessWidget {
                 },
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 14,
                   fontWeight: FontWeight.w700,
                   color: active
                       ? theme.colorScheme.primary
@@ -234,13 +234,12 @@ class _PlanCard extends StatelessWidget {
           width: plan.isFeatured ? 1.6 : 1,
         ),
       ),
-      child: Stack(
-        clipBehavior: Clip.none,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (plan.isFeatured)
-            Positioned(
-              top: -22,
-              right: 8,
+          if (plan.isFeatured) ...[
+            Align(
+              alignment: Alignment.centerRight,
               child: Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 10,
@@ -252,76 +251,78 @@ class _PlanCard extends StatelessWidget {
                 ),
                 child: Text(
                   context.l10n.planBadgeOurPick,
-                  style: TextStyle(
-                    fontSize: 10,
+                  style: const TextStyle(
+                    fontSize: 13,
                     fontWeight: FontWeight.w800,
                     color: Color(0xFF3A2400),
                   ),
                 ),
               ),
             ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Expanded(
-                    child: Text(plan.name, style: theme.textTheme.titleMedium),
-                  ),
-                  const SizedBox(width: 8),
-                  Flexible(
-                    child: RichText(
-                      textAlign: TextAlign.end,
-                      text: TextSpan(
-                        style: theme.textTheme.titleMedium,
-                        children: [
-                          TextSpan(
-                            text: context.l10n.priceInclVat(
-                              formatRands(plan.priceCents, wholeRands: true),
-                            ),
-                          ),
-                          TextSpan(
-                            text:
-                                plan.category == ProductCategory.home5g ||
-                                    plan.category == ProductCategory.mifi
-                                ? context.l10n.pricePerMonth
-                                : '',
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              color: theme.colorScheme.onSurfaceVariant,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 4),
-              Text(
-                plan.speedMbps > 0
-                    ? context.l10n.shopPlanSpeed(
-                        plan.dataDescription,
-                        plan.speedMbps.toString(),
-                      )
-                    : plan.dataDescription,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
+            const SizedBox(height: 8),
+          ],
+          if (MediaQuery.textScalerOf(context).scale(16) > 24) ...[
+            Text(plan.name, style: theme.textTheme.titleMedium),
+            const SizedBox(height: 8),
+            _price(context),
+          ] else
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Expanded(
+                  child: Text(plan.name, style: theme.textTheme.titleMedium),
                 ),
-              ),
-              const SizedBox(height: 12),
-              plan.isFeatured
-                  ? ElevatedButton(
-                      onPressed: onSelect,
-                      child: Text(context.l10n.shopAddToCart),
-                    )
-                  : OutlinedButton(
-                      onPressed: onSelect,
-                      child: Text(context.l10n.shopAddToCart),
-                    ),
-            ],
+                const SizedBox(width: 8),
+                Flexible(child: _price(context)),
+              ],
+            ),
+          const SizedBox(height: 4),
+          Text(
+            plan.speedMbps > 0
+                ? context.l10n.shopPlanSpeed(
+                    plan.dataDescription,
+                    plan.speedMbps.toString(),
+                  )
+                : plan.dataDescription,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
           ),
+          const SizedBox(height: 12),
+          plan.isFeatured
+              ? ElevatedButton(
+                  onPressed: onSelect,
+                  child: Text(context.l10n.shopAddToCart),
+                )
+              : OutlinedButton(
+                  onPressed: onSelect,
+                  child: Text(context.l10n.shopAddToCart),
+                ),
+        ],
+      ),
+    );
+  }
+
+  Widget _price(BuildContext context) {
+    final theme = Theme.of(context);
+    return RichText(
+      textScaler: MediaQuery.textScalerOf(context),
+      text: TextSpan(
+        style: theme.textTheme.titleMedium,
+        children: [
+          TextSpan(
+            text: context.l10n.priceInclVat(
+              formatRands(plan.priceCents, wholeRands: true),
+            ),
+          ),
+          if (plan.category == ProductCategory.home5g ||
+              plan.category == ProductCategory.mifi)
+            TextSpan(
+              text: context.l10n.pricePerMonth,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
         ],
       ),
     );

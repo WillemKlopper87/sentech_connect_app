@@ -6,6 +6,8 @@ abstract class AppColors {
   // Primary
   static const sentechBlue = Color(0xFF005BAA);
   static const darkGrey = Color(0xFF6D6E71);
+  static const textStrong = Color(0xFF3D3E40);
+  static const heading = darkBlue;
   static const lightGrey = Color(0xFFBCBEC0);
 
   // Secondary / accents
