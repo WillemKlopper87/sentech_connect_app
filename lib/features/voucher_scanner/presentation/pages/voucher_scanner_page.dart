@@ -163,7 +163,13 @@ class _VoucherScannerViewState extends State<_VoucherScannerView>
       await _pauseCamera();
     } else if (state.status == VoucherStatus.result) {
       await _pauseCamera();
-      if (!context.mounted || cubit.isClosed) return;
+      // Camera stop can outlast this result. A newer entry/result must not
+      // be covered by a sheet from the earlier captured state.
+      if (!context.mounted ||
+          cubit.isClosed ||
+          !identical(cubit.state, state)) {
+        return;
+      }
       final version = ++_resultVersion;
       var retrying = false;
       final typed = _typed;

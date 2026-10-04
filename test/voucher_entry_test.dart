@@ -10,6 +10,7 @@ import 'package:sentech_connect_app/features/voucher_scanner/domain/entities/vou
 import 'package:sentech_connect_app/features/voucher_scanner/domain/entities/voucher_redemption.dart';
 import 'package:sentech_connect_app/features/voucher_scanner/domain/repositories/voucher_repository.dart';
 import 'package:sentech_connect_app/features/voucher_scanner/presentation/pages/voucher_scanner_page.dart';
+import 'package:sentech_connect_app/features/voucher_scanner/presentation/pages/voucher_result_sheet.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/presentation/widgets/pass_ready_view.dart';
 
 import 'helpers/pump_themed.dart';
@@ -47,6 +48,17 @@ class _CountingController extends MobileScannerController {
   @override
   Future<void> stop() async {
     stops++;
+  }
+}
+
+/// Holds the first stop so a newer entry can overtake a camera result.
+class _DelayedStopController extends _CountingController {
+  final firstStop = Completer<void>();
+
+  @override
+  Future<void> stop() async {
+    await super.stop();
+    if (stops == 1) await firstStop.future;
   }
 }
 
@@ -158,6 +170,50 @@ void main() {
     await tester.tap(find.text('Cancel'));
     await tester.pumpAndSettle();
     expect(camera.starts, starts + 1);
+  });
+
+  testWidgets('delayed camera stop cannot show an obsolete result over entry', (
+    tester,
+  ) async {
+    repo = _FakeVoucherRepository(
+      const VoucherRedemption(VoucherOutcome.invalid),
+    );
+    locator.registerLazySingleton<VoucherRepository>(() => repo);
+    final camera = _DelayedStopController();
+    addTearDown(camera.dispose);
+    await pumpThemed(tester, VoucherScannerPage(controller: camera));
+    await tester.pump();
+    final starts = camera.starts;
+    tester.widget<MobileScanner>(find.byType(MobileScanner)).onDetect!(
+      BarcodeCapture(barcodes: [const Barcode(rawValue: 'not a voucher')]),
+    );
+    await tester.pump();
+    expect(camera.stops, 1);
+    expect(repo.calls, isEmpty);
+
+    await tester.tap(find.text('Type the code instead'));
+    await tester.pumpAndSettle();
+    expect(find.byType(TextField), findsOneWidget);
+    camera.firstStop.complete();
+    await tester.pumpAndSettle();
+    expect(find.byType(VoucherResultSheet), findsNothing);
+    expect(find.byType(TextField), findsOneWidget);
+    expect(camera.starts, starts);
+
+    // The current entry remains usable after the obsolete result is dropped.
+    await tester.enterText(find.byType(TextField), 'abcd2345efgq');
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.pumpAndSettle();
+    expect(repo.calls.single.value, 'ABCD2345EFGQ');
+    expect(find.text("That code didn't work"), findsOneWidget);
+    expect(camera.starts, starts);
+    await tester.tap(find.text('Done'));
+    await tester.pumpAndSettle();
+    expect(camera.starts, starts + 1);
+    expect(camera.stops, 1);
+    expect(find.byType(TextField), findsNothing);
+    expect(find.byType(VoucherResultSheet), findsNothing);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('clipboard is read only by the visible Paste button', (
