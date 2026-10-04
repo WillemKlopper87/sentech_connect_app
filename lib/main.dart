@@ -35,25 +35,54 @@ Future<void> _start(CrashReporter crashReporter) async {
   // not start the app, and must not leave a blank screen either: report it
   // (the message never contains the raw defines) and show a minimal error.
   try {
-    setupLocator(crashReporter: crashReporter, environment: AppEnvironment.fromDefines());
+    setupLocator(
+      crashReporter: crashReporter,
+      environment: AppEnvironment.fromDefines(),
+    );
   } on InvalidEnvironment catch (error, stack) {
-    await crashReporter.recordError(error, stack, fatal: true, reason: 'invalid build configuration');
+    await crashReporter.recordError(
+      error,
+      stack,
+      fatal: true,
+      reason: 'invalid build configuration',
+    );
     runApp(buildStartupErrorApp());
     return;
   }
 
   // Boot video (cold start only: main() is not re-run on resume). Start-up
   // work runs in parallel with it; the video never delays that work.
-  runApp(BootHost(
-    app: _prepareApp(),
-    controllerFactory: bootVideoEnabled ? createAssetBootVideoController : null,
-    onError: (error, stack) => unawaited(
-      crashReporter.recordError(error, stack, fatal: true, reason: 'startup failed'),
+  final startupSettings = _loadStartupSettings();
+  runApp(
+    BootHost(
+      app: _prepareApp(startupSettings),
+      bootVideoSeen: startupSettings.then(
+        (settings) => settings.seen || settings.saver,
+      ),
+      controllerFactory: bootVideoEnabled
+          ? createAssetBootVideoController
+          : null,
+      onError: (error, stack) => unawaited(
+        crashReporter.recordError(
+          error,
+          stack,
+          fatal: true,
+          reason: 'startup failed',
+        ),
+      ),
     ),
-  ));
+  );
 }
 
-Future<Widget> _prepareApp() async {
+Future<({bool seen, bool saver})> _loadStartupSettings() async => (
+  seen: await AppPreferences.loadBootVideoSeen(),
+  saver: await AppPreferences.loadDataSaver(),
+);
+
+Future<Widget> _prepareApp(
+  Future<({bool seen, bool saver})> startupSettings,
+) async {
+  final settings = await startupSettings;
   final savedThemeMode = await AppPreferences.loadThemeMode();
   final savedLocale = await AppPreferences.loadLocale();
   final initialAuthState = await restoreAuthState(
@@ -68,6 +97,7 @@ Future<Widget> _prepareApp() async {
   return SentechConnectApp(
     initialThemeMode: savedThemeMode,
     initialLocale: savedLocale,
+    initialDataSaver: settings.saver,
     initialAuthState: initialAuthState,
     quickSplash: bootVideoEnabled,
   );

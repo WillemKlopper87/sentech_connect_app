@@ -7,6 +7,7 @@ import 'package:sentech_connect_app/app/boot/boot_video_config.dart';
 import 'package:sentech_connect_app/app/boot/boot_video_controller.dart';
 import 'package:sentech_connect_app/app/boot/boot_video_screen.dart';
 import 'package:sentech_connect_app/l10n/app_localizations_en.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class FakeBootVideoController implements BootVideoController {
   FakeBootVideoController({this.failInit = false, this.neverInit = false});
@@ -102,6 +103,7 @@ void main() {
   // fake-async zone (a setUp-created Completer would complete outside it).
   void t(String name, Future<void> Function(WidgetTester tester) body) {
     testWidgets(name, (tester) async {
+      SharedPreferences.setMockInitialValues({});
       fake = FakeBootVideoController();
       init = Completer<void>();
       completions = 0;
@@ -164,9 +166,9 @@ void main() {
     await tester.pumpWidget(screen());
     await tester.pump();
 
-    final skip = find.widgetWithText(TextButton, 'Skip');
+    final skip = find.widgetWithText(ActionChip, 'Skip');
     expect(skip, findsOneWidget);
-    expect(tester.widget<TextButton>(skip).onPressed, isNull);
+    expect(tester.widget<ActionChip>(skip).onPressed, isNull);
 
     await tester.tapAt(const Offset(100, 300));
     await tester.pump(const Duration(milliseconds: 1400));
@@ -175,7 +177,7 @@ void main() {
     expect(completions, 0);
 
     await tester.pump(const Duration(milliseconds: 200));
-    expect(tester.widget<TextButton>(skip).onPressed, isNotNull);
+    expect(tester.widget<ActionChip>(skip).onPressed, isNotNull);
     expect(find.semantics.byLabel('Skip intro'), findsOneWidget);
     await tester.tapAt(const Offset(100, 300));
     await settle(tester);
@@ -187,7 +189,7 @@ void main() {
     init.complete();
     await tester.pumpWidget(screen());
     await tester.pump(const Duration(milliseconds: 1500));
-    await tester.tap(find.widgetWithText(TextButton, 'Skip'));
+    await tester.tap(find.widgetWithText(ActionChip, 'Skip'));
     await settle(tester);
     expect(completions, 1);
   });
@@ -211,7 +213,7 @@ void main() {
     await tester.pump();
     expect(find.byKey(const Key('fake-video')), findsNothing);
     expect(fake.played, isFalse);
-    expect(find.widgetWithText(TextButton, 'Skip'), findsNothing);
+    expect(find.widgetWithText(ActionChip, 'Skip'), findsNothing);
     expect(find.byType(Image), findsOneWidget);
     expect(
       find.semantics.byLabel('Sentech Connect is starting'),
@@ -277,7 +279,7 @@ void main() {
     init.complete();
     await settle(tester);
     expect(completions, 1);
-    expect(find.widgetWithText(TextButton, 'Skip'), findsNothing);
+    expect(find.widgetWithText(ActionChip, 'Skip'), findsNothing);
   });
 
   t('completes exactly once and disposes the controller', (tester) async {

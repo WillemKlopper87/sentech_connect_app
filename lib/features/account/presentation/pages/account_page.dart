@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sentech_connect_app/app/locale_cubit.dart';
 import 'package:sentech_connect_app/app/locator.dart';
 import 'package:sentech_connect_app/app/theme/theme_cubit.dart';
+import 'package:sentech_connect_app/core/local/data_saver.dart';
 import 'package:sentech_connect_app/core/notifications/notification_permission_cubit.dart';
 import 'package:sentech_connect_app/core/notifications/notification_service.dart';
 import 'package:sentech_connect_app/core/privacy/privacy_constants.dart';
@@ -184,6 +185,14 @@ class _AccountView extends StatelessWidget {
                         ),
                     ],
                   ),
+                ),
+              ),
+              const SizedBox(height: 24),
+              _Bordered(
+                child: SwitchListTile(
+                  title: Text(l10n.accountDataSaver),
+                  value: context.watch<DataSaverCubit?>()?.state ?? false,
+                  onChanged: (on) => context.read<DataSaverCubit?>()?.set(on),
                 ),
               ),
               const SizedBox(height: 24),

@@ -5,6 +5,7 @@ import 'package:sentech_connect_app/features/support/domain/entities/faq.dart';
 import 'package:sentech_connect_app/features/support/presentation/bloc/support_cubit.dart';
 import 'package:sentech_connect_app/l10n/l10n.dart';
 import 'package:sentech_connect_app/shared/actions/support_actions.dart';
+import 'package:sentech_connect_app/core/local/data_saver.dart';
 
 class SupportPage extends StatelessWidget {
   const SupportPage({super.key, this.cpe = false, this.whatsAppNumber});
@@ -119,6 +120,9 @@ class _FaqTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final reduceMotion =
+        MediaQuery.disableAnimationsOf(context) ||
+        (context.watch<DataSaverCubit?>()?.state ?? false);
     return InkWell(
       onTap: onTap,
       child: Padding(
@@ -141,7 +145,9 @@ class _FaqTile extends StatelessWidget {
                   ),
                   AnimatedRotation(
                     turns: expanded ? 0.5 : 0,
-                    duration: const Duration(milliseconds: 180),
+                    duration: reduceMotion
+                        ? Duration.zero
+                        : const Duration(milliseconds: 180),
                     child: const Icon(Icons.expand_more, size: 20),
                   ),
                 ],
@@ -161,7 +167,9 @@ class _FaqTile extends StatelessWidget {
               crossFadeState: expanded
                   ? CrossFadeState.showSecond
                   : CrossFadeState.showFirst,
-              duration: const Duration(milliseconds: 180),
+              duration: reduceMotion
+                  ? Duration.zero
+                  : const Duration(milliseconds: 180),
             ),
           ],
         ),

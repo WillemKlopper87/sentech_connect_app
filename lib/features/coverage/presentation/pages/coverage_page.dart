@@ -10,6 +10,7 @@ import 'package:sentech_connect_app/features/privacy/presentation/widgets/consen
 import 'package:sentech_connect_app/l10n/l10n.dart';
 import 'package:sentech_connect_app/shared/widgets/failure_view.dart';
 import 'package:sentech_connect_app/shared/widgets/osm_map.dart';
+import 'package:sentech_connect_app/core/local/data_saver.dart';
 
 class CoveragePage extends StatefulWidget {
   const CoveragePage({super.key, required this.onCovered});
@@ -47,6 +48,7 @@ class _CoveragePageState extends State<CoveragePage> {
   /// network, or an address the geocoder can't resolve).
   Future<void> _checkAddress(String address) async {
     context.read<CoverageCubit>().checkAddress(address);
+    if (context.read<DataSaverCubit?>()?.state ?? false) return;
     try {
       final locations = await Geocoding().locationFromAddress(address);
       if (locations.isNotEmpty && mounted) {
@@ -182,16 +184,17 @@ class _CoveragePageState extends State<CoveragePage> {
                           ),
                         ),
                         const SizedBox(height: 20),
-                        SizedBox(
-                          height: 180,
-                          child: OsmMap(
-                            center: _currentLatLng ?? southAfricaCenter,
-                            zoom: _currentLatLng != null ? 15 : 5,
-                            markers: _currentLatLng == null
-                                ? const []
-                                : [brandPin(_currentLatLng!)],
+                        if (!(context.watch<DataSaverCubit?>()?.state ?? false))
+                          SizedBox(
+                            height: 180,
+                            child: OsmMap(
+                              center: _currentLatLng ?? southAfricaCenter,
+                              zoom: _currentLatLng != null ? 15 : 5,
+                              markers: _currentLatLng == null
+                                  ? const []
+                                  : [brandPin(_currentLatLng!)],
+                            ),
                           ),
-                        ),
                         const SizedBox(height: 20),
                         if (checking)
                           const Center(child: CircularProgressIndicator()),

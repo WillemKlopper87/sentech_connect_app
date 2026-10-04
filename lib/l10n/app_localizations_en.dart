@@ -226,6 +226,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get accountAppearance => 'APPEARANCE';
 
   @override
+  String get accountDataSaver => 'Data saver: fewer pictures and no animations';
+
+  @override
   String get accountThemeSystem => 'Match device setting';
 
   @override

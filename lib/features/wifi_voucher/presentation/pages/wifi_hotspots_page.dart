@@ -5,12 +5,14 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:sentech_connect_app/features/wifi_voucher/presentation/bloc/wifi_hotspots_cubit.dart';
 import 'package:sentech_connect_app/shared/widgets/osm_map.dart';
+import 'package:sentech_connect_app/core/local/data_saver.dart';
 
 class WifiHotspotsPage extends StatelessWidget {
   const WifiHotspotsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final saver = context.watch<DataSaverCubit?>()?.state ?? false;
     return Scaffold(
       appBar: AppBar(title: Text(context.l10n.hotspotsWifiHotspotsNearYou)),
       body: BlocBuilder<WifiHotspotsCubit, WifiHotspotsState>(
@@ -46,20 +48,21 @@ class WifiHotspotsPage extends StatelessWidget {
 
           return Column(
             children: [
-              SizedBox(
-                height: 240,
-                child: OsmMap(
-                  unavailableMessage: state.hotspots.isEmpty
-                      ? null
-                      : state.hasUserLocation
-                      ? context.l10n.mapUnavailableNearestSpots
-                      : context.l10n.mapUnavailableWifiSpots,
-                  center: center,
-                  zoom: state.hasUserLocation ? 13 : 10,
-                  markers: markers,
-                  borderRadius: BorderRadius.zero,
+              if (!saver)
+                SizedBox(
+                  height: 240,
+                  child: OsmMap(
+                    unavailableMessage: state.hotspots.isEmpty
+                        ? null
+                        : state.hasUserLocation
+                        ? context.l10n.mapUnavailableNearestSpots
+                        : context.l10n.mapUnavailableWifiSpots,
+                    center: center,
+                    zoom: state.hasUserLocation ? 13 : 10,
+                    markers: markers,
+                    borderRadius: BorderRadius.zero,
+                  ),
                 ),
-              ),
               if (!state.hasUserLocation)
                 Container(
                   width: double.infinity,

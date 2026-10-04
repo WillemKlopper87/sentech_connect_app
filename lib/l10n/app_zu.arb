@@ -38,6 +38,7 @@
   "accountTitle": "I-akhawunti",
   "accountNotLoggedIn": "Awungenile",
   "accountAppearance": "ISIMO SOKUBONAKALA",
+  "accountDataSaver": "Data saver: fewer pictures and no animations",
   "accountThemeSystem": "Landela isethingi yedivayisi",
   "accountThemeLight": "Okukhanyayo",
   "accountThemeDark": "Okumnyama",
@@ -1117,6 +1118,9 @@
   },
   "@accountAppearance": {
     "description": "Customer app copy: account appearance."
+  },
+  "@accountDataSaver": {
+    "description": "Account switch for fewer pictures and decorative animations."
   },
   "@accountThemeSystem": {
     "description": "Customer app copy: account theme system."

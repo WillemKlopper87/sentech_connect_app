@@ -478,6 +478,12 @@ abstract class AppLocalizations {
   /// **'APPEARANCE'**
   String get accountAppearance;
 
+  /// Account switch for fewer pictures and decorative animations.
+  ///
+  /// In en, this message translates to:
+  /// **'Data saver: fewer pictures and no animations'**
+  String get accountDataSaver;
+
   /// Customer app copy: account theme system.
   ///
   /// In en, this message translates to:

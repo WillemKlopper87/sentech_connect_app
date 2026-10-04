@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:sentech_connect_app/app/boot/boot_video_controller.dart';
 import 'package:sentech_connect_app/app/boot/boot_video_screen.dart';
 import 'package:sentech_connect_app/app/startup_error_app.dart';
+import 'package:sentech_connect_app/core/local/app_preferences.dart';
 
 /// Root of the running app: plays the boot video over the app while the app
 /// is prepared (and, once built, starts up) underneath, in parallel.
@@ -17,6 +18,7 @@ class BootHost extends StatefulWidget {
     super.key,
     required this.app,
     this.controllerFactory,
+    this.bootVideoSeen,
     this.onError,
   });
 
@@ -24,6 +26,7 @@ class BootHost extends StatefulWidget {
 
   /// `null` skips the video entirely (the app shows as soon as it is ready).
   final BootVideoControllerFactory? controllerFactory;
+  final Future<bool>? bootVideoSeen;
 
   /// Receives a start-up failure for reporting (already scrubbed upstream).
   final void Function(Object error, StackTrace stack)? onError;
@@ -36,11 +39,13 @@ class _BootHostState extends State<BootHost> {
   Widget? _app;
   bool _failed = false;
   bool _overlayGone = false;
+  bool? _seen;
   late final Future<void> _initDone;
 
   @override
   void initState() {
     super.initState();
+    unawaited(_loadSeen());
     _initDone = widget.app.then<void>(
       (app) {
         if (mounted) setState(() => _app = app);
@@ -50,6 +55,17 @@ class _BootHostState extends State<BootHost> {
         if (mounted) setState(() => _failed = true);
       },
     );
+  }
+
+  Future<void> _loadSeen() async {
+    try {
+      final seen =
+          await (widget.bootVideoSeen ?? AppPreferences.loadBootVideoSeen());
+      if (mounted) setState(() => _seen = seen);
+    } catch (_) {
+      // Unknown preference: show the static logo without creating a player.
+      if (mounted) setState(() => _seen = true);
+    }
   }
 
   @override
@@ -64,7 +80,7 @@ class _BootHostState extends State<BootHost> {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            if (app != null)
+            if (app != null && _seen != null)
               Positioned.fill(
                 // Underneath the video: not tappable and hidden from
                 // screen readers until the overlay is gone.
@@ -73,11 +89,18 @@ class _BootHostState extends State<BootHost> {
                   child: ExcludeSemantics(excluding: !_overlayGone, child: app),
                 ),
               ),
-            if (!_overlayGone)
+            if (!_overlayGone && _seen != null)
               Positioned.fill(
                 child: BootVideoScreen(
                   initDone: _initDone,
-                  controllerFactory: widget.controllerFactory,
+                  controllerFactory: _seen! ? null : widget.controllerFactory,
+                  showStaticLogo: _seen! && widget.controllerFactory != null,
+                  onPlaybackStarted: () => unawaited(
+                    AppPreferences.markBootVideoSeen().then(
+                      (_) {},
+                      onError: (Object _) {},
+                    ),
+                  ),
                   onComplete: () {
                     if (mounted && !_failed) {
                       setState(() => _overlayGone = true);

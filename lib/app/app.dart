@@ -8,6 +8,7 @@ import 'package:sentech_connect_app/app/router/app_router.dart';
 import 'package:sentech_connect_app/app/theme/app_theme.dart';
 import 'package:sentech_connect_app/app/theme/theme_cubit.dart';
 import 'package:sentech_connect_app/core/network/session_events.dart';
+import 'package:sentech_connect_app/core/local/data_saver.dart';
 import 'package:sentech_connect_app/core/network/tenant_context.dart';
 import 'package:sentech_connect_app/features/auth/presentation/bloc/auth_cubit.dart';
 import 'package:sentech_connect_app/features/cart/presentation/bloc/cart_cubit.dart';
@@ -24,12 +25,14 @@ class SentechConnectApp extends StatefulWidget {
     this.initialThemeMode = ThemeMode.system,
     this.initialAuthState = const AuthState(),
     this.initialLocale,
+    this.initialDataSaver = false,
     this.quickSplash = false,
   });
 
   final ThemeMode initialThemeMode;
   final AuthState initialAuthState;
   final Locale? initialLocale;
+  final bool initialDataSaver;
 
   /// True when the boot video already provided the branded moment, so the
   /// in-app splash only waits for the tenant and hands over without its reveal.
@@ -61,7 +64,11 @@ class _SentechConnectAppState extends State<SentechConnectApp> {
     onTenantChanging: () => _authCubit.logOut(),
     onTenantApplied: _authCubit.ensureSessionMatches,
   )..bootstrap();
-  late final AppRouter _appRouter = AppRouter(_authCubit, tenantCubit: _tenantCubit, quickSplash: widget.quickSplash);
+  late final AppRouter _appRouter = AppRouter(
+    _authCubit,
+    tenantCubit: _tenantCubit,
+    quickSplash: widget.quickSplash,
+  );
 
   @override
   void dispose() {
@@ -79,14 +86,20 @@ class _SentechConnectAppState extends State<SentechConnectApp> {
         BlocProvider.value(value: _tenantCubit),
         BlocProvider(create: (_) => CartCubit()),
         BlocProvider(create: (_) => ConnectivityCubit(locator())),
-        BlocProvider(create: (_) => ThemeCubit(initial: widget.initialThemeMode)),
+        BlocProvider(
+          create: (_) => ThemeCubit(initial: widget.initialThemeMode),
+        ),
         BlocProvider(create: (_) => LocaleCubit(initial: widget.initialLocale)),
+        BlocProvider(
+          create: (_) => DataSaverCubit(initial: widget.initialDataSaver),
+        ),
       ],
       // Personal data must not outlive the session: when the user goes from
       // signed in to signed out (logout or account deletion) the in-memory
       // cart is emptied too, so the next person on a shared phone starts clean.
       child: BlocListener<AuthCubit, AuthState>(
-        listenWhen: (previous, current) => previous.isSignedIn && !current.isSignedIn,
+        listenWhen: (previous, current) =>
+            previous.isSignedIn && !current.isSignedIn,
         listener: (context, _) => context.read<CartCubit>().clear(),
         child: BlocBuilder<ThemeCubit, ThemeMode>(
           builder: (context, themeMode) {
@@ -108,7 +121,8 @@ class _SentechConnectAppState extends State<SentechConnectApp> {
                 GlobalCupertinoLocalizations.delegate,
               ],
               routerConfig: _appRouter.router,
-              builder: (context, child) => OfflineBannerHost(child: child ?? const SizedBox.shrink()),
+              builder: (context, child) =>
+                  OfflineBannerHost(child: child ?? const SizedBox.shrink()),
             );
           },
         ),

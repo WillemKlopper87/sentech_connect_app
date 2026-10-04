@@ -236,6 +236,8 @@ void main() {
       expect(secureStore.snapshot, isNotEmpty);
 
       await tester.scrollUntilVisible(find.text('Delete my account & data'), 200);
+      await tester.drag(find.byType(ListView), const Offset(0, -200));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('Delete my account & data'));
       await tester.pumpAndSettle();
       expect(find.text('Delete your account?'), findsOneWidget);
@@ -260,6 +262,8 @@ void main() {
     testWidgets('"Download my data" files a request and confirms it', (tester) async {
       await pumpAccount(tester);
       await tester.scrollUntilVisible(find.text('Download my data'), 200);
+      await tester.drag(find.byType(ListView), const Offset(0, -200));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('Download my data'));
       await tester.pump();
       await tester.pump(const Duration(seconds: 1));

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sentech_connect_app/shared/widgets/sentech_logo.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sentech_connect_app/core/local/data_saver.dart';
 
 /// The native splash (flutter_native_splash) shows the brand mark
 /// instantly while the engine loads; this picks up where that leaves off
@@ -18,25 +20,51 @@ class SplashPage extends StatefulWidget {
   State<SplashPage> createState() => _SplashPageState();
 }
 
-class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateMixin {
+class _SplashPageState extends State<SplashPage>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late final Animation<double> _scale;
   late final Animation<double> _opacity;
+  bool _started = false;
 
   @override
   void initState() {
     super.initState();
-    final reduceMotion = WidgetsBinding.instance.platformDispatcher.accessibilityFeatures.disableAnimations;
     _controller = AnimationController(
       vsync: this,
-      duration: reduceMotion || widget.instant ? Duration.zero : const Duration(milliseconds: 700),
+      duration: const Duration(milliseconds: 700),
     );
-    _scale = Tween<double>(begin: 0.85, end: 1.0).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
+    _scale = Tween<double>(
+      begin: 0.85,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
     _opacity = CurvedAnimation(parent: _controller, curve: Curves.easeOut);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_started) return;
+    _started = true;
+    final reduceMotion =
+        MediaQuery.disableAnimationsOf(context) ||
+        (context.watch<DataSaverCubit?>()?.state ?? false);
+    _controller.duration = reduceMotion || widget.instant
+        ? Duration.zero
+        : const Duration(milliseconds: 700);
     _controller.forward();
-    Future.delayed(Duration(milliseconds: widget.instant ? 0 : reduceMotion ? 200 : 1100), () {
-      if (mounted) widget.onFinished();
-    });
+    Future.delayed(
+      Duration(
+        milliseconds: widget.instant
+            ? 0
+            : reduceMotion
+            ? 200
+            : 1100,
+      ),
+      () {
+        if (mounted) widget.onFinished();
+      },
+    );
   }
 
   @override

@@ -225,6 +225,9 @@ class AppLocalizationsAf extends AppLocalizations {
   String get accountAppearance => 'UITSIG';
 
   @override
+  String get accountDataSaver => 'Data saver: fewer pictures and no animations';
+
+  @override
   String get accountThemeSystem => 'Volg toestelinstelling';
 
   @override

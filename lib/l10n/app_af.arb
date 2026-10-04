@@ -38,6 +38,7 @@
   "accountTitle": "Rekening",
   "accountNotLoggedIn": "Nie ingeteken nie",
   "accountAppearance": "UITSIG",
+  "accountDataSaver": "Data saver: fewer pictures and no animations",
   "accountThemeSystem": "Volg toestelinstelling",
   "accountThemeLight": "Lig",
   "accountThemeDark": "Donker",
@@ -1117,6 +1118,9 @@
   },
   "@accountAppearance": {
     "description": "Customer app copy: account appearance."
+  },
+  "@accountDataSaver": {
+    "description": "Account switch for fewer pictures and decorative animations."
   },
   "@accountThemeSystem": {
     "description": "Customer app copy: account theme system."

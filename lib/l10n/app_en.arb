@@ -87,6 +87,7 @@
   "accountTitle": "Account",
   "accountNotLoggedIn": "Not logged in",
   "accountAppearance": "APPEARANCE",
+  "accountDataSaver": "Data saver: fewer pictures and no animations",
   "accountThemeSystem": "Match device setting",
   "accountThemeLight": "Light",
   "accountThemeDark": "Dark",
@@ -1312,6 +1313,9 @@
   },
   "@accountAppearance": {
     "description": "Customer app copy: account appearance."
+  },
+  "@accountDataSaver": {
+    "description": "Account switch for fewer pictures and decorative animations."
   },
   "@accountThemeSystem": {
     "description": "Customer app copy: account theme system."

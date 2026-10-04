@@ -6,6 +6,7 @@ import 'package:sentech_connect_app/features/privacy/presentation/widgets/consen
 import 'package:sentech_connect_app/features/rica/presentation/bloc/rica_cubit.dart';
 import 'package:sentech_connect_app/shared/widgets/secure_screen.dart';
 import 'package:sentech_connect_app/shared/widgets/viewfinder_corners.dart';
+import 'package:sentech_connect_app/core/local/data_saver.dart';
 
 class RicaPage extends StatelessWidget {
   const RicaPage({super.key, required this.onVerified});
@@ -183,6 +184,7 @@ class _Viewfinder extends StatefulWidget {
 class _ViewfinderState extends State<_Viewfinder>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
+  bool _reduceMotion = false;
 
   @override
   void initState() {
@@ -191,7 +193,23 @@ class _ViewfinderState extends State<_Viewfinder>
       vsync: this,
       duration: const Duration(milliseconds: 1600),
     );
-    if (widget.active) _controller.repeat(reverse: true);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _reduceMotion =
+        MediaQuery.disableAnimationsOf(context) ||
+        (context.watch<DataSaverCubit?>()?.state ?? false);
+    _syncAnimation();
+  }
+
+  void _syncAnimation() {
+    if (widget.active && !_reduceMotion && !_controller.isAnimating) {
+      _controller.repeat(reverse: true);
+    } else if ((!widget.active || _reduceMotion) && _controller.isAnimating) {
+      _controller.stop();
+    }
   }
 
   // Only animate while verification is running, so an idle screen has no
@@ -199,11 +217,7 @@ class _ViewfinderState extends State<_Viewfinder>
   @override
   void didUpdateWidget(_Viewfinder oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.active && !_controller.isAnimating) {
-      _controller.repeat(reverse: true);
-    } else if (!widget.active && _controller.isAnimating) {
-      _controller.stop();
-    }
+    _syncAnimation();
   }
 
   @override
@@ -214,7 +228,7 @@ class _ViewfinderState extends State<_Viewfinder>
 
   @override
   Widget build(BuildContext context) {
-    final reduceMotion = MediaQuery.of(context).disableAnimations;
+    final reduceMotion = _reduceMotion;
     return ClipRRect(
       borderRadius: BorderRadius.circular(16),
       child: Container(

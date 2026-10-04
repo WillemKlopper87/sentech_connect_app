@@ -23,6 +23,8 @@ class BootVideoScreen extends StatefulWidget {
     required this.initDone,
     required this.onComplete,
     this.controllerFactory,
+    this.showStaticLogo = false,
+    this.onPlaybackStarted,
     this.skipDelay = bootVideoSkipDelay,
     this.watchdog = bootVideoWatchdog,
     this.reduceMotionHold = bootVideoReduceMotionHold,
@@ -34,6 +36,8 @@ class BootVideoScreen extends StatefulWidget {
   /// `null` means "no video" (tests, unsupported platforms): the screen
   /// completes as soon as [initDone] does.
   final BootVideoControllerFactory? controllerFactory;
+  final bool showStaticLogo;
+  final VoidCallback? onPlaybackStarted;
   final Duration skipDelay;
   final Duration watchdog;
   final Duration reduceMotionHold;
@@ -77,7 +81,7 @@ class _BootVideoScreenState extends State<BootVideoScreen> {
     _started = true;
     // Decided once: a setting flipped mid-launch is not worth reacting to.
     final reduceMotion = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
-    if (reduceMotion) {
+    if (reduceMotion || widget.showStaticLogo) {
       _holdTimer = Timer(widget.reduceMotionHold, _finishVideo);
     } else if (widget.controllerFactory == null) {
       _finishVideo();
@@ -100,6 +104,7 @@ class _BootVideoScreenState extends State<BootVideoScreen> {
       await controller.setVolume(bootVideoSoundEnabled ? 1 : 0);
       await controller.play();
       if (!mounted || _videoDone) return;
+      widget.onPlaybackStarted?.call();
       setState(() => _showVideo = true);
     } catch (_) {
       // Any plugin/codec/asset problem: no error UI, just move on.
@@ -151,57 +156,90 @@ class _BootVideoScreenState extends State<BootVideoScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final reduceMotion = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+    final reduceMotion =
+        (MediaQuery.maybeDisableAnimationsOf(context) ?? false) ||
+        widget.showStaticLogo;
     final controller = _controller;
-    return Semantics(
-      container: true,
-      label: context.l10n.bootSentechConnectIsStarting,
-      child: Material(
-        color: bootVideoBackground,
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: _skip,
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              if (reduceMotion)
-                const Center(
-                  child: ExcludeSemantics(child: SentechLogo(height: 56)),
-                )
-              else if (_showVideo && controller != null)
-                // After the video ends the last frame stays up while init finishes.
-                ExcludeSemantics(child: _CoverVideo(controller: controller)),
-              if (!reduceMotion && widget.controllerFactory != null)
-                SafeArea(
-                  child: Align(
-                    alignment: Alignment.topRight,
-                    child: Padding(
-                      padding: const EdgeInsets.all(8),
-                      child: Semantics(
-                        container: true,
-                        button: true,
-                        enabled: _skipEnabled,
-                        label: context.l10n.bootSkipIntro,
-                        excludeSemantics: true,
-                        onTap: _skipEnabled ? _skip : null,
-                        child: AnimatedOpacity(
-                          opacity: _skipEnabled ? 1 : 0.35,
-                          duration: const Duration(milliseconds: 200),
-                          child: TextButton(
-                            onPressed: _skipEnabled ? _skip : null,
-                            style: TextButton.styleFrom(
-                              foregroundColor: const Color(0xFF1F2937),
-                              disabledForegroundColor: const Color(0xFF1F2937),
-                              minimumSize: const Size(48, 48),
+    return Localizations(
+      locale: const Locale('en'),
+      delegates: const [
+        DefaultMaterialLocalizations.delegate,
+        DefaultWidgetsLocalizations.delegate,
+      ],
+      child: Semantics(
+        container: true,
+        label: context.l10n.bootSentechConnectIsStarting,
+        child: Material(
+          color: bootVideoBackground,
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: _skip,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                if (reduceMotion)
+                  const Center(
+                    child: ExcludeSemantics(
+                      child: KeyedSubtree(
+                        key: Key('boot-logo'),
+                        child: SentechLogo(height: 56),
+                      ),
+                    ),
+                  )
+                else if (_showVideo && controller != null)
+                  // After the video ends the last frame stays up while init finishes.
+                  ExcludeSemantics(
+                    child: KeyedSubtree(
+                      key: const Key('boot-video'),
+                      child: _CoverVideo(controller: controller),
+                    ),
+                  ),
+                if (!reduceMotion && widget.controllerFactory != null)
+                  SafeArea(
+                    child: Align(
+                      alignment: Alignment.topRight,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: Semantics(
+                          container: true,
+                          button: true,
+                          enabled: _skipEnabled,
+                          label: context.l10n.bootSkipIntro,
+                          excludeSemantics: true,
+                          onTap: _skipEnabled ? _skip : null,
+                          child: Opacity(
+                            opacity: _skipEnabled ? 1 : 0.55,
+                            child: ConstrainedBox(
+                              key: const Key('boot-skip'),
+                              constraints: const BoxConstraints(
+                                minWidth: 48,
+                                minHeight: 48,
+                              ),
+                              child: ActionChip(
+                                onPressed: _skipEnabled ? _skip : null,
+                                backgroundColor: const Color(0xB30D2033),
+                                disabledColor: const Color(0xB30D2033),
+                                labelStyle: const TextStyle(
+                                  color: Colors.white,
+                                ),
+                                side: BorderSide.none,
+                                shape: const StadiumBorder(),
+                                labelPadding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                ),
+                                materialTapTargetSize:
+                                    MaterialTapTargetSize.padded,
+                                visualDensity: VisualDensity.standard,
+                                label: Text(context.l10n.bootSkip),
+                              ),
                             ),
-                            child: Text(context.l10n.bootSkip),
                           ),
                         ),
                       ),
                     ),
                   ),
-                ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

@@ -3,6 +3,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sentech_connect_app/core/local/data_saver.dart';
 
 /// South Africa's rough centre — used as the default view before a
 /// specific location (device GPS or a typed/geocoded address) is known.
@@ -138,6 +140,13 @@ class OsmMap extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final saver = context.watch<DataSaverCubit?>()?.state ?? false;
+    if (saver) {
+      return ClipRRect(
+        borderRadius: borderRadius,
+        child: _MapUnavailable(message: unavailableMessage),
+      );
+    }
     final source = sourceOverride ?? _buildSource;
     final template = source.urlTemplate;
     if (template == null) {
