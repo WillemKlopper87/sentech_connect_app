@@ -428,6 +428,10 @@ GoRouter _buildRouter(
           return BlocProvider(
             create: (_) => OrderCubit(locator(), orderId),
             child: ConfirmationPage(
+              // App config has no verified SSID. Tenant name is only a brand.
+              onFindWifi: locator<AppEnvironment>().isDemo
+                  ? () => context.push(AppRoutes.wifiHotspots)
+                  : null,
               onDone: () => context.go(AppRoutes.main),
               onResume: (order) => context.go(AppRoutes.forOrder(order)),
               onViewPasses: () => context.push(AppRoutes.passes),

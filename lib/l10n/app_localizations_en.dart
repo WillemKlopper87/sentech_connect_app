@@ -1428,4 +1428,43 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get loginEnterPhone => 'Enter your phone number';
+
+  @override
+  String passReadyTitle(String plan) {
+    return '$plan is ready';
+  }
+
+  @override
+  String get passReadyConnect => 'Connect to WiFi';
+
+  @override
+  String passReadyConnectNamed(String network) {
+    return 'Connect to $network';
+  }
+
+  @override
+  String get passReadyTurnOnWifi => 'Turn on WiFi';
+
+  @override
+  String get passReadyChooseNetwork => 'Choose the hotspot WiFi network';
+
+  @override
+  String passReadyChooseNamed(String network) {
+    return 'Choose $network';
+  }
+
+  @override
+  String get passReadySignInStep =>
+      'The sign-in page opens. If not, open any website.';
+
+  @override
+  String get passReadyDone => 'Done';
+
+  @override
+  String get passReadyFindWifi => 'Find WiFi near me';
+
+  @override
+  String passReadyOrderDetail(String price, String orderNumber) {
+    return '$price incl. VAT · Order #$orderNumber';
+  }
 }

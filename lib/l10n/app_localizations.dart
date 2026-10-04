@@ -2511,6 +2511,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Enter your phone number'**
   String get loginEnterPhone;
+
+  /// Paid pass title using the plan from the loaded order.
+  ///
+  /// In en, this message translates to:
+  /// **'{plan} is ready'**
+  String passReadyTitle(String plan);
+
+  /// Connect heading when no verified network name is available.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect to WiFi'**
+  String get passReadyConnect;
+
+  /// Connect heading for a verified WiFi network name.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect to {network}'**
+  String passReadyConnectNamed(String network);
+
+  /// First step to use a paid WiFi pass.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on WiFi'**
+  String get passReadyTurnOnWifi;
+
+  /// Generic second step; no network name is known.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the hotspot WiFi network'**
+  String get passReadyChooseNetwork;
+
+  /// Second step using a verified WiFi network name.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose {network}'**
+  String passReadyChooseNamed(String network);
+
+  /// Third step to reach the hotspot sign-in page.
+  ///
+  /// In en, this message translates to:
+  /// **'The sign-in page opens. If not, open any website.'**
+  String get passReadySignInStep;
+
+  /// Leave the pass-ready screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get passReadyDone;
+
+  /// Open the hotspot finder, only when available.
+  ///
+  /// In en, this message translates to:
+  /// **'Find WiFi near me'**
+  String get passReadyFindWifi;
+
+  /// Paid total and reference from the loaded order.
+  ///
+  /// In en, this message translates to:
+  /// **'{price} incl. VAT · Order #{orderNumber}'**
+  String passReadyOrderDetail(String price, String orderNumber);
 }
 
 class _AppLocalizationsDelegate

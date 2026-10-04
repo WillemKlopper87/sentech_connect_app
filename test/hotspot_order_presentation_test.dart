@@ -209,8 +209,8 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      expect(find.text('Your WiFi pass is paid'), findsOneWidget);
-      expect(find.text(order.planName), findsOneWidget);
+      expect(find.text('${order.planName} is ready'), findsOneWidget);
+      expect(find.text('Connect to WiFi'), findsOneWidget);
       expect(find.textContaining('Courier'), findsNothing);
       expect(find.textContaining('Router'), findsNothing);
       expect(find.textContaining('Self-install'), findsNothing);

@@ -1841,5 +1841,73 @@
   "loginEnterPhone": "Enter your phone number",
   "@loginEnterPhone": {
     "description": "Plain first-run instruction above the mobile number field."
+  },
+  "passReadyTitle": "{plan} is ready",
+  "@passReadyTitle": {
+    "description": "Paid pass title using the plan from the loaded order.",
+    "placeholders": {
+      "plan": {
+        "type": "String",
+        "example": "Day Pass"
+      }
+    }
+  },
+  "passReadyConnect": "Connect to WiFi",
+  "@passReadyConnect": {
+    "description": "Connect heading when no verified network name is available."
+  },
+  "passReadyConnectNamed": "Connect to {network}",
+  "@passReadyConnectNamed": {
+    "description": "Connect heading for a verified WiFi network name.",
+    "placeholders": {
+      "network": {
+        "type": "String",
+        "example": "Community WiFi"
+      }
+    }
+  },
+  "passReadyTurnOnWifi": "Turn on WiFi",
+  "@passReadyTurnOnWifi": {
+    "description": "First step to use a paid WiFi pass."
+  },
+  "passReadyChooseNetwork": "Choose the hotspot WiFi network",
+  "@passReadyChooseNetwork": {
+    "description": "Generic second step; no network name is known."
+  },
+  "passReadyChooseNamed": "Choose {network}",
+  "@passReadyChooseNamed": {
+    "description": "Second step using a verified WiFi network name.",
+    "placeholders": {
+      "network": {
+        "type": "String",
+        "example": "Community WiFi"
+      }
+    }
+  },
+  "passReadySignInStep": "The sign-in page opens. If not, open any website.",
+  "@passReadySignInStep": {
+    "description": "Third step to reach the hotspot sign-in page."
+  },
+  "passReadyDone": "Done",
+  "@passReadyDone": {
+    "description": "Leave the pass-ready screen."
+  },
+  "passReadyFindWifi": "Find WiFi near me",
+  "@passReadyFindWifi": {
+    "description": "Open the hotspot finder, only when available."
+  },
+  "passReadyOrderDetail": "{price} incl. VAT · Order #{orderNumber}",
+  "@passReadyOrderDetail": {
+    "description": "Paid total and reference from the loaded order.",
+    "placeholders": {
+      "price": {
+        "type": "String",
+        "example": "R35.75"
+      },
+      "orderNumber": {
+        "type": "String",
+        "example": "SEN-48213"
+      }
+    }
   }
 }

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sentech_connect_app/core/money/money.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/domain/entities/order.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/presentation/bloc/order_cubit.dart';
+import 'package:sentech_connect_app/features/catalog_checkout/presentation/widgets/pass_ready_view.dart';
 import 'package:sentech_connect_app/l10n/l10n.dart';
 import 'package:sentech_connect_app/shared/widgets/failure_view.dart';
 
@@ -13,11 +15,15 @@ class ConfirmationPage extends StatelessWidget {
     required this.onDone,
     required this.onResume,
     this.onViewPasses,
+    this.networkName,
+    this.onFindWifi,
   });
 
   final VoidCallback onDone;
   final void Function(Order order) onResume;
   final VoidCallback? onViewPasses;
+  final String? networkName;
+  final VoidCallback? onFindWifi;
 
   @override
   Widget build(BuildContext context) {
@@ -77,6 +83,21 @@ class ConfirmationPage extends StatelessWidget {
                   ],
                 ),
               ),
+            ),
+          );
+        }
+        if (order.isHotspotPass) {
+          return Scaffold(
+            body: PassReadyView(
+              title: context.l10n.passReadyTitle(order.planName),
+              networkName: networkName,
+              detail: context.l10n.passReadyOrderDetail(
+                formatRands(order.totalCents),
+                order.orderNumber,
+              ),
+              onDone: onDone,
+              onFindWifi: onFindWifi,
+              onViewPasses: onViewPasses,
             ),
           );
         }
