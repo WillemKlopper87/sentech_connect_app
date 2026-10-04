@@ -203,7 +203,11 @@ void main() {
               BlocProvider.value(value: cubit),
               BlocProvider.value(value: cart),
             ],
-            child: CatalogPage(onOpenCart: () {}, onFindHotspots: () {}),
+            child: CatalogPage(
+              onOpenCart: () {},
+              onFindHotspots: () {},
+              onOrderCreated: (_) {},
+            ),
           ),
         );
         await tester.pump(const Duration(seconds: 1));

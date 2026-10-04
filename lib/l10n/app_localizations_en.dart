@@ -1520,5 +1520,36 @@ class AppLocalizationsEn extends AppLocalizations {
       'Move closer to the hotspot. Disconnect and reconnect to WiFi. If it stays slow, contact support.';
 
   @override
+  String get buyNow => 'Buy now';
+
+  @override
+  String get buyNowTryAgain => 'Try again';
+
+  @override
+  String get buyNowWhatYouGet => 'What you get';
+
+  @override
+  String buyNowSpeed(String speed) {
+    return 'Up to $speed Mbps';
+  }
+
+  @override
+  String buyNowPay(String price) {
+    return 'Pay $price';
+  }
+
+  @override
+  String get paymentMethodsHeading => 'Ways to pay';
+
+  @override
+  String get paymentMethodCard => 'Card';
+
+  @override
+  String get paymentMethodInstantEft => 'Instant EFT';
+
+  @override
+  String get paymentMethodCashVoucher => 'Cash voucher';
+
+  @override
   String get planBadgeOurPickHint => 'Selected by us for you';
 }

@@ -1982,6 +1982,24 @@
   "@hotspotFaq3Answer": {
     "description": "Task 10 owned offers and hotspot help copy."
   },
+  "buyNow": "Buy now",
+  "@buyNow": {"description": "Action on a pass or voucher catalog card."},
+  "buyNowTryAgain": "Try again",
+  "@buyNowTryAgain": {"description": "Retry creating an unpaid order in the Buy now sheet."},
+  "buyNowWhatYouGet": "What you get",
+  "@buyNowWhatYouGet": {"description": "Heading for actual plan details in the Buy now sheet."},
+  "buyNowSpeed": "Up to {speed} Mbps",
+  "@buyNowSpeed": {"description": "Maximum plan speed shown when catalog supplies it.", "placeholders": {"speed": {"type": "String"}}},
+  "buyNowPay": "Pay {price}",
+  "@buyNowPay": {"description": "Action to create an unpaid order and continue to payment. Price includes VAT.", "placeholders": {"price": {"type": "String"}}},
+  "paymentMethodsHeading": "Ways to pay",
+  "@paymentMethodsHeading": {"description": "Heading for illustrative demo payment methods."},
+  "paymentMethodCard": "Card",
+  "@paymentMethodCard": {"description": "Illustrative demo payment method label."},
+  "paymentMethodInstantEft": "Instant EFT",
+  "@paymentMethodInstantEft": {"description": "Illustrative demo payment method label."},
+  "paymentMethodCashVoucher": "Cash voucher",
+  "@paymentMethodCashVoucher": {"description": "Illustrative demo payment method, shown only with the voucher offering."},
   "planBadgeOurPickHint": "Selected by us for you",
   "@planBadgeOurPickHint": {
     "description": "Editorial recommendation; no popularity claim."

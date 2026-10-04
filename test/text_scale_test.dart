@@ -152,7 +152,7 @@ void main() {
             final marker = switch (screen) {
               'login' => l10n.loginSendCode,
               'home' => l10n.dashboardMyPasses,
-              'shop' => l10n.shopAddToCart,
+              'shop' => l10n.buyNow,
               'cart' => l10n.cartCheckout,
               'passes' => l10n.passesShowExpired,
               'voucher' => l10n.scanTypeTheCodeInstead,

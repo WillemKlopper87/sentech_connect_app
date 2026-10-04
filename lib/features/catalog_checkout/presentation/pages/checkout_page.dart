@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sentech_connect_app/core/money/money.dart';
 import 'package:sentech_connect_app/features/cart/domain/entities/cart_item.dart';
+import 'package:sentech_connect_app/features/cart/presentation/bloc/cart_cubit.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/domain/entities/order.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/presentation/bloc/checkout_cubit.dart';
 import 'package:sentech_connect_app/shared/widgets/failure_view.dart';
@@ -28,6 +29,10 @@ class CheckoutPage extends StatelessWidget {
       body: BlocConsumer<CheckoutCubit, CheckoutState>(
         listener: (context, state) {
           if (state.status == CheckoutStatus.created && state.order != null) {
+            context.read<CartCubit>().bindCheckoutOrder(
+              state.order!.id,
+              state.items,
+            );
             onOrderCreated(state.order!);
           }
         },

@@ -191,7 +191,7 @@ class PaymentCubit extends Cubit<PaymentState> {
     final order = result.match((_) => null, (o) => o);
     switch (order?.status) {
       case OrderStatus.paid:
-        _cartCubit.clear();
+        _cartCubit.clearForPaidOrder(order!.id);
         emit(state.copyWith(status: PaymentStatus.paid, order: order));
       case OrderStatus.expired || OrderStatus.cancelled:
         emit(
@@ -233,7 +233,7 @@ class PaymentCubit extends Cubit<PaymentState> {
       closedOrder = null;
       switch (order.status) {
         case OrderStatus.paid:
-          _cartCubit.clear();
+          _cartCubit.clearForPaidOrder(order.id);
           emit(state.copyWith(status: PaymentStatus.paid, order: order));
           return;
         case OrderStatus.paymentFailed:

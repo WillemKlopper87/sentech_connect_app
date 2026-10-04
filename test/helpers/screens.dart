@@ -149,7 +149,11 @@ Widget buildScreenForTest(String screen, AppLocalizations l10n) {
           create: (_) => CartCubit()..addItem(catalog.products.first),
         ),
       ],
-      child: CatalogPage(onOpenCart: () {}, onFindHotspots: () {}),
+      child: CatalogPage(
+        onOpenCart: () {},
+        onFindHotspots: () {},
+        onOrderCreated: (_) {},
+      ),
     ),
     'cart' => BlocProvider(
       create: (_) => CartCubit()..addItem(catalog.products.first),

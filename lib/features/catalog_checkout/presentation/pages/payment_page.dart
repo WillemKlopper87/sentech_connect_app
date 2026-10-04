@@ -10,6 +10,7 @@ import 'package:sentech_connect_app/features/catalog_checkout/domain/entities/pa
 import 'package:sentech_connect_app/features/catalog_checkout/presentation/bloc/payment_cubit.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/presentation/payment/fake_gateway_sheet.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/presentation/payment/payment_web_view_page.dart';
+import 'package:sentech_connect_app/features/catalog_checkout/presentation/widgets/buy_now_sheet.dart';
 import 'package:sentech_connect_app/shared/widgets/failure_view.dart';
 
 /// Pay for an order on the gateway's hosted page, then wait for the server
@@ -21,6 +22,7 @@ class PaymentPage extends StatelessWidget {
     required this.onNeedsVerification,
     required this.onClosed,
     this.showIdentityVerified = true,
+    this.showDemoMethods = false,
     this.devSimulator,
   });
 
@@ -32,6 +34,9 @@ class PaymentPage extends StatelessWidget {
   /// only for an order whose RICA check was completed
   /// ([Order.identityVerified]); WiFi passes and vouchers never show it.
   final bool showIdentityVerified;
+
+  /// The demo catalog offers vouchers; production methods are gateway-owned.
+  final bool showDemoMethods;
 
   /// Local stack + debug only (ruling R-M4-13).
   final DevPaymentSimulator? devSimulator;
@@ -178,6 +183,10 @@ class PaymentPage extends StatelessWidget {
                             ),
                           ],
                         ),
+                        if (showDemoMethods) ...[
+                          const SizedBox(height: 18),
+                          const PaymentMethodsRow(showCashVoucher: true),
+                        ],
                         if (state.status == PaymentStatus.payFailed) ...[
                           const SizedBox(height: 16),
                           FailureView(

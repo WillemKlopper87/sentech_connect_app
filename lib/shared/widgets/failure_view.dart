@@ -12,6 +12,7 @@ class FailureView extends StatelessWidget {
     required this.failure,
     required this.onRetry,
     this.compact = false,
+    this.retryLabel,
   });
 
   final Failure? failure;
@@ -19,6 +20,7 @@ class FailureView extends StatelessWidget {
 
   /// Inline (inside a scroll view / above a button) rather than centred.
   final bool compact;
+  final String? retryLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +51,7 @@ class FailureView extends StatelessWidget {
         OutlinedButton.icon(
           onPressed: onRetry,
           icon: const Icon(Icons.refresh, size: 18),
-          label: Text(context.l10n.commonRetry),
+          label: Text(retryLabel ?? context.l10n.commonRetry),
         ),
       ],
     );

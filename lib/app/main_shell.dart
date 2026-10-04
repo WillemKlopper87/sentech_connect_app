@@ -1,7 +1,9 @@
 import 'package:sentech_connect_app/l10n/l10n.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:sentech_connect_app/app/locator.dart';
+import 'package:sentech_connect_app/app/router/app_router.dart';
 import 'package:sentech_connect_app/features/account/presentation/pages/account_page.dart';
 import 'package:sentech_connect_app/features/account_dashboard/presentation/bloc/account_cubit.dart';
 import 'package:sentech_connect_app/features/account_dashboard/presentation/pages/dashboard_page.dart';
@@ -126,6 +128,7 @@ class _MainShellState extends State<MainShell> {
         value: _catalogCubit,
         child: CatalogPage(
           onOpenCart: widget.onOpenCart,
+          onOrderCreated: (order) => context.push(AppRoutes.forOrder(order)),
           onFindHotspots: widget.showMockFeatures
               ? widget.onFindHotspots
               : null,

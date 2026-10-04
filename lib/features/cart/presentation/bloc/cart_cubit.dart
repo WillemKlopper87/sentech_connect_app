@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:flutter/foundation.dart' show listEquals;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sentech_connect_app/features/cart/domain/entities/cart_item.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/domain/entities/plan.dart';
@@ -24,12 +25,37 @@ class CartState extends Equatable {
 class CartCubit extends Cubit<CartState> {
   CartCubit() : super(const CartState());
 
+  final Map<String, ({CartState source, List<CartItem> items})>
+  _reviewedOrders = {};
+
+  /// Bind an order created from this cart to the exact items the customer
+  /// reviewed. A Buy now sheet has its own cart and never binds the root cart.
+  void bindCheckoutOrder(String orderId, List<CartItem> reviewedItems) {
+    _reviewedOrders[orderId] = (
+      source: state,
+      items: List<CartItem>.unmodifiable(reviewedItems),
+    );
+  }
+
+  /// A paid order empties only its unchanged source cart. New selections made
+  /// while payment was pending belong to a different prospective order.
+  void clearForPaidOrder(String orderId) {
+    final reviewed = _reviewedOrders.remove(orderId);
+    if (reviewed != null &&
+        identical(state, reviewed.source) &&
+        listEquals(state.items, reviewed.items)) {
+      clear();
+    }
+  }
+
   void addItem(Plan plan) {
     final items = [...state.items];
     final existingIndex = items.indexWhere((i) => i.plan.id == plan.id);
 
     if (existingIndex != -1) {
-      items[existingIndex] = items[existingIndex].copyWith(quantity: items[existingIndex].quantity + 1);
+      items[existingIndex] = items[existingIndex].copyWith(
+        quantity: items[existingIndex].quantity + 1,
+      );
     } else if (plan.category == ProductCategory.home5g) {
       items.removeWhere((i) => i.plan.category == ProductCategory.home5g);
       items.add(CartItem(plan: plan, quantity: 1));
@@ -51,8 +77,13 @@ class CartCubit extends Cubit<CartState> {
   }
 
   void removeItem(String planId) {
-    emit(CartState(items: state.items.where((i) => i.plan.id != planId).toList()));
+    emit(
+      CartState(items: state.items.where((i) => i.plan.id != planId).toList()),
+    );
   }
 
-  void clear() => emit(const CartState());
+  void clear() {
+    _reviewedOrders.clear();
+    emit(const CartState());
+  }
 }

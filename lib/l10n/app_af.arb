@@ -1982,6 +1982,17 @@
   "@hotspotFaq3Answer": {
     "description": "English fallback pending translation. Task 10 owned offers and hotspot help copy."
   },
+  "buyNow": "Buy now",
+  "buyNowTryAgain": "Try again",
+  "buyNowWhatYouGet": "What you get",
+  "buyNowSpeed": "Up to {speed} Mbps",
+  "@buyNowSpeed": {"placeholders": {"speed": {"type": "String"}}},
+  "buyNowPay": "Pay {price}",
+  "@buyNowPay": {"placeholders": {"price": {"type": "String"}}},
+  "paymentMethodsHeading": "Ways to pay",
+  "paymentMethodCard": "Card",
+  "paymentMethodInstantEft": "Instant EFT",
+  "paymentMethodCashVoucher": "Cash voucher",
   "planBadgeOurPickHint": "Selected by us for you",
   "@planBadgeOurPickHint": {
     "description": "English fallback pending translation. Editorial recommendation; no popularity claim."

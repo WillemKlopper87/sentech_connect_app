@@ -51,10 +51,7 @@ void main() {
       await tester.pump();
       await tester.pump();
       expect(find.textContaining("You're offline"), findsOneWidget);
-      expect(
-        find.text('Hello!'),
-        findsOneWidget,
-      ); // screen state is preserved
+      expect(find.text('Hello!'), findsOneWidget); // screen state is preserved
 
       connectivity.setOnline(true);
       await tester.pump();
@@ -81,7 +78,11 @@ void main() {
               BlocProvider.value(value: cubit),
               BlocProvider(create: (_) => CartCubit()),
             ],
-            child: CatalogPage(onOpenCart: () {}, onFindHotspots: () {}),
+            child: CatalogPage(
+              onOpenCart: () {},
+              onFindHotspots: () {},
+              onOrderCreated: (_) {},
+            ),
           ),
         ),
       );
@@ -140,15 +141,20 @@ void main() {
         final created = <String>[];
         await tester.pumpWidget(
           MaterialApp(
-            home: BlocProvider(
-              create: (_) => CheckoutCubit(
-                MockCheckoutRepository(
-                  InMemorySecureStore(),
-                  network: network,
-                  latency: Duration.zero,
+            home: MultiBlocProvider(
+              providers: [
+                BlocProvider.value(value: cart),
+                BlocProvider(
+                  create: (_) => CheckoutCubit(
+                    MockCheckoutRepository(
+                      InMemorySecureStore(),
+                      network: network,
+                      latency: Duration.zero,
+                    ),
+                    cart,
+                  ),
                 ),
-                cart,
-              ),
+              ],
               child: CheckoutPage(onOrderCreated: (o) => created.add(o.id)),
             ),
           ),

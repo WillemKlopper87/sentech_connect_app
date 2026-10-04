@@ -318,6 +318,7 @@ void main() {
 
     test('decline -> retry -> paid clears the cart only on success', () async {
       final order = await newOrder();
+      cart.bindCheckoutOrder(order.id, cart.state.items);
       await repo.markIdentityVerified(order.id);
       final payment = PaymentCubit(repo, cart, order.id);
       await Future<void>.delayed(Duration.zero);
@@ -333,6 +334,64 @@ void main() {
       await payment.handoffFinished();
       expect(payment.state.status, PaymentStatus.paid);
       expect(cart.state.items, isEmpty);
+      await payment.close();
+    });
+
+    test('Buy now payment preserves unrelated physical cart items', () async {
+      const pass = Plan(
+        id: 'pass',
+        name: 'Day Pass',
+        priceCents: 3500,
+        dataDescription: '5 GB',
+        speedMbps: 10,
+        category: ProductCategory.hotspotPass,
+      );
+      final order = (await repo.createOrder(
+        items: [const CartItem(plan: pass, quantity: 1)],
+      )).getOrElse((_) => throw StateError('create failed'));
+      final payment = PaymentCubit(repo, cart, order.id);
+      await Future<void>.delayed(Duration.zero);
+      await payment.pay();
+      await payment.handoffFinished();
+      expect(payment.state.status, PaymentStatus.paid);
+      expect(cart.state.items.single.plan, _plan);
+      await payment.close();
+    });
+
+    test('new cart selections after review survive payment', () async {
+      final order = await newOrder();
+      cart.bindCheckoutOrder(order.id, cart.state.items);
+      const other = Plan(
+        id: 'mifi',
+        name: 'MiFi 20',
+        priceCents: 19900,
+        dataDescription: '20 GB',
+        speedMbps: 50,
+        category: ProductCategory.mifi,
+      );
+      cart.addItem(other);
+      await repo.markIdentityVerified(order.id);
+      final payment = PaymentCubit(repo, cart, order.id);
+      await Future<void>.delayed(Duration.zero);
+      await payment.pay();
+      await payment.handoffFinished();
+      expect(payment.state.status, PaymentStatus.paid);
+      expect(cart.state.items.map((i) => i.plan.id), contains('mifi'));
+      await payment.close();
+    });
+
+    test('reselected items after review survive payment', () async {
+      final order = await newOrder();
+      cart.bindCheckoutOrder(order.id, cart.state.items);
+      cart.removeItem(_plan.id);
+      cart.addItem(_plan);
+      await repo.markIdentityVerified(order.id);
+      final payment = PaymentCubit(repo, cart, order.id);
+      await Future<void>.delayed(Duration.zero);
+      await payment.pay();
+      await payment.handoffFinished();
+      expect(payment.state.status, PaymentStatus.paid);
+      expect(cart.state.items.single.plan, _plan);
       await payment.close();
     });
 

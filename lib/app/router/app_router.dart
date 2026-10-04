@@ -413,6 +413,7 @@ GoRouter _buildRouter(
             create: (_) =>
                 PaymentCubit(locator(), context.read<CartCubit>(), orderId),
             child: PaymentPage(
+              showDemoMethods: locator<AppEnvironment>().isDemo,
               // Hotspot orders hide it regardless (PaymentPage derives that
               // from the order).
               showIdentityVerified:

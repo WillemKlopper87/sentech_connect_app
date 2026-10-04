@@ -1,19 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sentech_connect_app/app/locator.dart';
+import 'package:sentech_connect_app/core/config/app_environment.dart';
 import 'package:sentech_connect_app/core/money/money.dart';
 import 'package:sentech_connect_app/features/cart/presentation/bloc/cart_cubit.dart';
 import 'package:sentech_connect_app/l10n/l10n.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/domain/entities/plan.dart';
+import 'package:sentech_connect_app/features/catalog_checkout/domain/entities/order.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/presentation/bloc/catalog_cubit.dart';
+import 'package:sentech_connect_app/features/catalog_checkout/presentation/widgets/buy_now_sheet.dart';
 import 'package:sentech_connect_app/features/wifi_voucher/presentation/bloc/free_wifi_cubit.dart';
 import 'package:sentech_connect_app/features/wifi_voucher/presentation/pages/free_wifi_card.dart';
 import 'package:sentech_connect_app/shared/widgets/failure_view.dart';
 
 class CatalogPage extends StatelessWidget {
-  const CatalogPage({super.key, required this.onOpenCart, this.onFindHotspots});
+  const CatalogPage({
+    super.key,
+    required this.onOpenCart,
+    this.onFindHotspots,
+    required this.onOrderCreated,
+  });
 
   final VoidCallback onOpenCart;
+  final void Function(Order) onOrderCreated;
 
   /// Null hides the free Wi-Fi card (mock-backed in prod).
   final VoidCallback? onFindHotspots;
@@ -25,15 +34,21 @@ class CatalogPage extends StatelessWidget {
       child: _CatalogScaffold(
         onOpenCart: onOpenCart,
         onFindHotspots: onFindHotspots,
+        onOrderCreated: onOrderCreated,
       ),
     );
   }
 }
 
 class _CatalogScaffold extends StatelessWidget {
-  const _CatalogScaffold({required this.onOpenCart, this.onFindHotspots});
+  const _CatalogScaffold({
+    required this.onOpenCart,
+    this.onFindHotspots,
+    required this.onOrderCreated,
+  });
 
   final VoidCallback onOpenCart;
+  final void Function(Order) onOrderCreated;
 
   /// Null hides the free Wi-Fi card (mock-backed in prod).
   final VoidCallback? onFindHotspots;
@@ -120,6 +135,21 @@ class _CatalogScaffold extends StatelessWidget {
                 _PlanCard(
                   plan: plan,
                   onSelect: () {
+                    if (plan.category == ProductCategory.hotspotPass ||
+                        plan.category == ProductCategory.voucher) {
+                      showBuyNowSheet(
+                        context,
+                        plan,
+                        onOrderCreated: onOrderCreated,
+                        showDemoMethods: locator<AppEnvironment>().isDemo,
+                        showCashVoucher:
+                            locator<AppEnvironment>().isDemo &&
+                            state.availableCategories.contains(
+                              ProductCategory.voucher,
+                            ),
+                      );
+                      return;
+                    }
                     context.read<CartCubit>().addItem(plan);
                     ScaffoldMessenger.of(context)
                       ..hideCurrentSnackBar()
@@ -223,88 +253,98 @@ class _PlanCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: plan.isFeatured
-              ? theme.colorScheme.primary
-              : theme.colorScheme.outlineVariant,
-          width: plan.isFeatured ? 1.6 : 1,
+    return InkWell(
+      onTap: onSelect,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: plan.isFeatured
+                ? theme.colorScheme.primary
+                : theme.colorScheme.outlineVariant,
+            width: plan.isFeatured ? 1.6 : 1,
+          ),
         ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          if (plan.isFeatured) ...[
-            Align(
-              alignment: Alignment.centerRight,
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFAA61A),
-                  borderRadius: BorderRadius.circular(999),
-                ),
-                child: Semantics(
-                  label: context.l10n.planBadgeOurPickHint,
-                  child: Text(
-                    context.l10n.planBadgeOurPick,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w800,
-                      color: Color(0xFF003A70),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (plan.isFeatured) ...[
+              Align(
+                alignment: Alignment.centerRight,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFAA61A),
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: Semantics(
+                    label: context.l10n.planBadgeOurPickHint,
+                    child: Text(
+                      context.l10n.planBadgeOurPick,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xFF003A70),
+                      ),
                     ),
                   ),
                 ),
               ),
+              const SizedBox(height: 8),
+            ],
+            if (MediaQuery.textScalerOf(context).scale(16) > 24) ...[
+              Text(plan.name, style: theme.textTheme.titleMedium),
+              const SizedBox(height: 8),
+              _price(context),
+            ] else
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Expanded(
+                    child: Text(plan.name, style: theme.textTheme.titleMedium),
+                  ),
+                  const SizedBox(width: 8),
+                  Flexible(child: _price(context)),
+                ],
+              ),
+            const SizedBox(height: 4),
+            Text(
+              plan.speedMbps > 0
+                  ? context.l10n.shopPlanSpeed(
+                      plan.dataDescription,
+                      plan.speedMbps.toString(),
+                    )
+                  : plan.dataDescription,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
             ),
-            const SizedBox(height: 8),
-          ],
-          if (MediaQuery.textScalerOf(context).scale(16) > 24) ...[
-            Text(plan.name, style: theme.textTheme.titleMedium),
-            const SizedBox(height: 8),
-            _price(context),
-          ] else
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Expanded(
-                  child: Text(plan.name, style: theme.textTheme.titleMedium),
-                ),
-                const SizedBox(width: 8),
-                Flexible(child: _price(context)),
-              ],
-            ),
-          const SizedBox(height: 4),
-          Text(
-            plan.speedMbps > 0
-                ? context.l10n.shopPlanSpeed(
-                    plan.dataDescription,
-                    plan.speedMbps.toString(),
+            const SizedBox(height: 12),
+            plan.isFeatured
+                ? ElevatedButton(
+                    onPressed: onSelect,
+                    child: Text(_actionLabel(context)),
                   )
-                : plan.dataDescription,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-          ),
-          const SizedBox(height: 12),
-          plan.isFeatured
-              ? ElevatedButton(
-                  onPressed: onSelect,
-                  child: Text(context.l10n.shopAddToCart),
-                )
-              : OutlinedButton(
-                  onPressed: onSelect,
-                  child: Text(context.l10n.shopAddToCart),
-                ),
-        ],
+                : OutlinedButton(
+                    onPressed: onSelect,
+                    child: Text(_actionLabel(context)),
+                  ),
+          ],
+        ),
       ),
     );
   }
+
+  String _actionLabel(BuildContext context) =>
+      plan.category == ProductCategory.hotspotPass ||
+          plan.category == ProductCategory.voucher
+      ? context.l10n.buyNow
+      : context.l10n.shopAddToCart;
 
   Widget _price(BuildContext context) {
     final theme = Theme.of(context);

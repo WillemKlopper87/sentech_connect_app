@@ -2656,6 +2656,60 @@ abstract class AppLocalizations {
   /// **'Move closer to the hotspot. Disconnect and reconnect to WiFi. If it stays slow, contact support.'**
   String get hotspotFaq3Answer;
 
+  /// Action on a pass or voucher catalog card.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy now'**
+  String get buyNow;
+
+  /// Retry creating an unpaid order in the Buy now sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get buyNowTryAgain;
+
+  /// Heading for actual plan details in the Buy now sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'What you get'**
+  String get buyNowWhatYouGet;
+
+  /// Maximum plan speed shown when catalog supplies it.
+  ///
+  /// In en, this message translates to:
+  /// **'Up to {speed} Mbps'**
+  String buyNowSpeed(String speed);
+
+  /// Action to create an unpaid order and continue to payment. Price includes VAT.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay {price}'**
+  String buyNowPay(String price);
+
+  /// Heading for illustrative demo payment methods.
+  ///
+  /// In en, this message translates to:
+  /// **'Ways to pay'**
+  String get paymentMethodsHeading;
+
+  /// Illustrative demo payment method label.
+  ///
+  /// In en, this message translates to:
+  /// **'Card'**
+  String get paymentMethodCard;
+
+  /// Illustrative demo payment method label.
+  ///
+  /// In en, this message translates to:
+  /// **'Instant EFT'**
+  String get paymentMethodInstantEft;
+
+  /// Illustrative demo payment method, shown only with the voucher offering.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash voucher'**
+  String get paymentMethodCashVoucher;
+
   /// Editorial recommendation; no popularity claim.
   ///
   /// In en, this message translates to:

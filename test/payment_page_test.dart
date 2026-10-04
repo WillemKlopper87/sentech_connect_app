@@ -50,6 +50,7 @@ Future<void> _pumpPage(
   PaymentCubit cubit, {
   void Function(Order)? onPaid,
   bool showIdentityVerified = true,
+  bool showDemoMethods = false,
   double textScale = 1,
   bool realTheme = false,
 }) async {
@@ -68,6 +69,7 @@ Future<void> _pumpPage(
         value: cubit,
         child: PaymentPage(
           showIdentityVerified: showIdentityVerified,
+          showDemoMethods: showDemoMethods,
           onPaid: onPaid ?? (_) {},
           onNeedsVerification: (_) {},
           onClosed: () {},
@@ -80,6 +82,32 @@ Future<void> _pumpPage(
 
 void main() {
   setUpAppTests();
+
+  testWidgets('demo methods appear only in demo payment presentation', (
+    tester,
+  ) async {
+    final repo = MockCheckoutRepository(
+      InMemorySecureStore(),
+      latency: Duration.zero,
+    );
+    final cart = CartCubit();
+    addTearDown(cart.close);
+    final order = (await tester.runAsync(
+      () => repo.createOrder(items: _items),
+    ))!.getOrElse((f) => throw StateError(f.message));
+    final cubit = PaymentCubit(repo, cart, order.id);
+    addTearDown(cubit.close);
+    await _pumpPage(tester, cubit);
+    expect(
+      find.text('Choose how to pay on the secure payment page.'),
+      findsOneWidget,
+    );
+    expect(find.text('Cash voucher'), findsNothing);
+    await _pumpPage(tester, cubit, showDemoMethods: true);
+    expect(find.text('Card'), findsOneWidget);
+    expect(find.text('Instant EFT'), findsOneWidget);
+    expect(find.text('Cash voucher'), findsOneWidget);
+  });
 
   testWidgets('secure payment explanation renders at body floor at 2x', (
     tester,
@@ -161,6 +189,8 @@ void main() {
         () => repo.markIdentityVerified(order.id),
       ))!.getOrElse((f) => throw StateError(f.message));
       expect(order.isHotspotPass, isTrue);
+
+      cart.bindCheckoutOrder(order.id, cart.state.items);
 
       final cubit = PaymentCubit(repo, cart, order.id, wait: (_) async {});
       addTearDown(cubit.close);

@@ -58,7 +58,11 @@ void main() {
               BlocProvider.value(value: catalog),
               BlocProvider.value(value: cart),
             ],
-            child: CatalogPage(onOpenCart: () {}, onFindHotspots: () {}),
+            child: CatalogPage(
+              onOpenCart: () {},
+              onFindHotspots: () {},
+              onOrderCreated: (_) {},
+            ),
           ),
         ),
       );
