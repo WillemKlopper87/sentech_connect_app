@@ -122,13 +122,20 @@ class PaymentCubit extends Cubit<PaymentState> {
       (failure) => emit(
         state.copyWith(status: PaymentStatus.loadFailed, failure: failure),
       ),
-      (order) => emit(
-        state.copyWith(
-          status: _statusFor(order),
-          order: order,
-          failure: order.status == OrderStatus.paymentFailed ? _declined : null,
-        ),
-      ),
+      (order) {
+        if (order.status == OrderStatus.paid) {
+          _cartCubit.clearForPaidOrder(order.id);
+        }
+        emit(
+          state.copyWith(
+            status: _statusFor(order),
+            order: order,
+            failure: order.status == OrderStatus.paymentFailed
+                ? _declined
+                : null,
+          ),
+        );
+      },
     );
   }
 

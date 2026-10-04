@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -6,6 +8,7 @@ import 'package:sentech_connect_app/app/theme/app_theme.dart';
 import 'package:sentech_connect_app/core/storage/secure_store.dart';
 import 'package:sentech_connect_app/core/network/simulated_network.dart';
 import 'package:sentech_connect_app/core/error/failure.dart';
+import 'package:sentech_connect_app/core/local/data_saver.dart';
 import 'package:sentech_connect_app/features/cart/presentation/bloc/cart_cubit.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/data/repositories/mock_checkout_repository.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/data/repositories/mock_catalog_repository.dart';
@@ -67,6 +70,24 @@ class RecordingCheckoutRepository extends MockCheckoutRepository {
   }
 }
 
+class ControlledCheckoutRepository extends MockCheckoutRepository {
+  ControlledCheckoutRepository()
+    : super(InMemorySecureStore(), latency: Duration.zero);
+
+  final started = Completer<void>();
+  final release = Completer<void>();
+
+  @override
+  Future<Either<Failure, Order>> createOrder({
+    required List<CartItem> items,
+    String? idempotencyKey,
+  }) async {
+    if (!started.isCompleted) started.complete();
+    await release.future;
+    return super.createOrder(items: items, idempotencyKey: idempotencyKey);
+  }
+}
+
 void main() {
   setUpAppTests();
 
@@ -77,6 +98,8 @@ void main() {
     double scale = 1,
     Plan plan = dayPass,
     bool showDemoMethods = false,
+    bool reduceMotion = false,
+    bool dataSaver = false,
   }) async {
     await tester.pumpWidget(
       MaterialApp(
@@ -84,13 +107,20 @@ void main() {
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         builder: (context, child) => MediaQuery(
-          data: MediaQuery.of(
-            context,
-          ).copyWith(textScaler: TextScaler.linear(scale)),
+          data: MediaQuery.of(context).copyWith(
+            textScaler: TextScaler.linear(scale),
+            disableAnimations: reduceMotion,
+          ),
           child: child!,
         ),
-        home: BlocProvider.value(
-          value: cart,
+        home: MultiBlocProvider(
+          providers: [
+            BlocProvider.value(value: cart),
+            BlocProvider(
+              create: (_) =>
+                  DataSaverCubit(initial: dataSaver, save: (_) async {}),
+            ),
+          ],
           child: Scaffold(
             body: Builder(
               builder: (context) => TextButton(
@@ -271,4 +301,65 @@ void main() {
       expect(find.text('Add to cart'), findsWidgets);
     },
   );
+
+  for (final dismissWithBack in [false, true]) {
+    testWidgets(
+      'late order after pending ${dismissWithBack ? 'back' : 'barrier'} dismissal cannot navigate or pop host',
+      (tester) async {
+        final repo = ControlledCheckoutRepository();
+        locator.registerSingleton<CheckoutRepository>(repo);
+        final cart = CartCubit()..addItem(router);
+        addTearDown(cart.close);
+        final created = <Order>[];
+        await pumpHost(tester, cart, created.add);
+        await tester.tap(find.text('Open'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Pay R35 incl. VAT'));
+        await tester.pump();
+        await repo.started.future;
+        if (dismissWithBack) {
+          await tester.binding.handlePopRoute();
+        } else {
+          await tester.tapAt(const Offset(5, 5));
+        }
+        await tester
+            .pump(); // reverse transition has started, subtree still alive
+        repo.release.complete();
+        await tester.pump(const Duration(milliseconds: 100));
+        await tester.pumpAndSettle();
+        expect(created, isEmpty);
+        expect(find.text('Open'), findsOneWidget);
+        expect(find.text('Pay R35 incl. VAT'), findsNothing);
+        expect(cart.state.items.single.plan, router);
+      },
+    );
+  }
+
+  for (final dataSaver in [false, true]) {
+    testWidgets(
+      'pending create is static with ${dataSaver ? 'Data saver' : 'reduced motion'}',
+      (tester) async {
+        final repo = ControlledCheckoutRepository();
+        locator.registerSingleton<CheckoutRepository>(repo);
+        final cart = CartCubit();
+        addTearDown(cart.close);
+        await pumpHost(
+          tester,
+          cart,
+          (_) {},
+          dataSaver: dataSaver,
+          reduceMotion: !dataSaver,
+        );
+        await tester.tap(find.text('Open'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Pay R35 incl. VAT'));
+        await tester.pump();
+        await repo.started.future;
+        expect(find.byType(CircularProgressIndicator), findsNothing);
+        expect(find.text('Creating order'), findsOneWidget);
+        repo.release.complete();
+        await tester.pumpAndSettle();
+      },
+    );
+  }
 }

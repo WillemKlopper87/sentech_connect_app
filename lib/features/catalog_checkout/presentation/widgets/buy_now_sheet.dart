@@ -27,7 +27,7 @@ Future<void> showBuyNowSheet(
       MediaQuery.disableAnimationsOf(context) ||
       (context.read<DataSaverCubit?>()?.state ?? false);
   try {
-    await showModalBottomSheet<void>(
+    final order = await showModalBottomSheet<Order>(
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
@@ -37,15 +37,20 @@ Future<void> showBuyNowSheet(
         create: (_) => CheckoutCubit(locator<CheckoutRepository>(), reviewCart),
         child: _BuyNowReview(
           plan: plan,
+          reduceMotion: reduceMotion,
           showDemoMethods: showDemoMethods,
           showCashVoucher: showCashVoucher,
           onCreated: (order) {
-            Navigator.of(sheetContext).pop();
-            if (context.mounted) onOrderCreated(order);
+            // A dismissed route can remain mounted during its reverse
+            // transition. It must never pop the route beneath it.
+            if (ModalRoute.of(sheetContext)?.isCurrent ?? false) {
+              Navigator.of(sheetContext).pop(order);
+            }
           },
         ),
       ),
     );
+    if (order != null && context.mounted) onOrderCreated(order);
   } finally {
     await reviewCart.close();
   }
@@ -54,12 +59,14 @@ Future<void> showBuyNowSheet(
 class _BuyNowReview extends StatelessWidget {
   const _BuyNowReview({
     required this.plan,
+    required this.reduceMotion,
     required this.showDemoMethods,
     required this.showCashVoucher,
     required this.onCreated,
   });
 
   final Plan plan;
+  final bool reduceMotion;
   final bool showDemoMethods;
   final bool showCashVoucher;
   final void Function(Order) onCreated;
@@ -144,11 +151,15 @@ class _BuyNowReview extends StatelessWidget {
                         ? null
                         : () => context.read<CheckoutCubit>().createOrder(),
                     child: busy
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
+                        ? reduceMotion
+                              ? Text(context.l10n.buyNowCreatingOrder)
+                              : const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                )
                         : Text(context.l10n.buyNowPay(price)),
                   ),
                 ],

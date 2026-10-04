@@ -32,6 +32,7 @@ class CheckoutPage extends StatelessWidget {
             context.read<CartCubit>().bindCheckoutOrder(
               state.order!.id,
               state.items,
+              source: context.read<CheckoutCubit>().sourceCartState,
             );
             onOrderCreated(state.order!);
           }

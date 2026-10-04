@@ -2668,6 +2668,12 @@ abstract class AppLocalizations {
   /// **'Try again'**
   String get buyNowTryAgain;
 
+  /// Static progress text for Buy now when motion is reduced.
+  ///
+  /// In en, this message translates to:
+  /// **'Creating order'**
+  String get buyNowCreatingOrder;
+
   /// Heading for actual plan details in the Buy now sheet.
   ///
   /// In en, this message translates to:

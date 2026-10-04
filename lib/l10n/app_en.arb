@@ -1985,6 +1985,8 @@
   "buyNow": "Buy now",
   "@buyNow": {"description": "Action on a pass or voucher catalog card."},
   "buyNowTryAgain": "Try again",
+  "buyNowCreatingOrder": "Creating order",
+  "@buyNowCreatingOrder": {"description": "Static progress text for Buy now when motion is reduced."},
   "@buyNowTryAgain": {"description": "Retry creating an unpaid order in the Buy now sheet."},
   "buyNowWhatYouGet": "What you get",
   "@buyNowWhatYouGet": {"description": "Heading for actual plan details in the Buy now sheet."},

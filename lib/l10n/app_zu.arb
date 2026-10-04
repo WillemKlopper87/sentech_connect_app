@@ -1984,6 +1984,7 @@
   },
   "buyNow": "Buy now",
   "buyNowTryAgain": "Try again",
+  "buyNowCreatingOrder": "Creating order",
   "buyNowWhatYouGet": "What you get",
   "buyNowSpeed": "Up to {speed} Mbps",
   "@buyNowSpeed": {"placeholders": {"speed": {"type": "String"}}},

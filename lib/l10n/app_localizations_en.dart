@@ -1526,6 +1526,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get buyNowTryAgain => 'Try again';
 
   @override
+  String get buyNowCreatingOrder => 'Creating order';
+
+  @override
   String get buyNowWhatYouGet => 'What you get';
 
   @override

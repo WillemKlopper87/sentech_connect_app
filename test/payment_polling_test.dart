@@ -104,7 +104,7 @@ void main() {
     List<Duration> delays = defaultPollDelays,
     Future<void> Function(Duration)? wait,
   }) async {
-    cart.bindCheckoutOrder('o1', cart.state.items);
+    cart.bindCheckoutOrder('o1', cart.state.items, source: cart.state);
     final cubit = PaymentCubit(
       repo,
       cart,

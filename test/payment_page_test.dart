@@ -190,7 +190,7 @@ void main() {
       ))!.getOrElse((f) => throw StateError(f.message));
       expect(order.isHotspotPass, isTrue);
 
-      cart.bindCheckoutOrder(order.id, cart.state.items);
+      cart.bindCheckoutOrder(order.id, cart.state.items, source: cart.state);
 
       final cubit = PaymentCubit(repo, cart, order.id, wait: (_) async {});
       addTearDown(cubit.close);

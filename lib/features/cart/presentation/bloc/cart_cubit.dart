@@ -30,9 +30,19 @@ class CartCubit extends Cubit<CartState> {
 
   /// Bind an order created from this cart to the exact items the customer
   /// reviewed. A Buy now sheet has its own cart and never binds the root cart.
-  void bindCheckoutOrder(String orderId, List<CartItem> reviewedItems) {
+  void bindCheckoutOrder(
+    String orderId,
+    List<CartItem> reviewedItems, {
+    required CartState source,
+  }) {
+    // Only the latest review can own the cart. If it changed while the
+    // create request was pending, the returned order owns no current items.
+    _reviewedOrders.clear();
+    if (!identical(state, source) || !listEquals(source.items, reviewedItems)) {
+      return;
+    }
     _reviewedOrders[orderId] = (
-      source: state,
+      source: source,
       items: List<CartItem>.unmodifiable(reviewedItems),
     );
   }
@@ -49,6 +59,7 @@ class CartCubit extends Cubit<CartState> {
   }
 
   void addItem(Plan plan) {
+    _reviewedOrders.clear();
     final items = [...state.items];
     final existingIndex = items.indexWhere((i) => i.plan.id == plan.id);
 
@@ -70,6 +81,7 @@ class CartCubit extends Cubit<CartState> {
       removeItem(planId);
       return;
     }
+    _reviewedOrders.clear();
     final items = state.items
         .map((i) => i.plan.id == planId ? i.copyWith(quantity: quantity) : i)
         .toList();
@@ -77,6 +89,7 @@ class CartCubit extends Cubit<CartState> {
   }
 
   void removeItem(String planId) {
+    _reviewedOrders.clear();
     emit(
       CartState(items: state.items.where((i) => i.plan.id != planId).toList()),
     );

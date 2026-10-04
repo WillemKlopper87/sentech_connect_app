@@ -48,10 +48,15 @@ class CheckoutCubit extends Cubit<CheckoutState> {
     this._repository,
     CartCubit cartCubit, {
     String Function()? newKey,
-  }) : _idempotencyKey = (newKey ?? newIdempotencyKey)(),
+  }) : sourceCartState = cartCubit.state,
+       _idempotencyKey = (newKey ?? newIdempotencyKey)(),
        super(CheckoutState(items: List.unmodifiable(cartCubit.state.items)));
 
   final CheckoutRepository _repository;
+
+  /// Root cart state at the start of this immutable review, before the API call.
+  final CartState sourceCartState;
+
   /// One key for this immutable cart review, including all network retries.
   final String _idempotencyKey;
 

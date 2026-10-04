@@ -1,3 +1,7 @@
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sentech_connect_app/features/cart/domain/entities/cart_item.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/domain/repositories/checkout_repository.dart';
 import 'package:bloc_test/bloc_test.dart';
@@ -13,6 +17,7 @@ import 'package:sentech_connect_app/features/catalog_checkout/domain/entities/pa
 import 'package:sentech_connect_app/features/catalog_checkout/domain/entities/plan.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/presentation/bloc/checkout_cubit.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/presentation/bloc/payment_cubit.dart';
+import 'package:sentech_connect_app/features/catalog_checkout/presentation/pages/checkout_page.dart';
 import 'package:sentech_connect_app/features/rica/domain/repositories/liveness_repository.dart';
 import 'package:sentech_connect_app/features/rica/presentation/bloc/rica_cubit.dart';
 
@@ -318,7 +323,7 @@ void main() {
 
     test('decline -> retry -> paid clears the cart only on success', () async {
       final order = await newOrder();
-      cart.bindCheckoutOrder(order.id, cart.state.items);
+      cart.bindCheckoutOrder(order.id, cart.state.items, source: cart.state);
       await repo.markIdentityVerified(order.id);
       final payment = PaymentCubit(repo, cart, order.id);
       await Future<void>.delayed(Duration.zero);
@@ -360,7 +365,7 @@ void main() {
 
     test('new cart selections after review survive payment', () async {
       final order = await newOrder();
-      cart.bindCheckoutOrder(order.id, cart.state.items);
+      cart.bindCheckoutOrder(order.id, cart.state.items, source: cart.state);
       const other = Plan(
         id: 'mifi',
         name: 'MiFi 20',
@@ -382,7 +387,7 @@ void main() {
 
     test('reselected items after review survive payment', () async {
       final order = await newOrder();
-      cart.bindCheckoutOrder(order.id, cart.state.items);
+      cart.bindCheckoutOrder(order.id, cart.state.items, source: cart.state);
       cart.removeItem(_plan.id);
       cart.addItem(_plan);
       await repo.markIdentityVerified(order.id);
@@ -390,6 +395,52 @@ void main() {
       await Future<void>.delayed(Duration.zero);
       await payment.pay();
       await payment.handoffFinished();
+      expect(payment.state.status, PaymentStatus.paid);
+      expect(cart.state.items.single.plan, _plan);
+      await payment.close();
+    });
+
+    test('already paid on load clears a matching reviewed cart', () async {
+      final order = await newOrder();
+      cart.bindCheckoutOrder(order.id, cart.state.items, source: cart.state);
+      await repo.markIdentityVerified(order.id);
+      await repo.startPayment(orderId: order.id);
+      final payment = PaymentCubit(repo, cart, order.id);
+      await Future<void>.delayed(Duration.zero);
+      expect(payment.state.status, PaymentStatus.paid);
+      expect(cart.state.items, isEmpty);
+      await payment.close();
+    });
+
+    test('already paid on load preserves unrelated cart', () async {
+      const pass = Plan(
+        id: 'pass',
+        name: 'Day Pass',
+        priceCents: 3500,
+        dataDescription: '5 GB',
+        speedMbps: 10,
+        category: ProductCategory.hotspotPass,
+      );
+      final order = (await repo.createOrder(
+        items: [const CartItem(plan: pass, quantity: 1)],
+      )).getOrElse((_) => throw StateError('create failed'));
+      await repo.startPayment(orderId: order.id);
+      final payment = PaymentCubit(repo, cart, order.id);
+      await Future<void>.delayed(Duration.zero);
+      expect(payment.state.status, PaymentStatus.paid);
+      expect(cart.state.items.single.plan, _plan);
+      await payment.close();
+    });
+
+    test('already paid on load preserves cart changed since review', () async {
+      final order = await newOrder();
+      cart.bindCheckoutOrder(order.id, cart.state.items, source: cart.state);
+      cart.removeItem(_plan.id);
+      cart.addItem(_plan);
+      await repo.markIdentityVerified(order.id);
+      await repo.startPayment(orderId: order.id);
+      final payment = PaymentCubit(repo, cart, order.id);
+      await Future<void>.delayed(Duration.zero);
       expect(payment.state.status, PaymentStatus.paid);
       expect(cart.state.items.single.plan, _plan);
       await payment.close();
@@ -405,6 +456,56 @@ void main() {
       },
     );
   });
+
+  testWidgets(
+    'cart reselected before create response is not owned by old review',
+    (tester) async {
+      final gated = _GatedCheckoutRepository();
+      final checkout = CheckoutCubit(gated, cart);
+      addTearDown(checkout.close);
+      final created = <Order>[];
+      await tester.pumpWidget(
+        MaterialApp(
+          home: MultiBlocProvider(
+            providers: [
+              BlocProvider.value(value: cart),
+              BlocProvider.value(value: checkout),
+            ],
+            child: CheckoutPage(onOrderCreated: created.add),
+          ),
+        ),
+      );
+      await tester.tap(find.text('Verify identity to continue'));
+      await tester.pump();
+      await gated.started.future;
+      cart.removeItem(_plan.id);
+      cart.addItem(_plan);
+      gated.release.complete();
+      await tester.pumpAndSettle();
+      expect(created, hasLength(1));
+      // This is the exact ownership check the paid transition invokes.
+      cart.clearForPaidOrder(created.single.id);
+      expect(cart.state.items.single.plan, _plan);
+    },
+  );
+}
+
+class _GatedCheckoutRepository extends MockCheckoutRepository {
+  _GatedCheckoutRepository()
+    : super(InMemorySecureStore(), latency: Duration.zero);
+
+  final started = Completer<void>();
+  final release = Completer<void>();
+
+  @override
+  Future<Either<Failure, Order>> createOrder({
+    required List<CartItem> items,
+    String? idempotencyKey,
+  }) async {
+    if (!started.isCompleted) started.complete();
+    await release.future;
+    return super.createOrder(items: items, idempotencyKey: idempotencyKey);
+  }
 }
 
 class _KeyRecordingCheckout implements CheckoutRepository {
