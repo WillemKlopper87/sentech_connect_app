@@ -1,5 +1,8 @@
 import 'package:sentech_connect_app/l10n/l10n.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:sentech_connect_app/features/tenant/domain/entities/tenant.dart';
+import 'package:sentech_connect_app/shared/actions/support_actions.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentech_connect_app/features/support/data/repositories/mock_support_repository.dart';
@@ -23,14 +26,14 @@ void main() {
     await pumpPage(tester);
     await tester.pumpAndSettle();
 
-    expect(find.text('Why is my speed slower than expected?'), findsOneWidget);
-    expect(find.text('How do I top up my data?'), findsOneWidget);
+    expect(find.text("I can't connect to the WiFi"), findsOneWidget);
+    expect(find.text('I paid but have no pass'), findsOneWidget);
 
-    await tester.enterText(find.byType(TextField), 'top up');
+    await tester.enterText(find.byType(TextField), 'paid');
     await tester.pump();
 
-    expect(find.text('How do I top up my data?'), findsOneWidget);
-    expect(find.text('Why is my speed slower than expected?'), findsNothing);
+    expect(find.text('I paid but have no pass'), findsOneWidget);
+    expect(find.text("I can't connect to the WiFi"), findsNothing);
   });
 
   testWidgets('tapping an FAQ expands its answer', (tester) async {
@@ -47,16 +50,16 @@ void main() {
         .crossFadeState;
 
     expect(state(), CrossFadeState.showFirst);
-    await tester.tap(find.text('Why is my speed slower than expected?'));
+    await tester.tap(find.text("I can't connect to the WiFi"));
     await tester.pumpAndSettle();
     expect(state(), CrossFadeState.showSecond);
     expect(
-      find.text(lookupAppLocalizations(const Locale('en')).demoFaq1Answer),
+      find.text(lookupAppLocalizations(const Locale('en')).hotspotFaq1Answer),
       findsOneWidget,
     );
 
     // Tapping again collapses it.
-    await tester.tap(find.text('Why is my speed slower than expected?'));
+    await tester.tap(find.text("I can't connect to the WiFi"));
     await tester.pumpAndSettle();
     expect(state(), CrossFadeState.showFirst);
   });
@@ -102,4 +105,186 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Category'), findsNothing);
   });
+
+  test(
+    'tenant WhatsApp setting survives cache and rejects invalid contacts',
+    () {
+      final branding = TenantBranding.fromJson({
+        'whatsapp_number': '+27825550100',
+      });
+      expect(branding.whatsAppNumber, '+27825550100');
+      expect(TenantBranding.fromJson(branding.toJson()), branding);
+      final uri = supportWhatsAppUri(
+        branding.whatsAppNumber,
+        message: 'Hello & help',
+      );
+      expect(uri!.scheme, 'https');
+      expect(uri.host, 'wa.me');
+      expect(uri.path, '/27825550100');
+      expect(uri.queryParameters, {'text': 'Hello & help'});
+      for (final value in [
+        null,
+        '',
+        '270000000000',
+        '0825550100',
+        '+2782',
+        '+27825550100?text=fake',
+        'https://wa.me/27825550100',
+        '+27825550100 ',
+        '+27825550100\n',
+      ]) {
+        expect(
+          TenantBranding.fromJson({'whatsapp_number': value}).whatsAppNumber,
+          isNull,
+        );
+        expect(supportWhatsAppUri(value), isNull);
+      }
+    },
+  );
+
+  testWidgets('hotspot help is first and router answers require cpe', (
+    tester,
+  ) async {
+    for (final cpe in [false, true]) {
+      final cubit = SupportCubit(MockSupportRepository());
+      await pumpThemed(
+        tester,
+        BlocProvider.value(
+          value: cubit,
+          child: SupportPage(cpe: cpe),
+        ),
+      );
+      await tester.pumpAndSettle();
+      final questions = tester
+          .widgetList<Text>(find.byType(Text))
+          .map((t) => t.data)
+          .where(
+            (s) => [
+              "I can't connect to the WiFi",
+              'I paid but have no pass',
+              'My hotspot connection is slow',
+              'Why is my speed slower than expected?',
+            ].contains(s),
+          )
+          .toList();
+      expect(questions.take(3), [
+        "I can't connect to the WiFi",
+        'I paid but have no pass',
+        'My hotspot connection is slow',
+      ]);
+      await tester.enterText(find.byType(TextField), 'router');
+      await tester.pumpAndSettle();
+      expect(
+        find.text('My router lights are red'),
+        cpe ? findsOneWidget : findsNothing,
+      );
+      await cubit.close();
+    }
+  });
+
+  testWidgets(
+    'absent or invalid WhatsApp leaves an accessible secondary ticket',
+    (tester) async {
+      for (final number in <String?>[null, '270000000000']) {
+        final cubit = SupportCubit(MockSupportRepository());
+        await pumpThemed(
+          tester,
+          BlocProvider.value(
+            value: cubit,
+            child: SupportPage(whatsAppNumber: number),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(find.text('WhatsApp'), findsNothing);
+        expect(
+          find.widgetWithText(OutlinedButton, 'Submit a ticket'),
+          findsOneWidget,
+        );
+        await tester.tap(find.text('Submit a ticket'));
+        await tester.pumpAndSettle();
+        expect(find.byType(AlertDialog), findsOneWidget);
+        await tester.tap(find.text('Cancel'));
+        await tester.pumpAndSettle();
+        await cubit.close();
+      }
+    },
+  );
+
+  testWidgets(
+    'configured WhatsApp is primary and launches only the configured URL',
+    (tester) async {
+      final opened = <String>[];
+      const channel = MethodChannel('plugins.flutter.io/url_launcher');
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(channel, (call) async {
+            opened.add((call.arguments as Map)['url'] as String);
+            return true;
+          });
+      addTearDown(
+        () => TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+            .setMockMethodCallHandler(channel, null),
+      );
+      final cubit = SupportCubit(MockSupportRepository());
+      addTearDown(cubit.close);
+      await pumpThemed(
+        tester,
+        BlocProvider.value(
+          value: cubit,
+          child: const SupportPage(whatsAppNumber: '+27825550100'),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.widgetWithText(ElevatedButton, 'WhatsApp'), findsOneWidget);
+      expect(
+        find.widgetWithText(OutlinedButton, 'Submit a ticket'),
+        findsOneWidget,
+      );
+      await tester.tap(find.text('WhatsApp'));
+      await tester.pumpAndSettle();
+      expect(opened, hasLength(1));
+      expect(Uri.parse(opened.single).path, '/27825550100');
+      expect(
+        Uri.parse(opened.single).queryParameters['text'],
+        lookupAppLocalizations(const Locale('en')).supportChatGreeting,
+      );
+      final context = tester.element(find.byType(SupportPage));
+      await openWhatsAppChat(context);
+      expect(
+        opened,
+        hasLength(1),
+        reason: 'Shared action cannot invent a contact',
+      );
+    },
+  );
+
+  for (final lang in ['en', 'zu', 'af']) {
+    testWidgets('hotspot help and both contact buttons fit 200% in $lang', (
+      tester,
+    ) async {
+      final cubit = SupportCubit(MockSupportRepository());
+      addTearDown(cubit.close);
+      await pumpThemed(
+        tester,
+        BlocProvider.value(
+          value: cubit,
+          child: const SupportPage(whatsAppNumber: '+27825550100'),
+        ),
+        locale: Locale(lang),
+        textScale: 2,
+        size: const Size(360, 690),
+      );
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      final l10n = lookupAppLocalizations(Locale(lang));
+      expect(
+        find.widgetWithText(ElevatedButton, l10n.supportWhatsApp),
+        findsOneWidget,
+      );
+      await tester.tap(find.text(l10n.hotspotFaq1Question));
+      await tester.pumpAndSettle();
+      await tester.drag(find.byType(ListView), const Offset(0, -400));
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+    });
+  }
 }

@@ -1,10 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:sentech_connect_app/l10n/l10n.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:sentech_connect_app/features/tenant/domain/entities/tenant.dart';
 
-/// Placeholder WhatsApp Business number — swap for Sentech's real number
-/// before this ships. wa.me links use digits only, no "+" or spaces.
-const whatsAppNumber = '270000000000';
+/// Uses only the existing tenant branding contact contract.
+Uri? supportWhatsAppUri(String? number, {String? message}) {
+  final valid = TenantBranding.validWhatsAppNumber(number);
+  if (valid == null) return null;
+  return Uri.https(
+    'wa.me',
+    '/${valid.substring(1)}',
+    message == null ? null : {'text': message},
+  );
+}
 
 const supportEmail = 'support@sentech.co.za'; // from the Sentech CI manual
 
@@ -30,10 +38,12 @@ extension TicketCategoryLabel on TicketCategory {
 /// tab and any other entry point (e.g. the dashboard) that offers a
 /// "contact us" action, so there's exactly one place that owns the number
 /// and the pre-filled message.
-Future<void> openWhatsAppChat(BuildContext context) async {
-  final uri = Uri.parse(
-    'https://wa.me/$whatsAppNumber?text=${Uri.encodeComponent(context.l10n.supportChatGreeting)}',
+Future<void> openWhatsAppChat(BuildContext context, {String? number}) async {
+  final uri = supportWhatsAppUri(
+    number,
+    message: context.l10n.supportChatGreeting,
   );
+  if (uri == null) return;
   final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
   if (!launched && context.mounted) {
     ScaffoldMessenger.of(context)

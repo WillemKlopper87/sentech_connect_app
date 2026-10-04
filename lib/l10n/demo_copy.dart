@@ -6,6 +6,24 @@ import 'package:sentech_connect_app/l10n/app_localizations.dart';
 Faq localizeDemoFaq(Faq faq, AppLocalizations l10n) {
   if (!faq.isDemoCopy) return faq;
   return switch (faq.id) {
+    'hotspot-connect' => Faq(
+      id: faq.id,
+      question: l10n.hotspotFaq1Question,
+      answer: l10n.hotspotFaq1Answer,
+      isDemoCopy: true,
+    ),
+    'hotspot-paid' => Faq(
+      id: faq.id,
+      question: l10n.hotspotFaq2Question,
+      answer: l10n.hotspotFaq2Answer,
+      isDemoCopy: true,
+    ),
+    'hotspot-slow' => Faq(
+      id: faq.id,
+      question: l10n.hotspotFaq3Question,
+      answer: l10n.hotspotFaq3Answer,
+      isDemoCopy: true,
+    ),
     'speed' => Faq(
       id: faq.id,
       question: l10n.demoFaq1Question,
@@ -36,7 +54,8 @@ Promotion localizeDemoPromotion(Promotion promo, AppLocalizations l10n) {
       title: l10n.demoPromotion1Title,
       description: l10n.demoPromotion1Description,
       badge: l10n.demoPromotion1Badge,
-      expiresOn: l10n.demoPromotion1Expiry,
+      expiresAt: promo.expiresAt,
+      appliesTo: promo.appliesTo,
       isDemoCopy: true,
     ),
     'promo_referral' => Promotion(
@@ -44,15 +63,8 @@ Promotion localizeDemoPromotion(Promotion promo, AppLocalizations l10n) {
       title: l10n.demoPromotion2Title,
       description: l10n.demoPromotion2Description,
       badge: l10n.demoPromotion2Badge,
-      expiresOn: l10n.demoPromotion2Expiry,
-      isDemoCopy: true,
-    ),
-    'promo_loyalty' => Promotion(
-      id: promo.id,
-      title: l10n.demoPromotion3Title,
-      description: l10n.demoPromotion3Description,
-      badge: l10n.demoPromotion3Badge,
-      expiresOn: l10n.demoPromotion3Expiry,
+      expiresAt: promo.expiresAt,
+      appliesTo: promo.appliesTo,
       isDemoCopy: true,
     ),
     _ => promo,

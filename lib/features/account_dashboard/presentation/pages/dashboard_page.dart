@@ -29,7 +29,7 @@ class DashboardPage extends StatelessWidget {
     this.onOpenPasses,
     this.showRouterCard = true,
     this.onReportIssue,
-    required this.onOpenPromotions,
+    this.onOpenPromotions,
     required this.onResumeOrder,
     this.now = DateTime.now,
   });
@@ -48,7 +48,9 @@ class DashboardPage extends StatelessWidget {
 
   /// Null hides the shortcut (support tickets are mock-backed in prod).
   final VoidCallback? onReportIssue;
-  final VoidCallback onOpenPromotions;
+
+  /// Null hides mock offers in production.
+  final VoidCallback? onOpenPromotions;
   final void Function(Order order) onResumeOrder;
 
   /// The clock the current pass's time left is measured against (tests inject
@@ -131,8 +133,10 @@ class DashboardPage extends StatelessWidget {
             _UsageCard(summary: summary),
             const SizedBox(height: 16),
           ],
-          _PromoBanner(onTap: onOpenPromotions),
-          const SizedBox(height: 16),
+          if (onOpenPromotions case final openPromotions?) ...[
+            _PromoBanner(onTap: openPromotions),
+            const SizedBox(height: 16),
+          ],
           // Router telemetry needs the CPE/ACS integration (flag `cpe`, off at launch).
           if (showRouterCard && summary != null) ...[
             _CpeCard(summary: summary),

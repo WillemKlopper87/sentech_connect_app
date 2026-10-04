@@ -63,6 +63,12 @@ void main() {
       expect(find.text('Scan'), findsOneWidget);
       expect(find.text('Help'), findsOneWidget);
       expect(find.text('Report issue'), findsOneWidget);
+      expect(
+        find.text(
+          lookupAppLocalizations(const Locale('en')).homePromotionsLabel,
+        ),
+        findsOneWidget,
+      );
     },
   );
 
@@ -82,6 +88,12 @@ void main() {
       expect(find.text('Scan'), findsOneWidget);
       expect(find.text('Help'), findsNothing);
       expect(find.text('Report issue'), findsNothing);
+      expect(
+        find.text(
+          lookupAppLocalizations(const Locale('en')).homePromotionsLabel,
+        ),
+        findsNothing,
+      );
     },
   );
 }

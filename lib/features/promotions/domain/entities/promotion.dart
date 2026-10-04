@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:sentech_connect_app/features/catalog_checkout/domain/entities/plan.dart';
 
 class Promotion extends Equatable {
   const Promotion({
@@ -6,7 +7,8 @@ class Promotion extends Equatable {
     required this.title,
     required this.description,
     required this.badge,
-    required this.expiresOn,
+    this.expiresAt,
+    this.appliesTo,
     this.isDemoCopy = false,
   });
 
@@ -15,7 +17,11 @@ class Promotion extends Equatable {
   final String title;
   final String description;
   final String badge; // e.g. "20% OFF", "LOYALTY"
-  final String expiresOn;
+  /// Null means ongoing. Comparisons use instants, regardless of timezone.
+  final DateTime? expiresAt;
+
+  /// Null means the offer is independent of product inventory.
+  final ProductCategory? appliesTo;
 
   @override
   List<Object?> get props => [
@@ -23,7 +29,8 @@ class Promotion extends Equatable {
     title,
     description,
     badge,
-    expiresOn,
+    expiresAt,
+    appliesTo,
     isDemoCopy,
   ];
 }

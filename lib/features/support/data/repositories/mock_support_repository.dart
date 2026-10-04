@@ -7,6 +7,24 @@ import 'package:sentech_connect_app/features/support/domain/repositories/support
 class MockSupportRepository implements SupportRepository {
   static final _faqs = [
     Faq(
+      id: 'hotspot-connect',
+      isDemoCopy: true,
+      question: AppLocalizationsEn().hotspotFaq1Question,
+      answer: AppLocalizationsEn().hotspotFaq1Answer,
+    ),
+    Faq(
+      id: 'hotspot-paid',
+      isDemoCopy: true,
+      question: AppLocalizationsEn().hotspotFaq2Question,
+      answer: AppLocalizationsEn().hotspotFaq2Answer,
+    ),
+    Faq(
+      id: 'hotspot-slow',
+      isDemoCopy: true,
+      question: AppLocalizationsEn().hotspotFaq3Question,
+      answer: AppLocalizationsEn().hotspotFaq3Answer,
+    ),
+    Faq(
       id: 'speed',
       isDemoCopy: true,
       question: AppLocalizationsEn().demoFaq1Question,

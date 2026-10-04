@@ -249,12 +249,15 @@ class _PlanCard extends StatelessWidget {
                   color: const Color(0xFFFAA61A),
                   borderRadius: BorderRadius.circular(999),
                 ),
-                child: Text(
-                  context.l10n.planBadgeOurPick,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w800,
-                    color: Color(0xFF3A2400),
+                child: Semantics(
+                  label: context.l10n.planBadgeOurPickHint,
+                  child: Text(
+                    context.l10n.planBadgeOurPick,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xFF003A70),
+                    ),
                   ),
                 ),
               ),

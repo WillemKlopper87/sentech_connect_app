@@ -7,7 +7,9 @@ import 'package:sentech_connect_app/l10n/l10n.dart';
 import 'package:sentech_connect_app/shared/actions/support_actions.dart';
 
 class SupportPage extends StatelessWidget {
-  const SupportPage({super.key});
+  const SupportPage({super.key, this.cpe = false, this.whatsAppNumber});
+  final bool cpe;
+  final String? whatsAppNumber;
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +23,12 @@ class SupportPage extends StatelessWidget {
           }
           final theme = Theme.of(context);
           final query = state.query.trim().toLowerCase();
+          final canWhatsApp = supportWhatsAppUri(whatsAppNumber) != null;
           final faqs = state.allFaqs
+              .where(
+                (faq) =>
+                    cpe || !{'speed', 'topup', 'router-red'}.contains(faq.id),
+              )
               .map((faq) => localizeDemoFaq(faq, l10n))
               .where(
                 (faq) =>
@@ -72,27 +79,22 @@ class SupportPage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed: () => openWhatsAppChat(context),
-                        icon: const Icon(Icons.chat_bubble_outline, size: 18),
-                        label: Text(l10n.supportWhatsApp),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: () => submitSupportTicket(context),
-                        icon: const Icon(
-                          Icons.confirmation_number_outlined,
-                          size: 18,
-                        ),
-                        label: Text(l10n.supportSubmitTicket),
-                      ),
-                    ),
-                  ],
+                if (canWhatsApp) ...[
+                  ElevatedButton.icon(
+                    onPressed: () =>
+                        openWhatsAppChat(context, number: whatsAppNumber),
+                    icon: const Icon(Icons.chat_bubble_outline, size: 18),
+                    label: Text(l10n.supportWhatsApp),
+                  ),
+                  const SizedBox(height: 8),
+                ],
+                OutlinedButton.icon(
+                  onPressed: () => submitSupportTicket(context),
+                  icon: const Icon(
+                    Icons.confirmation_number_outlined,
+                    size: 18,
+                  ),
+                  label: Text(l10n.supportSubmitTicket),
                 ),
               ],
             ),

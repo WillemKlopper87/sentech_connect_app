@@ -19,7 +19,7 @@ import 'helpers/pump_themed.dart';
 // Test markers demonstrate routing through localization; no translations ship.
 class _TestCopy extends AppLocalizationsEn {
   @override
-  String get demoFaq1Question => 'Localized speed question';
+  String get hotspotFaq1Question => 'Localized hotspot question';
   @override
   String get demoPromotion1Title => 'Localized offer title';
   @override
@@ -54,17 +54,21 @@ void main() {
         title: 'External title',
         description: 'External description',
         badge: 'External badge',
-        expiresOn: 'External date',
       );
       final l10n = _TestCopy();
       expect(localizeDemoFaq(externalFaq, l10n), same(externalFaq));
       expect(localizeDemoPromotion(externalPromo, l10n), same(externalPromo));
       expect(
         localizeDemoFaq(
-          const Faq(id: 'speed', question: '', answer: '', isDemoCopy: true),
+          const Faq(
+            id: 'hotspot-connect',
+            question: '',
+            answer: '',
+            isDemoCopy: true,
+          ),
           l10n,
         ).question,
-        'Localized speed question',
+        'Localized hotspot question',
       );
       expect(
         localizeDemoPromotion(
@@ -73,7 +77,6 @@ void main() {
             title: '',
             description: '',
             badge: '',
-            expiresOn: '',
             isDemoCopy: true,
           ),
           l10n,
@@ -142,10 +145,10 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    expect(find.text('Localized speed question'), findsOneWidget);
-    await tester.enterText(find.byType(TextField), 'Localized speed');
+    expect(find.text('Localized hotspot question'), findsOneWidget);
+    await tester.enterText(find.byType(TextField), 'Localized hotspot');
     await tester.pump();
-    expect(find.text('Localized speed question'), findsOneWidget);
+    expect(find.text('Localized hotspot question'), findsOneWidget);
     expect(find.text('How do I top up my data?'), findsNothing);
   });
 

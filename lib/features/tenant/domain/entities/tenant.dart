@@ -12,6 +12,7 @@ class TenantBranding extends Equatable {
     this.logoUrl,
     this.termsUrl,
     this.privacyUrl,
+    this.whatsAppNumber,
   });
 
   static final _hex = RegExp(r'^#([0-9a-fA-F]{6})$');
@@ -23,10 +24,18 @@ class TenantBranding extends Equatable {
   final Uri? logoUrl;
   final Uri? termsUrl;
   final Uri? privacyUrl;
+  final String? whatsAppNumber;
+
+  static String? validWhatsAppNumber(Object? value) =>
+      value is String && RegExp(r'^\+27[0-9]{9}$').hasMatch(value)
+      ? value
+      : null;
 
   /// Matches the existing public legal URL contract (maximum 500 chars).
   static Uri? _legalUrl(Object? value) {
-    if (value is! String || value.length > 500 || RegExp(r'\s').hasMatch(value)) {
+    if (value is! String ||
+        value.length > 500 ||
+        RegExp(r'\s').hasMatch(value)) {
       return null;
     }
     final uri = Uri.tryParse(value);
@@ -67,10 +76,12 @@ class TenantBranding extends Equatable {
       logoUrl: parsedLogo,
       termsUrl: legal is Map ? _legalUrl(legal['terms']) : null,
       privacyUrl: legal is Map ? _legalUrl(legal['privacy']) : null,
+      whatsAppNumber: validWhatsAppNumber(json['whatsapp_number']),
     );
   }
 
   Map<String, Object?> toJson() => {
+    'whatsapp_number': ?validWhatsAppNumber(whatsAppNumber),
     if (primaryColor case final colour?)
       'primary_color':
           '#${(colour.toARGB32() & 0xFFFFFF).toRadixString(16).padLeft(6, '0')}',
@@ -83,7 +94,13 @@ class TenantBranding extends Equatable {
   };
 
   @override
-  List<Object?> get props => [primaryColor, logoUrl, termsUrl, privacyUrl];
+  List<Object?> get props => [
+    primaryColor,
+    logoUrl,
+    termsUrl,
+    privacyUrl,
+    whatsAppNumber,
+  ];
 }
 
 /// An ISP served by the platform (spec §12). Customers belong to one tenant.

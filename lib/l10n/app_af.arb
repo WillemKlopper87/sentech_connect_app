@@ -281,7 +281,7 @@
   },
   "planBadgeOurPick": "Our pick",
   "@planBadgeOurPick": {
-    "description": "Customer copy in catalog page."
+    "description": "Editorial recommendation selected by the catalogue owner; no popularity claim."
   },
   "pricePerMonth": "/month",
   "@pricePerMonth": {
@@ -973,10 +973,6 @@
   "@demoPromotion1Badge": {
     "description": "Demo promotional copy; available in demo only."
   },
-  "demoPromotion1Expiry": "31 Aug",
-  "@demoPromotion1Expiry": {
-    "description": "Demo promotional copy; available in demo only."
-  },
   "demoPromotion2Title": "Refer a friend",
   "@demoPromotion2Title": {
     "description": "Demo promotional copy; available in demo only."
@@ -989,10 +985,6 @@
   "@demoPromotion2Badge": {
     "description": "Demo promotional copy; available in demo only."
   },
-  "demoPromotion2Expiry": "Ongoing",
-  "@demoPromotion2Expiry": {
-    "description": "Demo promotional copy; available in demo only."
-  },
   "demoPromotion3Title": "Loyalty reward",
   "@demoPromotion3Title": {
     "description": "Demo promotional copy; available in demo only."
@@ -1003,10 +995,6 @@
   },
   "demoPromotion3Badge": "LOYALTY",
   "@demoPromotion3Badge": {
-    "description": "Demo promotional copy; available in demo only."
-  },
-  "demoPromotion3Expiry": "15 Sep",
-  "@demoPromotion3Expiry": {
     "description": "Demo promotional copy; available in demo only."
   },
   "supportChatGreeting": "Hi Sentech, I need help with my account.",
@@ -1610,9 +1598,9 @@
   "@dashboardReportIssue": {
     "description": "Customer app copy: dashboard report issue."
   },
-  "homePromotionsLabel": "Promotions & loyalty — see what's on offer",
+  "homePromotionsLabel": "See current offers",
   "@homePromotionsLabel": {
-    "description": "Customer copy in dashboard page."
+    "description": "English fallback pending translation. Demo offers shortcut; credits are not implemented."
   },
   "checkoutIdentityNotice": "Next we verify your identity (required by RICA). You are only charged after that succeeds.",
   "@checkoutIdentityNotice": {
@@ -1945,5 +1933,49 @@
   },
   "@voucherUncappedData": {
     "description": "Data allowance of an actual pass without a data cap."
+  },
+  "promotionsTitle": "Offers",
+  "@promotionsTitle": {
+    "description": "English fallback pending translation. Task 10 owned offers and hotspot help copy."
+  },
+  "promotionsEmpty": "No offers right now",
+  "@promotionsEmpty": {
+    "description": "English fallback pending translation. Task 10 owned offers and hotspot help copy."
+  },
+  "promotionsUnavailable": "Offers are unavailable. Try again later.",
+  "@promotionsUnavailable": {
+    "description": "English fallback pending translation. Task 10 owned offers and hotspot help copy."
+  },
+  "promotionsOngoing": "Ongoing",
+  "@promotionsOngoing": {
+    "description": "English fallback pending translation. Task 10 owned offers and hotspot help copy."
+  },
+  "hotspotFaq1Question": "I can't connect to the WiFi",
+  "@hotspotFaq1Question": {
+    "description": "English fallback pending translation. Task 10 owned offers and hotspot help copy."
+  },
+  "hotspotFaq1Answer": "Connect to the hotspot. Open a website starting with http://. This opens the sign-in page. If needed, turn off your VPN or private DNS. Try again.",
+  "@hotspotFaq1Answer": {
+    "description": "English fallback pending translation. Task 10 owned offers and hotspot help copy."
+  },
+  "hotspotFaq2Question": "I paid but have no pass",
+  "@hotspotFaq2Question": {
+    "description": "English fallback pending translation. Task 10 owned offers and hotspot help copy."
+  },
+  "hotspotFaq2Answer": "Wait 1 minute for payment confirmation. Check your orders and receipts. If money left your account, contact support with your order reference.",
+  "@hotspotFaq2Answer": {
+    "description": "English fallback pending translation. Task 10 owned offers and hotspot help copy."
+  },
+  "hotspotFaq3Question": "My hotspot connection is slow",
+  "@hotspotFaq3Question": {
+    "description": "English fallback pending translation. Task 10 owned offers and hotspot help copy."
+  },
+  "hotspotFaq3Answer": "Move closer to the hotspot. Disconnect and reconnect to WiFi. If it stays slow, contact support.",
+  "@hotspotFaq3Answer": {
+    "description": "English fallback pending translation. Task 10 owned offers and hotspot help copy."
+  },
+  "planBadgeOurPickHint": "Selected by us for you",
+  "@planBadgeOurPickHint": {
+    "description": "English fallback pending translation. Editorial recommendation; no popularity claim."
   }
 }

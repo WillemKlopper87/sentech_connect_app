@@ -1234,7 +1234,7 @@ abstract class AppLocalizations {
   /// **'{name} added to cart'**
   String shopAddedToCart(String name);
 
-  /// Customer copy in catalog page.
+  /// Editorial recommendation selected by the catalogue owner; no popularity claim.
   ///
   /// In en, this message translates to:
   /// **'Our pick'**
@@ -2101,12 +2101,6 @@ abstract class AppLocalizations {
   /// Demo promotional copy; available in demo only.
   ///
   /// In en, this message translates to:
-  /// **'31 Aug'**
-  String get demoPromotion1Expiry;
-
-  /// Demo promotional copy; available in demo only.
-  ///
-  /// In en, this message translates to:
   /// **'Refer a friend'**
   String get demoPromotion2Title;
 
@@ -2121,12 +2115,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'REFERRAL'**
   String get demoPromotion2Badge;
-
-  /// Demo promotional copy; available in demo only.
-  ///
-  /// In en, this message translates to:
-  /// **'Ongoing'**
-  String get demoPromotion2Expiry;
 
   /// Demo promotional copy; available in demo only.
   ///
@@ -2146,12 +2134,6 @@ abstract class AppLocalizations {
   /// **'LOYALTY'**
   String get demoPromotion3Badge;
 
-  /// Demo promotional copy; available in demo only.
-  ///
-  /// In en, this message translates to:
-  /// **'15 Sep'**
-  String get demoPromotion3Expiry;
-
   /// Pre-filled WhatsApp message.
   ///
   /// In en, this message translates to:
@@ -2164,10 +2146,10 @@ abstract class AppLocalizations {
   /// **'[{category}] Support request'**
   String supportEmailSubject(String category);
 
-  /// Customer copy in dashboard page.
+  /// Demo offers shortcut; credits are not implemented.
   ///
   /// In en, this message translates to:
-  /// **'Promotions & loyalty — see what\'s on offer'**
+  /// **'See current offers'**
   String get homePromotionsLabel;
 
   /// Customer copy in checkout page.
@@ -2601,6 +2583,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{data} · {minutes} min · Devices: {devices}'**
   String voucherPassDetail(String data, int minutes, int devices);
+
+  /// Task 10 owned offers and hotspot help copy.
+  ///
+  /// In en, this message translates to:
+  /// **'Offers'**
+  String get promotionsTitle;
+
+  /// Task 10 owned offers and hotspot help copy.
+  ///
+  /// In en, this message translates to:
+  /// **'No offers right now'**
+  String get promotionsEmpty;
+
+  /// Task 10 owned offers and hotspot help copy.
+  ///
+  /// In en, this message translates to:
+  /// **'Offers are unavailable. Try again later.'**
+  String get promotionsUnavailable;
+
+  /// Task 10 owned offers and hotspot help copy.
+  ///
+  /// In en, this message translates to:
+  /// **'Ongoing'**
+  String get promotionsOngoing;
+
+  /// Task 10 owned offers and hotspot help copy.
+  ///
+  /// In en, this message translates to:
+  /// **'I can\'t connect to the WiFi'**
+  String get hotspotFaq1Question;
+
+  /// Task 10 owned offers and hotspot help copy.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect to the hotspot. Open a website starting with http://. This opens the sign-in page. If needed, turn off your VPN or private DNS. Try again.'**
+  String get hotspotFaq1Answer;
+
+  /// Task 10 owned offers and hotspot help copy.
+  ///
+  /// In en, this message translates to:
+  /// **'I paid but have no pass'**
+  String get hotspotFaq2Question;
+
+  /// Task 10 owned offers and hotspot help copy.
+  ///
+  /// In en, this message translates to:
+  /// **'Wait 1 minute for payment confirmation. Check your orders and receipts. If money left your account, contact support with your order reference.'**
+  String get hotspotFaq2Answer;
+
+  /// Task 10 owned offers and hotspot help copy.
+  ///
+  /// In en, this message translates to:
+  /// **'My hotspot connection is slow'**
+  String get hotspotFaq3Question;
+
+  /// Task 10 owned offers and hotspot help copy.
+  ///
+  /// In en, this message translates to:
+  /// **'Move closer to the hotspot. Disconnect and reconnect to WiFi. If it stays slow, contact support.'**
+  String get hotspotFaq3Answer;
+
+  /// Editorial recommendation; no popularity claim.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected by us for you'**
+  String get planBadgeOurPickHint;
 }
 
 class _AppLocalizationsDelegate

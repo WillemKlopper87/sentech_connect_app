@@ -156,7 +156,7 @@ void _registerStillMockRepositories() {
     () => MockSupportRepository(),
   );
   locator.registerLazySingleton<PromotionsRepository>(
-    () => MockPromotionsRepository(),
+    () => MockPromotionsRepository(now: locator<PlatformClock>().wallNow),
   );
   locator.registerLazySingleton<FreeWifiRepository>(
     () => MockFreeWifiRepository(locator(), clock: locator()),

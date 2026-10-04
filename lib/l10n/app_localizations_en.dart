@@ -1179,9 +1179,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get demoPromotion1Badge => '20% OFF';
 
   @override
-  String get demoPromotion1Expiry => '31 Aug';
-
-  @override
   String get demoPromotion2Title => 'Refer a friend';
 
   @override
@@ -1190,9 +1187,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get demoPromotion2Badge => 'REFERRAL';
-
-  @override
-  String get demoPromotion2Expiry => 'Ongoing';
 
   @override
   String get demoPromotion3Title => 'Loyalty reward';
@@ -1205,9 +1199,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get demoPromotion3Badge => 'LOYALTY';
 
   @override
-  String get demoPromotion3Expiry => '15 Sep';
-
-  @override
   String get supportChatGreeting => 'Hi Sentech, I need help with my account.';
 
   @override
@@ -1216,8 +1207,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get homePromotionsLabel =>
-      'Promotions & loyalty — see what\'s on offer';
+  String get homePromotionsLabel => 'See current offers';
 
   @override
   String get checkoutIdentityNotice =>
@@ -1487,4 +1477,41 @@ class AppLocalizationsEn extends AppLocalizations {
   String voucherPassDetail(String data, int minutes, int devices) {
     return '$data · $minutes min · Devices: $devices';
   }
+
+  @override
+  String get promotionsTitle => 'Offers';
+
+  @override
+  String get promotionsEmpty => 'No offers right now';
+
+  @override
+  String get promotionsUnavailable =>
+      'Offers are unavailable. Try again later.';
+
+  @override
+  String get promotionsOngoing => 'Ongoing';
+
+  @override
+  String get hotspotFaq1Question => 'I can\'t connect to the WiFi';
+
+  @override
+  String get hotspotFaq1Answer =>
+      'Connect to the hotspot. Open a website starting with http://. This opens the sign-in page. If needed, turn off your VPN or private DNS. Try again.';
+
+  @override
+  String get hotspotFaq2Question => 'I paid but have no pass';
+
+  @override
+  String get hotspotFaq2Answer =>
+      'Wait 1 minute for payment confirmation. Check your orders and receipts. If money left your account, contact support with your order reference.';
+
+  @override
+  String get hotspotFaq3Question => 'My hotspot connection is slow';
+
+  @override
+  String get hotspotFaq3Answer =>
+      'Move closer to the hotspot. Disconnect and reconnect to WiFi. If it stays slow, contact support.';
+
+  @override
+  String get planBadgeOurPickHint => 'Selected by us for you';
 }

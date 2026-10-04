@@ -1,6 +1,7 @@
 import 'package:sentech_connect_app/features/tenant/presentation/bloc/tenant_cubit.dart';
 import 'helpers/first_run_tenant.dart';
 import 'package:flutter/material.dart';
+import 'package:sentech_connect_app/core/config/app_environment.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentech_connect_app/app/locale_cubit.dart';
@@ -370,6 +371,66 @@ void main() {
       // The hotspot-only dashboard no longer shows a long-running spinner, so
       // let the mock shell repositories (catalog, support) finish their delays.
       await tester.pump(const Duration(seconds: 1));
+    }
+
+    testWidgets(
+      'prod promotions deep link redirects after auth and legal gates',
+      (tester) async {
+        locator.registerSingleton<AppEnvironment>(
+          const AppEnvironment(flavor: AppFlavor.prod),
+        );
+        final tenant = await firstRunTenant(cpe: false);
+        addTearDown(tenant.close);
+        await pumpRouter(
+          tester,
+          initial: _signedIn,
+          at: AppRoutes.promotions,
+          tenant: tenant,
+        );
+        expect(appRouter.router.state.uri.path, AppRoutes.main);
+      },
+    );
+    testWidgets('demo promotions deep link remains available', (tester) async {
+      final tenant = await firstRunTenant(cpe: false);
+      addTearDown(tenant.close);
+      await pumpRouter(
+        tester,
+        initial: _signedIn,
+        at: AppRoutes.promotions,
+        tenant: tenant,
+      );
+      expect(appRouter.router.state.uri.path, AppRoutes.promotions);
+    });
+    for (final initial in [
+      const AuthState(),
+      const AuthState(
+        status: AuthStatus.success,
+        user: _user,
+        legal: LegalStatus.required,
+      ),
+    ]) {
+      testWidgets(
+        'prod promotion link preserves protected destination for ${initial.legal} ${initial.status}',
+        (tester) async {
+          locator.registerSingleton<AppEnvironment>(
+            const AppEnvironment(flavor: AppFlavor.prod),
+          );
+          final tenant = await firstRunTenant(cpe: false);
+          addTearDown(tenant.close);
+          await pumpRouter(
+            tester,
+            initial: initial,
+            at: AppRoutes.promotions,
+            tenant: tenant,
+          );
+          final uri = appRouter.router.state.uri;
+          expect(
+            uri.path,
+            initial.isSignedIn ? AppRoutes.consent : AppRoutes.login,
+          );
+          expect(uri.queryParameters['from'], AppRoutes.promotions);
+        },
+      );
     }
 
     for (final flags in [

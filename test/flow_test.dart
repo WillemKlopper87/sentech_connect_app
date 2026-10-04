@@ -194,7 +194,8 @@ void main() {
       await tester.pump();
       expect(find.text('Help & support'), findsOneWidget);
       expect(find.text('Submit a ticket'), findsWidgets);
-      expect(find.text('WhatsApp'), findsOneWidget);
+      // The demo tenant has no configured support number.
+      expect(find.text('WhatsApp'), findsNothing);
     },
   );
 

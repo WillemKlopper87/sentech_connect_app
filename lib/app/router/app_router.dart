@@ -9,6 +9,7 @@ import 'package:sentech_connect_app/app/locator.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/data/dev_payment_simulator.dart';
 import 'package:sentech_connect_app/app/main_shell.dart';
 import 'package:sentech_connect_app/core/config/app_environment.dart';
+import 'package:sentech_connect_app/core/time/platform_clock.dart';
 import 'package:sentech_connect_app/features/auth/presentation/bloc/auth_cubit.dart';
 import 'package:sentech_connect_app/features/auth/presentation/pages/login_page.dart';
 import 'package:sentech_connect_app/features/auth/presentation/pages/registration_page.dart';
@@ -338,6 +339,8 @@ GoRouter _buildRouter(
           showMockFeatures: locator<AppEnvironment>().isDemo,
           onChangeProvider: tenantCubit?.openPicker,
           providerName: tenantCubit?.state.config?.tenant.name,
+          supportWhatsAppNumber:
+              tenantCubit?.state.config?.tenant.branding.whatsAppNumber,
         ),
       ),
       GoRoute(
@@ -349,8 +352,14 @@ GoRouter _buildRouter(
       ),
       GoRoute(
         path: AppRoutes.promotions,
+        redirect: (context, state) =>
+            locator<AppEnvironment>().isDemo ? null : AppRoutes.main,
         builder: (context, state) => BlocProvider(
-          create: (_) => PromotionsCubit(locator()),
+          create: (_) => PromotionsCubit(
+            locator(),
+            catalog: locator(),
+            now: locator<PlatformClock>().wallNow,
+          ),
           child: const PromotionsPage(),
         ),
       ),

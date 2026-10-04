@@ -32,6 +32,7 @@ class MainShell extends StatefulWidget {
     this.showMockFeatures = true,
     this.onChangeProvider,
     this.providerName,
+    this.supportWhatsAppNumber,
   });
 
   final VoidCallback onOpenCart;
@@ -50,6 +51,7 @@ class MainShell extends StatefulWidget {
   final bool showMockFeatures;
   final VoidCallback? onChangeProvider;
   final String? providerName;
+  final String? supportWhatsAppNumber;
 
   @override
   State<MainShell> createState() => _MainShellState();
@@ -112,7 +114,9 @@ class _MainShellState extends State<MainShell> {
                   initialCategory: TicketCategory.technical,
                 )
               : null,
-          onOpenPromotions: widget.onOpenPromotions,
+          onOpenPromotions: widget.showMockFeatures
+              ? widget.onOpenPromotions
+              : null,
           onResumeOrder: widget.onResumeOrder,
           onOpenPasses: widget.onOpenPasses,
           showRouterCard: widget.showRouterCard,
@@ -131,7 +135,10 @@ class _MainShellState extends State<MainShell> {
       if (widget.showMockFeatures)
         BlocProvider(
           create: (_) => SupportCubit(locator()),
-          child: const SupportPage(),
+          child: SupportPage(
+            cpe: widget.showRouterCard,
+            whatsAppNumber: widget.supportWhatsAppNumber,
+          ),
         ),
       AccountPage(
         onChangeProvider: widget.onChangeProvider,
