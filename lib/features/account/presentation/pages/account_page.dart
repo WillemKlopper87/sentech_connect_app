@@ -192,7 +192,24 @@ class _AccountView extends StatelessWidget {
                 child: SwitchListTile(
                   title: Text(l10n.accountDataSaver),
                   value: context.watch<DataSaverCubit?>()?.state ?? false,
-                  onChanged: (on) => context.read<DataSaverCubit?>()?.set(on),
+                  onChanged: (on) async {
+                    final saver = context.read<DataSaverCubit?>();
+                    if (saver == null) return;
+                    try {
+                      await saver.set(on);
+                    } catch (_) {
+                      if (!context.mounted) return;
+                      ScaffoldMessenger.of(context)
+                        ..hideCurrentSnackBar()
+                        ..showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              context.l10n.accountDataSaverSaveFailed,
+                            ),
+                          ),
+                        );
+                    }
+                  },
                 ),
               ),
               const SizedBox(height: 24),

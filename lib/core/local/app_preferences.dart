@@ -20,8 +20,13 @@ class AppPreferences {
     }
   }
 
-  static Future<void> saveDataSaver(bool on) async =>
-      (await SharedPreferences.getInstance()).setBool(_dataSaverKey, on);
+  static Future<void> saveDataSaver(bool on) async {
+    final saved = await (await SharedPreferences.getInstance()).setBool(
+      _dataSaverKey,
+      on,
+    );
+    if (!saved) throw StateError('Data saver preference was not saved');
+  }
 
   static Future<bool> loadBootVideoSeen() async {
     try {
@@ -35,8 +40,13 @@ class AppPreferences {
     }
   }
 
-  static Future<void> markBootVideoSeen() async =>
-      (await SharedPreferences.getInstance()).setBool(_bootVideoSeenKey, true);
+  static Future<void> markBootVideoSeen() async {
+    final saved = await (await SharedPreferences.getInstance()).setBool(
+      _bootVideoSeenKey,
+      true,
+    );
+    if (!saved) throw StateError('Boot video seen preference was not saved');
+  }
 
   static Future<ThemeMode> loadThemeMode() async {
     final prefs = await SharedPreferences.getInstance();

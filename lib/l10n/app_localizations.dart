@@ -484,6 +484,12 @@ abstract class AppLocalizations {
   /// **'Data saver: fewer pictures and no animations'**
   String get accountDataSaver;
 
+  /// Shown when the Data saver setting could not be saved on this device.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save Data saver. Try again.'**
+  String get accountDataSaverSaveFailed;
+
   /// Customer app copy: account theme system.
   ///
   /// In en, this message translates to:

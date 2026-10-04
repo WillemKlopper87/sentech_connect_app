@@ -8,6 +8,7 @@ import 'package:sentech_connect_app/app/locator.dart';
 import 'package:sentech_connect_app/app/theme/theme_cubit.dart';
 import 'package:sentech_connect_app/core/biometrics/biometric_authenticator.dart';
 import 'package:sentech_connect_app/core/local/personal_data_wiper.dart';
+import 'package:sentech_connect_app/core/local/data_saver.dart';
 import 'package:sentech_connect_app/core/network/simulated_network.dart';
 import 'package:sentech_connect_app/core/privacy/privacy_constants.dart';
 import 'package:sentech_connect_app/core/storage/secure_store.dart';
@@ -205,7 +206,7 @@ void main() {
     late AuthCubit auth;
     late InMemorySecureStore secureStore;
 
-    Future<void> pumpAccount(WidgetTester tester) async {
+    Future<void> pumpAccount(WidgetTester tester, {DataSaverCubit? dataSaver}) async {
       await locator<SessionStore>().saveUser(const User(id: 'usr_001', fullName: 'Lindiwe Khumalo', mobileNumber: '081'), tenantSlug: 'sentech');
       await locator<SessionStore>().saveBiometricCredential('usr_001');
       secureStore = locator<SecureStore>() as InMemorySecureStore;
@@ -225,11 +226,29 @@ void main() {
           BlocProvider.value(value: auth),
           BlocProvider(create: (_) => ThemeCubit()),
           BlocProvider(create: (_) => LocaleCubit()),
+          if (dataSaver != null) BlocProvider.value(value: dataSaver),
         ],
         child: const MaterialApp(home: AccountPage()),
       ));
       await tester.pumpAndSettle();
     }
+
+    testWidgets('failed saver write keeps saved switch value and explains retry', (tester) async {
+      final saver = DataSaverCubit(save: (_) async => throw StateError('disk'));
+      addTearDown(saver.close);
+      await pumpAccount(tester, dataSaver: saver);
+      const label = 'Data saver: fewer pictures and no animations';
+      await tester.scrollUntilVisible(find.text(label), 200);
+      await tester.drag(find.byType(ListView), const Offset(0, -100));
+      await tester.pumpAndSettle();
+      final switchTile = find.widgetWithText(SwitchListTile, label);
+      await tester.tap(switchTile);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(saver.state, isFalse);
+      expect(tester.widget<SwitchListTile>(switchTile).value, isFalse);
+      expect(find.text('Could not save Data saver. Try again.'), findsOneWidget);
+    });
 
     testWidgets('"Delete my account & data" confirms, then signs out and leaves nothing stored', (tester) async {
       await pumpAccount(tester);

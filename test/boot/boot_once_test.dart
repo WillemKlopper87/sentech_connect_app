@@ -10,6 +10,30 @@ import 'boot_video_screen_test.dart' show FakeBootVideoController, settle;
 
 void main() {
   testWidgets(
+    'failed seen marker reports nonfatally and remains eligible to retry',
+    (tester) async {
+      SharedPreferences.setMockInitialValues({});
+      final video = FakeBootVideoController();
+      Object? reported;
+      await tester.pumpWidget(
+        BootHost(
+          app: Future.value(const SizedBox()),
+          controllerFactory: () => video,
+          markBootVideoSeen: () async => throw StateError('storage'),
+          onPreferenceError: (error, _) => reported = error,
+        ),
+      );
+      await settle(tester);
+      expect(video.played, isTrue);
+      expect(reported, isA<StateError>());
+      expect(await AppPreferences.loadBootVideoSeen(), isFalse);
+      video.finish();
+      await settle(tester);
+      await tester.pumpWidget(const SizedBox());
+    },
+  );
+
+  testWidgets(
     'unreadable startup preference shows static logo without player',
     (tester) async {
       SharedPreferences.setMockInitialValues({});

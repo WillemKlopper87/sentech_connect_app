@@ -39,6 +39,7 @@
   "accountNotLoggedIn": "Nie ingeteken nie",
   "accountAppearance": "UITSIG",
   "accountDataSaver": "Data saver: fewer pictures and no animations",
+  "accountDataSaverSaveFailed": "Could not save Data saver. Try again.",
   "accountThemeSystem": "Volg toestelinstelling",
   "accountThemeLight": "Lig",
   "accountThemeDark": "Donker",
@@ -1121,6 +1122,9 @@
   },
   "@accountDataSaver": {
     "description": "Account switch for fewer pictures and decorative animations."
+  },
+  "@accountDataSaverSaveFailed": {
+    "description": "Shown when the Data saver setting could not be saved on this device."
   },
   "@accountThemeSystem": {
     "description": "Customer app copy: account theme system."

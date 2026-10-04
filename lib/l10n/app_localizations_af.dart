@@ -228,6 +228,10 @@ class AppLocalizationsAf extends AppLocalizations {
   String get accountDataSaver => 'Data saver: fewer pictures and no animations';
 
   @override
+  String get accountDataSaverSaveFailed =>
+      'Could not save Data saver. Try again.';
+
+  @override
   String get accountThemeSystem => 'Volg toestelinstelling';
 
   @override

@@ -19,6 +19,8 @@ class BootHost extends StatefulWidget {
     required this.app,
     this.controllerFactory,
     this.bootVideoSeen,
+    this.markBootVideoSeen,
+    this.onPreferenceError,
     this.onError,
   });
 
@@ -27,6 +29,8 @@ class BootHost extends StatefulWidget {
   /// `null` skips the video entirely (the app shows as soon as it is ready).
   final BootVideoControllerFactory? controllerFactory;
   final Future<bool>? bootVideoSeen;
+  final Future<void> Function()? markBootVideoSeen;
+  final void Function(Object error, StackTrace stack)? onPreferenceError;
 
   /// Receives a start-up failure for reporting (already scrubbed upstream).
   final void Function(Object error, StackTrace stack)? onError;
@@ -68,6 +72,23 @@ class _BootHostState extends State<BootHost> {
     }
   }
 
+  void _markSeen() {
+    Future<void> write;
+    try {
+      write = (widget.markBootVideoSeen ?? AppPreferences.markBootVideoSeen)();
+    } catch (error, stack) {
+      widget.onPreferenceError?.call(error, stack);
+      return;
+    }
+    unawaited(
+      write.then<void>(
+        (_) {},
+        onError: (Object error, StackTrace stack) =>
+            widget.onPreferenceError?.call(error, stack),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_failed) return buildStartupErrorApp();
@@ -95,12 +116,7 @@ class _BootHostState extends State<BootHost> {
                   initDone: _initDone,
                   controllerFactory: _seen! ? null : widget.controllerFactory,
                   showStaticLogo: _seen! && widget.controllerFactory != null,
-                  onPlaybackStarted: () => unawaited(
-                    AppPreferences.markBootVideoSeen().then(
-                      (_) {},
-                      onError: (Object _) {},
-                    ),
-                  ),
+                  onPlaybackStarted: _markSeen,
                   onComplete: () {
                     if (mounted && !_failed) {
                       setState(() => _overlayGone = true);

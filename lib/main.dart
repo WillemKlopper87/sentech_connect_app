@@ -70,6 +70,13 @@ Future<void> _start(CrashReporter crashReporter) async {
           reason: 'startup failed',
         ),
       ),
+      onPreferenceError: (error, stack) => unawaited(
+        crashReporter.recordError(
+          error,
+          stack,
+          reason: 'boot video seen preference save failed',
+        ),
+      ),
     ),
   );
 }
