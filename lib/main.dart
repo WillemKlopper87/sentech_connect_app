@@ -59,6 +59,7 @@ Future<void> _start(CrashReporter crashReporter) async {
       bootVideoSeen: startupSettings.then(
         (settings) => settings.seen || settings.saver,
       ),
+      bootLocale: startupSettings.then((settings) => settings.locale),
       controllerFactory: bootVideoEnabled
           ? createAssetBootVideoController
           : null,
@@ -81,17 +82,18 @@ Future<void> _start(CrashReporter crashReporter) async {
   );
 }
 
-Future<({bool seen, bool saver})> _loadStartupSettings() async => (
+Future<({bool seen, bool saver, Locale? locale})>
+_loadStartupSettings() async => (
   seen: await AppPreferences.loadBootVideoSeen(),
   saver: await AppPreferences.loadDataSaver(),
+  locale: await AppPreferences.loadLocale(),
 );
 
 Future<Widget> _prepareApp(
-  Future<({bool seen, bool saver})> startupSettings,
+  Future<({bool seen, bool saver, Locale? locale})> startupSettings,
 ) async {
   final settings = await startupSettings;
   final savedThemeMode = await AppPreferences.loadThemeMode();
-  final savedLocale = await AppPreferences.loadLocale();
   final initialAuthState = await restoreAuthState(
     sessionStore: locator(),
     auth: locator(),
@@ -103,7 +105,7 @@ Future<Widget> _prepareApp(
 
   return SentechConnectApp(
     initialThemeMode: savedThemeMode,
-    initialLocale: savedLocale,
+    initialLocale: settings.locale,
     initialDataSaver: settings.saver,
     initialAuthState: initialAuthState,
     quickSplash: bootVideoEnabled,

@@ -6,9 +6,59 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sentech_connect_app/app/boot/boot_host.dart';
 import 'package:sentech_connect_app/app/boot/boot_video_config.dart';
 import 'package:sentech_connect_app/core/local/app_preferences.dart';
+import 'package:sentech_connect_app/l10n/app_localizations.dart';
 import 'boot_video_screen_test.dart' show FakeBootVideoController, settle;
 
 void main() {
+  for (final code in ['zu', 'af']) {
+    testWidgets('saved $code locale reaches boot AppLocalizations', (
+      tester,
+    ) async {
+      SharedPreferences.setMockInitialValues({'pref_locale': code});
+      final video = FakeBootVideoController();
+      await tester.pumpWidget(
+        BootHost(
+          app: Future.value(const SizedBox()),
+          bootVideoSeen: Future.value(false),
+          controllerFactory: () => video,
+        ),
+      );
+      await settle(tester);
+      final skip = find.byKey(const Key('boot-skip'));
+      expect(skip, findsOneWidget);
+      expect(AppLocalizations.of(tester.element(skip)).localeName, code);
+      expect(find.text('Skip'), findsOneWidget); // Current ARB fallback.
+      video.finish();
+      await settle(tester);
+      await tester.pumpWidget(const SizedBox());
+    });
+  }
+
+  testWidgets('device locale reaches boot when no language is saved', (
+    tester,
+  ) async {
+    SharedPreferences.setMockInitialValues({});
+    tester.binding.platformDispatcher.localesTestValue = [const Locale('af')];
+    addTearDown(tester.binding.platformDispatcher.clearLocalesTestValue);
+    final video = FakeBootVideoController();
+    await tester.pumpWidget(
+      BootHost(
+        app: Future.value(const SizedBox()),
+        bootVideoSeen: Future.value(false),
+        controllerFactory: () => video,
+      ),
+    );
+    await settle(tester);
+    expect(
+      AppLocalizations.of(
+        tester.element(find.byKey(const Key('boot-skip'))),
+      ).localeName,
+      'af',
+    );
+    video.finish();
+    await settle(tester);
+    await tester.pumpWidget(const SizedBox());
+  });
   testWidgets(
     'failed seen marker reports nonfatally and remains eligible to retry',
     (tester) async {

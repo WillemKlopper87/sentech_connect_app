@@ -6,11 +6,11 @@ import 'package:sentech_connect_app/app/theme/theme_cubit.dart';
 import 'package:sentech_connect_app/core/local/data_saver.dart';
 import 'package:sentech_connect_app/core/notifications/notification_permission_cubit.dart';
 import 'package:sentech_connect_app/core/notifications/notification_service.dart';
-import 'package:sentech_connect_app/core/privacy/privacy_constants.dart';
 import 'package:sentech_connect_app/features/auth/presentation/bloc/auth_cubit.dart';
 import 'package:sentech_connect_app/features/privacy/presentation/bloc/privacy_actions_cubit.dart';
 import 'package:sentech_connect_app/features/privacy/presentation/pages/data_export_page.dart';
 import 'package:sentech_connect_app/features/privacy/presentation/privacy_failure_message.dart';
+import 'package:sentech_connect_app/features/privacy/presentation/widgets/legal_reading_links.dart';
 import 'package:sentech_connect_app/l10n/l10n.dart';
 import 'package:sentech_connect_app/shared/widgets/notification_rationale_sheet.dart';
 import 'package:sentech_connect_app/shared/widgets/secure_screen.dart';
@@ -299,10 +299,15 @@ class _AccountView extends StatelessWidget {
   }
 
   Future<void> _openPolicy(BuildContext context) async {
-    final opened = await launchUrl(
-      Uri.parse(privacyPolicyUrl),
-      mode: LaunchMode.externalApplication,
-    );
+    bool opened;
+    try {
+      opened = await launchUrl(
+        privacyReadingUrl(context),
+        mode: LaunchMode.externalApplication,
+      );
+    } catch (_) {
+      opened = false;
+    }
     if (!opened && context.mounted) {
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()

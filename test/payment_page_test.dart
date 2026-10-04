@@ -9,6 +9,8 @@ import 'package:sentech_connect_app/features/catalog_checkout/domain/entities/or
 import 'package:sentech_connect_app/features/catalog_checkout/domain/entities/plan.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/presentation/bloc/payment_cubit.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/presentation/pages/payment_page.dart';
+import 'package:sentech_connect_app/app/theme/app_theme.dart';
+import 'package:sentech_connect_app/app/theme/color_contrast.dart';
 
 import 'package:sentech_connect_app/l10n/app_localizations.dart';
 
@@ -48,11 +50,20 @@ Future<void> _pumpPage(
   PaymentCubit cubit, {
   void Function(Order)? onPaid,
   bool showIdentityVerified = true,
+  double textScale = 1,
+  bool realTheme = false,
 }) async {
   await tester.pumpWidget(
     MaterialApp(
+      theme: realTheme ? AppTheme.light() : null,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
+      builder: (context, child) => MediaQuery(
+        data: MediaQuery.of(
+          context,
+        ).copyWith(textScaler: TextScaler.linear(textScale)),
+        child: child!,
+      ),
       home: BlocProvider.value(
         value: cubit,
         child: PaymentPage(
@@ -69,6 +80,40 @@ Future<void> _pumpPage(
 
 void main() {
   setUpAppTests();
+
+  testWidgets('secure payment explanation renders at body floor at 2x', (
+    tester,
+  ) async {
+    final repo = MockCheckoutRepository(
+      InMemorySecureStore(),
+      latency: Duration.zero,
+    );
+    final cart = CartCubit()..addItem(_pass);
+    addTearDown(cart.close);
+    final order = (await tester.runAsync(
+      () => repo.createOrder(items: _items),
+    ))!.getOrElse((f) => throw StateError(f.message));
+    final cubit = PaymentCubit(repo, cart, order.id);
+    addTearDown(cubit.close);
+    tester.view.physicalSize =
+        const Size(360, 690) * tester.view.devicePixelRatio;
+    addTearDown(tester.view.resetPhysicalSize);
+    await _pumpPage(tester, cubit, textScale: 2, realTheme: true);
+    final label = find.text(
+      'Pay on a secure payment page. We never see or store your card details.',
+    );
+    final paragraph = tester.widget<RichText>(
+      find.descendant(of: label, matching: find.byType(RichText)),
+    );
+    expect(paragraph.text.style!.fontSize, greaterThanOrEqualTo(15));
+    final surface = Theme.of(tester.element(label)).colorScheme.surface;
+    expect(
+      ColorContrast.ratio(paragraph.text.style!.color!, surface),
+      greaterThanOrEqualTo(4.5),
+    );
+    expect(tester.getRect(label).bottom, lessThanOrEqualTo(690));
+    expect(tester.takeException(), isNull);
+  });
 
   testWidgets(
     'a replayed, superseded demo order loads on the payment page (closed, no error)',

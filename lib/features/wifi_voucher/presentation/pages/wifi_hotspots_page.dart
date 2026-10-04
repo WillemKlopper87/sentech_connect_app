@@ -73,7 +73,7 @@ class WifiHotspotsPage extends StatelessWidget {
                   child: Text(
                     context.l10n.hotspotsEnableLocationToSeeWhichHotspot,
                     textAlign: TextAlign.center,
-                    style: theme.textTheme.bodyMedium?.copyWith(fontSize: 12),
+                    style: theme.textTheme.bodyMedium,
                   ),
                 ),
               Expanded(
@@ -143,8 +143,7 @@ class WifiHotspotsPage extends StatelessWidget {
                               ),
                               child: Text(
                                 context.l10n.hotspotsClosest,
-                                style: TextStyle(
-                                  fontSize: 9,
+                                style: theme.textTheme.labelMedium?.copyWith(
                                   fontWeight: FontWeight.w800,
                                   color: Colors.white,
                                 ),

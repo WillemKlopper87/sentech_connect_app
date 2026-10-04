@@ -6,8 +6,33 @@ import 'package:sentech_connect_app/core/time/platform_clock.dart';
 import 'package:sentech_connect_app/features/wifi_voucher/data/repositories/mock_free_wifi_repository.dart';
 import 'package:sentech_connect_app/features/wifi_voucher/presentation/bloc/free_wifi_cubit.dart';
 import 'package:sentech_connect_app/features/wifi_voucher/presentation/pages/free_wifi_card.dart';
+import 'package:sentech_connect_app/l10n/app_localizations.dart';
+import 'package:sentech_connect_app/l10n/app_localizations_zu.dart';
 
 import 'helpers/pump_themed.dart';
+
+class _LongWifiZulu extends AppLocalizationsZu {
+  @override
+  String get freeWifiFreeWifi =>
+      'Free WiFi available for everyone nearby today';
+
+  @override
+  String get freeWifiFreeWifiActive =>
+      'Free WiFi active for your current session today';
+}
+
+class _LongWifiDelegate extends LocalizationsDelegate<AppLocalizations> {
+  const _LongWifiDelegate();
+
+  @override
+  bool isSupported(Locale locale) => locale.languageCode == 'zu';
+
+  @override
+  Future<AppLocalizations> load(Locale locale) async => _LongWifiZulu();
+
+  @override
+  bool shouldReload(_LongWifiDelegate old) => false;
+}
 
 void main() {
   MockFreeWifiRepository newRepo() =>
@@ -59,6 +84,51 @@ void main() {
       findsOneWidget,
     );
   });
+
+  for (final active in [false, true]) {
+    testWidgets(
+      '${active ? 'active' : 'offer'} heading wraps at 360x690, 2x with expanded copy',
+      (tester) async {
+        final repo = newRepo();
+        if (active) await repo.recordAdWatchedAndGrantSession();
+        await pumpThemed(
+          tester,
+          BlocProvider(
+            create: (_) => FreeWifiCubit(repo),
+            child: SingleChildScrollView(
+              child: FreeWifiCard(onFindHotspots: () {}),
+            ),
+          ),
+          size: const Size(360, 690),
+          textScale: 2,
+          locale: const Locale('zu'),
+          localizationDelegate: const _LongWifiDelegate(),
+        );
+        await tester.pumpAndSettle();
+        await tester.pump(const Duration(milliseconds: 100));
+        final heading = active
+            ? 'Free WiFi active for your current session today'
+            : 'Free WiFi available for everyone nearby today';
+        expect(find.text(heading), findsOneWidget);
+        expect(tester.takeException(), isNull);
+        if (active) {
+          expect(find.text('TIME LEFT'), findsOneWidget);
+          expect(find.text('DATA LEFT'), findsOneWidget);
+          expect(find.byType(OutlinedButton), findsOneWidget);
+        } else {
+          expect(find.byType(FilledButton), findsOneWidget);
+          expect(find.byType(OutlinedButton), findsOneWidget);
+        }
+        final action = active
+            ? find.byType(OutlinedButton)
+            : find.byType(FilledButton);
+        await tester.ensureVisible(action.first);
+        await tester.pump();
+        expect(tester.getSize(action.first).height, greaterThanOrEqualTo(48));
+        expect(tester.takeException(), isNull);
+      },
+    );
+  }
 
   testWidgets('the offer body meets the 15 px floor under the real theme', (
     tester,

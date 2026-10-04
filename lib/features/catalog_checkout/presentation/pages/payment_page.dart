@@ -208,7 +208,6 @@ class PaymentPage extends StatelessWidget {
                             child: Text(
                               context.l10n.paymentPayOnASecurePaymentPage,
                               style: theme.textTheme.bodyMedium?.copyWith(
-                                fontSize: 11.5,
                                 color: theme.colorScheme.onSurfaceVariant,
                               ),
                             ),
@@ -303,7 +302,13 @@ class _OrderCard extends StatelessWidget {
                 const SizedBox(width: 8),
               ],
               Expanded(child: Text(label, style: theme.textTheme.bodyMedium)),
-              Text('#${order.orderNumber}', style: theme.textTheme.bodyMedium),
+              Flexible(
+                child: Text(
+                  '#${order.orderNumber}',
+                  textAlign: TextAlign.end,
+                  style: theme.textTheme.bodyMedium,
+                ),
+              ),
             ],
           ),
           const Padding(

@@ -3,6 +3,8 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentech_connect_app/shared/widgets/osm_map.dart';
 import 'helpers/test_setup.dart';
+import 'helpers/pump_themed.dart';
+import 'package:sentech_connect_app/app/theme/color_contrast.dart';
 
 void main() {
   group('MapTileSource.resolve', () {
@@ -81,5 +83,43 @@ void main() {
         expect(find.textContaining('Map not available'), findsNothing);
       },
     );
+
+    testWidgets('configured map attribution renders at label floor at 2x', (
+      tester,
+    ) async {
+      OsmMap.sourceOverride = const ConfiguredTileSource(
+        urlTemplate: 'https://tiles.example.com/{z}/{x}/{y}.png',
+        attribution: '© Example Maps',
+      );
+      await pumpThemed(
+        tester,
+        const SizedBox(
+          height: 200,
+          child: OsmMap(center: southAfricaCenter, zoom: 5),
+        ),
+        size: const Size(360, 690),
+        textScale: 2,
+      );
+      await tester.pumpAndSettle();
+      final label = find.text('© Example Maps');
+      final paragraph = tester.widget<RichText>(
+        find.descendant(of: label, matching: find.byType(RichText)),
+      );
+      expect(paragraph.text.style!.fontSize, greaterThanOrEqualTo(13));
+      final background = Color.alphaBlend(
+        Colors.white.withValues(alpha: 0.8),
+        Colors.black,
+      );
+      final foreground = Color.alphaBlend(
+        paragraph.text.style!.color!,
+        background,
+      );
+      expect(
+        ColorContrast.ratio(foreground, background),
+        greaterThanOrEqualTo(4.5),
+      );
+      expect(tester.getRect(label).right, lessThanOrEqualTo(360));
+      expect(tester.takeException(), isNull);
+    });
   });
 }

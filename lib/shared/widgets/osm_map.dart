@@ -194,7 +194,9 @@ class _MapAttribution extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
             child: Text(
               text,
-              style: const TextStyle(fontSize: 10, color: Colors.black87),
+              style: Theme.of(
+                context,
+              ).textTheme.labelMedium?.copyWith(color: Colors.black87),
             ),
           ),
         ),

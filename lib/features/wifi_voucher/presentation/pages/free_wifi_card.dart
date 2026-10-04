@@ -119,12 +119,14 @@ class _AdOffer extends StatelessWidget {
           children: [
             Icon(Icons.wifi_tethering, color: Colors.white, size: 22),
             SizedBox(width: 8),
-            Text(
-              context.l10n.freeWifiFreeWifi,
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w800,
-                fontSize: 15,
+            Expanded(
+              child: Text(
+                context.l10n.freeWifiFreeWifi,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 15,
+                ),
               ),
             ),
           ],
@@ -189,12 +191,14 @@ class _ActiveSession extends StatelessWidget {
           children: [
             Icon(Icons.wifi, color: Colors.white, size: 22),
             SizedBox(width: 8),
-            Text(
-              context.l10n.freeWifiFreeWifiActive,
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w800,
-                fontSize: 15,
+            Expanded(
+              child: Text(
+                context.l10n.freeWifiFreeWifiActive,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 15,
+                ),
               ),
             ),
           ],

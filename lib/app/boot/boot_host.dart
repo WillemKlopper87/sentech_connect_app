@@ -19,6 +19,7 @@ class BootHost extends StatefulWidget {
     required this.app,
     this.controllerFactory,
     this.bootVideoSeen,
+    this.bootLocale,
     this.markBootVideoSeen,
     this.onPreferenceError,
     this.onError,
@@ -29,6 +30,9 @@ class BootHost extends StatefulWidget {
   /// `null` skips the video entirely (the app shows as soon as it is ready).
   final BootVideoControllerFactory? controllerFactory;
   final Future<bool>? bootVideoSeen;
+
+  /// Saved language, or null to follow the device locale.
+  final Future<Locale?>? bootLocale;
   final Future<void> Function()? markBootVideoSeen;
   final void Function(Object error, StackTrace stack)? onPreferenceError;
 
@@ -44,12 +48,15 @@ class _BootHostState extends State<BootHost> {
   bool _failed = false;
   bool _overlayGone = false;
   bool? _seen;
+  Locale? _locale;
+  bool _localeReady = false;
   late final Future<void> _initDone;
 
   @override
   void initState() {
     super.initState();
     unawaited(_loadSeen());
+    unawaited(_loadLocale());
     _initDone = widget.app.then<void>(
       (app) {
         if (mounted) setState(() => _app = app);
@@ -69,6 +76,21 @@ class _BootHostState extends State<BootHost> {
     } catch (_) {
       // Unknown preference: show the static logo without creating a player.
       if (mounted) setState(() => _seen = true);
+    }
+  }
+
+  Future<void> _loadLocale() async {
+    try {
+      final locale = await (widget.bootLocale ?? AppPreferences.loadLocale());
+      if (mounted) {
+        setState(() {
+          _locale = locale;
+          _localeReady = true;
+        });
+      }
+    } catch (_) {
+      // A missing language setting follows the device, as in the app.
+      if (mounted) setState(() => _localeReady = true);
     }
   }
 
@@ -101,7 +123,7 @@ class _BootHostState extends State<BootHost> {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            if (app != null && _seen != null)
+            if (app != null && _seen != null && _localeReady)
               Positioned.fill(
                 // Underneath the video: not tappable and hidden from
                 // screen readers until the overlay is gone.
@@ -110,10 +132,11 @@ class _BootHostState extends State<BootHost> {
                   child: ExcludeSemantics(excluding: !_overlayGone, child: app),
                 ),
               ),
-            if (!_overlayGone && _seen != null)
+            if (!_overlayGone && _seen != null && _localeReady)
               Positioned.fill(
                 child: BootVideoScreen(
                   initDone: _initDone,
+                  locale: _locale,
                   controllerFactory: _seen! ? null : widget.controllerFactory,
                   showStaticLogo: _seen! && widget.controllerFactory != null,
                   onPlaybackStarted: _markSeen,

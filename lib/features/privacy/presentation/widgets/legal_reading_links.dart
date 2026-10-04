@@ -5,6 +5,11 @@ import 'package:sentech_connect_app/features/tenant/presentation/bloc/tenant_cub
 import 'package:sentech_connect_app/l10n/l10n.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+/// The public tenant policy when configured, otherwise the release fallback.
+Uri privacyReadingUrl(BuildContext context) =>
+    context.read<TenantCubit?>()?.state.config?.tenant.branding.privacyUrl ??
+    Uri.parse(privacyPolicyUrl);
+
 class LegalLanguageNote extends StatelessWidget {
   const LegalLanguageNote({
     super.key,
@@ -59,7 +64,7 @@ class LegalReadingLinks extends StatelessWidget {
         .branding;
     final terms = branding?.termsUrl;
     // Existing privacy destination remains a release placeholder without config.
-    final privacy = branding?.privacyUrl ?? Uri.parse(privacyPolicyUrl);
+    final privacy = privacyReadingUrl(context);
     final l10n = context.l10n;
     return Wrap(
       spacing: 16,
