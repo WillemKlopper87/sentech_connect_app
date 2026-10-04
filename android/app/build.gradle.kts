@@ -47,7 +47,8 @@ if (isReleaseBuild && !hasReleaseKeystore) {
 
 android {
     namespace = "za.co.sentech.sentech_connect_app"
-    compileSdk = flutter.compileSdkVersion
+    // permission_handler_android 14.1 needs compile SDK 37; never go below Flutter's default.
+    compileSdk = maxOf(flutter.compileSdkVersion, 37)
     ndkVersion = flutter.ndkVersion
 
     // JDK 17, matching Flutter's own Gradle template and the README.
