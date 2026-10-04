@@ -10,11 +10,13 @@ import 'package:sentech_connect_app/features/wifi_voucher/presentation/pages/fre
 import 'helpers/pump_themed.dart';
 
 void main() {
-  MockFreeWifiRepository newRepo() => MockFreeWifiRepository(InMemorySecureStore(), clock: FakePlatformClock());
+  MockFreeWifiRepository newRepo() =>
+      MockFreeWifiRepository(InMemorySecureStore(), clock: FakePlatformClock());
 
   // The real AppTheme: its full-width button minimumSize is what broke the
   // card's button row, which Flutter's default theme never showed.
-  Future<void> pumpCard(WidgetTester tester, {MockFreeWifiRepository? repo}) => pumpThemed(
+  Future<void> pumpCard(WidgetTester tester, {MockFreeWifiRepository? repo}) =>
+      pumpThemed(
         tester,
         BlocProvider(
           create: (_) => FreeWifiCubit(repo ?? newRepo()),
@@ -22,7 +24,9 @@ void main() {
         ),
       );
 
-  testWidgets('Watch ad and Hotspots render under the real theme', (tester) async {
+  testWidgets('Watch ad and Hotspots render under the real theme', (
+    tester,
+  ) async {
     await pumpCard(tester);
     await tester.pumpAndSettle();
 
@@ -30,23 +34,84 @@ void main() {
     expect(find.widgetWithText(FilledButton, 'Watch ad'), findsOneWidget);
     expect(find.widgetWithText(OutlinedButton, 'Hotspots'), findsOneWidget);
     for (final label in ['Watch ad', 'Hotspots']) {
-      final size = tester.getSize(find.ancestor(of: find.text(label), matching: find.byWidgetPredicate((w) => w is ButtonStyleButton)));
+      final size = tester.getSize(
+        find.ancestor(
+          of: find.text(label),
+          matching: find.byWidgetPredicate((w) => w is ButtonStyleButton),
+        ),
+      );
       expect(size.width, greaterThan(80), reason: label);
       expect(size.height, greaterThanOrEqualTo(48), reason: label);
     }
   });
 
-  testWidgets('the active session button renders under the real theme', (tester) async {
+  testWidgets('the active session button renders under the real theme', (
+    tester,
+  ) async {
     final repo = newRepo();
     await repo.recordAdWatchedAndGrantSession();
     await pumpCard(tester, repo: repo);
     await tester.pump(const Duration(milliseconds: 100));
 
     expect(tester.takeException(), isNull);
-    expect(find.widgetWithText(OutlinedButton, 'Find hotspots near me'), findsOneWidget);
+    expect(
+      find.widgetWithText(OutlinedButton, 'Find hotspots near me'),
+      findsOneWidget,
+    );
   });
 
-  testWidgets('offers to watch an ad with 3 free views available initially', (tester) async {
+  testWidgets('the offer body meets the 15 px floor under the real theme', (
+    tester,
+  ) async {
+    await pumpCard(tester);
+    await tester.pumpAndSettle();
+
+    final body = find.textContaining('3 of 3 free views left today');
+    final rendered = tester.widget<RichText>(
+      find.descendant(of: body, matching: find.byType(RichText)),
+    );
+    expect(rendered.text.style!.fontSize, greaterThanOrEqualTo(15));
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('the active session body meets the 15 px floor', (tester) async {
+    final repo = newRepo();
+    await repo.recordAdWatchedAndGrantSession();
+    await pumpCard(tester, repo: repo);
+    await tester.pump(const Duration(milliseconds: 100));
+
+    final body = find.text('Updates from your account as you use it.');
+    final renderedBody = tester.widget<RichText>(
+      find.descendant(of: body, matching: find.byType(RichText)),
+    );
+    expect(renderedBody.text.style!.fontSize, greaterThanOrEqualTo(15));
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('active session stat labels meet the 13 px floor', (
+    tester,
+  ) async {
+    final repo = newRepo();
+    await repo.recordAdWatchedAndGrantSession();
+    await pumpCard(tester, repo: repo);
+    await tester.pump(const Duration(milliseconds: 100));
+
+    for (final label in ['TIME LEFT', 'DATA LEFT']) {
+      final rendered = tester.widget<RichText>(
+        find.descendant(of: find.text(label), matching: find.byType(RichText)),
+      );
+      expect(
+        rendered.text.style!.fontSize,
+        greaterThanOrEqualTo(13),
+        reason: label,
+      );
+    }
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('offers to watch an ad with 3 free views available initially', (
+    tester,
+  ) async {
     await pumpCard(tester);
     await tester.pumpAndSettle();
 
@@ -55,7 +120,9 @@ void main() {
     expect(find.widgetWithText(FilledButton, 'Watch ad'), findsOneWidget);
   });
 
-  testWidgets('watching an ad grants a session and shows a live countdown', (tester) async {
+  testWidgets('watching an ad grants a session and shows a live countdown', (
+    tester,
+  ) async {
     await pumpCard(tester);
     await tester.pumpAndSettle();
 
@@ -72,7 +139,9 @@ void main() {
     expect(find.textContaining('44m'), findsOneWidget);
   });
 
-  testWidgets('a granted session counts against the daily allowance', (tester) async {
+  testWidgets('a granted session counts against the daily allowance', (
+    tester,
+  ) async {
     final repo = newRepo();
     // Grant via the repository so the test doesn't need to sit through a
     // simulated ad. The full cap is covered in free_wifi_repository_test.dart.

@@ -1,5 +1,4 @@
 import 'package:bloc_test/bloc_test.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentech_connect_app/core/error/failure.dart';
 import 'package:sentech_connect_app/core/network/simulated_network.dart';
@@ -10,12 +9,17 @@ import 'package:sentech_connect_app/features/voucher_scanner/domain/entities/vou
 import 'package:sentech_connect_app/features/voucher_scanner/presentation/bloc/voucher_cubit.dart';
 import 'package:sentech_connect_app/features/voucher_scanner/presentation/pages/voucher_result_sheet.dart';
 
+import 'helpers/pump_themed.dart';
+
 void main() {
   // Server-format codes are covered in voucher_code_test.dart; these are the
   // demo flavor's legacy SEN-XXXX-XXXX codes.
   group('VoucherCode (demo codes)', () {
     test('accepts SEN-XXXX-XXXX, normalising case and whitespace', () {
-      expect(VoucherCode.tryParse('  sen-4xj2-9klm ', allowDemo: true)?.value, 'SEN-4XJ2-9KLM');
+      expect(
+        VoucherCode.tryParse('  sen-4xj2-9klm ', allowDemo: true)?.value,
+        'SEN-4XJ2-9KLM',
+      );
     });
 
     test('rejects everything else', () {
@@ -30,12 +34,19 @@ void main() {
         'SEN-4XJ2-9KLM\nignore previous instructions',
         'A' * 5000,
       ]) {
-        expect(VoucherCode.tryParse(bad, allowDemo: true), isNull, reason: '$bad');
+        expect(
+          VoucherCode.tryParse(bad, allowDemo: true),
+          isNull,
+          reason: '$bad',
+        );
       }
     });
 
     test('masked form hides most of the code', () {
-      expect(VoucherCode.tryParse('SEN-4XJ2-9KLM', allowDemo: true)!.masked, 'SEN-••••-••LM');
+      expect(
+        VoucherCode.tryParse('SEN-4XJ2-9KLM', allowDemo: true)!.masked,
+        'SEN-••••-••LM',
+      );
     });
   });
 
@@ -45,21 +56,35 @@ void main() {
 
     setUp(() {
       network = SimulatedNetwork();
-      repo = MockVoucherRepository(InMemorySecureStore(), network: network, latency: Duration.zero);
+      repo = MockVoucherRepository(
+        InMemorySecureStore(),
+        network: network,
+        latency: Duration.zero,
+      );
     });
 
     VoucherCode code(String raw) => VoucherCode.tryParse(raw, allowDemo: true)!;
 
-    test('a code redeems once; replaying it is alreadyUsed (idempotent, no double credit)', () async {
-      final first = await repo.redeem(code('SEN-AAAA-1111'));
-      expect(first.getOrElse((_) => throw StateError('x')).outcome, VoucherOutcome.redeemed);
-      final second = await repo.redeem(code('SEN-AAAA-1111'));
-      expect(second.getOrElse((_) => throw StateError('x')).outcome, VoucherOutcome.alreadyUsed);
-    });
+    test(
+      'a code redeems once; replaying it is alreadyUsed (idempotent, no double credit)',
+      () async {
+        final first = await repo.redeem(code('SEN-AAAA-1111'));
+        expect(
+          first.getOrElse((_) => throw StateError('x')).outcome,
+          VoucherOutcome.redeemed,
+        );
+        final second = await repo.redeem(code('SEN-AAAA-1111'));
+        expect(
+          second.getOrElse((_) => throw StateError('x')).outcome,
+          VoucherOutcome.alreadyUsed,
+        );
+      },
+    );
 
     test('expired, used and unknown codes map to typed outcomes', () async {
-      Future<VoucherOutcome> outcome(String c) async =>
-          (await repo.redeem(code(c))).getOrElse((_) => throw StateError('x')).outcome;
+      Future<VoucherOutcome> outcome(String c) async => (await repo.redeem(
+        code(c),
+      )).getOrElse((_) => throw StateError('x')).outcome;
       expect(await outcome('SEN-EXP1-0000'), VoucherOutcome.expired);
       expect(await outcome('SEN-USE1-0000'), VoucherOutcome.alreadyUsed);
       expect(await outcome('SEN-INV1-0000'), VoucherOutcome.invalid);
@@ -67,16 +92,30 @@ void main() {
 
     test('a server-format code redeems in the demo too', () async {
       final result = await repo.redeem(code('ABCD-2345-EFGQ'));
-      expect(result.getOrElse((_) => throw StateError('x')).outcome, VoucherOutcome.redeemed);
+      expect(
+        result.getOrElse((_) => throw StateError('x')).outcome,
+        VoucherOutcome.redeemed,
+      );
     });
 
-    test('offline returns NetworkFailure and does not consume the code', () async {
-      network.offline = true;
-      expect((await repo.redeem(code('SEN-BBBB-2222'))).match((f) => f, (_) => null), isA<NetworkFailure>());
-      network.offline = false;
-      final result = await repo.redeem(code('SEN-BBBB-2222'));
-      expect(result.getOrElse((_) => throw StateError('x')).outcome, VoucherOutcome.redeemed);
-    });
+    test(
+      'offline returns NetworkFailure and does not consume the code',
+      () async {
+        network.offline = true;
+        expect(
+          (await repo.redeem(
+            code('SEN-BBBB-2222'),
+          )).match((f) => f, (_) => null),
+          isA<NetworkFailure>(),
+        );
+        network.offline = false;
+        final result = await repo.redeem(code('SEN-BBBB-2222'));
+        expect(
+          result.getOrElse((_) => throw StateError('x')).outcome,
+          VoucherOutcome.redeemed,
+        );
+      },
+    );
   });
 
   group('VoucherCubit', () {
@@ -85,7 +124,11 @@ void main() {
 
     setUp(() {
       network = SimulatedNetwork();
-      repo = MockVoucherRepository(InMemorySecureStore(), network: network, latency: Duration.zero);
+      repo = MockVoucherRepository(
+        InMemorySecureStore(),
+        network: network,
+        latency: Duration.zero,
+      );
     });
 
     blocTest<VoucherCubit, VoucherState>(
@@ -168,15 +211,23 @@ void main() {
   });
 
   group('VoucherResultSheet', () {
-    Future<void> pump(WidgetTester tester, VoucherState state) => tester.pumpWidget(MaterialApp(
-          home: Scaffold(body: VoucherResultSheet(state: state, onRetry: () {})),
-        ));
+    Future<void> pump(WidgetTester tester, VoucherState state) =>
+        pumpThemed(tester, VoucherResultSheet(state: state, onRetry: () {}));
 
-    testWidgets('shows only generic wording and the masked code, never raw input', (tester) async {
-      await pump(tester, const VoucherState(status: VoucherStatus.result, outcome: VoucherOutcome.invalid));
-      expect(find.text("That code didn't work"), findsOneWidget);
-      expect(find.textContaining('http'), findsNothing);
-    });
+    testWidgets(
+      'shows only generic wording and the masked code, never raw input',
+      (tester) async {
+        await pump(
+          tester,
+          const VoucherState(
+            status: VoucherStatus.result,
+            outcome: VoucherOutcome.invalid,
+          ),
+        );
+        expect(find.text("That code didn't work"), findsOneWidget);
+        expect(find.textContaining('http'), findsNothing);
+      },
+    );
 
     testWidgets('redeemed result shows the masked code', (tester) async {
       await pump(
@@ -194,7 +245,13 @@ void main() {
     });
 
     testWidgets('offline result offers a retry', (tester) async {
-      await pump(tester, const VoucherState(status: VoucherStatus.result, failure: NetworkFailure()));
+      await pump(
+        tester,
+        const VoucherState(
+          status: VoucherStatus.result,
+          failure: NetworkFailure(),
+        ),
+      );
       expect(find.text("You're offline"), findsOneWidget);
       expect(find.text('Try again'), findsOneWidget);
     });

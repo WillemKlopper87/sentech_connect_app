@@ -134,7 +134,7 @@ class _AdOffer extends StatelessWidget {
           adsRemainingToday > 0
               ? context.l10n.freeWifiAdOffer(adsRemainingToday.toString())
               : context.l10n.freeWifiYouVeUsedAll3Free,
-          style: const TextStyle(color: Colors.white, fontSize: 14),
+          style: const TextStyle(color: Colors.white, fontSize: 15),
         ),
         const SizedBox(height: 12),
         Row(
@@ -223,7 +223,7 @@ class _ActiveSession extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           context.l10n.freeWifiUpdatesFromYourAccountAsYou,
-          style: TextStyle(color: Colors.white, fontSize: 12),
+          style: TextStyle(color: Colors.white, fontSize: 15),
         ),
         const SizedBox(height: 10),
         OutlinedButton.icon(
@@ -260,7 +260,7 @@ class _StatChip extends StatelessWidget {
             label,
             style: const TextStyle(
               color: Colors.white,
-              fontSize: 12,
+              fontSize: 13,
               fontWeight: FontWeight.w700,
             ),
           ),

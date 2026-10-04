@@ -19,6 +19,7 @@ import 'package:sentech_connect_app/l10n/app_localizations.dart';
 import 'helpers/api_harness.dart';
 import 'helpers/fake_http_adapter.dart';
 import 'helpers/fixtures.dart';
+import 'helpers/pump_themed.dart';
 
 /// Repository whose responses the test completes by hand.
 class _ManualRepo implements PassesRepository {
@@ -318,10 +319,13 @@ void main() {
   });
 
   group('My passes page', () {
-    Widget host(PassesCubit cubit, {VoidCallback? onBuy}) => MaterialApp(
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      home: BlocProvider.value(
+    Future<void> pumpPage(
+      WidgetTester tester,
+      PassesCubit cubit, {
+      VoidCallback? onBuy,
+    }) => pumpThemed(
+      tester,
+      BlocProvider.value(
         value: cubit,
         child: MyPassesPage(onBuyPass: onBuy),
       ),
@@ -333,7 +337,7 @@ void main() {
         final repo = _ManualRepo();
         final cubit = PassesCubit(repo);
         addTearDown(cubit.close);
-        await tester.pumpWidget(host(cubit));
+        await pumpPage(tester, cubit);
         repo.calls[0].$2.complete(const Right(<Pass>[]));
         await tester.pumpAndSettle();
         expect(find.textContaining('no active passes'), findsOneWidget);
@@ -372,7 +376,7 @@ void main() {
       final cubit = PassesCubit(repo);
       addTearDown(cubit.close);
       repo.calls[0].$2.complete(const Right(<Pass>[]));
-      await tester.pumpWidget(host(cubit, onBuy: () => bought++));
+      await pumpPage(tester, cubit, onBuy: () => bought++);
       await tester.pumpAndSettle();
       await tester.tap(find.text('Buy a pass'));
       expect(bought, 1);
@@ -382,7 +386,7 @@ void main() {
       final repo = _ManualRepo();
       final cubit = PassesCubit(repo);
       addTearDown(cubit.close);
-      await tester.pumpWidget(host(cubit));
+      await pumpPage(tester, cubit);
       repo.calls[0].$2.complete(
         Right([
           _pass(
@@ -447,10 +451,9 @@ void main() {
       MockPassesRepository(now: () => DateTime.utc(2026, 10, 1, 12)),
     );
     addTearDown(cubit.close);
-    await tester.pumpWidget(
-      MaterialApp(
-        home: BlocProvider.value(value: cubit, child: const MyPassesPage()),
-      ),
+    await pumpThemed(
+      tester,
+      BlocProvider.value(value: cubit, child: const MyPassesPage()),
     );
     await tester.pumpAndSettle();
     expect(find.text('My passes'), findsOneWidget);

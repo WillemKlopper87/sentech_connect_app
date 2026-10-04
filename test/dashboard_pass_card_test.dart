@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sentech_connect_app/app/theme/app_theme.dart';
 import 'package:sentech_connect_app/core/error/failure.dart';
 import 'package:sentech_connect_app/core/storage/secure_store.dart';
 import 'package:sentech_connect_app/features/account_dashboard/presentation/pages/dashboard_page.dart';
@@ -20,6 +21,7 @@ import 'package:sentech_connect_app/features/passes/presentation/pages/my_passes
 import 'package:sentech_connect_app/l10n/app_localizations.dart';
 
 import 'helpers/fixtures.dart';
+import 'helpers/pump_themed.dart';
 
 class _Passes implements PassesRepository {
   _Passes(this.results);
@@ -73,26 +75,23 @@ Future<PassesCubit> _pump(
     passes.close();
     open.close();
   });
-  await tester.pumpWidget(
-    MaterialApp(
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      home: MultiBlocProvider(
-        providers: [
-          BlocProvider.value(value: passes),
-          BlocProvider.value(value: open),
-        ],
-        child: DashboardPage(
-          onTopUp: () {},
-          onUpgrade: () {},
-          onBuyPass: onBuy ?? () {},
-          onOpenPasses: () {},
-          onReportIssue: () {},
-          onOpenPromotions: () {},
-          onResumeOrder: (_) {},
-          showRouterCard: false,
-          now: () => _now,
-        ),
+  await pumpThemed(
+    tester,
+    MultiBlocProvider(
+      providers: [
+        BlocProvider.value(value: passes),
+        BlocProvider.value(value: open),
+      ],
+      child: DashboardPage(
+        onTopUp: () {},
+        onUpgrade: () {},
+        onBuyPass: onBuy ?? () {},
+        onOpenPasses: () {},
+        onReportIssue: () {},
+        onOpenPromotions: () {},
+        onResumeOrder: (_) {},
+        showRouterCard: false,
+        now: () => _now,
       ),
     ),
   );
@@ -271,6 +270,9 @@ void main() {
       await tester.pumpWidget(
         MaterialApp.router(
           routerConfig: router,
+          theme: AppTheme.light(),
+          darkTheme: AppTheme.dark(),
+          themeMode: ThemeMode.light,
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
         ),

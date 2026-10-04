@@ -6,10 +6,13 @@ import 'package:sentech_connect_app/features/support/data/repositories/mock_supp
 import 'package:sentech_connect_app/features/support/presentation/bloc/support_cubit.dart';
 import 'package:sentech_connect_app/features/support/presentation/pages/support_page.dart';
 
+import 'helpers/pump_themed.dart';
+
 void main() {
-  Widget buildPage() {
-    return MaterialApp(
-      home: BlocProvider(
+  Future<void> pumpPage(WidgetTester tester) {
+    return pumpThemed(
+      tester,
+      BlocProvider(
         create: (_) => SupportCubit(MockSupportRepository()),
         child: const SupportPage(),
       ),
@@ -17,7 +20,7 @@ void main() {
   }
 
   testWidgets('search filters the FAQ list', (tester) async {
-    await tester.pumpWidget(buildPage());
+    await pumpPage(tester);
     await tester.pumpAndSettle();
 
     expect(find.text('Why is my speed slower than expected?'), findsOneWidget);
@@ -31,21 +34,26 @@ void main() {
   });
 
   testWidgets('tapping an FAQ expands its answer', (tester) async {
-    await tester.pumpWidget(buildPage());
+    await pumpPage(tester);
     await tester.pumpAndSettle();
 
     // AnimatedCrossFade keeps both children permanently mounted (it fades
     // between them rather than removing either from the tree), so
     // collapsed/expanded is asserted via its crossFadeState, not via
     // presence/absence of the answer text.
-    CrossFadeState state() =>
-        tester.widgetList<AnimatedCrossFade>(find.byType(AnimatedCrossFade)).first.crossFadeState;
+    CrossFadeState state() => tester
+        .widgetList<AnimatedCrossFade>(find.byType(AnimatedCrossFade))
+        .first
+        .crossFadeState;
 
     expect(state(), CrossFadeState.showFirst);
     await tester.tap(find.text('Why is my speed slower than expected?'));
     await tester.pumpAndSettle();
     expect(state(), CrossFadeState.showSecond);
-    expect(find.text(lookupAppLocalizations(const Locale('en')).demoFaq1Answer), findsOneWidget);
+    expect(
+      find.text(lookupAppLocalizations(const Locale('en')).demoFaq1Answer),
+      findsOneWidget,
+    );
 
     // Tapping again collapses it.
     await tester.tap(find.text('Why is my speed slower than expected?'));
@@ -53,29 +61,41 @@ void main() {
     expect(state(), CrossFadeState.showFirst);
   });
 
-  testWidgets('ticket dialog requires a description before it can continue', (tester) async {
-    await tester.pumpWidget(buildPage());
+  testWidgets('ticket dialog requires a description before it can continue', (
+    tester,
+  ) async {
+    await pumpPage(tester);
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Submit a ticket'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Submit a ticket'), findsWidgets); // app bar action + dialog title
+    expect(
+      find.text('Submit a ticket'),
+      findsWidgets,
+    ); // app bar action + dialog title
     expect(find.text('Category'), findsOneWidget);
 
     // Continue is disabled until a description is entered — dialog is
     // dismissed via Cancel rather than Continue, since Continue triggers a
     // real launchUrl() call that has no platform implementation in tests.
-    final continueButton = tester.widget<FilledButton>(find.widgetWithText(FilledButton, 'Continue'));
+    final continueButton = tester.widget<FilledButton>(
+      find.widgetWithText(FilledButton, 'Continue'),
+    );
     expect(continueButton.onPressed, isNull);
 
     await tester.enterText(
-      find.descendant(of: find.byType(AlertDialog), matching: find.byType(TextField)),
+      find.descendant(
+        of: find.byType(AlertDialog),
+        matching: find.byType(TextField),
+      ),
       'My router keeps disconnecting.',
     );
     await tester.pump();
 
-    final continueButtonAfter = tester.widget<FilledButton>(find.widgetWithText(FilledButton, 'Continue'));
+    final continueButtonAfter = tester.widget<FilledButton>(
+      find.widgetWithText(FilledButton, 'Continue'),
+    );
     expect(continueButtonAfter.onPressed, isNotNull);
 
     await tester.tap(find.text('Cancel'));

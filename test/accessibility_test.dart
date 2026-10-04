@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentech_connect_app/app/locator.dart';
-import 'package:sentech_connect_app/app/theme/app_theme.dart';
 import 'package:sentech_connect_app/core/biometrics/biometric_authenticator.dart';
 import 'package:sentech_connect_app/core/network/simulated_network.dart';
 import 'package:sentech_connect_app/core/storage/secure_store.dart';
@@ -18,6 +17,7 @@ import 'package:sentech_connect_app/features/catalog_checkout/presentation/bloc/
 import 'package:sentech_connect_app/features/catalog_checkout/presentation/pages/catalog_page.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/presentation/pages/checkout_page.dart';
 import 'helpers/test_setup.dart';
+import 'helpers/pump_themed.dart';
 
 const _plans = [
   Plan(
@@ -56,20 +56,13 @@ void main() {
     Widget home, {
     double scale = 1.0,
   }) async {
-    tester.view.physicalSize = const Size(1080, 2160);
     tester.view.devicePixelRatio = 3; // 360 x 720 dp
     addTearDown(tester.view.reset);
-    await tester.pumpWidget(
-      MaterialApp(
-        theme: AppTheme.light(),
-        builder: (context, child) => MediaQuery(
-          data: MediaQuery.of(
-            context,
-          ).copyWith(textScaler: TextScaler.linear(scale)),
-          child: child!,
-        ),
-        home: home,
-      ),
+    await pumpThemed(
+      tester,
+      home,
+      textScale: scale,
+      size: const Size(360, 720),
     );
     await tester.pump(const Duration(seconds: 1));
   }
