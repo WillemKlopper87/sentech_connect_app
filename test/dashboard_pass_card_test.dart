@@ -23,7 +23,7 @@ import 'package:sentech_connect_app/l10n/app_localizations.dart';
 import 'helpers/fixtures.dart';
 import 'helpers/pump_themed.dart';
 
-class _Passes implements PassesRepository {
+class _Passes extends PassesRepository {
   _Passes(this.results);
 
   final List<Either<Failure, List<Pass>>> results;
@@ -160,7 +160,8 @@ void main() {
           Right([_pass(dataMb: 1024, used: 256 * 1024 * 1024)]),
         ]),
       );
-      expect(find.text('768 MB of 1 GB left'), findsOneWidget);
+      expect(find.text('768 MB left'), findsOneWidget);
+      expect(find.text('of 1 GB'), findsOneWidget);
       expect(find.byType(LinearProgressIndicator), findsOneWidget);
     },
   );
@@ -172,7 +173,8 @@ void main() {
         Right([_pass(dataMb: 1024, used: 3 * 1024 * 1024 * 1024)]),
       ]),
     );
-    expect(find.text('0 MB of 1 GB left'), findsOneWidget);
+    expect(find.text('0 MB left'), findsOneWidget);
+    expect(find.text('of 1 GB'), findsOneWidget);
   });
 
   testWidgets('zero-cap pass shows text only, no progress bar', (tester) async {
@@ -182,20 +184,19 @@ void main() {
         Right([_pass(dataMb: 0)]),
       ]),
     );
-    expect(find.text('0 MB of 0 MB left'), findsOneWidget);
+    expect(find.text('0 MB left'), findsOneWidget);
+    expect(find.text('of 0 MB'), findsOneWidget);
     expect(find.byType(LinearProgressIndicator), findsNothing);
   });
 
-  testWidgets('an already-expired time shows 0m, never negative', (
-    tester,
-  ) async {
+  testWidgets('an already-expired time shows the pass ended', (tester) async {
     await _pump(
       tester,
       _Passes([
         Right([_pass(left: const Duration(minutes: -10))]),
       ]),
     );
-    expect(find.text('0m left'), findsOneWidget);
+    expect(find.text('Pass ended'), findsOneWidget);
   });
 
   testWidgets('pull-to-refresh on the dashboard reloads the passes', (

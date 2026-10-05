@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:sentech_connect_app/app/theme/app_colors.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
 import 'package:sentech_connect_app/features/account_dashboard/domain/entities/account_summary.dart';
 import 'package:sentech_connect_app/features/account_dashboard/presentation/bloc/account_cubit.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/domain/entities/order.dart';
@@ -11,6 +10,7 @@ import 'package:sentech_connect_app/features/catalog_checkout/presentation/bloc/
 import 'package:sentech_connect_app/features/passes/domain/entities/pass.dart';
 import 'package:sentech_connect_app/features/passes/presentation/bloc/passes_cubit.dart';
 import 'package:sentech_connect_app/features/passes/presentation/pass_format.dart';
+import 'package:sentech_connect_app/features/passes/presentation/pass_summary.dart';
 import 'package:sentech_connect_app/l10n/l10n.dart';
 import 'package:sentech_connect_app/shared/widgets/failure_view.dart';
 import 'package:sentech_connect_app/shared/widgets/sentech_logo.dart';
@@ -535,7 +535,7 @@ class _CurrentPassCardState extends State<_CurrentPassCard> {
                   ),
                 ),
               ] else
-                ..._passDetails(context, current),
+                ..._passDetails(context, current, state),
               if (!failed) ...[
                 const SizedBox(height: 12),
                 Row(
@@ -563,11 +563,19 @@ class _CurrentPassCardState extends State<_CurrentPassCard> {
     );
   }
 
-  List<Widget> _passDetails(BuildContext context, Pass current) {
+  List<Widget> _passDetails(
+    BuildContext context,
+    Pass current,
+    PassesState state,
+  ) {
     final theme = Theme.of(context);
     final l10n = context.l10n;
-    final dataLeft = dataLeftText(l10n, current);
-    final fraction = current.dataUsedFraction;
+    final summary = PassSummary.of(
+      current,
+      l10n,
+      now: widget.now(),
+      localeTag: Localizations.localeOf(context).toLanguageTag(),
+    );
     return [
       Row(
         children: [
@@ -588,32 +596,28 @@ class _CurrentPassCardState extends State<_CurrentPassCard> {
         ],
       ),
       const SizedBox(height: 4),
-      Text(
-        current.status == PassStatus.active
-            ? l10n.dashboardTimeLeft(
-                formatTimeLeft(
-                  l10n,
-                  current.expiresAt.difference(widget.now().toUtc()),
-                ),
-              )
-            : l10n.passesStarts(
-                DateFormat.MMMd(
-                  Localizations.localeOf(context).toLanguageTag(),
-                ).add_Hm().format(current.startsAt.toLocal()),
-              ),
-        style: theme.textTheme.bodyMedium,
-      ),
-      if (dataLeft != null) ...[
+      Text(summary.headline, style: theme.textTheme.titleMedium),
+      Text(summary.endsText, style: theme.textTheme.bodyMedium),
+      if (state.loadedAt case final loadedAt?)
+        if (state.fromCache ||
+            widget.now().difference(loadedAt) > const Duration(minutes: 5))
+          Text(
+            l10n.passesUpdated(
+              formatTimeLeft(l10n, widget.now().difference(loadedAt)),
+            ),
+            style: theme.textTheme.bodyMedium,
+          ),
+      if (summary.capText case final cap?) ...[
         Text(
-          dataLeft,
+          cap,
           style: theme.textTheme.bodyMedium?.copyWith(
             color: theme.colorScheme.onSurfaceVariant,
           ),
         ),
         // A zero cap has no meaningful bar: show the text only.
-        if (fraction != null) ...[
+        if (summary.fractionLeft != null) ...[
           const SizedBox(height: 10),
-          LinearProgressIndicator(value: fraction),
+          LinearProgressIndicator(value: summary.fractionLeft),
         ],
       ] else
         Text(

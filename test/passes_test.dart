@@ -22,7 +22,7 @@ import 'helpers/fixtures.dart';
 import 'helpers/pump_themed.dart';
 
 /// Repository whose responses the test completes by hand.
-class _ManualRepo implements PassesRepository {
+class _ManualRepo extends PassesRepository {
   final calls = <(bool, Completer<Either<Failure, List<Pass>>>)>[];
 
   @override
@@ -327,7 +327,10 @@ void main() {
       tester,
       BlocProvider.value(
         value: cubit,
-        child: MyPassesPage(onBuyPass: onBuy),
+        child: MyPassesPage(
+          onBuyPass: onBuy,
+          now: () => DateTime.utc(2026, 10, 1, 11),
+        ),
       ),
     );
 
@@ -401,8 +404,9 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.textContaining(RegExp(r'^Expired \w')), findsOneWidget);
       expect(find.textContaining(RegExp(r'^Ended \w')), findsOneWidget);
-      expect(find.textContaining('Expires '), findsOneWidget);
-      expect(find.text('0 MB of 1 GB left'), findsOneWidget);
+      expect(find.textContaining('ends '), findsOneWidget);
+      expect(find.text('0 MB left'), findsOneWidget);
+      expect(find.text('of 1 GB'), findsWidgets);
     });
   });
 
@@ -453,12 +457,15 @@ void main() {
     addTearDown(cubit.close);
     await pumpThemed(
       tester,
-      BlocProvider.value(value: cubit, child: const MyPassesPage()),
+      BlocProvider.value(
+        value: cubit,
+        child: MyPassesPage(now: () => DateTime.utc(2026, 10, 1, 12)),
+      ),
     );
     await tester.pumpAndSettle();
     expect(find.text('My passes'), findsOneWidget);
     expect(find.text('Day Pass'), findsOneWidget);
     expect(find.text('Active'), findsOneWidget);
-    expect(find.textContaining('Expires'), findsOneWidget);
+    expect(find.textContaining('ends '), findsOneWidget);
   });
 }

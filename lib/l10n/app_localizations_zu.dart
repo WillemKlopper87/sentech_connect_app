@@ -495,6 +495,31 @@ class AppLocalizationsZu extends AppLocalizations {
   String get passesTitle => 'My passes';
 
   @override
+  String get passEnded => 'Pass ended';
+
+  @override
+  String passEndsIn(String date, String time) {
+    return 'ends $date (in $time)';
+  }
+
+  @override
+  String passOfCap(String cap) {
+    return 'of $cap';
+  }
+
+  @override
+  String passesUpdated(String ago) {
+    return 'Updated $ago ago';
+  }
+
+  @override
+  String get accountUsageAlerts => 'Usage alerts';
+
+  @override
+  String get accountUsageAlertsUnavailable =>
+      'Usage alerts are not available yet.';
+
+  @override
   String get passesEmpty => 'You have no active passes. Buy one in Shop.';
 
   @override

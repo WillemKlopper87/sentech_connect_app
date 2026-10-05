@@ -6,6 +6,7 @@ import 'package:sentech_connect_app/app/theme/theme_cubit.dart';
 import 'package:sentech_connect_app/core/local/data_saver.dart';
 import 'package:sentech_connect_app/core/notifications/notification_permission_cubit.dart';
 import 'package:sentech_connect_app/core/notifications/notification_service.dart';
+import 'package:sentech_connect_app/features/passes/domain/usage_alert_scheduler.dart';
 import 'package:sentech_connect_app/features/auth/presentation/bloc/auth_cubit.dart';
 import 'package:sentech_connect_app/features/privacy/presentation/bloc/privacy_actions_cubit.dart';
 import 'package:sentech_connect_app/features/privacy/presentation/pages/data_export_page.dart';
@@ -230,6 +231,8 @@ class _AccountView extends StatelessWidget {
               Text(l10n.accountNotifications, style: heading),
               const SizedBox(height: 8),
               const _NotificationsTile(),
+              const SizedBox(height: 8),
+              const _UsageAlertsTile(),
               const SizedBox(height: 24),
               Text(l10n.accountPrivacy, style: heading),
               const SizedBox(height: 8),
@@ -383,6 +386,54 @@ class _Bordered extends StatelessWidget {
       child: child,
     );
   }
+}
+
+class _UsageAlertsTile extends StatefulWidget {
+  const _UsageAlertsTile();
+  @override
+  State<_UsageAlertsTile> createState() => _UsageAlertsTileState();
+}
+
+class _UsageAlertsTileState extends State<_UsageAlertsTile> {
+  bool enabled = false;
+  UsageAlertCoordinator? get coordinator =>
+      locator.isRegistered<UsageAlertCoordinator>()
+      ? locator<UsageAlertCoordinator>()
+      : null;
+
+  @override
+  void initState() {
+    super.initState();
+    coordinator?.isEnabled().then((value) {
+      if (mounted) setState(() => enabled = value);
+    });
+  }
+
+  Future<void> _change(bool value) async {
+    final alerts = coordinator;
+    if (alerts == null || !alerts.isAvailable) return;
+    if (value) {
+      final permission = await showNotificationRationale(context);
+      if (permission != NotificationPermissionStatus.granted || !mounted) {
+        return;
+      }
+    }
+    await alerts.setEnabled(value);
+    final saved = await alerts.isEnabled();
+    if (mounted) setState(() => enabled = saved);
+  }
+
+  @override
+  Widget build(BuildContext context) => _Bordered(
+    child: SwitchListTile(
+      title: Text(context.l10n.accountUsageAlerts),
+      subtitle: coordinator?.isAvailable == true
+          ? null
+          : Text(context.l10n.accountUsageAlertsUnavailable),
+      value: enabled && coordinator?.isAvailable == true,
+      onChanged: coordinator?.isAvailable == true ? _change : null,
+    ),
+  );
 }
 
 class _NotificationsTile extends StatelessWidget {

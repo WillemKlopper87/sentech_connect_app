@@ -56,7 +56,7 @@ class _Catalog implements CatalogRepository {
   Future<Either<Failure, List<Plan>>> getProducts() async => Right(products);
 }
 
-class _Passes implements PassesRepository {
+class _Passes extends PassesRepository {
   _Passes(this.l10n);
   final AppLocalizations l10n;
   @override

@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sentech_connect_app/app/locator.dart';
 import 'package:sentech_connect_app/app/router/app_router.dart';
+import 'package:sentech_connect_app/core/time/platform_clock.dart';
 import 'package:sentech_connect_app/features/account/presentation/pages/account_page.dart';
 import 'package:sentech_connect_app/features/account_dashboard/presentation/bloc/account_cubit.dart';
 import 'package:sentech_connect_app/features/account_dashboard/presentation/pages/dashboard_page.dart';
@@ -13,6 +14,7 @@ import 'package:sentech_connect_app/features/catalog_checkout/presentation/bloc/
 import 'package:sentech_connect_app/features/catalog_checkout/presentation/bloc/order_cubit.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/presentation/pages/catalog_page.dart';
 import 'package:sentech_connect_app/features/passes/presentation/bloc/passes_cubit.dart';
+import 'package:sentech_connect_app/features/passes/domain/usage_alert_scheduler.dart';
 import 'package:sentech_connect_app/features/support/presentation/bloc/support_cubit.dart';
 import 'package:sentech_connect_app/features/support/presentation/pages/support_page.dart';
 import 'package:sentech_connect_app/features/voucher_scanner/presentation/pages/voucher_scanner_page.dart';
@@ -71,7 +73,10 @@ class _MainShellState extends State<MainShell> {
   late final OpenOrderCubit _openOrderCubit = OpenOrderCubit(locator());
 
   /// The customer's current hotspot pass, shown first on the dashboard.
-  late final PassesCubit _passesCubit = PassesCubit(locator());
+  late final PassesCubit _passesCubit = PassesCubit(
+    locator(),
+    alerts: locator.isRegistered<UsageAlertCoordinator>() ? locator() : null,
+  );
 
   @override
   void didUpdateWidget(MainShell oldWidget) {
@@ -122,6 +127,7 @@ class _MainShellState extends State<MainShell> {
           onResumeOrder: widget.onResumeOrder,
           onOpenPasses: widget.onOpenPasses,
           showRouterCard: widget.showRouterCard,
+          now: locator<PlatformClock>().wallNow,
         ),
       ),
       BlocProvider.value(

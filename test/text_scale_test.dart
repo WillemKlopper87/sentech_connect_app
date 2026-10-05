@@ -352,10 +352,7 @@ void main() {
         await tester.pumpAndSettle();
         final body = paragraph(
           tester,
-          l10n.dashboardDataLeft(
-            l10n.sizeGigabytes('3.8'),
-            l10n.sizeGigabytes('5'),
-          ),
+          l10n.dashboardTimeLeft(l10n.sizeGigabytes('3.8')),
         ).text.style;
         expect(body!.fontSize, greaterThanOrEqualTo(15));
         final theme = brightness == Brightness.light

@@ -47,8 +47,10 @@ import 'package:sentech_connect_app/features/promotions/domain/repositories/prom
 import 'package:sentech_connect_app/features/rica/data/repositories/mock_liveness_repository.dart';
 import 'package:sentech_connect_app/features/rica/domain/repositories/liveness_repository.dart';
 import 'package:sentech_connect_app/features/passes/data/repositories/http_passes_repository.dart';
+import 'package:sentech_connect_app/features/passes/data/repositories/pass_local_store.dart';
 import 'package:sentech_connect_app/features/passes/data/repositories/mock_passes_repository.dart';
 import 'package:sentech_connect_app/features/passes/domain/repositories/passes_repository.dart';
+import 'package:sentech_connect_app/features/passes/domain/usage_alert_scheduler.dart';
 import 'package:sentech_connect_app/features/support/data/repositories/mock_support_repository.dart';
 import 'package:sentech_connect_app/features/support/domain/repositories/support_repository.dart';
 import 'package:sentech_connect_app/features/tenant/data/repositories/http_tenant_repository.dart';
@@ -128,6 +130,7 @@ void _registerPlatformServices(CrashReporter? crashReporter) {
     () => PermissionNotificationService(),
   );
   locator.registerLazySingleton<TenantContext>(() => TenantContext());
+  locator.registerLazySingleton<PassLocalStore>(() => PassLocalStore());
   locator.registerLazySingleton<TenantPreferences>(
     () => SharedPrefsTenantPreferences(),
   );
@@ -138,6 +141,7 @@ void _registerPlatformServices(CrashReporter? crashReporter) {
       checkout: locator(),
       freeWifi: locator(),
       consent: locator(),
+      passes: locator(),
     ),
   );
 }
@@ -221,7 +225,25 @@ void _registerProdRepositories(Uri baseUrl) {
     () => HttpAuthRepository(locator(), tokens: locator(), tenant: locator()),
   );
   locator.registerLazySingleton<PassesRepository>(
-    () => HttpPassesRepository(locator()),
+    () => HttpPassesRepository(
+      locator(),
+      tokens: locator(),
+      cache: locator(),
+      now: locator<PlatformClock>().wallNow,
+    ),
+  );
+  locator.registerLazySingleton<UsageAlertScheduler>(
+    () => const NoopUsageAlertScheduler(),
+  );
+  locator.registerLazySingleton<UsageAlertCoordinator>(
+    () => UsageAlertCoordinator(
+      api: locator(),
+      tokens: locator(),
+      store: locator(),
+      scheduler: locator(),
+      now: locator<PlatformClock>().wallNow,
+      notifications: locator(),
+    ),
   );
   locator.registerLazySingleton<CatalogRepository>(
     () => HttpCatalogRepository(locator(), locator()),

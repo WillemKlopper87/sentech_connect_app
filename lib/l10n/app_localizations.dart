@@ -964,6 +964,42 @@ abstract class AppLocalizations {
   /// **'My passes'**
   String get passesTitle;
 
+  /// A pass has ended.
+  ///
+  /// In en, this message translates to:
+  /// **'Pass ended'**
+  String get passEnded;
+
+  /// Pass end date and remaining time.
+  ///
+  /// In en, this message translates to:
+  /// **'ends {date} (in {time})'**
+  String passEndsIn(String date, String time);
+
+  /// Total data cap for the pass.
+  ///
+  /// In en, this message translates to:
+  /// **'of {cap}'**
+  String passOfCap(String cap);
+
+  /// Age of cached or older pass information.
+  ///
+  /// In en, this message translates to:
+  /// **'Updated {ago} ago'**
+  String passesUpdated(String ago);
+
+  /// Account setting for pass usage alerts.
+  ///
+  /// In en, this message translates to:
+  /// **'Usage alerts'**
+  String get accountUsageAlerts;
+
+  /// Alerts cannot be delivered until a transport exists.
+  ///
+  /// In en, this message translates to:
+  /// **'Usage alerts are not available yet.'**
+  String get accountUsageAlertsUnavailable;
+
   /// Customer app copy: passes empty.
   ///
   /// In en, this message translates to:

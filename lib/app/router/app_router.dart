@@ -27,6 +27,7 @@ import 'package:sentech_connect_app/features/catalog_checkout/presentation/pages
 import 'package:sentech_connect_app/features/coverage/presentation/bloc/coverage_cubit.dart';
 import 'package:sentech_connect_app/features/coverage/presentation/pages/coverage_page.dart';
 import 'package:sentech_connect_app/features/passes/presentation/bloc/passes_cubit.dart';
+import 'package:sentech_connect_app/features/passes/domain/usage_alert_scheduler.dart';
 import 'package:sentech_connect_app/features/passes/presentation/pages/my_passes_page.dart';
 import 'package:sentech_connect_app/features/privacy/presentation/pages/legal_gate_page.dart';
 import 'package:sentech_connect_app/features/promotions/presentation/bloc/promotions_cubit.dart';
@@ -346,8 +347,16 @@ GoRouter _buildRouter(
       GoRoute(
         path: AppRoutes.passes,
         builder: (context, state) => BlocProvider(
-          create: (_) => PassesCubit(locator()),
-          child: MyPassesPage(onBuyPass: () => context.go(AppRoutes.main)),
+          create: (_) => PassesCubit(
+            locator(),
+            alerts: locator.isRegistered<UsageAlertCoordinator>()
+                ? locator()
+                : null,
+          ),
+          child: MyPassesPage(
+            onBuyPass: () => context.go(AppRoutes.main),
+            now: locator<PlatformClock>().wallNow,
+          ),
         ),
       ),
       GoRoute(

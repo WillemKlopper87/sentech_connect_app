@@ -242,6 +242,8 @@ void main() {
       await tester.drag(find.byType(ListView), const Offset(0, -100));
       await tester.pumpAndSettle();
       final switchTile = find.widgetWithText(SwitchListTile, label);
+      await tester.ensureVisible(switchTile);
+      await tester.pumpAndSettle();
       await tester.tap(switchTile);
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));

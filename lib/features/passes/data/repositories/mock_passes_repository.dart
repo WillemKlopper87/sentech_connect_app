@@ -14,6 +14,13 @@ class MockPassesRepository implements PassesRepository {
   final SimulatedNetwork _network;
 
   @override
+  Future<Either<Failure, PassLoad>> getPassLoad({
+    bool includeExpired = false,
+  }) async => (await getPasses(
+    includeExpired: includeExpired,
+  )).map((passes) => PassLoad(passes: passes, loadedAt: _now().toUtc()));
+
+  @override
   Future<Either<Failure, List<Pass>>> getPasses({
     bool includeExpired = false,
   }) async {

@@ -80,7 +80,8 @@ void main() {
           find.textContaining('left'),
           findsWidgets,
         ); // time left and data left
-        expect(find.text('3.8 GB of 5 GB left'), findsOneWidget);
+        expect(find.text('3.8 GB left'), findsOneWidget);
+        expect(find.text('of 5 GB'), findsOneWidget);
         expect(find.text('Living room router'), findsNothing);
         expect(find.textContaining('renews'), findsNothing);
         expect(find.textContaining('GB of 100GB'), findsNothing);
@@ -118,10 +119,14 @@ void main() {
   });
 
   group('demo catalogue', () {
-    testWidgets('hotspot passes come first, with ZAR prices and data caps', (tester) async {
+    testWidgets('hotspot passes come first, with ZAR prices and data caps', (
+      tester,
+    ) async {
       final cubit = CatalogCubit(MockCatalogRepository());
       addTearDown(cubit.close);
-      await tester.pump(const Duration(seconds: 1)); // fake time: the mock's 400 ms delay
+      await tester.pump(
+        const Duration(seconds: 1),
+      ); // fake time: the mock's 400 ms delay
       expect(cubit.state.selectedCategory, ProductCategory.hotspotPass);
       expect(
         cubit.state.availableCategories.first,
