@@ -33,6 +33,19 @@ class _ManualRepo extends PassesRepository {
   }
 }
 
+class _LoadedRepo extends PassesRepository {
+  _LoadedRepo(this.load);
+  final PassLoad load;
+  @override
+  Future<Either<Failure, List<Pass>>> getPasses({
+    bool includeExpired = false,
+  }) async => Right(load.passes);
+  @override
+  Future<Either<Failure, PassLoad>> getPassLoad({
+    bool includeExpired = false,
+  }) async => Right(load);
+}
+
 Pass _pass(
   String id, {
   int? dataMb = 1024,
@@ -319,6 +332,39 @@ void main() {
   });
 
   group('My passes page', () {
+    testWidgets(
+      'idle clock reveals age, updates countdown, then ends the active badge',
+      (tester) async {
+        var now = DateTime.utc(2026, 10, 1, 11, 53);
+        final cubit = PassesCubit(
+          _LoadedRepo(
+            PassLoad(passes: [_pass('idle', dataMb: null)], loadedAt: now),
+          ),
+        );
+        addTearDown(cubit.close);
+        await pumpThemed(
+          tester,
+          BlocProvider.value(
+            value: cubit,
+            child: MyPassesPage(now: () => now),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(find.text('7m left'), findsOneWidget);
+        expect(find.text('Active'), findsOneWidget);
+        expect(find.textContaining('Updated'), findsNothing);
+        now = now.add(const Duration(minutes: 6));
+        await tester.pump(const Duration(minutes: 6));
+        expect(find.text('Updated 6m ago'), findsOneWidget);
+        expect(find.text('1m left'), findsOneWidget);
+        now = now.add(const Duration(minutes: 2));
+        await tester.pump(const Duration(minutes: 2));
+        expect(find.text('Pass ended'), findsOneWidget);
+        expect(find.text('Expired'), findsOneWidget);
+        expect(find.text('Active'), findsNothing);
+        await tester.pumpWidget(const SizedBox());
+      },
+    );
     Future<void> pumpPage(
       WidgetTester tester,
       PassesCubit cubit, {

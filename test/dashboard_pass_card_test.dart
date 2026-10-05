@@ -197,6 +197,8 @@ void main() {
       ]),
     );
     expect(find.text('Pass ended'), findsOneWidget);
+    expect(find.text('Active'), findsNothing);
+    expect(find.text('Expired'), findsOneWidget);
   });
 
   testWidgets('pull-to-refresh on the dashboard reloads the passes', (

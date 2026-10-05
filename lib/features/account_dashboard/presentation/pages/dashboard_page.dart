@@ -586,9 +586,13 @@ class _CurrentPassCardState extends State<_CurrentPassCard> {
             ),
           ),
           Text(
-            current.status == PassStatus.active
-                ? l10n.passesStatusActive
-                : l10n.passesStatusScheduled,
+            switch (summary.effectiveStatus) {
+              PassStatus.active => l10n.passesStatusActive,
+              PassStatus.scheduled => l10n.passesStatusScheduled,
+              PassStatus.expired => l10n.passesStatusExpired,
+              PassStatus.exhausted => l10n.passesStatusExhausted,
+              PassStatus.revoked => l10n.passesStatusRevoked,
+            },
             style: theme.textTheme.labelLarge?.copyWith(
               color: theme.colorScheme.primary,
             ),

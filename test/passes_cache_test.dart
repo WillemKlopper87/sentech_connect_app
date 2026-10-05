@@ -20,6 +20,22 @@ import 'helpers/api_harness.dart';
 import 'helpers/fake_http_adapter.dart';
 import 'helpers/fixtures.dart';
 
+class _ThrowingTokens implements TokenStore {
+  _ThrowingTokens(this.delegate);
+  final TokenStore delegate;
+  @override
+  int get generation => delegate.generation;
+  @override
+  int get sessionGeneration => delegate.sessionGeneration;
+  @override
+  Future<AuthTokens?> read() async =>
+      throw StateError('secure store unavailable');
+  @override
+  Future<void> write(AuthTokens tokens) => delegate.write(tokens);
+  @override
+  Future<void> clear() => delegate.clear();
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   setUp(() => SharedPreferences.setMockInitialValues({}));
@@ -199,4 +215,53 @@ void main() {
     offline = true;
     expect((await repo.getPassLoad()).isLeft(), true);
   });
+  test(
+    'throwing token read returns auth failure and ends unusable session',
+    () async {
+      final h = ApiHarness();
+      await h.signIn();
+      final repo = HttpPassesRepository(
+        h.api,
+        tokens: _ThrowingTokens(h.tokens),
+        cache: PassLocalStore(),
+      );
+      final expired = h.events.expired.first.timeout(
+        const Duration(seconds: 1),
+      );
+      final failure = (await repo.getPassLoad()).match((f) => f, (_) => null);
+      expect(failure, isA<UnauthorizedFailure>());
+      await expired;
+      expect(await h.tokens.read(), isNull);
+      expect(h.adapter.requests, isEmpty);
+      final cubit = PassesCubit(repo);
+      await cubit.load();
+      expect(cubit.state.status, PassesStatus.failure);
+      expect(cubit.state.failure, isA<UnauthorizedFailure>());
+      await cubit.close();
+    },
+  );
+  test(
+    'preferences initialization failure is a cache miss and keeps network failure',
+    () async {
+      final h = ApiHarness();
+      await h.signIn();
+      h.adapter.on(
+        'GET',
+        '/v1/me/entitlements',
+        (_) => const FakeReply.error(DioExceptionType.connectionError),
+      );
+      final repo = HttpPassesRepository(
+        h.api,
+        tokens: h.tokens,
+        cache: PassLocalStore(
+          openPreferences: () async => throw StateError('prefs unavailable'),
+        ),
+      );
+      final cubit = PassesCubit(repo);
+      await cubit.load();
+      expect(cubit.state.status, PassesStatus.failure);
+      expect(cubit.state.failure, isA<NetworkFailure>());
+      await cubit.close();
+    },
+  );
 }

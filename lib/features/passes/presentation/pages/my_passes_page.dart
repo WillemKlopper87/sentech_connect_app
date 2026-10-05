@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sentech_connect_app/features/passes/domain/entities/pass.dart';
@@ -7,12 +9,33 @@ import 'package:sentech_connect_app/features/passes/presentation/pass_summary.da
 import 'package:sentech_connect_app/l10n/l10n.dart';
 import 'package:sentech_connect_app/shared/widgets/failure_view.dart';
 
-class MyPassesPage extends StatelessWidget {
+class MyPassesPage extends StatefulWidget {
   const MyPassesPage({super.key, this.onBuyPass, this.now = DateTime.now});
 
   /// Empty state shortcut to the Shop's hotspot passes.
   final VoidCallback? onBuyPass;
   final DateTime Function() now;
+
+  @override
+  State<MyPassesPage> createState() => _MyPassesPageState();
+}
+
+class _MyPassesPageState extends State<MyPassesPage> {
+  Timer? _ticker;
+
+  @override
+  void initState() {
+    super.initState();
+    _ticker = Timer.periodic(const Duration(minutes: 1), (_) {
+      if (mounted) setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _ticker?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,6 +51,7 @@ class MyPassesPage extends StatelessWidget {
           if (state.status == PassesStatus.failure) {
             return FailureView(failure: state.failure, onRetry: cubit.load);
           }
+          final now = widget.now();
           return RefreshIndicator(
             onRefresh: cubit.load,
             child: ListView(
@@ -36,12 +60,12 @@ class MyPassesPage extends StatelessWidget {
               children: [
                 if (state.loadedAt case final loadedAt?)
                   if (state.fromCache ||
-                      now().difference(loadedAt) > const Duration(minutes: 5))
+                      now.difference(loadedAt) > const Duration(minutes: 5))
                     Padding(
                       padding: const EdgeInsets.only(bottom: 8),
                       child: Text(
                         l10n.passesUpdated(
-                          formatTimeLeft(l10n, now().difference(loadedAt)),
+                          formatTimeLeft(l10n, now.difference(loadedAt)),
                         ),
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
@@ -61,7 +85,7 @@ class MyPassesPage extends StatelessWidget {
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
-                  if (onBuyPass case final buy?) ...[
+                  if (widget.onBuyPass case final buy?) ...[
                     const SizedBox(height: 16),
                     ElevatedButton(
                       onPressed: buy,
@@ -86,7 +110,7 @@ class _PassCard extends StatelessWidget {
   const _PassCard({required this.pass, required this.now});
 
   final Pass pass;
-  final DateTime Function() now;
+  final DateTime now;
 
   @override
   Widget build(BuildContext context) {
@@ -95,10 +119,10 @@ class _PassCard extends StatelessWidget {
     final summary = PassSummary.of(
       pass,
       l10n,
-      now: now(),
+      now: now,
       localeTag: Localizations.localeOf(context).toLanguageTag(),
     );
-    final status = switch (pass.status) {
+    final status = switch (summary.effectiveStatus) {
       PassStatus.active => l10n.passesStatusActive,
       PassStatus.scheduled => l10n.passesStatusScheduled,
       PassStatus.expired => l10n.passesStatusExpired,

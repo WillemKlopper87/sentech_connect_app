@@ -76,4 +76,37 @@ void main() {
       );
     },
   );
+  test(
+    'snapshot status expires at the exact boundary without losing ended reasons',
+    () {
+      for (final status in [PassStatus.active, PassStatus.scheduled]) {
+        final s = PassSummary.of(
+          pass(status: status, expiresIn: Duration.zero),
+          en,
+          now: t0,
+          localeTag: 'en',
+        );
+        expect(s.effectiveStatus, PassStatus.expired);
+        expect(s.tier, UsageTier.ended);
+      }
+      expect(
+        PassSummary.of(
+          pass(status: PassStatus.revoked),
+          en,
+          now: t0,
+          localeTag: 'en',
+        ).effectiveStatus,
+        PassStatus.revoked,
+      );
+      expect(
+        PassSummary.of(
+          pass(status: PassStatus.exhausted),
+          en,
+          now: t0,
+          localeTag: 'en',
+        ).effectiveStatus,
+        PassStatus.exhausted,
+      );
+    },
+  );
 }

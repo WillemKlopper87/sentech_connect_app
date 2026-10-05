@@ -44,7 +44,18 @@ class HttpPassesRepository implements PassesRepository {
     final scope = await _api.captureScope();
     final cache = _cache;
     final cacheGeneration = cache?.generation;
-    final token = await _tokens?.read();
+    final tokenGeneration = _tokens?.generation;
+    final AuthTokens? token;
+    try {
+      token = await _tokens?.read();
+    } on Object {
+      // Match the auth interceptor's keystore failure path: end the unusable
+      // session and return an auth failure rather than leaving a loading UI.
+      if (tokenGeneration != null) {
+        await _api.refresher.expireSession(ifGeneration: tokenGeneration);
+      }
+      return const Left(UnauthorizedFailure());
+    }
     if (!scope.isCurrent) return const Left(UnauthorizedFailure());
     final trusted = token != null && token.tenantSlug == _api.tenant.slug;
     final tenant = token?.tenantSlug;

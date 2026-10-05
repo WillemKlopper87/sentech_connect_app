@@ -7,10 +7,14 @@ import 'package:sentech_connect_app/features/passes/domain/repositories/passes_r
 /// Device-only personal pass data. All writes and wipes share one queue so a
 /// load started before logout cannot restore data after the wipe.
 class PassLocalStore {
+  PassLocalStore({Future<SharedPreferences> Function()? openPreferences})
+    : _openPreferences = openPreferences ?? SharedPreferences.getInstance;
+
   static const cachePrefix = 'passes_cache:';
   static const alertsPrefix = 'usage_alerts:';
   int _epoch = 0;
   Future<void> _tail = Future.value();
+  final Future<SharedPreferences> Function() _openPreferences;
 
   int get generation => _epoch;
 
@@ -30,9 +34,9 @@ class PassLocalStore {
     required bool Function() isCurrent,
   }) async {
     final epoch = _epoch;
-    final prefs = await SharedPreferences.getInstance();
-    if (epoch != _epoch || !isCurrent()) return null;
     try {
+      final prefs = await _openPreferences();
+      if (epoch != _epoch || !isCurrent()) return null;
       final raw = prefs.getString(_cacheKey(tenant, user));
       if (raw == null) return null;
       final entries = jsonDecode(raw) as Map<String, dynamic>;
@@ -64,7 +68,7 @@ class PassLocalStore {
     final epoch = _epoch;
     return _serial(() async {
       if (epoch != _epoch || !isCurrent()) return;
-      final prefs = await SharedPreferences.getInstance();
+      final prefs = await _openPreferences();
       if (epoch != _epoch || !isCurrent()) return;
       final key = _cacheKey(tenant, user);
       Map<String, dynamic> entries;
@@ -92,7 +96,7 @@ class PassLocalStore {
     required bool Function() isCurrent,
   }) async {
     final epoch = _epoch;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _openPreferences();
     return epoch == _epoch &&
         isCurrent() &&
         (prefs.getBool('${_alertKey(tenant, user)}:enabled') ?? false);
@@ -107,7 +111,7 @@ class PassLocalStore {
     final epoch = _epoch;
     return _serial(() async {
       if (epoch != _epoch || !isCurrent()) return;
-      final prefs = await SharedPreferences.getInstance();
+      final prefs = await _openPreferences();
       if (epoch != _epoch || !isCurrent()) return;
       final key = '${_alertKey(tenant, user)}:enabled';
       await prefs.setBool(key, value);
@@ -121,7 +125,7 @@ class PassLocalStore {
     required bool Function() isCurrent,
   }) async {
     final epoch = _epoch;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _openPreferences();
     return epoch == _epoch && isCurrent()
         ? (prefs.getStringList('${_alertKey(tenant, user)}:sent') ?? []).toSet()
         : {};
@@ -136,7 +140,7 @@ class PassLocalStore {
     final epoch = _epoch;
     return _serial(() async {
       if (epoch != _epoch || !isCurrent()) return;
-      final prefs = await SharedPreferences.getInstance();
+      final prefs = await _openPreferences();
       if (epoch != _epoch || !isCurrent()) return;
       final key = '${_alertKey(tenant, user)}:sent';
       final current = (prefs.getStringList(key) ?? []).toSet();
@@ -148,7 +152,7 @@ class PassLocalStore {
   Future<void> clearPersonalData() {
     _epoch++;
     return _serial(() async {
-      final prefs = await SharedPreferences.getInstance();
+      final prefs = await _openPreferences();
       for (final key
           in prefs
               .getKeys()
