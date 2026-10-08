@@ -26,6 +26,7 @@ class FirstRunTenantRepository implements TenantRepository {
            cpe: cpe,
            hotspotPasses: hotspot,
            rica: rica,
+           vouchers: true,
          ),
          legal: const LegalVersions(terms: '2026-09-30', privacy: '2026-09-29'),
        );

@@ -26,6 +26,9 @@ class TenantState extends Equatable {
   /// demo flags apply, which preserves the pre-tenant behaviour.
   FeatureFlags get featureFlags => config?.featureFlags ?? FeatureFlags.demo;
 
+  /// Until a config arrives the app behaves as before (Scan stays visible).
+  bool isModuleOn(String key) => config?.isModuleOn(key) ?? key == AppModuleKeys.vouchers;
+
   bool get isSettled => status != TenantStatus.initial && status != TenantStatus.loading;
 
   TenantState copyWith({TenantStatus? status, List<Tenant>? tenants, AppConfig? config, Failure? failure}) =>

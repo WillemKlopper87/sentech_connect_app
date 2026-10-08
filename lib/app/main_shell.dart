@@ -17,6 +17,8 @@ import 'package:sentech_connect_app/features/passes/presentation/bloc/passes_cub
 import 'package:sentech_connect_app/features/passes/domain/usage_alert_scheduler.dart';
 import 'package:sentech_connect_app/features/support/presentation/bloc/support_cubit.dart';
 import 'package:sentech_connect_app/features/support/presentation/pages/support_page.dart';
+import 'package:sentech_connect_app/features/tenant/domain/entities/app_config.dart';
+import 'package:sentech_connect_app/features/tenant/presentation/bloc/tenant_cubit.dart';
 import 'package:sentech_connect_app/features/voucher_scanner/presentation/pages/voucher_scanner_page.dart';
 import 'package:sentech_connect_app/shared/actions/support_actions.dart';
 
@@ -61,8 +63,11 @@ class MainShell extends StatefulWidget {
   State<MainShell> createState() => _MainShellState();
 }
 
+/// The tabs, by identity: the selection survives a tab being added or removed.
+enum _Tab { home, shop, scan, help, account }
+
 class _MainShellState extends State<MainShell> {
-  int _index = 0;
+  _Tab _selected = _Tab.home;
 
   // Held as a stable instance (rather than created inline in `pages`) so
   // the dashboard's "Top up"/"Upgrade" quick actions can drive the Shop
@@ -97,109 +102,134 @@ class _MainShellState extends State<MainShell> {
 
   void _goToShop(ProductCategory category) {
     _catalogCubit.selectCategory(category);
-    setState(() => _index = 1);
+    setState(() => _selected = _Tab.shop);
   }
 
   @override
   Widget build(BuildContext context) {
-    final pages = [
-      MultiBlocProvider(
-        providers: [
-          // Fixed-plan account data is only loaded when the cpe flag is on.
-          if (widget.showRouterCard)
-            BlocProvider(create: (_) => AccountCubit(locator())),
-          BlocProvider.value(value: _openOrderCubit),
-          BlocProvider.value(value: _passesCubit),
-        ],
-        child: DashboardPage(
-          onBuyPass: () => _goToShop(ProductCategory.hotspotPass),
-          onTopUp: () => _goToShop(ProductCategory.voucher),
-          onUpgrade: () => _goToShop(ProductCategory.home5g),
-          onReportIssue: widget.showMockFeatures
-              ? () => submitSupportTicket(
-                  context,
-                  initialCategory: TicketCategory.technical,
-                )
-              : null,
-          onOpenPromotions: widget.showMockFeatures
-              ? widget.onOpenPromotions
-              : null,
-          onResumeOrder: widget.onResumeOrder,
-          onOpenPasses: widget.onOpenPasses,
-          showRouterCard: widget.showRouterCard,
-          now: locator<PlatformClock>().wallNow,
-        ),
-      ),
-      BlocProvider.value(
-        value: _catalogCubit,
-        child: CatalogPage(
-          onOpenCart: widget.onOpenCart,
-          onOrderCreated: (order) => context.push(AppRoutes.forOrder(order)),
-          onFindHotspots: widget.showMockFeatures
-              ? widget.onFindHotspots
-              : null,
-        ),
-      ),
-      const VoucherScannerPage(),
-      if (widget.showMockFeatures)
-        BlocProvider(
-          create: (_) => SupportCubit(locator()),
-          child: SupportPage(
-            cpe: widget.showRouterCard,
-            whatsAppNumber: widget.supportWhatsAppNumber,
+    // Scan follows the provider's vouchers module. Without a config (and in
+    // tests with no tenant) it stays visible, as before.
+    final showScan = context.select<TenantCubit?, bool>(
+      (c) => c?.state.isModuleOn(AppModuleKeys.vouchers) ?? true,
+    );
+    // One list drives both the pages and the destinations, so they never disagree.
+    final tabs = <({_Tab id, Widget page, NavigationDestination dest})>[
+      (
+        id: _Tab.home,
+        page: MultiBlocProvider(
+          providers: [
+            // Fixed-plan account data is only loaded when the cpe flag is on.
+            if (widget.showRouterCard)
+              BlocProvider(create: (_) => AccountCubit(locator())),
+            BlocProvider.value(value: _openOrderCubit),
+            BlocProvider.value(value: _passesCubit),
+          ],
+          child: DashboardPage(
+            onBuyPass: () => _goToShop(ProductCategory.hotspotPass),
+            onTopUp: () => _goToShop(ProductCategory.voucher),
+            onUpgrade: () => _goToShop(ProductCategory.home5g),
+            onReportIssue: widget.showMockFeatures
+                ? () => submitSupportTicket(
+                    context,
+                    initialCategory: TicketCategory.technical,
+                  )
+                : null,
+            onOpenPromotions: widget.showMockFeatures
+                ? widget.onOpenPromotions
+                : null,
+            onResumeOrder: widget.onResumeOrder,
+            onOpenPasses: widget.onOpenPasses,
+            showRouterCard: widget.showRouterCard,
+            now: locator<PlatformClock>().wallNow,
           ),
         ),
-      AccountPage(
-        onChangeProvider: widget.onChangeProvider,
-        providerName: widget.providerName,
+        dest: NavigationDestination(
+          icon: Icon(Icons.home_outlined),
+          selectedIcon: Icon(Icons.home),
+          label: context.l10n.navHome,
+        ),
       ),
-    ];
-    return Scaffold(
-      body: IndexedStack(
-        index: _index,
-        children: [
-          for (var i = 0; i < pages.length; i++)
-            TickerMode(enabled: i == _index, child: pages[i]),
-        ],
+      (
+        id: _Tab.shop,
+        page: BlocProvider.value(
+          value: _catalogCubit,
+          child: CatalogPage(
+            onOpenCart: widget.onOpenCart,
+            onOrderCreated: (order) => context.push(AppRoutes.forOrder(order)),
+            onFindHotspots: widget.showMockFeatures
+                ? widget.onFindHotspots
+                : null,
+          ),
+        ),
+        dest: NavigationDestination(
+          icon: Icon(Icons.shopping_bag_outlined),
+          selectedIcon: Icon(Icons.shopping_bag),
+          label: context.l10n.navShop,
+        ),
       ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _index,
-        onDestinationSelected: (i) {
-          if (i == 0) {
-            _openOrderCubit.refresh();
-            _passesCubit.load();
-          }
-          setState(() => _index = i);
-        },
-        destinations: [
-          NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home),
-            label: context.l10n.navHome,
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.shopping_bag_outlined),
-            selectedIcon: Icon(Icons.shopping_bag),
-            label: context.l10n.navShop,
-          ),
-          NavigationDestination(
+      if (showScan)
+        (
+          id: _Tab.scan,
+          page: const VoucherScannerPage(),
+          dest: NavigationDestination(
             icon: Icon(Icons.qr_code_scanner_outlined),
             selectedIcon: Icon(Icons.qr_code_scanner),
             label: context.l10n.navScan,
           ),
-          if (widget.showMockFeatures) ...[
-            NavigationDestination(
-              icon: Icon(Icons.support_agent_outlined),
-              selectedIcon: Icon(Icons.support_agent),
-              label: context.l10n.navHelp,
+        ),
+      if (widget.showMockFeatures)
+        (
+          id: _Tab.help,
+          page: BlocProvider(
+            create: (_) => SupportCubit(locator()),
+            child: SupportPage(
+              cpe: widget.showRouterCard,
+              whatsAppNumber: widget.supportWhatsAppNumber,
             ),
-          ],
-          NavigationDestination(
-            icon: Icon(Icons.person_outline),
-            selectedIcon: Icon(Icons.person),
-            label: context.l10n.navAccount,
           ),
+          dest: NavigationDestination(
+            icon: Icon(Icons.support_agent_outlined),
+            selectedIcon: Icon(Icons.support_agent),
+            label: context.l10n.navHelp,
+          ),
+        ),
+      (
+        id: _Tab.account,
+        page: AccountPage(
+          onChangeProvider: widget.onChangeProvider,
+          providerName: widget.providerName,
+        ),
+        dest: NavigationDestination(
+          icon: Icon(Icons.person_outline),
+          selectedIcon: Icon(Icons.person),
+          label: context.l10n.navAccount,
+        ),
+      ),
+    ];
+    var index = tabs.indexWhere((t) => t.id == _selected);
+    // The selected tab can disappear (its module switched off): fall back to Home.
+    if (index < 0) {
+      _selected = _Tab.home;
+      index = 0;
+    }
+    return Scaffold(
+      body: IndexedStack(
+        index: index,
+        children: [
+          for (var i = 0; i < tabs.length; i++)
+            TickerMode(enabled: i == index, child: tabs[i].page),
         ],
+      ),
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: index,
+        onDestinationSelected: (i) {
+          if (tabs[i].id == _Tab.home) {
+            _openOrderCubit.refresh();
+            _passesCubit.load();
+          }
+          setState(() => _selected = tabs[i].id);
+        },
+        destinations: [for (final tab in tabs) tab.dest],
       ),
     );
   }
