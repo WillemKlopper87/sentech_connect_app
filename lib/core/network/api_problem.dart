@@ -125,5 +125,6 @@ Failure failureFromStatus(int status, ApiProblem? problem, {String? requestId, D
     return ModuleDisabledFailure(problem.module);
   }
   if (status == 403) return ServerFailure(detail ?? 'You are not allowed to do that.', requestId);
+  if (status == 409 && problem.code == 'collection_external') return const CollectionExternalFailure();
   return ValidationFailure(detail ?? _capped(problem.title), problem.code, detail != null);
 }

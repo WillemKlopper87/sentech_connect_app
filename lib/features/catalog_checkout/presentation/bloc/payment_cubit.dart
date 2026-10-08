@@ -164,7 +164,11 @@ class PaymentCubit extends Cubit<PaymentState> {
     if (isClosed) return;
     switch (result) {
       case Left(value: final failure):
-        if (failure is ValidationFailure &&
+        if (failure is CollectionExternalFailure) {
+          // The provider collects its own money: nothing here can be paid, so
+          // end the flow instead of offering a retry.
+          emit(state.copyWith(status: PaymentStatus.closed, failure: failure));
+        } else if (failure is ValidationFailure &&
             failure.code == 'order_not_payable') {
           await _routeByServerStatus(failure);
         } else {

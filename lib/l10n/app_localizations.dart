@@ -2293,6 +2293,24 @@ abstract class AppLocalizations {
   /// Customer error matching an internal failure message; external details remain data.
   ///
   /// In en, this message translates to:
+  /// **'Buy this from your provider directly.'**
+  String get failureBuyFromProviderDirectly;
+
+  /// Shown instead of a Pay button when the provider collects its own payments. The provider name is data sent by the server.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy this from {provider} directly.'**
+  String paymentBuyFromProvider(String provider);
+
+  /// Heading above the provider's support email and phone buttons.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact {provider}.'**
+  String paymentContactProvider(String provider);
+
+  /// Customer error matching an internal failure message; external details remain data.
+  ///
+  /// In en, this message translates to:
   /// **'We could not find that.'**
   String get failureWeCouldNotFindThat;
 

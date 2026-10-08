@@ -18,6 +18,8 @@ String localizedFailureText(AppLocalizations l10n, String message) {
         l10n.failureThisProviderIsCurrentlyUnavailable,
     "This is not offered by your provider.":
         l10n.failureNotOfferedByProvider,
+    "Buy this from your provider directly.":
+        l10n.failureBuyFromProviderDirectly,
     "We could not find that.": l10n.failureWeCouldNotFindThat,
     "Too many attempts. Please wait and try again.":
         l10n.failureTooManyAttemptsPleaseWaitAndTry,

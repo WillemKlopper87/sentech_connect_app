@@ -14,6 +14,11 @@ import 'package:sentech_connect_app/app/theme/color_contrast.dart';
 
 import 'package:sentech_connect_app/l10n/app_localizations.dart';
 
+import 'package:fpdart/fpdart.dart' hide Order;
+import 'package:sentech_connect_app/core/error/failure.dart';
+import 'package:sentech_connect_app/features/catalog_checkout/domain/entities/payment_handoff.dart';
+
+import 'helpers/acme_tenant.dart';
 import 'helpers/test_setup.dart';
 
 const _pass = Plan(
@@ -80,8 +85,49 @@ Future<void> _pumpPage(
   await tester.pumpAndSettle();
 }
 
+/// The provider collects its own money: the server refuses every checkout.
+class _ExternalCollectionCheckout extends MockCheckoutRepository {
+  _ExternalCollectionCheckout() : super(InMemorySecureStore(), latency: Duration.zero);
+
+  @override
+  Future<Either<Failure, PaymentHandoff>> startPayment({required String orderId}) async =>
+      const Left(CollectionExternalFailure());
+}
+
 void main() {
   setUpAppTests();
+
+  testWidgets('a provider that collects its own money gets a message, not a retry', (tester) async {
+    final repo = _ExternalCollectionCheckout();
+    final cart = CartCubit();
+    addTearDown(cart.close);
+    final order = (await tester.runAsync(() => repo.createOrder(items: _items)))!.getOrElse(
+      (f) => throw StateError(f.message),
+    );
+    final tenant = await acmeTenant(buyInApp: false);
+    addTearDown(tenant.close);
+    final cubit = PaymentCubit(repo, cart, order.id);
+    addTearDown(cubit.close);
+    await tester.pumpWidget(
+      MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: MultiBlocProvider(
+          providers: [BlocProvider.value(value: cubit), BlocProvider.value(value: tenant)],
+          child: PaymentPage(onPaid: (_) {}, onNeedsVerification: (_) {}, onClosed: () {}),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await cubit.pay();
+    await tester.pumpAndSettle();
+    expect(cubit.state.status, PaymentStatus.closed);
+    expect(find.text('Buy this from Acme Wi-Fi directly.'), findsOneWidget);
+    expect(find.text('Contact Acme Wi-Fi.'), findsOneWidget);
+    expect(find.text(acmeSupportEmail), findsOneWidget);
+    expect(find.text(acmeSupportPhone), findsOneWidget);
+    expect(find.text('Try again'), findsNothing);
+  });
 
   testWidgets('demo methods appear only in demo payment presentation', (
     tester,

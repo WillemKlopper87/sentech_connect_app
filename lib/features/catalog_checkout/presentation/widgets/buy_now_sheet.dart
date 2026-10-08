@@ -2,24 +2,34 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sentech_connect_app/app/locator.dart';
 import 'package:sentech_connect_app/core/local/data_saver.dart';
+import 'package:sentech_connect_app/core/error/failure.dart';
 import 'package:sentech_connect_app/core/money/money.dart';
 import 'package:sentech_connect_app/features/cart/presentation/bloc/cart_cubit.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/domain/entities/order.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/domain/entities/plan.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/domain/repositories/checkout_repository.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/presentation/bloc/checkout_cubit.dart';
+import 'package:sentech_connect_app/features/tenant/domain/entities/app_config.dart';
+import 'package:sentech_connect_app/features/tenant/presentation/bloc/tenant_cubit.dart';
 import 'package:sentech_connect_app/l10n/l10n.dart';
 import 'package:sentech_connect_app/shared/widgets/failure_view.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 /// Reviews one pass or voucher without changing the app's existing cart.
 /// Creating an unpaid order is deferred until the customer presses Pay.
+///
+/// When the provider collects its own money ([buyInApp] false) the sheet still
+/// describes the product but offers no way to pay: it says who to contact.
 Future<void> showBuyNowSheet(
   BuildContext context,
   Plan plan, {
   required void Function(Order) onOrderCreated,
   bool showDemoMethods = false,
   bool showCashVoucher = false,
+  bool buyInApp = true,
 }) async {
+  // Read before the route opens: the sheet sits above this context's providers.
+  final provider = providerContactOf(context);
   final reviewCart = CartCubit()
     ..clear()
     ..addItem(plan);
@@ -40,6 +50,8 @@ Future<void> showBuyNowSheet(
           reduceMotion: reduceMotion,
           showDemoMethods: showDemoMethods,
           showCashVoucher: showCashVoucher,
+          buyInApp: buyInApp,
+          provider: provider,
           onCreated: (order) {
             // A dismissed route can remain mounted during its reverse
             // transition. It must never pop the route beneath it.
@@ -63,6 +75,8 @@ class _BuyNowReview extends StatelessWidget {
     required this.showDemoMethods,
     required this.showCashVoucher,
     required this.onCreated,
+    required this.buyInApp,
+    required this.provider,
   });
 
   final Plan plan;
@@ -70,6 +84,8 @@ class _BuyNowReview extends StatelessWidget {
   final bool showDemoMethods;
   final bool showCashVoucher;
   final void Function(Order) onCreated;
+  final bool buyInApp;
+  final ProviderContact provider;
 
   @override
   Widget build(BuildContext context) {
@@ -88,6 +104,10 @@ class _BuyNowReview extends StatelessWidget {
         final busy =
             state.status == CheckoutStatus.creating ||
             state.status == CheckoutStatus.created;
+        // Also when the server says so after the config was cached: there is
+        // nothing to retry, so show the notice rather than an error.
+        final buyElsewhere =
+            !buyInApp || state.failure is CollectionExternalFailure;
         return ConstrainedBox(
           constraints: BoxConstraints(
             maxHeight: MediaQuery.sizeOf(context).height * 0.9,
@@ -127,11 +147,16 @@ class _BuyNowReview extends StatelessWidget {
                               style: theme.textTheme.bodyMedium,
                             ),
                           ],
-                          if (showDemoMethods) ...[
+                          if (buyElsewhere) ...[
+                            const SizedBox(height: 20),
+                            BuyFromProviderNotice(provider: provider),
+                          ],
+                          if (showDemoMethods && !buyElsewhere) ...[
                             const SizedBox(height: 20),
                             PaymentMethodsRow(showCashVoucher: showCashVoucher),
                           ],
-                          if (state.status == CheckoutStatus.failure) ...[
+                          if (state.status == CheckoutStatus.failure &&
+                              !buyElsewhere) ...[
                             const SizedBox(height: 20),
                             FailureView(
                               failure: state.failure,
@@ -145,29 +170,123 @@ class _BuyNowReview extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 16),
-                  FilledButton(
-                    onPressed: busy
-                        ? null
-                        : () => context.read<CheckoutCubit>().createOrder(),
-                    child: busy
-                        ? reduceMotion
-                              ? Text(context.l10n.buyNowCreatingOrder)
-                              : const SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                  ),
-                                )
-                        : Text(context.l10n.buyNowPay(price)),
-                  ),
+                  if (!buyElsewhere) ...[
+                    const SizedBox(height: 16),
+                    FilledButton(
+                      onPressed: busy
+                          ? null
+                          : () => context.read<CheckoutCubit>().createOrder(),
+                      child: busy
+                          ? reduceMotion
+                                ? Text(context.l10n.buyNowCreatingOrder)
+                                : const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                          : Text(context.l10n.buyNowPay(price)),
+                    ),
+                  ],
                 ],
               ),
             ),
           ),
         );
       },
+    );
+  }
+}
+
+/// The provider's name and public support channels, as sent by the server.
+typedef ProviderContact = ({String name, SupportChannels support});
+
+/// Reads the selected provider. Without a provider (tests, first launch) it
+/// falls back to the app name and no channels.
+ProviderContact providerContactOf(BuildContext context) {
+  final config = context.read<TenantCubit?>()?.state.config;
+  return (
+    name: config?.tenant.name ?? 'Sentech Connect',
+    support: config?.support ?? const SupportChannels(),
+  );
+}
+
+/// "Buy this from {provider} directly." with the provider's support email and
+/// phone as buttons, each only when the provider has published it.
+class BuyFromProviderNotice extends StatelessWidget {
+  const BuyFromProviderNotice({super.key, required this.provider});
+
+  final ProviderContact provider;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          context.l10n.paymentBuyFromProvider(provider.name),
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
+        ProviderContactLinks(provider: provider),
+      ],
+    );
+  }
+}
+
+/// "Contact {provider}." and one button per published support channel.
+class ProviderContactLinks extends StatelessWidget {
+  const ProviderContactLinks({super.key, required this.provider});
+
+  final ProviderContact provider;
+
+  Future<void> _launch(BuildContext context, Uri uri) async {
+    bool opened;
+    try {
+      opened = await launchUrl(uri);
+    } catch (_) {
+      opened = false;
+    }
+    if (!opened && context.mounted) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(context.l10n.legalLinkOpenFailed)));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final email = provider.support.email;
+    final phone = provider.support.phone;
+    if (email == null && phone == null) return const SizedBox.shrink();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 12),
+        Text(
+          context.l10n.paymentContactProvider(provider.name),
+          style: Theme.of(context).textTheme.bodyLarge,
+        ),
+        Wrap(
+          spacing: 8,
+          children: [
+            if (email != null)
+              TextButton(
+                onPressed: () =>
+                    _launch(context, Uri(scheme: 'mailto', path: email)),
+                child: Text(email),
+              ),
+            if (phone != null)
+              TextButton(
+                onPressed: () => _launch(
+                  context,
+                  Uri(scheme: 'tel', path: phone.replaceAll(' ', '')),
+                ),
+                child: Text(phone),
+              ),
+          ],
+        ),
+      ],
     );
   }
 }

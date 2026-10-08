@@ -73,6 +73,12 @@ class ModuleDisabledFailure extends Failure {
   List<Object?> get props => [message, module];
 }
 
+/// The provider collects payment itself (409 `collection_external`): the app
+/// must not offer a way to pay. Not retryable; show who to contact instead.
+class CollectionExternalFailure extends Failure {
+  const CollectionExternalFailure([super.message = 'Buy this from your provider directly.']);
+}
+
 class NotFoundFailure extends Failure {
   const NotFoundFailure([super.message = 'We could not find that.']);
 }

@@ -103,6 +103,23 @@ class PaymentPage extends StatelessWidget {
             case PaymentStatus.loadFailed:
               return FailureView(failure: state.failure, onRetry: cubit.load);
             case PaymentStatus.closed:
+              if (state.failure is CollectionExternalFailure) {
+                final provider = providerContactOf(context);
+                return _Message(
+                  text: l10n.paymentBuyFromProvider(provider.name),
+                  action: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      ProviderContactLinks(provider: provider),
+                      const SizedBox(height: 20),
+                      FilledButton(
+                        onPressed: onClosed,
+                        child: Text(l10n.paymentBackToDashboard),
+                      ),
+                    ],
+                  ),
+                );
+              }
               return _Message(
                 text: state.order?.status == OrderStatus.cancelled
                     ? l10n.paymentClosedCancelled

@@ -268,4 +268,19 @@ void main() {
     expect(orderStatusFromApi('cancelled'), OrderStatus.cancelled);
     expect(() => orderStatusFromApi('refunded'), throwsFormatException);
   });
+
+  test('checkout refused for an ISP-operated provider', () async {
+    h.adapter.on('POST', '/v1/orders/o-1/checkout', (_) => FakeReply.problem(409, 'collection_external'));
+    final result = await repo.startPayment(orderId: 'o-1');
+    expect(result.getLeft().toNullable(), isA<CollectionExternalFailure>());
+  });
+
+  test('order creation refused for an ISP-operated provider', () async {
+    h.adapter.on('POST', '/v1/orders', (_) => FakeReply.problem(409, 'collection_external'));
+    final result = await repo.createOrder(
+      items: const [CartItem(plan: _pass, quantity: 1)],
+      idempotencyKey: 'k',
+    );
+    expect(result.getLeft().toNullable(), isA<CollectionExternalFailure>());
+  });
 }

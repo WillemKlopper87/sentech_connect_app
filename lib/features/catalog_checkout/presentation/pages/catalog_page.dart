@@ -9,6 +9,7 @@ import 'package:sentech_connect_app/features/catalog_checkout/domain/entities/pl
 import 'package:sentech_connect_app/features/catalog_checkout/domain/entities/order.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/presentation/bloc/catalog_cubit.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/presentation/widgets/buy_now_sheet.dart';
+import 'package:sentech_connect_app/features/tenant/presentation/bloc/tenant_cubit.dart';
 import 'package:sentech_connect_app/features/wifi_voucher/presentation/bloc/free_wifi_cubit.dart';
 import 'package:sentech_connect_app/features/wifi_voucher/presentation/pages/free_wifi_card.dart';
 import 'package:sentech_connect_app/shared/widgets/failure_view.dart';
@@ -141,6 +142,13 @@ class _CatalogScaffold extends StatelessWidget {
                         context,
                         plan,
                         onOrderCreated: onOrderCreated,
+                        buyInApp:
+                            context
+                                .read<TenantCubit?>()
+                                ?.state
+                                .config
+                                ?.buyInApp ??
+                            true,
                         showDemoMethods: locator<AppEnvironment>().isDemo,
                         showCashVoucher:
                             locator<AppEnvironment>().isDemo &&

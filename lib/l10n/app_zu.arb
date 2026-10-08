@@ -1682,6 +1682,30 @@
   "@failureNotOfferedByProvider": {
     "description": "Customer error matching an internal failure message; external details remain data."
   },
+  "failureBuyFromProviderDirectly": "Buy this from your provider directly.",
+  "@failureBuyFromProviderDirectly": {
+    "description": "Customer error matching an internal failure message; external details remain data."
+  },
+  "paymentBuyFromProvider": "Buy this from {provider} directly.",
+  "@paymentBuyFromProvider": {
+    "description": "Shown instead of a Pay button when the provider collects its own payments. The provider name is data sent by the server.",
+    "placeholders": {
+      "provider": {
+        "type": "String",
+        "example": "Acme Wi-Fi"
+      }
+    }
+  },
+  "paymentContactProvider": "Contact {provider}.",
+  "@paymentContactProvider": {
+    "description": "Heading above the provider's support email and phone buttons.",
+    "placeholders": {
+      "provider": {
+        "type": "String",
+        "example": "Acme Wi-Fi"
+      }
+    }
+  },
   "failureWeCouldNotFindThat": "We could not find that.",
   "@failureWeCouldNotFindThat": {
     "description": "Customer error matching an internal failure message; external details remain data."

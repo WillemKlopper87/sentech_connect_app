@@ -140,6 +140,22 @@ void main() {
   );
 
   test(
+    'a provider that collects its own money closes the order without a retry loop',
+    () async {
+      final repo = _ScriptedCheckout()
+        ..startResult = const Left(CollectionExternalFailure());
+      final cubit = await ready(repo);
+      await cubit.pay();
+      expect(cubit.state.status, PaymentStatus.closed);
+      expect(cubit.state.failure, const CollectionExternalFailure());
+      expect(repo.startCalls, 1);
+      await cubit.pay(); // closed is final: no second call to the server
+      expect(repo.startCalls, 1);
+      await cubit.close();
+    },
+  );
+
+  test(
     'a declined payment ends polling with a retryable failure and keeps the cart',
     () async {
       final repo = _ScriptedCheckout(

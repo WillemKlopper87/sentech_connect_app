@@ -22,6 +22,10 @@ import 'package:sentech_connect_app/features/catalog_checkout/presentation/bloc/
 import 'package:sentech_connect_app/features/catalog_checkout/presentation/pages/catalog_page.dart';
 import 'package:sentech_connect_app/l10n/app_localizations.dart';
 
+import 'package:sentech_connect_app/features/cart/presentation/pages/cart_page.dart';
+import 'package:sentech_connect_app/features/tenant/presentation/bloc/tenant_cubit.dart';
+
+import 'helpers/acme_tenant.dart';
 import 'helpers/test_setup.dart';
 
 const dayPass = Plan(
@@ -100,6 +104,8 @@ void main() {
     bool showDemoMethods = false,
     bool reduceMotion = false,
     bool dataSaver = false,
+    bool buyInApp = true,
+    TenantCubit? tenant,
   }) async {
     await tester.pumpWidget(
       MaterialApp(
@@ -120,6 +126,7 @@ void main() {
               create: (_) =>
                   DataSaverCubit(initial: dataSaver, save: (_) async {}),
             ),
+            if (tenant != null) BlocProvider.value(value: tenant),
           ],
           child: Scaffold(
             body: Builder(
@@ -130,6 +137,7 @@ void main() {
                   onOrderCreated: onCreated,
                   showDemoMethods: showDemoMethods,
                   showCashVoucher: showDemoMethods,
+                  buyInApp: buyInApp,
                 ),
                 child: const Text('Open'),
               ),
@@ -158,6 +166,50 @@ void main() {
       expect(cart.state.items.single.plan, router);
     },
   );
+
+  testWidgets('buyInApp false: tells the customer to buy from the provider and creates no order', (tester) async {
+    final repo = RecordingCheckoutRepository(SimulatedNetwork());
+    locator.registerSingleton<CheckoutRepository>(repo);
+    final cart = CartCubit()..addItem(router);
+    addTearDown(cart.close);
+    final tenant = await acmeTenant(buyInApp: false);
+    addTearDown(tenant.close);
+    final created = <Order>[];
+    await pumpHost(tester, cart, created.add, buyInApp: false, tenant: tenant);
+    await tester.tap(find.text('Open'));
+    await tester.pumpAndSettle();
+    expect(find.text('Day Pass'), findsOneWidget); // the product is still shown
+    expect(find.text('Buy this from Acme Wi-Fi directly.'), findsOneWidget);
+    expect(find.text('Contact Acme Wi-Fi.'), findsOneWidget);
+    expect(find.text(acmeSupportEmail), findsOneWidget);
+    expect(find.text(acmeSupportPhone), findsOneWidget);
+    expect(find.text('Pay R35 incl. VAT'), findsNothing);
+    expect(repo.keys, isEmpty);
+    expect(created, isEmpty);
+  });
+
+  testWidgets('the cart offers no checkout when the provider collects its own money', (tester) async {
+    final cart = CartCubit()..addItem(router);
+    addTearDown(cart.close);
+    final tenant = await acmeTenant(buyInApp: false);
+    addTearDown(tenant.close);
+    var checkouts = 0;
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.light(),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: MultiBlocProvider(
+          providers: [BlocProvider.value(value: cart), BlocProvider.value(value: tenant)],
+          child: CartPage(onCheckout: () => checkouts++, buyInApp: false),
+        ),
+      ),
+    );
+    expect(find.text('Buy this from Acme Wi-Fi directly.'), findsOneWidget);
+    expect(find.text('Checkout'), findsNothing);
+    expect(find.text('Home 100'), findsOneWidget); // the cart still lists what was chosen
+    expect(checkouts, 0);
+  });
 
   testWidgets(
     'Pay creates one pass order after explicit tap and preserves cart',

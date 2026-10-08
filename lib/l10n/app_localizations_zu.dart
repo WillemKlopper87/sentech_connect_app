@@ -1299,6 +1299,20 @@ class AppLocalizationsZu extends AppLocalizations {
       'This is not offered by your provider.';
 
   @override
+  String get failureBuyFromProviderDirectly =>
+      'Buy this from your provider directly.';
+
+  @override
+  String paymentBuyFromProvider(String provider) {
+    return 'Buy this from $provider directly.';
+  }
+
+  @override
+  String paymentContactProvider(String provider) {
+    return 'Contact $provider.';
+  }
+
+  @override
   String get failureWeCouldNotFindThat => 'We could not find that.';
 
   @override

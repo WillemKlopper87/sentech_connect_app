@@ -276,4 +276,14 @@ void main() {
     expect(result.isLeft(), isTrue);
     await announced;
   });
+
+  test('409 collection_external is its own failure', () {
+    final p = ApiProblem.tryParse(409, {'code': 'collection_external', 'title': 'Conflict', 'request_id': 'r'});
+    expect(failureFromStatus(409, p), const CollectionExternalFailure());
+  });
+
+  test('another 409 stays a plain ValidationFailure', () {
+    final p = ApiProblem.tryParse(409, {'code': 'order_not_payable', 'title': 'Conflict', 'request_id': 'r'});
+    expect(failureFromStatus(409, p), isA<ValidationFailure>());
+  });
 }

@@ -381,8 +381,10 @@ GoRouter _buildRouter(
       ),
       GoRoute(
         path: AppRoutes.cart,
-        builder: (context, state) =>
-            CartPage(onCheckout: () => context.push(AppRoutes.checkout)),
+        builder: (context, state) => CartPage(
+          onCheckout: () => context.push(AppRoutes.checkout),
+          buyInApp: tenantCubit?.state.config?.buyInApp ?? true,
+        ),
       ),
       GoRoute(
         path: AppRoutes.checkout,

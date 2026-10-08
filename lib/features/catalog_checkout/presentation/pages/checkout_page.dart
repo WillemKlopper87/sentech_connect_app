@@ -5,7 +5,9 @@ import 'package:sentech_connect_app/core/money/money.dart';
 import 'package:sentech_connect_app/features/cart/domain/entities/cart_item.dart';
 import 'package:sentech_connect_app/features/cart/presentation/bloc/cart_cubit.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/domain/entities/order.dart';
+import 'package:sentech_connect_app/core/error/failure.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/presentation/bloc/checkout_cubit.dart';
+import 'package:sentech_connect_app/features/catalog_checkout/presentation/widgets/buy_now_sheet.dart';
 import 'package:sentech_connect_app/shared/widgets/failure_view.dart';
 
 /// Step 1 of checkout: review, then verify identity. The customer is only
@@ -85,7 +87,12 @@ class CheckoutPage extends StatelessWidget {
                             ],
                           ),
                         ),
-                        if (state.status == CheckoutStatus.failure) ...[
+                        if (state.failure is CollectionExternalFailure) ...[
+                          const SizedBox(height: 18),
+                          BuyFromProviderNotice(
+                            provider: providerContactOf(context),
+                          ),
+                        ] else if (state.status == CheckoutStatus.failure) ...[
                           const SizedBox(height: 18),
                           FailureView(
                             failure: state.failure,
@@ -101,7 +108,10 @@ class CheckoutPage extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.all(20),
                   child: ElevatedButton(
-                    onPressed: (creating || state.items.isEmpty)
+                    onPressed:
+                        (creating ||
+                            state.items.isEmpty ||
+                            state.failure is CollectionExternalFailure)
                         ? null
                         : () => context.read<CheckoutCubit>().createOrder(),
                     child: creating
