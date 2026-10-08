@@ -217,6 +217,8 @@ Full route graph: [`docs/architecture.md`](docs/architecture.md).
 - `privacy_test.dart`, `notifications_test.dart`, `secure_screen_test.dart`, `l10n_test.dart`, `accessibility_test.dart` (2.0 text scale, 48dp targets), `offline_test.dart`, `osm_map_test.dart`, `diagnostics_test.dart`.
 - `support_page_test.dart`, `free_wifi_test.dart`, `widget_test.dart` — page-level tests.
 
+**OpenAPI contract snapshot.** `test/contract/openapi.json` is a copy of the platform's `apps/api/openapi.json`, so the contract tests run offline. Refresh it with `dart run tool/sync_openapi.dart ../sentech_connect_platform/apps/api/openapi.json` and commit the refreshed snapshot together with any model change. CI fails when the snapshot is stale. The drift check needs the `PLATFORM_REPO_TOKEN` secret, a fine-grained token with contents:read on the platform repo only (without it the check is skipped with a notice). The repo variable `PLATFORM_REF` optionally overrides the platform branch (default `codex/naas-implementation`).
+
 ## Brand/theme
 
 `lib/app/theme/app_theme.dart` derives light/dark `ColorScheme`s from `docs/brand-tokens.md`. Dark mode uses the brand's own dark-navy (`#00335C`), not a generic black, matching how the Sentech CI manual treats dark pages. The app bar carries a solid brand-colour background rather than sitting transparent, matching the CI manual's coloured-header convention (letterheads, newsletters, internal communiques all use a coloured band, never a colourless one).

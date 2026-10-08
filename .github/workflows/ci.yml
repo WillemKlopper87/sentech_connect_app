@@ -27,6 +27,21 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      # The snapshot must equal the platform's current contract. Skipped (with
+      # a notice) when the secret is absent, e.g. on forks.
+      - name: Check OpenAPI snapshot is current
+        env:
+          PLATFORM_TOKEN: ${{ secrets.PLATFORM_REPO_TOKEN }}
+          PLATFORM_REF: ${{ vars.PLATFORM_REF || 'codex/naas-implementation' }}
+        run: |
+          if [ -z "$PLATFORM_TOKEN" ]; then
+            echo "::notice::PLATFORM_REPO_TOKEN not set; OpenAPI drift check skipped"; exit 0
+          fi
+          git clone --depth 1 --branch "$PLATFORM_REF"             "https://x-access-token:${PLATFORM_TOKEN}@github.com/WillemKlopper87/sentech_connect_platform.git" ../platform
+          dart run tool/sync_openapi.dart ../platform/apps/api/openapi.json
+          git diff --exit-code -- test/contract/openapi.json || {
+            echo "::error::test/contract/openapi.json is stale: run tool/sync_openapi.dart and commit"; exit 1; }
+
       # l10n output is committed; fail if the ARBs and generated Dart drift apart.
       - name: Check generated localisations are up to date
         run: |
