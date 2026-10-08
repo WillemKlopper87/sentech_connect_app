@@ -5,7 +5,7 @@
       "slug": "acme-wifi",
       "name": "Acme Wi-Fi",
       "type": "reseller",
-      "branding": {"primary_color": "#123456", "logo_url": "https://cdn.example.test/acme.png", "tagline": "ignored"}
+      "branding": {"primary_color": "#123456", "logo_url": "https://cdn.example.test/acme.png"}
     }
   ]
 }
