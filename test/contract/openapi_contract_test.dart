@@ -34,8 +34,11 @@ const decoderReads = <String, Set<String>>{
   'FeatureFlags': {'hotspot_passes', 'rica', 'cpe', 'vouchers', 'hotspot_radius'},
   'SupportContact': {'email', 'phone'},
   'TenantPublic': {'slug', 'name', 'type', 'branding'},
-  'Branding': {'primary_color', 'logo_url', 'legal_urls', 'whatsapp_number'},
-  'LegalUrls': {'terms', 'privacy'},
+  'Branding': {
+    'primary_color', 'secondary_color', 'accent_color', 'logo_url', 'logo_alt',
+    'app_display_name', 'legal_urls', 'whatsapp_number',
+  },
+  'LegalUrls': {'terms', 'privacy', 'cooling-off', 'service-charter', 'complaints', 'paia'},
   'LegalVersions': {'terms', 'privacy'},
   'TenantDirectory': {'tenants', 'next_cursor'},
   'OrderOut': {'id', 'status', 'total', 'lines'},
@@ -52,6 +55,7 @@ const decoderReads = <String, Set<String>>{
 /// Keys read before the API serves them (absent = default value).
 const aheadOfApi = <String, Set<String>>{
   'AppConfig': {'modules', 'collection_mode_public'},
+  'Branding': {'app_display_name'},
 };
 
 void main() {

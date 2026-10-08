@@ -13,6 +13,14 @@ class TenantBranding extends Equatable {
     this.termsUrl,
     this.privacyUrl,
     this.whatsAppNumber,
+    this.secondaryColor,
+    this.accentColor,
+    this.logoAlt,
+    this.appDisplayName,
+    this.coolingOffUrl,
+    this.serviceCharterUrl,
+    this.complaintsUrl,
+    this.paiaUrl,
   });
 
   static final _hex = RegExp(r'^#([0-9a-fA-F]{6})$');
@@ -25,6 +33,46 @@ class TenantBranding extends Equatable {
   final Uri? termsUrl;
   final Uri? privacyUrl;
   final String? whatsAppNumber;
+
+  /// Second brand colour. Contrast is enforced by the theme, not here.
+  final Color? secondaryColor;
+
+  /// Parsed but not applied: no surface uses an accent colour yet (ruling).
+  final Color? accentColor;
+
+  /// Plain text for the logo's screen-reader label (1-120 chars once cleaned).
+  final String? logoAlt;
+
+  /// Plain text shown as the app title (1-40 chars once cleaned).
+  final String? appDisplayName;
+  final Uri? coolingOffUrl;
+  final Uri? serviceCharterUrl;
+  final Uri? complaintsUrl;
+  final Uri? paiaUrl;
+
+  /// Control characters and bidi overrides/isolates are removed from any
+  /// server text that reaches the screen.
+  static final _unsafeText = RegExp(
+    r'[\u0000-\u001F\u007F\u200E\u200F\u202A-\u202E\u2066-\u2069]',
+  );
+
+  static String? _text(Object? value, int max) {
+    if (value is! String) return null;
+    final cleaned = value.replaceAll(_unsafeText, '').trim();
+    return cleaned.isEmpty || cleaned.length > max ? null : cleaned;
+  }
+
+  /// `#rrggbb` only; anything else is ignored.
+  static Color? _colour(Object? value) {
+    if (value is! String) return null;
+    final match = _hex.firstMatch(value);
+    return match == null
+        ? null
+        : Color(0xFF000000 | int.parse(match.group(1)!, radix: 16));
+  }
+
+  static String _hexOf(Color colour) =>
+      '#${(colour.toARGB32() & 0xFFFFFF).toRadixString(16).padLeft(6, '0')}';
 
   static String? validWhatsAppNumber(Object? value) =>
       value is String && RegExp(r'^\+27[0-9]{9}$').hasMatch(value)
@@ -48,17 +96,7 @@ class TenantBranding extends Equatable {
   }
 
   factory TenantBranding.fromJson(Map<String, Object?> json) {
-    final colour = json['primary_color'];
     final logo = json['logo_url'];
-    Color? parsedColour;
-    if (colour is String) {
-      final match = _hex.firstMatch(colour);
-      if (match != null) {
-        parsedColour = Color(
-          0xFF000000 | int.parse(match.group(1)!, radix: 16),
-        );
-      }
-    }
     Uri? parsedLogo;
     if (logo is String) {
       final uri = logo.length <= maxLogoUrlLength ? Uri.tryParse(logo) : null;
@@ -72,24 +110,46 @@ class TenantBranding extends Equatable {
     }
     final legal = json['legal_urls'];
     return TenantBranding(
-      primaryColor: parsedColour,
+      primaryColor: _colour(json['primary_color']),
       logoUrl: parsedLogo,
       termsUrl: legal is Map ? _legalUrl(legal['terms']) : null,
       privacyUrl: legal is Map ? _legalUrl(legal['privacy']) : null,
       whatsAppNumber: validWhatsAppNumber(json['whatsapp_number']),
+      secondaryColor: _colour(json['secondary_color']),
+      accentColor: _colour(json['accent_color']),
+      logoAlt: _text(json['logo_alt'], 120),
+      appDisplayName: _text(json['app_display_name'], 40),
+      coolingOffUrl: legal is Map ? _legalUrl(legal['cooling-off']) : null,
+      serviceCharterUrl: legal is Map
+          ? _legalUrl(legal['service-charter'])
+          : null,
+      complaintsUrl: legal is Map ? _legalUrl(legal['complaints']) : null,
+      paiaUrl: legal is Map ? _legalUrl(legal['paia']) : null,
     );
   }
 
   Map<String, Object?> toJson() => {
     'whatsapp_number': ?validWhatsAppNumber(whatsAppNumber),
-    if (primaryColor case final colour?)
-      'primary_color':
-          '#${(colour.toARGB32() & 0xFFFFFF).toRadixString(16).padLeft(6, '0')}',
+    if (primaryColor case final colour?) 'primary_color': _hexOf(colour),
+    if (secondaryColor case final colour?) 'secondary_color': _hexOf(colour),
+    if (accentColor case final colour?) 'accent_color': _hexOf(colour),
     if (logoUrl case final logo?) 'logo_url': logo.toString(),
-    if (termsUrl != null || privacyUrl != null)
+    'logo_alt': ?logoAlt,
+    'app_display_name': ?appDisplayName,
+    if (termsUrl != null ||
+        privacyUrl != null ||
+        coolingOffUrl != null ||
+        serviceCharterUrl != null ||
+        complaintsUrl != null ||
+        paiaUrl != null)
       'legal_urls': {
         if (termsUrl case final terms?) 'terms': terms.toString(),
         if (privacyUrl case final privacy?) 'privacy': privacy.toString(),
+        if (coolingOffUrl case final url?) 'cooling-off': url.toString(),
+        if (serviceCharterUrl case final url?)
+          'service-charter': url.toString(),
+        if (complaintsUrl case final url?) 'complaints': url.toString(),
+        if (paiaUrl case final url?) 'paia': url.toString(),
       },
   };
 
@@ -100,6 +160,14 @@ class TenantBranding extends Equatable {
     termsUrl,
     privacyUrl,
     whatsAppNumber,
+    secondaryColor,
+    accentColor,
+    logoAlt,
+    appDisplayName,
+    coolingOffUrl,
+    serviceCharterUrl,
+    complaintsUrl,
+    paiaUrl,
   ];
 }
 
