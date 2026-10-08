@@ -65,7 +65,7 @@ void main() {
     final config = (await repo.getAppConfig('acme-wifi')).getOrElse((f) => throw StateError(f.message));
     expect(h.adapter.requests.single.uri.queryParameters, {'tenant': 'acme-wifi'});
     expect(config.tenant.name, 'Acme Wi-Fi');
-    expect(config.featureFlags, const FeatureFlags(hotspotPasses: true, rica: false, cpe: false));
+    expect(config.featureFlags, const FeatureFlags(hotspotPasses: true, rica: false, cpe: false, vouchers: true));
     expect(config.legal, const LegalVersions(terms: '2026-09-30', privacy: '2026-09-30'));
     expect(config.minAppVersion, '1.0.0');
   });

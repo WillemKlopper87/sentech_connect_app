@@ -30,8 +30,9 @@ const fixtureSchemas = {
 
 /// Keys each hand-written decoder reads. Change it in the same commit as the decoder.
 const decoderReads = <String, Set<String>>{
-  'AppConfig': {'tenant', 'min_app_version', 'feature_flags', 'legal'},
-  'FeatureFlags': {'hotspot_passes', 'rica', 'cpe'},
+  'AppConfig': {'tenant', 'min_app_version', 'feature_flags', 'legal', 'support', 'modules', 'collection_mode_public'},
+  'FeatureFlags': {'hotspot_passes', 'rica', 'cpe', 'vouchers', 'hotspot_radius'},
+  'SupportContact': {'email', 'phone'},
   'TenantPublic': {'slug', 'name', 'type', 'branding'},
   'Branding': {'primary_color', 'logo_url', 'legal_urls', 'whatsapp_number'},
   'LegalUrls': {'terms', 'privacy'},
@@ -49,7 +50,9 @@ const decoderReads = <String, Set<String>>{
 };
 
 /// Keys read before the API serves them (absent = default value).
-const aheadOfApi = <String, Set<String>>{};
+const aheadOfApi = <String, Set<String>>{
+  'AppConfig': {'modules', 'collection_mode_public'},
+};
 
 void main() {
   final api = OpenApiSnapshot.load();
