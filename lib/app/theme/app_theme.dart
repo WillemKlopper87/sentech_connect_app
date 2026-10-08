@@ -20,17 +20,26 @@ abstract class AppTheme {
   /// is darkened until it reads at 4.5:1 on the light page background (it is
   /// used for text, icons and the app bar), and the text on it is chosen by
   /// contrast.
-  static ThemeData light({Color? primary}) {
+  ///
+  /// [secondary] is the tenant's second colour. It replaces the brand
+  /// secondary after the same contrast treatment. The tenant accent colour is
+  /// parsed from branding but deliberately not applied: no surface uses it yet.
+  static ThemeData light({Color? primary, Color? secondary}) {
     final brand = primary == null
         ? AppColors.sentechBlue
         : ColorContrast.darkenUntil(primary, AppColors.lightBg);
     final onBrand = ColorContrast.onColor(brand);
+    final second = secondary == null
+        ? AppColors.lightBlue
+        : ColorContrast.darkenUntil(secondary, AppColors.lightBg);
     final error = ColorContrast.darkenUntil(AppColors.red, AppColors.lightBg);
     final scheme = ColorScheme.light(
       primary: brand,
       onPrimary: onBrand,
-      secondary: AppColors.lightBlue,
-      onSecondary: Colors.white,
+      secondary: second,
+      onSecondary: secondary == null
+          ? Colors.white
+          : ColorContrast.onColor(second),
       surface: AppColors.lightSurface,
       onSurface: AppColors.textStrong,
       error: error,
@@ -46,21 +55,26 @@ abstract class AppTheme {
   }
 
   /// Dark mode lightens a tenant colour until it reads at 4.5:1 on navy.
-  static ThemeData dark({Color? primary}) {
+  static ThemeData dark({Color? primary, Color? secondary}) {
     final accent = primary == null
         ? AppColors.lightBlue
         : ColorContrast.lightenUntil(
             Color.lerp(primary, Colors.white, 0.35)!,
             AppColors.darkBlue,
           );
+    final second = secondary == null
+        ? AppColors.orange
+        : ColorContrast.lightenUntil(secondary, AppColors.darkBlue);
     final error = ColorContrast.lightenUntil(AppColors.red, AppColors.darkBlue);
     final scheme = ColorScheme.dark(
       primary: accent,
       onPrimary: primary == null
           ? AppColors.darkBlue
           : ColorContrast.onColor(accent),
-      secondary: AppColors.orange,
-      onSecondary: Colors.black,
+      secondary: second,
+      onSecondary: secondary == null
+          ? Colors.black
+          : ColorContrast.onColor(second),
       surface: AppColors.darkBlue,
       onSurface: Colors.white,
       error: error,

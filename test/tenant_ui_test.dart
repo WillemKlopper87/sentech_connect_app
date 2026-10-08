@@ -16,6 +16,11 @@ import 'package:sentech_connect_app/features/tenant/domain/repositories/tenant_r
 import 'package:sentech_connect_app/features/tenant/presentation/bloc/tenant_cubit.dart';
 import 'package:sentech_connect_app/features/tenant/presentation/pages/tenant_picker_page.dart';
 import 'package:sentech_connect_app/features/tenant/presentation/pages/update_required_page.dart';
+import 'package:sentech_connect_app/features/tenant/presentation/widgets/tenant_logo.dart';
+import 'package:sentech_connect_app/features/privacy/presentation/widgets/legal_reading_links.dart';
+
+import 'helpers/first_run_tenant.dart';
+import 'helpers/pump_themed.dart';
 
 const _sentech = Tenant(slug: 'sentech', name: 'Sentech', type: 'operator');
 const _acme = Tenant(
@@ -131,6 +136,81 @@ void main() {
 
     test('a colour that is already legible is kept as is', () {
       expect(AppTheme.light(primary: const Color(0xFF123456)).colorScheme.primary, const Color(0xFF123456));
+    });
+  });
+
+  group('branding v2 at runtime', () {
+    final logo = Uri.parse('https://a.example/logo.png');
+
+    testWidgets('the logo is read with the provider-supplied alt text', (tester) async {
+      await pumpThemed(
+        tester,
+        Scaffold(
+          body: TenantLogo(
+            tenant: Tenant(
+              slug: 'acme-wifi',
+              name: 'Acme Wi-Fi',
+              type: 'reseller',
+              branding: TenantBranding(logoUrl: logo, logoAlt: 'Acme WiFi logo'),
+            ),
+          ),
+        ),
+      );
+      expect(find.bySemanticsLabel('Acme WiFi logo'), findsOneWidget);
+      expect(find.bySemanticsLabel('Acme Wi-Fi'), findsNothing);
+    });
+
+    testWidgets('without alt text the logo is read as the provider name', (tester) async {
+      await pumpThemed(
+        tester,
+        Scaffold(
+          body: TenantLogo(
+            tenant: Tenant(
+              slug: 'acme-wifi',
+              name: 'Acme Wi-Fi',
+              type: 'reseller',
+              branding: TenantBranding(logoUrl: logo),
+            ),
+          ),
+        ),
+      );
+      expect(find.bySemanticsLabel('Acme Wi-Fi'), findsOneWidget);
+    });
+
+    testWidgets('the four extra legal links show only when configured', (tester) async {
+      final configured = await firstRunTenant(
+        cpe: false,
+        branding: TenantBranding(
+          complaintsUrl: Uri.parse('https://a.example/k'),
+          paiaUrl: Uri.parse('https://a.example/p'),
+          coolingOffUrl: Uri.parse('https://a.example/c'),
+          serviceCharterUrl: Uri.parse('https://a.example/s'),
+        ),
+      );
+      addTearDown(configured.close);
+      await pumpThemed(
+        tester,
+        BlocProvider<TenantCubit>.value(value: configured, child: const Scaffold(body: LegalReadingLinks())),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Complaints'), findsOneWidget);
+      expect(find.text('PAIA manual'), findsOneWidget);
+      expect(find.text('Cooling-off rights'), findsOneWidget);
+      expect(find.text('Service charter'), findsOneWidget);
+    });
+
+    testWidgets('no extra legal links when the provider sends none', (tester) async {
+      final bare = await firstRunTenant(cpe: false);
+      addTearDown(bare.close);
+      await pumpThemed(
+        tester,
+        BlocProvider<TenantCubit>.value(value: bare, child: const Scaffold(body: LegalReadingLinks())),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Complaints'), findsNothing);
+      expect(find.text('PAIA manual'), findsNothing);
+      expect(find.text('Cooling-off rights'), findsNothing);
+      expect(find.text('Service charter'), findsNothing);
     });
   });
 

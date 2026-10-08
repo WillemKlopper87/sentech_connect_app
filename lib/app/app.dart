@@ -79,7 +79,9 @@ class _SentechConnectAppState extends State<SentechConnectApp> {
     super.initState();
     // A module the API refuses is hidden at once (see TenantCubit.moduleRefused).
     if (locator.isRegistered<SessionEvents>()) {
-      _moduleRefusedSub = locator<SessionEvents>().moduleRefused.listen(_tenantCubit.moduleRefused);
+      _moduleRefusedSub = locator<SessionEvents>().moduleRefused.listen(
+        _tenantCubit.moduleRefused,
+      );
     }
   }
 
@@ -120,11 +122,15 @@ class _SentechConnectAppState extends State<SentechConnectApp> {
             final locale = context.watch<LocaleCubit>().state;
             final tenant = context.watch<TenantCubit>().state.config?.tenant;
             final primary = tenant?.branding.primaryColor;
+            final secondary = tenant?.branding.secondaryColor;
             return MaterialApp.router(
-              title: tenant?.name ?? 'Sentech Connect',
+              title:
+                  tenant?.branding.appDisplayName ??
+                  tenant?.name ??
+                  'Sentech Connect',
               debugShowCheckedModeBanner: false,
-              theme: AppTheme.light(primary: primary),
-              darkTheme: AppTheme.dark(primary: primary),
+              theme: AppTheme.light(primary: primary, secondary: secondary),
+              darkTheme: AppTheme.dark(primary: primary, secondary: secondary),
               themeMode: themeMode,
               locale: locale,
               supportedLocales: AppLocalizations.supportedLocales,

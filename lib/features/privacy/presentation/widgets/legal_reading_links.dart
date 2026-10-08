@@ -63,9 +63,15 @@ class LegalReadingLinks extends StatelessWidget {
         ?.tenant
         .branding;
     final terms = branding?.termsUrl;
+    final l10n = context.l10n;
+    final extras = [
+      (branding?.complaintsUrl, l10n.legalComplaints),
+      (branding?.paiaUrl, l10n.legalPaia),
+      (branding?.coolingOffUrl, l10n.legalCoolingOff),
+      (branding?.serviceCharterUrl, l10n.legalServiceCharter),
+    ];
     // Existing privacy destination remains a release placeholder without config.
     final privacy = privacyReadingUrl(context);
-    final l10n = context.l10n;
     return Wrap(
       spacing: 16,
       crossAxisAlignment: WrapCrossAlignment.center,
@@ -84,6 +90,12 @@ class LegalReadingLinks extends StatelessWidget {
             l10n.consentTermsUnavailable,
             style: Theme.of(context).textTheme.bodyLarge,
           ),
+        for (final (url, label) in extras)
+          if (url != null)
+            TextButton(
+              onPressed: () => _open(context, url),
+              child: Text(label),
+            ),
       ],
     );
   }

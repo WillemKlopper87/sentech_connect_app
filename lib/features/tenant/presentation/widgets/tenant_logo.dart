@@ -48,7 +48,7 @@ class TenantLogo extends StatelessWidget {
     }
     return decorative
         ? ExcludeSemantics(child: logo)
-        : Semantics(label: tenant.name, image: true, excludeSemantics: true, child: logo);
+        : Semantics(label: tenant.branding.logoAlt ?? tenant.name, image: true, excludeSemantics: true, child: logo);
   }
 
   Widget _initial(BuildContext context) {

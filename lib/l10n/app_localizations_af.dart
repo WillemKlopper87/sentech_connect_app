@@ -1454,6 +1454,18 @@ class AppLocalizationsAf extends AppLocalizations {
       'Could not open the link. Please try again.';
 
   @override
+  String get legalComplaints => 'Complaints';
+
+  @override
+  String get legalPaia => 'PAIA manual';
+
+  @override
+  String get legalCoolingOff => 'Cooling-off rights';
+
+  @override
+  String get legalServiceCharter => 'Service charter';
+
+  @override
   String get loginEnterPhone => 'Enter your phone number';
 
   @override

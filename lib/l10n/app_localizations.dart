@@ -2542,6 +2542,30 @@ abstract class AppLocalizations {
   /// **'Could not open the link. Please try again.'**
   String get legalLinkOpenFailed;
 
+  /// Link text to the provider's public complaints procedure.
+  ///
+  /// In en, this message translates to:
+  /// **'Complaints'**
+  String get legalComplaints;
+
+  /// Link text to the provider's PAIA (access to information) manual.
+  ///
+  /// In en, this message translates to:
+  /// **'PAIA manual'**
+  String get legalPaia;
+
+  /// Link text to the provider's cooling-off rights information.
+  ///
+  /// In en, this message translates to:
+  /// **'Cooling-off rights'**
+  String get legalCoolingOff;
+
+  /// Link text to the provider's service charter.
+  ///
+  /// In en, this message translates to:
+  /// **'Service charter'**
+  String get legalServiceCharter;
+
   /// Plain first-run instruction above the mobile number field.
   ///
   /// In en, this message translates to:

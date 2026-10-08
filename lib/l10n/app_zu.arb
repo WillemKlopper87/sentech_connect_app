@@ -1850,6 +1850,22 @@
   "@legalLinkOpenFailed": {
     "description": "A legal document could not be opened externally."
   },
+  "legalComplaints": "Complaints",
+  "@legalComplaints": {
+    "description": "Link text to the provider's public complaints procedure."
+  },
+  "legalPaia": "PAIA manual",
+  "@legalPaia": {
+    "description": "Link text to the provider's PAIA (access to information) manual."
+  },
+  "legalCoolingOff": "Cooling-off rights",
+  "@legalCoolingOff": {
+    "description": "Link text to the provider's cooling-off rights information."
+  },
+  "legalServiceCharter": "Service charter",
+  "@legalServiceCharter": {
+    "description": "Link text to the provider's service charter."
+  },
   "loginEnterPhone": "Enter your phone number",
   "@loginEnterPhone": {
     "description": "Plain first-run instruction above the mobile number field."
