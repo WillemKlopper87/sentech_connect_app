@@ -90,9 +90,7 @@ void main() {
     final cubit = await pumpShell(tester, modules: {'vouchers': true});
     await tester.tap(find.text('Scan'));
     await tester.pumpAndSettle();
-    final config = cubit.state.config!;
-    // ignore: invalid_use_of_protected_member
-    cubit.emit(cubit.state.copyWith(config: config.copyWithModules(config.modules.without('vouchers'))));
+    cubit.moduleRefused('vouchers');
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
     expect(find.text('Account'), findsOneWidget);
@@ -102,9 +100,7 @@ void main() {
     final cubit = await pumpShell(tester, modules: {'vouchers': true});
     await tester.tap(find.text('Scan'));
     await tester.pumpAndSettle();
-    final config = cubit.state.config!;
-    // ignore: invalid_use_of_protected_member
-    cubit.emit(cubit.state.copyWith(config: config.copyWithModules(config.modules.without('vouchers'))));
+    cubit.moduleRefused('vouchers');
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
     expect(tester.widget<IndexedStack>(find.byType(IndexedStack)).index, 0);

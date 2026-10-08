@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -70,8 +72,20 @@ class _SentechConnectAppState extends State<SentechConnectApp> {
     quickSplash: widget.quickSplash,
   );
 
+  StreamSubscription<String>? _moduleRefusedSub;
+
+  @override
+  void initState() {
+    super.initState();
+    // A module the API refuses is hidden at once (see TenantCubit.moduleRefused).
+    if (locator.isRegistered<SessionEvents>()) {
+      _moduleRefusedSub = locator<SessionEvents>().moduleRefused.listen(_tenantCubit.moduleRefused);
+    }
+  }
+
   @override
   void dispose() {
+    _moduleRefusedSub?.cancel();
     _appRouter.dispose();
     _tenantCubit.close();
     _authCubit.close();

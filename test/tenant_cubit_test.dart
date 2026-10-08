@@ -439,4 +439,17 @@ void main() {
       await cubit.close();
     });
   });
+
+  test('a module the API refuses is off at once, with no refetch and no status change', () async {
+    repo.configs['sentech'] = Right(configFor(_sentech).copyWithModules(AppModules({AppModuleKeys.vouchers: true})));
+    final cubit = build();
+    await cubit.bootstrap();
+    expect(cubit.state.isModuleOn(AppModuleKeys.vouchers), isTrue);
+    final configCalls = repo.calls.where((c) => c.startsWith('config:')).length;
+    cubit.moduleRefused('vouchers');
+    expect(cubit.state.isModuleOn(AppModuleKeys.vouchers), isFalse);
+    expect(cubit.state.status, TenantStatus.ready);
+    expect(repo.calls.where((c) => c.startsWith('config:')).length, configCalls);
+    await cubit.close();
+  });
 }

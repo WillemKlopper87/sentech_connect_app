@@ -36,7 +36,7 @@ class ApiClient {
     Duration receiveTimeout = const Duration(seconds: 20),
     List<Duration>? refreshRetryBackoff,
     Duration Function()? monotonic,
-  }) : _tokens = tokens {
+  }) : _tokens = tokens, _sessionEvents = sessionEvents {
     final options = BaseOptions(
       baseUrl: baseUrl.toString(),
       connectTimeout: connectTimeout,
@@ -83,6 +83,7 @@ class ApiClient {
 
   final TenantContext tenant;
   final TokenStore _tokens;
+  final SessionEvents _sessionEvents;
 
   /// Capture once for a paginated operation. GET/POST carry this guard through
   /// proactive refresh and 401 retries, discarding stale responses.
@@ -198,7 +199,11 @@ class ApiClient {
     try {
       response = await call();
     } on DioException catch (e) {
-      return Left(failureFromDioException(e));
+      final failure = failureFromDioException(e);
+      if (failure case ModuleDisabledFailure(module: final String module)) {
+        _sessionEvents.refuseModule(module);
+      }
+      return Left(failure);
     }
     if (scope != null && !scope.isCurrent) {
       return const Left(UnauthorizedFailure());

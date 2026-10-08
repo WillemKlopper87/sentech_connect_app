@@ -1678,6 +1678,10 @@
   "@failureThisProviderIsCurrentlyUnavailable": {
     "description": "Customer error matching an internal failure message; external details remain data."
   },
+  "failureNotOfferedByProvider": "This is not offered by your provider.",
+  "@failureNotOfferedByProvider": {
+    "description": "Customer error matching an internal failure message; external details remain data."
+  },
   "failureWeCouldNotFindThat": "We could not find that.",
   "@failureWeCouldNotFindThat": {
     "description": "Customer error matching an internal failure message; external details remain data."

@@ -5,14 +5,20 @@ import 'package:sentech_connect_app/core/error/failure.dart';
 
 /// An RFC 9457 problem body as the platform sends it
 /// (`type`, `title`, `status`, `code`, `request_id`, optional `detail`).
+/// A module key is lower-case letters and underscores only (1-40 chars).
+final _moduleKey = RegExp(r'^[a-z_]{1,40}$');
+
 class ApiProblem {
-  const ApiProblem({required this.status, required this.code, required this.title, this.detail, this.requestId});
+  const ApiProblem({required this.status, required this.code, required this.title, this.detail, this.requestId, this.module});
 
   final int status;
   final String code;
   final String title;
   final String? detail;
   final String? requestId;
+
+  /// The module a 403 `module_not_enabled` names; null unless it is a valid key.
+  final String? module;
 
   static ApiProblem? tryParse(int status, Object? data) {
     Object? body = data;
@@ -29,12 +35,14 @@ class ApiProblem {
     if (code is! String || title is! String) return null;
     final detail = body['detail'];
     final requestId = body['request_id'];
+    final module = body['module'];
     return ApiProblem(
       status: status,
       code: code,
       title: title,
       detail: detail is String ? detail : null,
       requestId: requestId is String ? requestId : null,
+      module: module is String && _moduleKey.hasMatch(module) ? module : null,
     );
   }
 }
@@ -113,6 +121,9 @@ Failure failureFromStatus(int status, ApiProblem? problem, {String? requestId, D
   if (status == 429) return RateLimitedFailure(detail ?? 'Too many attempts. Please wait and try again.', retryAfter);
   if (status >= 500 || problem == null) return ServerFailure('Something went wrong on our end.', requestId);
   if (status == 403 && problem.code == 'tenant_suspended') return const ProviderUnavailableFailure();
+  if (status == 403 && (problem.code == 'module_not_enabled' || problem.code == 'module_disabled')) {
+    return ModuleDisabledFailure(problem.module);
+  }
   if (status == 403) return ServerFailure(detail ?? 'You are not allowed to do that.', requestId);
   return ValidationFailure(detail ?? _capped(problem.title), problem.code, detail != null);
 }

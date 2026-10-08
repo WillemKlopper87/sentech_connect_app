@@ -16,4 +16,11 @@ class SessionEvents {
   Stream<void> get providerUnavailable => _providerUnavailable.stream;
 
   void providerSuspended() => _providerUnavailable.add(null);
+
+  final _moduleRefused = StreamController<String>.broadcast();
+
+  /// The server refused a module (403 `module_not_enabled`): hide it at once.
+  Stream<String> get moduleRefused => _moduleRefused.stream;
+
+  void refuseModule(String key) => _moduleRefused.add(key);
 }

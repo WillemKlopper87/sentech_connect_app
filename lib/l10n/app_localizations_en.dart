@@ -1294,6 +1294,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Your internet service is currently unavailable.';
 
   @override
+  String get failureNotOfferedByProvider =>
+      'This is not offered by your provider.';
+
+  @override
   String get failureWeCouldNotFindThat => 'We could not find that.';
 
   @override

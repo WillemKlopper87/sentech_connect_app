@@ -2,6 +2,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentech_connect_app/core/error/failure.dart';
 import 'package:sentech_connect_app/core/network/api_problem.dart';
+import 'helpers/api_harness.dart';
+import 'helpers/fake_http_adapter.dart';
 
 DioException _bad(int status, Object? data, {Map<String, List<String>> headers = const {}}) {
   final request = RequestOptions(path: '/v1/x');
@@ -252,5 +254,26 @@ void main() {
       DioException(requestOptions: RequestOptions(path: '/v1/x'), type: DioExceptionType.transformTimeout),
     );
     expect(f, isA<NetworkFailure>());
+  });
+
+  test('403 module_not_enabled names the module', () {
+    final p = ApiProblem.tryParse(403, {'code': 'module_not_enabled', 'title': 'Forbidden', 'module': 'vouchers', 'request_id': 'r'});
+    expect(failureFromStatus(403, p), const ModuleDisabledFailure('vouchers'));
+  });
+
+  test('a hostile module value is dropped', () {
+    final p = ApiProblem.tryParse(403, {'code': 'module_not_enabled', 'title': 'F', 'module': '../x'});
+    expect(failureFromStatus(403, p), const ModuleDisabledFailure());
+  });
+
+  test('the API client announces a refused module once', () async {
+    final h = ApiHarness();
+    h.adapter.on('GET', '/v1/me/entitlements', (_) => FakeReply(403,
+        {'type': 'about:blank', 'title': 'Forbidden', 'status': 403, 'code': 'module_not_enabled',
+         'request_id': 'r', 'module': 'vouchers'}, {'content-type': ['application/problem+json']}));
+    final announced = expectLater(h.events.moduleRefused, emits('vouchers'));
+    final result = await h.api.get<Object?>('/v1/me/entitlements', authenticated: false, decode: (d) => d);
+    expect(result.isLeft(), isTrue);
+    await announced;
   });
 }

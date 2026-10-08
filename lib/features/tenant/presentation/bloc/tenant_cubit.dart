@@ -122,6 +122,18 @@ class TenantCubit extends Cubit<TenantState> {
     }
   }
 
+  /// The server refused [key] (403 module_not_enabled): hide it now, in memory
+  /// only. No persist, no refetch and no status change; the next app-config
+  /// load is the truth.
+  void moduleRefused(String key) {
+    final config = state.config;
+    if (config == null || isClosed) return;
+    final base = config.modules.reported
+        ? config.modules
+        : AppModules({AppModuleKeys.vouchers: config.featureFlags.vouchers});
+    emit(state.copyWith(config: config.copyWithModules(base.without(key))));
+  }
+
   Future<void> retry() => _guard(() async {
     emit(state.copyWith(status: TenantStatus.loading));
     final target = _targetSlug;

@@ -2287,6 +2287,12 @@ abstract class AppLocalizations {
   /// Customer error matching an internal failure message; external details remain data.
   ///
   /// In en, this message translates to:
+  /// **'This is not offered by your provider.'**
+  String get failureNotOfferedByProvider;
+
+  /// Customer error matching an internal failure message; external details remain data.
+  ///
+  /// In en, this message translates to:
   /// **'We could not find that.'**
   String get failureWeCouldNotFindThat;
 

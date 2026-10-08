@@ -62,6 +62,17 @@ class ProviderUnavailableFailure extends Failure {
   const ProviderUnavailableFailure([super.message = 'This provider is currently unavailable.']);
 }
 
+/// The provider does not offer this module (403 `module_not_enabled`). [module]
+/// is the key the server named, when it sent a valid one.
+class ModuleDisabledFailure extends Failure {
+  const ModuleDisabledFailure([this.module, super.message = 'This is not offered by your provider.']);
+
+  final String? module;
+
+  @override
+  List<Object?> get props => [message, module];
+}
+
 class NotFoundFailure extends Failure {
   const NotFoundFailure([super.message = 'We could not find that.']);
 }
