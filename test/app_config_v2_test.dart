@@ -8,9 +8,25 @@ import 'helpers/fixtures.dart';
 Map<String, Object?> v2([Map<String, Object?> extra = const {}]) =>
     {...fixtureMap('app_config.json'), ...extra};
 
+/// What an API older than v2 sends: the fixture without the v2 members.
+Map<String, Object?> v1() => fixtureMap('app_config.json')
+  ..remove('modules')
+  ..remove('collection_mode_public');
+
 void main() {
-  test('v1 server: modules not reported, vouchers follows the flag, buy in app on', () {
+  test('the current API shape: modules and buy in app are read exactly as sent', () {
     final c = AppConfig.fromJson(v2());
+    expect(c.modules.reported, isTrue);
+    expect(c.isModuleOn(AppModuleKeys.vouchers), isTrue);
+    expect(c.isModuleOn(AppModuleKeys.subscriberBilling), isTrue);
+    expect(c.isModuleOn(AppModuleKeys.tickets), isFalse);
+    expect(c.isModuleOn(AppModuleKeys.credits), isFalse);
+    expect(c.isModuleOn(AppModuleKeys.wifiAware), isFalse);
+    expect(c.buyInApp, isTrue);
+  });
+
+  test('v1 server: modules not reported, vouchers follows the flag, buy in app on', () {
+    final c = AppConfig.fromJson(v1());
     expect(c.modules.reported, isFalse);
     expect(c.isModuleOn(AppModuleKeys.vouchers), isTrue);
     expect(c.isModuleOn(AppModuleKeys.credits), isFalse);

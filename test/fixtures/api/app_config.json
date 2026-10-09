@@ -3,5 +3,7 @@
   "min_app_version": "1.0.0",
   "feature_flags": {"hotspot_passes": true, "rica": false, "cpe": false, "vouchers": true, "hotspot_radius": false},
   "legal": {"terms": "2026-09-30", "privacy": "2026-09-30"},
-  "support": {"email": "help@acme.example", "phone": "+27 11 000 0000"}
+  "support": {"email": "help@acme.example", "phone": "+27 11 000 0000"},
+  "modules": {"vouchers": true, "tickets": false, "credits": false, "wifi_aware": false, "subscriber_billing": true},
+  "collection_mode_public": {"buy_in_app": true}
 }

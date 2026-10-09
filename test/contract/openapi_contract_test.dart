@@ -54,7 +54,6 @@ const decoderReads = <String, Set<String>>{
 
 /// Keys read before the API serves them (absent = default value).
 const aheadOfApi = <String, Set<String>>{
-  'AppConfig': {'modules', 'collection_mode_public'},
   'Branding': {'app_display_name'},
 };
 
