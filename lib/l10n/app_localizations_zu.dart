@@ -222,7 +222,7 @@ class AppLocalizationsZu extends AppLocalizations {
   String get accountNotLoggedIn => 'Awungenile';
 
   @override
-  String get accountAppearance => 'ISIMO SOKUBONAKALA';
+  String get accountAppearance => 'Isimo sokubonakala';
 
   @override
   String get accountDataSaver => 'Data saver: fewer pictures and no animations';
@@ -241,7 +241,7 @@ class AppLocalizationsZu extends AppLocalizations {
   String get accountThemeDark => 'Okumnyama';
 
   @override
-  String get accountLanguage => 'ULIMI';
+  String get accountLanguage => 'Ulimi';
 
   @override
   String get accountLanguageSystem => 'Landela ulimi lwedivayisi';
@@ -254,9 +254,6 @@ class AppLocalizationsZu extends AppLocalizations {
 
   @override
   String get accountLogOutBody => 'Ungangena futhi noma inini.';
-
-  @override
-  String get accountNotifications => 'IZAZISO';
 
   @override
   String get accountPushTitle => 'Izaziso ze-push';
@@ -486,10 +483,12 @@ class AppLocalizationsZu extends AppLocalizations {
   String get paymentBackToDashboard => 'Back to dashboard';
 
   @override
-  String get accountProvider => 'PROVIDER';
+  String get accountSwitchProvider => 'Switch WiFi provider';
 
   @override
-  String get accountChangeProvider => 'Change provider';
+  String accountContactProvider(String provider) {
+    return 'Contact $provider';
+  }
 
   @override
   String get passesTitle => 'My passes';

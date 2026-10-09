@@ -198,6 +198,7 @@ class _MainShellState extends State<MainShell> {
         page: AccountPage(
           onChangeProvider: widget.onChangeProvider,
           providerName: widget.providerName,
+          onOpenPasses: widget.onOpenPasses,
         ),
         dest: NavigationDestination(
           icon: Icon(Icons.person_outline),

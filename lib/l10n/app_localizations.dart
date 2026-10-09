@@ -475,7 +475,7 @@ abstract class AppLocalizations {
   /// Customer app copy: account appearance.
   ///
   /// In en, this message translates to:
-  /// **'APPEARANCE'**
+  /// **'Appearance'**
   String get accountAppearance;
 
   /// Account switch for fewer pictures and decorative animations.
@@ -511,7 +511,7 @@ abstract class AppLocalizations {
   /// Customer app copy: account language.
   ///
   /// In en, this message translates to:
-  /// **'LANGUAGE'**
+  /// **'Language'**
   String get accountLanguage;
 
   /// Customer app copy: account language system.
@@ -537,12 +537,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You can log back in at any time.'**
   String get accountLogOutBody;
-
-  /// Customer app copy: account notifications.
-  ///
-  /// In en, this message translates to:
-  /// **'NOTIFICATIONS'**
-  String get accountNotifications;
 
   /// Customer app copy: account push title.
   ///
@@ -946,17 +940,17 @@ abstract class AppLocalizations {
   /// **'Back to Home'**
   String get paymentBackToDashboard;
 
-  /// Customer app copy: account provider.
+  /// Account row that returns to the provider picker.
   ///
   /// In en, this message translates to:
-  /// **'PROVIDER'**
-  String get accountProvider;
+  /// **'Switch WiFi provider'**
+  String get accountSwitchProvider;
 
-  /// Customer app copy: account change provider.
+  /// Account row that opens the provider's support channels.
   ///
   /// In en, this message translates to:
-  /// **'Change provider'**
-  String get accountChangeProvider;
+  /// **'Contact {provider}'**
+  String accountContactProvider(String provider);
 
   /// Customer app copy: passes title.
   ///

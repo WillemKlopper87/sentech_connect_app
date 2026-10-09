@@ -12,7 +12,9 @@ import 'package:sentech_connect_app/features/privacy/presentation/bloc/privacy_a
 import 'package:sentech_connect_app/features/privacy/presentation/pages/data_export_page.dart';
 import 'package:sentech_connect_app/features/privacy/presentation/privacy_failure_message.dart';
 import 'package:sentech_connect_app/features/privacy/presentation/widgets/legal_reading_links.dart';
+import 'package:sentech_connect_app/features/tenant/presentation/bloc/tenant_cubit.dart';
 import 'package:sentech_connect_app/l10n/l10n.dart';
+import 'package:sentech_connect_app/shared/actions/support_actions.dart';
 import 'package:sentech_connect_app/shared/widgets/notification_rationale_sheet.dart';
 import 'package:sentech_connect_app/shared/widgets/secure_screen.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -21,10 +23,18 @@ import 'package:url_launcher/url_launcher.dart';
 /// the customer's name and mobile number, so the screen is capture-protected
 /// (FLAG_SECURE) while it is visible.
 class AccountPage extends StatelessWidget {
-  const AccountPage({super.key, this.onChangeProvider, this.providerName});
+  const AccountPage({
+    super.key,
+    this.onChangeProvider,
+    this.providerName,
+    this.onOpenPasses,
+  });
 
   final VoidCallback? onChangeProvider;
   final String? providerName;
+
+  /// Opens the customer passes. The row is hidden without it.
+  final VoidCallback? onOpenPasses;
 
   @override
   Widget build(BuildContext context) {
@@ -48,6 +58,7 @@ class AccountPage extends StatelessWidget {
         child: _AccountView(
           onChangeProvider: onChangeProvider,
           providerName: providerName,
+          onOpenPasses: onOpenPasses,
         ),
       ),
     );
@@ -55,17 +66,29 @@ class AccountPage extends StatelessWidget {
 }
 
 class _AccountView extends StatelessWidget {
-  const _AccountView({this.onChangeProvider, this.providerName});
+  const _AccountView({
+    this.onChangeProvider,
+    this.providerName,
+    this.onOpenPasses,
+  });
 
   final VoidCallback? onChangeProvider;
   final String? providerName;
+  final VoidCallback? onOpenPasses;
 
-  List<(Locale?, String?)> _languages(BuildContext context) => [
-    (null, null),
-    (const Locale('en'), context.l10n.languageEnglish),
-    (const Locale('zu'), context.l10n.languageZulu),
-    (const Locale('af'), context.l10n.languageAfrikaans),
-  ];
+  /// Language codes, empty meaning "match the device".
+  String _languageName(BuildContext context, String code) => switch (code) {
+    'en' => context.l10n.languageEnglish,
+    'zu' => context.l10n.languageZulu,
+    'af' => context.l10n.languageAfrikaans,
+    _ => context.l10n.accountLanguageSystem,
+  };
+
+  String _themeName(BuildContext context, ThemeMode mode) => switch (mode) {
+    ThemeMode.system => context.l10n.accountThemeSystem,
+    ThemeMode.light => context.l10n.accountThemeLight,
+    ThemeMode.dark => context.l10n.accountThemeDark,
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -148,47 +171,62 @@ class _AccountView extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 28),
-              Text(l10n.accountAppearance, style: heading),
-              const SizedBox(height: 8),
               _Bordered(
-                child: RadioGroup<ThemeMode>(
-                  groupValue: themeMode,
-                  onChanged: (m) => context.read<ThemeCubit>().setMode(m!),
-                  child: Column(
-                    children: ThemeMode.values.map((mode) {
-                      return RadioListTile<ThemeMode>(
-                        value: mode,
-                        title: Text(switch (mode) {
-                          ThemeMode.system => l10n.accountThemeSystem,
-                          ThemeMode.light => l10n.accountThemeLight,
-                          ThemeMode.dark => l10n.accountThemeDark,
-                        }),
-                      );
-                    }).toList(),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
-              Text(l10n.accountLanguage, style: heading),
-              const SizedBox(height: 8),
-              _Bordered(
-                child: RadioGroup<String>(
-                  groupValue: locale?.languageCode ?? '',
-                  onChanged: (code) => context.read<LocaleCubit>().setLocale(
-                    code == null || code.isEmpty ? null : Locale(code),
-                  ),
-                  child: Column(
-                    children: [
-                      for (final (loc, name) in _languages(context))
-                        RadioListTile<String>(
-                          value: loc?.languageCode ?? '',
-                          title: Text(name ?? l10n.accountLanguageSystem),
-                        ),
+                child: Column(
+                  children: [
+                    if (onOpenPasses case final openPasses?) ...[
+                      ListTile(
+                        minTileHeight: 48,
+                        leading: const Icon(Icons.confirmation_number_outlined),
+                        title: Text(l10n.passesTitle),
+                        trailing: const Icon(Icons.chevron_right),
+                        onTap: openPasses,
+                      ),
+                      const Divider(height: 1),
                     ],
-                  ),
+                    ListTile(
+                      minTileHeight: 48,
+                      leading: const Icon(Icons.language),
+                      title: Text(l10n.accountLanguage),
+                      subtitle: Text(
+                        _languageName(context, locale?.languageCode ?? ''),
+                      ),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () => _showChoiceSheet<String>(
+                        context,
+                        title: l10n.accountLanguage,
+                        selected: locale?.languageCode ?? '',
+                        options: [
+                          for (final code in const ['', 'en', 'zu', 'af'])
+                            (code, _languageName(context, code)),
+                        ],
+                        onSelected: (code) => context
+                            .read<LocaleCubit>()
+                            .setLocale(code.isEmpty ? null : Locale(code)),
+                      ),
+                    ),
+                    const Divider(height: 1),
+                    ListTile(
+                      minTileHeight: 48,
+                      leading: const Icon(Icons.brightness_6_outlined),
+                      title: Text(l10n.accountAppearance),
+                      subtitle: Text(_themeName(context, themeMode)),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () => _showChoiceSheet<ThemeMode>(
+                        context,
+                        title: l10n.accountAppearance,
+                        selected: themeMode,
+                        options: [
+                          for (final mode in ThemeMode.values)
+                            (mode, _themeName(context, mode)),
+                        ],
+                        onSelected: context.read<ThemeCubit>().setMode,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 8),
               _Bordered(
                 child: SwitchListTile(
                   title: Text(l10n.accountDataSaver),
@@ -213,26 +251,11 @@ class _AccountView extends StatelessWidget {
                   },
                 ),
               ),
-              const SizedBox(height: 24),
-              if (onChangeProvider case final changeProvider?) ...[
-                Text(l10n.accountProvider, style: heading),
-                const SizedBox(height: 8),
-                _Bordered(
-                  child: ListTile(
-                    minTileHeight: 48,
-                    leading: const Icon(Icons.swap_horiz),
-                    title: Text(l10n.accountChangeProvider),
-                    subtitle: providerName == null ? null : Text(providerName!),
-                    onTap: changeProvider,
-                  ),
-                ),
-                const SizedBox(height: 24),
-              ],
-              Text(l10n.accountNotifications, style: heading),
-              const SizedBox(height: 8),
-              const _NotificationsTile(),
               const SizedBox(height: 8),
               const _UsageAlertsTile(),
+              const SizedBox(height: 8),
+              const _NotificationsTile(),
+              _ContactProviderRow(providerName: providerName),
               const SizedBox(height: 24),
               Text(l10n.accountPrivacy, style: heading),
               const SizedBox(height: 8),
@@ -285,6 +308,18 @@ class _AccountView extends StatelessWidget {
                   ],
                 ),
               ),
+              if (onChangeProvider case final changeProvider?) ...[
+                const SizedBox(height: 16),
+                _Bordered(
+                  child: ListTile(
+                    minTileHeight: 48,
+                    leading: const Icon(Icons.swap_horiz),
+                    title: Text(l10n.accountSwitchProvider),
+                    subtitle: providerName == null ? null : Text(providerName!),
+                    onTap: changeProvider,
+                  ),
+                ),
+              ],
               const SizedBox(height: 28),
               OutlinedButton.icon(
                 onPressed: () => _confirmLogout(context),
@@ -368,6 +403,187 @@ class _AccountView extends StatelessWidget {
     if (confirmed != true || !context.mounted) return;
     await context.read<PrivacyActionsCubit>().deleteAccount();
   }
+}
+
+/// A bottom sheet with one radio per option. Choosing one applies it and closes the sheet.
+Future<void> _showChoiceSheet<T>(
+  BuildContext context, {
+  required String title,
+  required T selected,
+  required List<(T, String)> options,
+  required ValueChanged<T> onSelected,
+}) {
+  return showModalBottomSheet<void>(
+    context: context,
+    isScrollControlled: true,
+    useSafeArea: true,
+    showDragHandle: true,
+    builder: (sheetContext) => SafeArea(
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _SheetTitle(title),
+            RadioGroup<T>(
+              groupValue: selected,
+              onChanged: (value) {
+                if (value == null) return;
+                onSelected(value);
+                Navigator.pop(sheetContext);
+              },
+              child: Column(
+                children: [
+                  for (final (value, label) in options)
+                    RadioListTile<T>(value: value, title: Text(label)),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
+class _SheetTitle extends StatelessWidget {
+  const _SheetTitle(this.title);
+
+  final String title;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+    child: Semantics(
+      header: true,
+      child: Text(title, style: Theme.of(context).textTheme.titleMedium),
+    ),
+  );
+}
+
+/// "Contact {provider}": one row, shown only when the provider published at
+/// least one usable channel. Every channel was validated when the config was
+/// read, so nothing unusable can reach a link here.
+class _ContactProviderRow extends StatelessWidget {
+  const _ContactProviderRow({this.providerName});
+
+  final String? providerName;
+
+  @override
+  Widget build(BuildContext context) {
+    final cubit = context.read<TenantCubit?>();
+    if (cubit == null) return const SizedBox.shrink();
+    return BlocBuilder<TenantCubit, TenantState>(
+      builder: (context, state) {
+        final config = state.config;
+        final email = config?.support.email;
+        final phone = config?.support.phone;
+        final whatsApp = supportWhatsAppUri(
+          config?.tenant.branding.whatsAppNumber,
+        );
+        if (email == null && phone == null && whatsApp == null) {
+          return const SizedBox.shrink();
+        }
+        final name = providerName ?? config?.tenant.name ?? '';
+        final label = context.l10n.accountContactProvider(name);
+        return Padding(
+          padding: const EdgeInsets.only(top: 8),
+          child: _Bordered(
+            child: ListTile(
+              minTileHeight: 48,
+              leading: const Icon(Icons.support_agent_outlined),
+              title: Text(label),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => _showContactSheet(
+                context,
+                title: label,
+                email: email,
+                phone: phone,
+                whatsApp: whatsApp,
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+Future<void> _showContactSheet(
+  BuildContext context, {
+  required String title,
+  String? email,
+  String? phone,
+  Uri? whatsApp,
+}) {
+  final messenger = ScaffoldMessenger.of(context);
+  final failed = context.l10n.accountLinkFailed;
+  final whatsAppLabel = context.l10n.supportWhatsApp;
+  Widget action(
+    BuildContext sheetContext, {
+    required IconData icon,
+    required String text,
+    required Uri uri,
+    LaunchMode mode = LaunchMode.platformDefault,
+  }) => ListTile(
+    minTileHeight: 48,
+    leading: Icon(icon),
+    title: Text(text),
+    onTap: () async {
+      Navigator.pop(sheetContext);
+      bool opened;
+      try {
+        opened = await launchUrl(uri, mode: mode);
+      } catch (_) {
+        opened = false;
+      }
+      if (!opened) {
+        messenger
+          ..hideCurrentSnackBar()
+          ..showSnackBar(SnackBar(content: Text(failed)));
+      }
+    },
+  );
+
+  return showModalBottomSheet<void>(
+    context: context,
+    isScrollControlled: true,
+    useSafeArea: true,
+    showDragHandle: true,
+    builder: (sheetContext) => SafeArea(
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _SheetTitle(title),
+            if (email != null)
+              action(
+                sheetContext,
+                icon: Icons.mail_outline,
+                text: email,
+                uri: Uri(scheme: 'mailto', path: email),
+              ),
+            if (phone != null)
+              action(
+                sheetContext,
+                icon: Icons.call_outlined,
+                text: phone,
+                uri: Uri(scheme: 'tel', path: phone.replaceAll(' ', '')),
+              ),
+            if (whatsApp != null)
+              action(
+                sheetContext,
+                icon: Icons.chat_outlined,
+                text: whatsAppLabel,
+                uri: whatsApp,
+                mode: LaunchMode.externalApplication,
+              ),
+          ],
+        ),
+      ),
+    ),
+  );
 }
 
 class _Bordered extends StatelessWidget {

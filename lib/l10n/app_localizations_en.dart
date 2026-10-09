@@ -223,7 +223,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get accountNotLoggedIn => 'Not logged in';
 
   @override
-  String get accountAppearance => 'APPEARANCE';
+  String get accountAppearance => 'Appearance';
 
   @override
   String get accountDataSaver => 'Data saver: fewer pictures and no animations';
@@ -242,7 +242,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get accountThemeDark => 'Dark';
 
   @override
-  String get accountLanguage => 'LANGUAGE';
+  String get accountLanguage => 'Language';
 
   @override
   String get accountLanguageSystem => 'Match device language';
@@ -255,9 +255,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get accountLogOutBody => 'You can log back in at any time.';
-
-  @override
-  String get accountNotifications => 'NOTIFICATIONS';
 
   @override
   String get accountPushTitle => 'Push notifications';
@@ -485,10 +482,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get paymentBackToDashboard => 'Back to Home';
 
   @override
-  String get accountProvider => 'PROVIDER';
+  String get accountSwitchProvider => 'Switch WiFi provider';
 
   @override
-  String get accountChangeProvider => 'Change provider';
+  String accountContactProvider(String provider) {
+    return 'Contact $provider';
+  }
 
   @override
   String get passesTitle => 'My passes';

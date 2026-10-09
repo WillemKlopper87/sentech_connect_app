@@ -28,9 +28,6 @@ class ExpandedZulu extends AppLocalizationsZu {
   String get accountAppearance => expandCopy(super.accountAppearance);
 
   @override
-  String get accountChangeProvider => expandCopy(super.accountChangeProvider);
-
-  @override
   String get accountDeleteBody => expandCopy(super.accountDeleteBody);
 
   @override
@@ -71,16 +68,10 @@ class ExpandedZulu extends AppLocalizationsZu {
   String get accountNotLoggedIn => expandCopy(super.accountNotLoggedIn);
 
   @override
-  String get accountNotifications => expandCopy(super.accountNotifications);
-
-  @override
   String get accountPrivacy => expandCopy(super.accountPrivacy);
 
   @override
   String get accountPrivacyPolicy => expandCopy(super.accountPrivacyPolicy);
-
-  @override
-  String get accountProvider => expandCopy(super.accountProvider);
 
   @override
   String get accountPushBlocked => expandCopy(super.accountPushBlocked);

@@ -222,7 +222,7 @@ class AppLocalizationsAf extends AppLocalizations {
   String get accountNotLoggedIn => 'Nie ingeteken nie';
 
   @override
-  String get accountAppearance => 'UITSIG';
+  String get accountAppearance => 'Uitsig';
 
   @override
   String get accountDataSaver => 'Data saver: fewer pictures and no animations';
@@ -241,7 +241,7 @@ class AppLocalizationsAf extends AppLocalizations {
   String get accountThemeDark => 'Donker';
 
   @override
-  String get accountLanguage => 'TAAL';
+  String get accountLanguage => 'Taal';
 
   @override
   String get accountLanguageSystem => 'Volg toesteltaal';
@@ -254,9 +254,6 @@ class AppLocalizationsAf extends AppLocalizations {
 
   @override
   String get accountLogOutBody => 'Jy kan enige tyd weer inteken.';
-
-  @override
-  String get accountNotifications => 'KENNISGEWINGS';
 
   @override
   String get accountPushTitle => 'Stootkennisgewings';
@@ -486,10 +483,12 @@ class AppLocalizationsAf extends AppLocalizations {
   String get paymentBackToDashboard => 'Back to dashboard';
 
   @override
-  String get accountProvider => 'PROVIDER';
+  String get accountSwitchProvider => 'Switch WiFi provider';
 
   @override
-  String get accountChangeProvider => 'Change provider';
+  String accountContactProvider(String provider) {
+    return 'Contact $provider';
+  }
 
   @override
   String get passesTitle => 'My passes';

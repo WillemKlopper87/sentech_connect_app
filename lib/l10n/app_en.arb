@@ -86,18 +86,17 @@
   "registerLocationFailed": "Could not get your location — check that location services are on.",
   "accountTitle": "Account",
   "accountNotLoggedIn": "Not logged in",
-  "accountAppearance": "APPEARANCE",
+  "accountAppearance": "Appearance",
   "accountDataSaver": "Data saver: fewer pictures and no animations",
   "accountDataSaverSaveFailed": "Could not save Data saver. Try again.",
   "accountThemeSystem": "Match device setting",
   "accountThemeLight": "Light",
   "accountThemeDark": "Dark",
-  "accountLanguage": "LANGUAGE",
+  "accountLanguage": "Language",
   "accountLanguageSystem": "Match device language",
   "accountLogOut": "Log out",
   "accountLogOutTitle": "Log out?",
   "accountLogOutBody": "You can log back in at any time.",
-  "accountNotifications": "NOTIFICATIONS",
   "accountPushTitle": "Push notifications",
   "accountPushOn": "On — usage alerts, outages and order updates",
   "accountPushOff": "Off — turn on to get usage alerts, outages and order updates",
@@ -173,8 +172,18 @@
   "paymentCheckAgain": "Check again",
   "paymentPayAgain": "Pay again",
   "paymentBackToDashboard": "Back to Home",
-  "accountProvider": "PROVIDER",
-  "accountChangeProvider": "Change provider",
+  "accountSwitchProvider": "Switch WiFi provider",
+  "@accountSwitchProvider": {"description": "Account row that returns to the provider picker."},
+  "accountContactProvider": "Contact {provider}",
+  "@accountContactProvider": {
+    "description": "Account row that opens the provider's support channels.",
+    "placeholders": {
+      "provider": {
+        "type": "String",
+        "example": "Acme Wi-Fi"
+      }
+    }
+  },
   "passesTitle": "My passes",
   "passEnded": "Pass ended",
   "@passEnded": {"description": "A pass has ended."},

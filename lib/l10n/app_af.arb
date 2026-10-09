@@ -37,18 +37,17 @@
   "registerLocationFailed": "Kon nie jou ligging kry nie — maak seker liggingdienste is aan.",
   "accountTitle": "Rekening",
   "accountNotLoggedIn": "Nie ingeteken nie",
-  "accountAppearance": "UITSIG",
+  "accountAppearance": "Uitsig",
   "accountDataSaver": "Data saver: fewer pictures and no animations",
   "accountDataSaverSaveFailed": "Could not save Data saver. Try again.",
   "accountThemeSystem": "Volg toestelinstelling",
   "accountThemeLight": "Lig",
   "accountThemeDark": "Donker",
-  "accountLanguage": "TAAL",
+  "accountLanguage": "Taal",
   "accountLanguageSystem": "Volg toesteltaal",
   "accountLogOut": "Teken uit",
   "accountLogOutTitle": "Teken uit?",
   "accountLogOutBody": "Jy kan enige tyd weer inteken.",
-  "accountNotifications": "KENNISGEWINGS",
   "accountPushTitle": "Stootkennisgewings",
   "accountPushOn": "Aan — gebruikswaarskuwings, onderbrekings en bestellingopdaterings",
   "accountPushOff": "Af — skakel aan vir gebruikswaarskuwings, onderbrekings en bestellingopdaterings",
@@ -141,8 +140,17 @@
   "paymentCheckAgain": "Check again",
   "paymentPayAgain": "Pay again",
   "paymentBackToDashboard": "Back to dashboard",
-  "accountProvider": "PROVIDER",
-  "accountChangeProvider": "Change provider",
+  "accountSwitchProvider": "Switch WiFi provider",
+  "accountContactProvider": "Contact {provider}",
+  "@accountContactProvider": {
+    "description": "Account row that opens the provider's support channels.",
+    "placeholders": {
+      "provider": {
+        "type": "String",
+        "example": "Acme Wi-Fi"
+      }
+    }
+  },
   "passesTitle": "My passes",
   "passEnded": "Pass ended",
   "@passEnded": {"description": "A pass has ended."},
