@@ -30,25 +30,75 @@ const fixtureSchemas = {
 
 /// Keys each hand-written decoder reads. Change it in the same commit as the decoder.
 const decoderReads = <String, Set<String>>{
-  'AppConfig': {'tenant', 'min_app_version', 'feature_flags', 'legal', 'support', 'modules', 'collection_mode_public'},
-  'FeatureFlags': {'hotspot_passes', 'rica', 'cpe', 'vouchers', 'hotspot_radius'},
+  'AppConfig': {
+    'tenant',
+    'min_app_version',
+    'feature_flags',
+    'legal',
+    'support',
+    'modules',
+    'collection_mode_public',
+  },
+  'FeatureFlags': {
+    'hotspot_passes',
+    'rica',
+    'cpe',
+    'vouchers',
+    'hotspot_radius',
+  },
   'SupportContact': {'email', 'phone'},
   'TenantPublic': {'slug', 'name', 'type', 'branding'},
   'Branding': {
-    'primary_color', 'secondary_color', 'accent_color', 'logo_url', 'logo_alt',
-    'app_display_name', 'legal_urls', 'whatsapp_number',
+    'primary_color',
+    'secondary_color',
+    'accent_color',
+    'logo_url',
+    'logo_alt',
+    'app_display_name',
+    'legal_urls',
+    'whatsapp_number',
   },
-  'LegalUrls': {'terms', 'privacy', 'cooling-off', 'service-charter', 'complaints', 'paia'},
+  'LegalUrls': {
+    'terms',
+    'privacy',
+    'cooling-off',
+    'service-charter',
+    'complaints',
+    'paia',
+  },
   'LegalVersions': {'terms', 'privacy'},
   'TenantDirectory': {'tenants', 'next_cursor'},
   'OrderOut': {'id', 'status', 'total', 'lines'},
   'OrderLineOut': {'name', 'quantity'},
   'Money': {'amount_cents', 'currency'},
-  'CheckoutOut': {'payment_id', 'reference', 'gateway', 'method', 'url', 'fields', 'amount'},
-  'EntitlementOut': {
-    'id', 'order_id', 'source', 'product_name', 'status', 'starts_at', 'expires_at',
-    'duration_minutes', 'data_mb', 'speed_kbps', 'max_devices', 'used_bytes',
+  'CheckoutOut': {
+    'payment_id',
+    'reference',
+    'gateway',
+    'method',
+    'url',
+    'fields',
+    'amount',
   },
+  'EntitlementOut': {
+    'id',
+    'order_id',
+    'source',
+    'product_name',
+    'status',
+    'starts_at',
+    'expires_at',
+    'duration_minutes',
+    'data_mb',
+    'speed_kbps',
+    'max_devices',
+    'used_bytes',
+    'origin_type',
+    'scope',
+    'funded_by_other',
+    'home_serving_differs',
+  },
+  'EntitlementScopeOut': {'kind'},
   'ProblemDetail': {'code', 'title', 'detail', 'request_id'},
 };
 
@@ -90,13 +140,45 @@ void main() {
   });
 
   test('every order status the API can send is mapped', () {
-    for (final s in (api.schema('OrderStatus')['enum']! as List).cast<String>()) {
+    for (final s
+        in (api.schema('OrderStatus')['enum']! as List).cast<String>()) {
       expect(() => orderStatusFromApi(s), returnsNormally, reason: s);
     }
   });
 
+  test('every entitlement origin and scope kind is typed, not unknown', () {
+    final props = api.schema('EntitlementOut')['properties']! as Map;
+    final origins = ((props['origin_type']! as Map)['enum']! as List)
+        .cast<String>();
+    final base = Map<String, Object?>.from(
+      (fixtureMap('entitlements_page.json')['items']! as List).first as Map,
+    );
+    expect(origins, isNotEmpty);
+    for (final o in origins) {
+      expect(
+        passFromJson({...base, 'origin_type': o}).origin,
+        isNot(PassOrigin.unknown),
+        reason: o,
+      );
+    }
+    final scopeProps = api.schema('EntitlementScopeOut')['properties']! as Map;
+    final kinds = ((scopeProps['kind']! as Map)['enum']! as List)
+        .cast<String>();
+    expect(kinds, isNotEmpty);
+    for (final k in kinds) {
+      final p = passFromJson({
+        ...base,
+        'scope': [
+          {'kind': k},
+        ],
+      });
+      expect(p.scopes.single.kind, isNot(PassScopeKind.unknown), reason: k);
+    }
+  });
+
   test('every entitlement status is a PassStatus', () {
-    final status = (api.schema('EntitlementOut')['properties']! as Map)['status'] as Map;
+    final status =
+        (api.schema('EntitlementOut')['properties']! as Map)['status'] as Map;
     final names = PassStatus.values.map((s) => s.name).toSet();
     expect((status['enum']! as List).toSet().difference(names), isEmpty);
   });

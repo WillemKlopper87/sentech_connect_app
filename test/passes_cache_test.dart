@@ -9,6 +9,7 @@ import 'package:sentech_connect_app/core/network/auth_tokens.dart';
 import 'package:sentech_connect_app/core/time/platform_clock.dart';
 import 'package:sentech_connect_app/features/passes/data/repositories/http_passes_repository.dart';
 import 'package:sentech_connect_app/features/passes/data/repositories/pass_local_store.dart';
+import 'package:sentech_connect_app/features/passes/domain/entities/pass.dart';
 import 'package:sentech_connect_app/features/passes/presentation/bloc/passes_cubit.dart';
 import 'package:sentech_connect_app/features/auth/data/repositories/local_registration_repository.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/data/repositories/mock_checkout_repository.dart';
@@ -74,6 +75,55 @@ void main() {
     expect(cubit.state.fromCache, true);
     expect(cubit.state.loadedAt, first.loadedAt);
     await cubit.close();
+  });
+
+  test('cached passes keep origin, scope and the two flags', () async {
+    final h = ApiHarness();
+    await h.signIn();
+    final page = fixtureMap('entitlements_page.json');
+    final item =
+        Map<String, Object?>.from((page['items']! as List).first as Map)
+          ..['origin_type'] = 'sponsored'
+          ..['scope'] = [
+            {'kind': 'site'},
+            {'kind': 'time_window'},
+          ]
+          ..['funded_by_other'] = true
+          ..['home_serving_differs'] = true;
+    var offline = false;
+    h.adapter.on(
+      'GET',
+      '/v1/me/entitlements',
+      (_) => offline
+          ? const FakeReply.error(DioExceptionType.connectionError)
+          : FakeReply(200, {
+              ...page,
+              'items': [item],
+            }),
+    );
+    final repo = HttpPassesRepository(
+      h.api,
+      tokens: h.tokens,
+      cache: PassLocalStore(),
+      now: () => h.now,
+    );
+    final live = (await repo.getPassLoad()).getOrElse(
+      (f) => throw StateError(f.message),
+    );
+    offline = true;
+    final cached = (await repo.getPassLoad()).getOrElse(
+      (f) => throw StateError(f.message),
+    );
+    expect(cached.fromCache, true);
+    expect(cached.passes, live.passes);
+    final p = cached.passes.single;
+    expect(p.origin, PassOrigin.sponsored);
+    expect(p.scopes.map((s) => s.kind), [
+      PassScopeKind.site,
+      PassScopeKind.timeWindow,
+    ]);
+    expect(p.fundedByOther, true);
+    expect(p.homeServingDiffers, true);
   });
 
   test('wiping personal data removes the passes cache', () async {

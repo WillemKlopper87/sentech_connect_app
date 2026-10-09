@@ -178,5 +178,11 @@ class PassLocalStore {
     'speed_kbps': p.speedKbps,
     'max_devices': p.maxDevices,
     'used_bytes': p.usedBytes,
+    'origin_type': p.origin.apiName,
+    'scope': [
+      for (final s in p.scopes) {'kind': s.kind.apiName},
+    ],
+    'funded_by_other': p.fundedByOther,
+    'home_serving_differs': p.homeServingDiffers,
   };
 }
