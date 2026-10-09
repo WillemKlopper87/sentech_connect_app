@@ -68,7 +68,7 @@ If the global pub cache is locked down or shared, keep the dependencies local to
 - **Payments**: the local stack uses the platform's fake gateway (dev simulate endpoint). Netcash is implemented as a request/notification **shape only**: no merchant account has been exercised, so there is no real-money path yet.
 - **Maps**: no tile provider is configured; debug/demo builds use public OSM tiles, release builds show a placeholder until `TILE_URL_TEMPLATE`/`TILE_API_KEY` are set.
 - **Languages**: Afrikaans and isiZulu cover only the migrated screens; every other string falls back to English. The translations are first drafts that need native review.
-- **Mock in both flavors**: see `stillMockInProd` above.
+- **Mock in both flavors**: see `stillMockInProd` above and the route table under "Mock repositories and their real routes".
 
 ### Live integration test
 
@@ -94,7 +94,31 @@ Nothing below contains a real secret; each item needs an input from the owner be
 | **iOS** | `ios/` generated with `--org za.co.sentech` (bundle id `za.co.sentech.sentechConnectApp`); Info.plist has camera, location-when-in-use and Face ID descriptions. Not built or signed. `permission_handler` needs the `PERMISSION_NOTIFICATIONS=1` macro in the Podfile once it exists. | Apple team id, final bundle id, signing, APNs key |
 | **Privacy policy** | `privacyPolicyUrl` placeholder in `lib/core/privacy/privacy_constants.dart` | Published policy URL |
 | **Platform API** | `--dart-define=APP_FLAVOR=prod --dart-define=API_BASE_URL=https://…`; tenants, OTP sign-in, passes, orders, payments, entitlements, profile/consents/export/delete. | Production API hostname (then certificate pinning with a backup pin), SMS provider, Netcash merchant account per tenant |
-| **Still mock** | Coverage, free Wi-Fi, hotspots, usage/router, promotions, support, RICA liveness (`stillMockInProd`). | Backend APIs for each |
+| **Still mock** | Coverage, free Wi-Fi, hotspots, usage/router, promotions, support, RICA liveness (`stillMockInProd`). See the table below. | Backend APIs for each |
+
+### Mock repositories and their real routes
+
+These repositories are listed in `stillMockInProd` (`lib/app/locator.dart`) and are mock in **both** flavors. The real routes below come from `test/contract/openapi.json`. Nothing here is swapped yet. Paths are under `lib/features/`.
+
+| Area | Mock file | Real API route today | Swapped in |
+|---|---|---|---|
+| Coverage | `coverage/data/repositories/mock_coverage_repository.dart` | `GET /v1/coverage/check?lat&lon&tenant`, `GET /v1/coverage/meta`, `GET /v1/tiles/{layer}/{z}/{x}/{y}.mvt`, `GET /v1/geocode/search` | WP-26 |
+| Free WiFi | `wifi_voucher/data/repositories/mock_free_wifi_repository.dart` | none yet (free time) | WP-23 |
+| Hotspots | `wifi_voucher/data/repositories/mock_wifi_hotspots_repository.dart` | `GET /v1/hotspots?tenant&bbox&cursor&limit` | WP-11 |
+| Usage and router | `account_dashboard/data/repositories/mock_account_repository.dart` | none yet (network) | WP-17 |
+| Promotions | `promotions/data/repositories/mock_promotions_repository.dart` | none yet (listings) | WP-24 |
+| Support | `support/data/repositories/mock_support_repository.dart` | `POST /v1/support/messages` (Idempotency-Key, 202 `{reference}`); tickets come later | WP-11 |
+| RICA liveness | `rica/data/repositories/mock_liveness_repository.dart` | none (needs a vendor) | not in the V1 app |
+
+### Modules and branding
+
+- **Modules.** `GET /v1/app-config` carries `modules` (booleans for `vouchers`, `tickets`, `credits`, `wifi_aware`, `subscriber_billing`) and `collection_mode_public.buy_in_app`. The app hides what a provider has switched off (for example Scan follows `vouchers`).
+- **Missing means off.** A key that is absent or not a boolean is off. When the server sends no `modules` at all (an older API), only `vouchers` follows `feature_flags.vouchers` and every other module is off. A missing `collection_mode_public` means the app may sell in the app.
+- **A refusal wins.** A 403 `module_not_enabled` hides that feature at once, in memory only, until the next config load. There is no refetch and no retry loop.
+- **Buy from your provider.** When `buy_in_app` is false, the buy sheet and the cart describe the product but offer no payment, and say who to contact instead.
+- **The offline cache** keeps modules, support channels and branding, so a launch without a connection shows the last known provider.
+- **Branding is data only.** Colours must be `#rrggbb` and pass the theme contrast rule (4.5:1). Links and the logo must be https with a host and no userinfo. The logo alt text and the display name are plain `Text`, length-capped, with control and bidi characters removed. There is no HTML and no WebView for branding. The accent colour is parsed but not applied.
+- **Entitlements** are read defensively: `origin_type`, `scope[].kind`, `funded_by_other` and `home_serving_differs` are optional, unknown values degrade to a safe default, and none is shown yet. An unknown entitlement **status** still fails the load, so a pass the customer paid for is never silently dropped.
 
 ### Localisation
 

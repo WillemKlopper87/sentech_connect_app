@@ -69,7 +69,8 @@ final locator = GetIt.instance;
 /// Repositories with no platform backend yet (M1 covers tenants, auth,
 /// catalog, orders, payments, entitlements and privacy only). They are mock
 /// in BOTH flavors (ruling R-M4-8) and are swapped here once their API
-/// exists; nothing above this file changes. README lists the same set.
+/// exists; nothing above this file changes. README ("Mock repositories and
+/// their real routes") lists the same set with the real API route for each.
 const stillMockInProd = <Type>[
   CoverageRepository,
   FreeWifiRepository,
