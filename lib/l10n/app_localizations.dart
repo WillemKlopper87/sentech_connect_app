@@ -2805,6 +2805,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Service suspended'**
   String get passesStatusSuspended;
+
+  /// Shown on the code step. Other people may hold codes for the same number, so the customer picks the SMS that says Code ref followed by these four characters.
+  ///
+  /// In en, this message translates to:
+  /// **'Use the SMS that shows reference {reference}.'**
+  String otpUseSmsReference(String reference);
 }
 
 class _AppLocalizationsDelegate

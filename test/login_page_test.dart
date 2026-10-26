@@ -47,6 +47,7 @@ class _RateLimitedRepository extends MockAuthRepository {
   @override
   Future<Either<Failure, OtpChallenge>> requestOtp({
     required String phoneNumber,
+    required String binding,
   }) async => const Left(
     RateLimitedFailure('slow down from the server', Duration(seconds: 90)),
   );
@@ -60,9 +61,10 @@ class _RateLimitedOnVerifyRepository extends MockAuthRepository {
   @override
   Future<Either<Failure, OtpChallenge>> requestOtp({
     required String phoneNumber,
+    required String binding,
   }) {
     requests++;
-    return super.requestOtp(phoneNumber: phoneNumber);
+    return super.requestOtp(phoneNumber: phoneNumber, binding: binding);
   }
 
   @override
@@ -143,6 +145,24 @@ void main() {
     await tester.pump();
     expect(auth.state.isSignedIn, isTrue);
     expect(auth.state.freshSignIn, isTrue);
+  });
+
+  testWidgets('the code step tells the customer which SMS to use (reference)', (
+    tester,
+  ) async {
+    await pumpLogin(tester);
+    expect(find.textContaining('reference'), findsNothing);
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Mobile number'),
+      '082 123 4567',
+    );
+    await tester.tap(find.widgetWithText(ElevatedButton, 'Send code'));
+    await tester.pump();
+    await tester.pump();
+    expect(
+      find.text('Use the SMS that shows reference ${MockAuthRepository.demoReference}.'),
+      findsOneWidget,
+    );
   });
 
   testWidgets('an invalid number shows guidance and stays on the phone step', (

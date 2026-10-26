@@ -2,6 +2,8 @@
 library;
 
 import 'dart:io';
+
+import 'package:sentech_connect_app/core/utils/binding_generator.dart';
 import 'dart:math';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -73,7 +75,7 @@ void main() {
     final auth = HttpAuthRepository(api, tokens: tokens, tenant: tenant);
     // A fresh number per run keeps the per-phone OTP rate limit out of the way.
     final phone = '082${Random().nextInt(9000000) + 1000000}';
-    final challenge = _ok<dynamic>(await auth.requestOtp(phoneNumber: phone), 'otp request');
+    final challenge = _ok<dynamic>(await auth.requestOtp(phoneNumber: phone, binding: BindingGenerator()()), 'otp request');
     final code = await _latestOtpCode(challenge.phoneE164 as String);
     final user = _ok<dynamic>(await auth.verifyOtp(challenge: challenge, code: code), 'otp verify');
     expect(user.mobileNumber, challenge.phoneE164);

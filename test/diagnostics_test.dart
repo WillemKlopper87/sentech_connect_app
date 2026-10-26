@@ -35,6 +35,16 @@ void main() {
       test('"$input"', () => expect(PiiScrubber.scrub(input), expected));
     });
 
+    test('removes the sign-in binding, one-time code and human-check token whatever their shape', () {
+      const binding = 'Zm9vYmFyYmF6cXV4MTIzNDU2Nzg5MEFCQ0RFRkc';
+      expect(
+        PiiScrubber.scrub('{"binding":"$binding","code":"123456","turnstile_token":"0.abc"}'),
+        '{"binding":"[redacted]","code":"[redacted]","turnstile_token":"[redacted]"}',
+      );
+      expect(PiiScrubber.scrub('binding=$binding&code=123456'), 'binding=[redacted]&code=[redacted]');
+      expect(PiiScrubber.scrub('verify failed code: 123456'), 'verify failed code: [redacted]');
+    });
+
     test('leaves ordinary diagnostics alone', () {
       const text =
           'RenderFlex overflowed by 12 pixels on the right (lib/features/cart/cart_page.dart:42)';

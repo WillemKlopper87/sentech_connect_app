@@ -11,6 +11,7 @@ class MockAuthRepository implements AuthRepository {
   MockAuthRepository({this.latency = const Duration(milliseconds: 400)});
 
   static const rejectedDemoCode = '000000';
+  static const demoReference = 'AB23';
   static const _demoUser = User(id: 'usr_001', fullName: 'Lindiwe Khumalo', mobileNumber: '081 000 0000');
 
   final Duration latency;
@@ -22,13 +23,21 @@ class MockAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, OtpChallenge>> requestOtp({required String phoneNumber}) async {
+  Future<Either<Failure, OtpChallenge>> requestOtp({required String phoneNumber, required String binding}) async {
     await _simulateLatency();
     final phone = normaliseZaMobile(phoneNumber);
     if (phone == null) {
       return const Left(ValidationFailure('Enter a valid South African mobile number.', 'invalid_phone'));
     }
-    return Right(OtpChallenge(id: 'demo-challenge', phoneE164: phone, expiresIn: const Duration(minutes: 5)));
+    return Right(
+      OtpChallenge(
+        id: 'demo-challenge',
+        phoneE164: phone,
+        expiresIn: const Duration(minutes: 5),
+        binding: binding,
+        reference: demoReference,
+      ),
+    );
   }
 
   @override

@@ -4,6 +4,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:sentech_connect_app/core/error/failure.dart';
+import 'package:sentech_connect_app/core/utils/binding_generator.dart';
 import 'package:sentech_connect_app/core/utils/phone_number.dart';
 import 'package:sentech_connect_app/features/auth/domain/entities/otp_challenge.dart';
 import 'package:sentech_connect_app/features/auth/domain/entities/user.dart';
@@ -87,7 +88,9 @@ class OtpLoginCubit extends Cubit<OtpLoginState> {
     required this._verifier,
     this.resendCooldown = const Duration(seconds: 30),
     CountdownTicker? ticker,
+    String Function()? bindingGenerator,
   })  : _ticker = ticker ?? _secondsTicker,
+        _newBinding = bindingGenerator ?? BindingGenerator().call,
         super(const OtpLoginState());
 
   static final _sixDigits = RegExp(r'^\d{6}$');
@@ -96,7 +99,33 @@ class OtpLoginCubit extends Cubit<OtpLoginState> {
   final Duration resendCooldown;
   final CountdownTicker _ticker;
   final CodeVerifier _verifier;
+  final String Function() _newBinding;
   StreamSubscription<int>? _countdown;
+
+  /// The secret of the current sign-in attempt, in memory only, and the number
+  /// it was made for.
+  ///
+  /// One attempt keeps ONE binding across resends: the API closes only the
+  /// earlier codes of the SAME binding when a new code is requested, and
+  /// allows at most 3 live codes per phone. A fresh binding on every resend
+  /// would look like a second requester, leave the old code live and use up
+  /// the phone's live-code slots (429 until a code expires). A new binding is
+  /// made only when the number changes or the flow starts over.
+  String? _binding;
+  String? _bindingPhone;
+
+  String _bindingFor(String phoneE164) {
+    if (_binding == null || _bindingPhone != phoneE164) {
+      _binding = _newBinding();
+      _bindingPhone = phoneE164;
+    }
+    return _binding!;
+  }
+
+  void _forgetBinding() {
+    _binding = null;
+    _bindingPhone = null;
+  }
 
   Future<void> submitPhone(String input) async {
     if (state.busy || state.locked) return;
@@ -118,7 +147,11 @@ class OtpLoginCubit extends Cubit<OtpLoginState> {
 
   Future<void> _send(String phone) async {
     emit(state.copyWith(status: OtpLoginStatus.sending));
-    final result = await _repository.requestOtp(phoneNumber: phone);
+    final normalised = normaliseZaMobile(phone);
+    final result = await _repository.requestOtp(
+      phoneNumber: phone,
+      binding: _bindingFor(normalised ?? phone),
+    );
     if (isClosed) return;
     result.match(
       _fail,
@@ -142,6 +175,7 @@ class OtpLoginCubit extends Cubit<OtpLoginState> {
   void _fail(Failure failure) {
     if (failure is SessionSetupFailure) {
       _countdown?.cancel();
+      _forgetBinding(); // the code is spent: the next attempt starts afresh
       emit(OtpLoginState(status: OtpLoginStatus.failure, failure: failure));
       return;
     }
@@ -176,12 +210,14 @@ class OtpLoginCubit extends Cubit<OtpLoginState> {
       _fail,
       (user) {
         _countdown?.cancel();
+        _forgetBinding();
         emit(state.copyWith(status: OtpLoginStatus.verified, user: user));
       },
     );
   }
 
   void changeNumber() {
+    _forgetBinding();
     // A server wait belongs to this login flow, even if the phone changes.
     // Keep its running countdown while discarding the old challenge.
     if (state.locked) {

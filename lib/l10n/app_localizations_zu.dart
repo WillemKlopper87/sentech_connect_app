@@ -1613,4 +1613,9 @@ class AppLocalizationsZu extends AppLocalizations {
 
   @override
   String get passesStatusSuspended => 'Isevisi imisiwe';
+
+  @override
+  String otpUseSmsReference(String reference) {
+    return 'Sebenzisa i-SMS ekhombisa inkomba $reference.';
+  }
 }

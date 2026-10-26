@@ -33,7 +33,7 @@ class HttpAuthRepository implements AuthRepository {
   final DateTime Function() _now;
 
   @override
-  Future<Either<Failure, OtpChallenge>> requestOtp({required String phoneNumber}) async {
+  Future<Either<Failure, OtpChallenge>> requestOtp({required String phoneNumber, required String binding}) async {
     final phone = normaliseZaMobile(phoneNumber);
     if (phone == null) {
       return const Left(ValidationFailure('Enter a valid South African mobile number.', 'invalid_phone'));
@@ -41,13 +41,15 @@ class HttpAuthRepository implements AuthRepository {
     return _api.post<OtpChallenge>(
       '/v1/auth/otp/request',
       authenticated: false,
-      body: {'tenant': _tenant.slug, 'phone': phone},
+      body: {'tenant': _tenant.slug, 'phone': phone, 'binding': binding},
       decode: (data) {
         final map = data! as Map;
         return OtpChallenge(
           id: map['challenge_id']! as String,
           phoneE164: phone,
           expiresIn: Duration(seconds: map['expires_in_seconds']! as int),
+          binding: binding,
+          reference: map['reference'] as String?,
         );
       },
     );
@@ -60,7 +62,7 @@ class HttpAuthRepository implements AuthRepository {
     final result = await _api.post<AuthTokens>(
       '/v1/auth/otp/verify',
       authenticated: false,
-      body: {'tenant': slug, 'challenge_id': challenge.id, 'code': code},
+      body: {'tenant': slug, 'challenge_id': challenge.id, 'code': code, 'binding': challenge.binding},
       decode: (data) => AuthTokens.fromTokenPair(Map<String, Object?>.from(data! as Map), tenantSlug: slug, now: _now()),
     );
     switch (result) {

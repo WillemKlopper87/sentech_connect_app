@@ -8,14 +8,19 @@ import 'package:sentech_connect_app/features/auth/data/repositories/http_auth_re
 import 'package:sentech_connect_app/features/auth/domain/entities/otp_challenge.dart';
 import 'package:sentech_connect_app/features/auth/domain/entities/user.dart';
 
+import 'contract/openapi_schema.dart';
 import 'helpers/api_harness.dart';
 import 'helpers/fake_http_adapter.dart';
 import 'helpers/fixtures.dart';
+
+const _binding = 'Zm9vYmFyYmF6cXV4MTIzNDU2Nzg5MEFCQ0RFRkc';
 
 const _challenge = OtpChallenge(
   id: '3f2b8c1e-5d4a-4e6b-9c7d-1a2b3c4d5e6f',
   phoneE164: '+27821234567',
   expiresIn: Duration(minutes: 5),
+  binding: _binding,
+  reference: 'AB2C',
 );
 
 void main() {
@@ -29,15 +34,55 @@ void main() {
 
   test('requestOtp sends tenant + E.164 phone, unauthenticated', () async {
     h.adapter.on('POST', '/v1/auth/otp/request', (_) => FakeReply(202, fixture('otp_request.json')));
-    final challenge = (await repo.requestOtp(phoneNumber: '082 123 4567')).getOrElse((f) => throw StateError(f.message));
+    final challenge = (await repo.requestOtp(phoneNumber: '082 123 4567', binding: _binding)).getOrElse((f) => throw StateError(f.message));
     expect(challenge, _challenge);
     final sent = h.adapter.requests.single;
-    expect(sent.data, {'tenant': 'sentech', 'phone': '+27821234567'});
+    expect(sent.data, {'tenant': 'sentech', 'phone': '+27821234567', 'binding': _binding});
     expect(sent.headers.containsKey('Authorization'), isFalse);
   });
 
+  test('requestOtp reads the reference of the SMS from the answer', () async {
+    h.adapter.on('POST', '/v1/auth/otp/request', (_) => FakeReply(202, fixture('otp_request.json')));
+    final challenge = (await repo.requestOtp(phoneNumber: '0821234567', binding: _binding)).getOrElse((f) => throw StateError(f.message));
+    expect(challenge.reference, 'AB2C');
+    expect(challenge.binding, _binding);
+  });
+
+  test('an older server that sends no reference still works', () async {
+    h.adapter.on('POST', '/v1/auth/otp/request', (_) => const FakeReply(202, {'challenge_id': 'c1', 'expires_in_seconds': 300}));
+    final challenge = (await repo.requestOtp(phoneNumber: '0821234567', binding: _binding)).getOrElse((f) => throw StateError(f.message));
+    expect(challenge.reference, isNull);
+  });
+
+  test('the request and verify bodies match the API schemas (binding present on both)', () async {
+    final api = OpenApiSnapshot.load();
+    h.adapter.on('POST', '/v1/auth/otp/request', (_) => FakeReply(202, fixture('otp_request.json')));
+    h.adapter.on('POST', '/v1/auth/otp/verify', (_) => FakeReply(200, tokenPair()));
+    h.adapter.on('GET', '/v1/me/profile', (_) => FakeReply(200, fixture('profile.json')));
+    final challenge = (await repo.requestOtp(phoneNumber: '0821234567', binding: _binding)).getOrElse((f) => throw StateError(f.message));
+    await repo.verifyOtp(challenge: challenge, code: '123456');
+    final requestBody = h.adapter.requestsTo('POST', '/v1/auth/otp/request').single.data;
+    final verifyBody = h.adapter.requestsTo('POST', '/v1/auth/otp/verify').single.data;
+    expect(api.validate(requestBody, api.schema('OtpRequestIn')), isEmpty);
+    expect(api.validate(verifyBody, api.schema('OtpVerifyIn')), isEmpty);
+    expect((requestBody as Map)['binding'], (verifyBody as Map)['binding']);
+  });
+
+  test('the binding and the code never reach the log', () async {
+    h.adapter.on('POST', '/v1/auth/otp/request', (_) => FakeReply(202, fixture('otp_request.json')));
+    h.adapter.on('POST', '/v1/auth/otp/verify', (_) => FakeReply.problem(400, 'otp_invalid'));
+    final challenge = (await repo.requestOtp(phoneNumber: '0821234567', binding: _binding)).getOrElse((f) => throw StateError(f.message));
+    await repo.verifyOtp(challenge: challenge, code: '654321');
+    expect(h.logLines, isNotEmpty);
+    final log = h.logLines.join(' ');
+    expect(log, isNot(contains(_binding)));
+    expect(log, isNot(contains('654321')));
+    expect(log, isNot(contains('27821234567')));
+    expect(challenge.toString(), isNot(contains(_binding)));
+  });
+
   test('an invalid number is rejected before any request', () async {
-    final result = await repo.requestOtp(phoneNumber: '011 123 4567');
+    final result = await repo.requestOtp(phoneNumber: '011 123 4567', binding: _binding);
     expect((result.match((f) => f, (_) => null)! as ValidationFailure).code, 'invalid_phone');
     expect(h.adapter.requests, isEmpty);
   });
@@ -46,7 +91,7 @@ void main() {
     h.adapter.on('POST', '/v1/auth/otp/request', (_) => FakeReply.problem(429, 'rate_limited', headers: {
           'retry-after': ['600'],
         }));
-    final failure = (await repo.requestOtp(phoneNumber: '0821234567')).match((f) => f, (_) => null);
+    final failure = (await repo.requestOtp(phoneNumber: '0821234567', binding: _binding)).match((f) => f, (_) => null);
     expect((failure! as RateLimitedFailure).retryAfter, const Duration(minutes: 10));
   });
 
@@ -62,6 +107,7 @@ void main() {
       'tenant': 'sentech',
       'challenge_id': _challenge.id,
       'code': '123456',
+      'binding': _binding,
     });
     expect(h.adapter.requestsTo('GET', '/v1/me/profile').single.headers['Authorization'], 'Bearer access-2');
     final stored = (await h.tokens.read())!;

@@ -1613,4 +1613,9 @@ class AppLocalizationsAf extends AppLocalizations {
 
   @override
   String get passesStatusSuspended => 'Diens opgeskort';
+
+  @override
+  String otpUseSmsReference(String reference) {
+    return 'Gebruik die SMS wat verwysing $reference wys.';
+  }
 }

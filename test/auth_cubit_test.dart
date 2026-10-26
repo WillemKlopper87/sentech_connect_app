@@ -335,7 +335,7 @@ void main() {
   });
 
   group('signInWithOtp: verify and sign-in are one operation', () {
-    const challenge = OtpChallenge(id: 'ch-1', phoneE164: '+27810000000', expiresIn: Duration(minutes: 5));
+    const challenge = OtpChallenge(id: 'ch-1', phoneE164: '+27810000000', expiresIn: Duration(minutes: 5), binding: 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb');
     const sipho = User(id: 'c2', fullName: 'Sipho', mobileNumber: '+27820000000');
 
     Future<void> settle() async {

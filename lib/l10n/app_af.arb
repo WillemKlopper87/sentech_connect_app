@@ -2063,5 +2063,7 @@
     "description": "English fallback pending translation. Editorial recommendation; no popularity claim."
   },
   "passesStatusSuspended": "Diens opgeskort",
-  "@passesStatusSuspended": {"description": "Customer app copy: passesStatusSuspended."}
+  "@passesStatusSuspended": {"description": "Customer app copy: passesStatusSuspended."},
+  "otpUseSmsReference": "Gebruik die SMS wat verwysing {reference} wys.",
+  "@otpUseSmsReference": {"description": "Customer app copy: otpUseSmsReference.", "placeholders": {"reference": {"type": "String"}}}
 }

@@ -1612,4 +1612,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get passesStatusSuspended => 'Service suspended';
+
+  @override
+  String otpUseSmsReference(String reference) {
+    return 'Use the SMS that shows reference $reference.';
+  }
 }

@@ -5,8 +5,11 @@ import 'package:sentech_connect_app/features/auth/domain/entities/user.dart';
 
 abstract class AuthRepository {
   /// Sends a one-time code by SMS to a South African mobile number (any
-  /// common format; normalised to E.164 first).
-  Future<Either<Failure, OtpChallenge>> requestOtp({required String phoneNumber});
+  /// common format; normalised to E.164 first). [binding] is the sign-in
+  /// attempt's secret (see `BindingGenerator`): the caller keeps the same one
+  /// for resends of one attempt and the returned challenge carries it to
+  /// `verifyOtp`.
+  Future<Either<Failure, OtpChallenge>> requestOtp({required String phoneNumber, required String binding});
 
   /// Exchanges the code for a session. The platform creates the account on
   /// first sign-in, so this is registration too (new customers have an

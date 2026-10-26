@@ -2072,5 +2072,7 @@
     "description": "Editorial recommendation; no popularity claim."
   },
   "passesStatusSuspended": "Service suspended",
-  "@passesStatusSuspended": {"description": "Status label of a pass whose service the provider has paused (status suspended). Not expired: it can come back."}
+  "@passesStatusSuspended": {"description": "Status label of a pass whose service the provider has paused (status suspended). Not expired: it can come back."},
+  "otpUseSmsReference": "Use the SMS that shows reference {reference}.",
+  "@otpUseSmsReference": {"description": "Shown on the code step. Other people may hold codes for the same number, so the customer picks the SMS that says Code ref followed by these four characters.", "placeholders": {"reference": {"type": "String"}}}
 }

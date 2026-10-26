@@ -12,14 +12,16 @@ class _CountingRepo extends MockAuthRepository {
   _CountingRepo() : super(latency: Duration.zero);
 
   int requests = 0;
+  final bindings = <String>[];
   Failure? requestFailure;
 
   @override
-  Future<Either<Failure, OtpChallenge>> requestOtp({required String phoneNumber}) {
+  Future<Either<Failure, OtpChallenge>> requestOtp({required String phoneNumber, required String binding}) {
+    bindings.add(binding);
     requests++;
     final failure = requestFailure;
     if (failure != null) return Future.value(Left(failure));
-    return super.requestOtp(phoneNumber: phoneNumber);
+    return super.requestOtp(phoneNumber: phoneNumber, binding: binding);
   }
 }
 
@@ -271,5 +273,118 @@ void main() {
     expect(cubit.state.failure, isA<SessionSetupFailure>());
     expect(cubit.state.challenge, isNull, reason: 'the spent challenge is gone: a new code is needed');
     await cubit.close();
+  });
+
+  group('sign-in binding', () {
+    OtpLoginCubit build({Stream<int> Function(int)? ticker}) {
+      var n = 0;
+      return OtpLoginCubit(
+        repo,
+        verifier: _verifier(repo),
+        ticker: ticker ?? _instantTicker,
+        bindingGenerator: () => 'binding-${++n}',
+      );
+    }
+
+    test('the challenge carries the binding the request was sent with', () async {
+      final cubit = build();
+      await cubit.submitPhone('0821234567');
+      expect(repo.bindings, ['binding-1']);
+      expect(cubit.state.challenge!.binding, 'binding-1');
+      await cubit.close();
+    });
+
+    test('a resend of the same attempt reuses the same binding (a new code closes only codes of the same binding)', () async {
+      final cubit = build();
+      await cubit.submitPhone('0821234567');
+      await Future<void>.delayed(Duration.zero);
+      await cubit.resend();
+      await Future<void>.delayed(Duration.zero);
+      await cubit.resend();
+      expect(repo.bindings, ['binding-1', 'binding-1', 'binding-1']);
+      await cubit.close();
+    });
+
+    test('the same number typed in another format is still the same attempt', () async {
+      final cubit = build();
+      await cubit.submitPhone('082 123 4567');
+      cubit.changeNumber();
+      await cubit.submitPhone('0821234567');
+      // changeNumber starts the flow over, so this one is new
+      expect(repo.bindings, ['binding-1', 'binding-2']);
+      await cubit.close();
+    });
+
+    test('a failed request keeps the binding for the retry of the same number', () async {
+      final cubit = build();
+      repo.requestFailure = const NetworkFailure();
+      await cubit.submitPhone('0821234567');
+      repo.requestFailure = null;
+      await cubit.submitPhone('0821234567');
+      expect(repo.bindings, ['binding-1', 'binding-1']);
+      await cubit.close();
+    });
+
+    test('changing the number generates a new binding', () async {
+      final cubit = build();
+      await cubit.submitPhone('0821234567');
+      cubit.changeNumber();
+      await cubit.submitPhone('0831234567');
+      expect(repo.bindings, ['binding-1', 'binding-2']);
+      await cubit.close();
+    });
+
+    test('a different number typed straight after a failure also gets a new binding', () async {
+      final cubit = build();
+      repo.requestFailure = const NetworkFailure();
+      await cubit.submitPhone('0821234567');
+      repo.requestFailure = null;
+      await cubit.submitPhone('0831234567');
+      expect(repo.bindings, ['binding-1', 'binding-2']);
+      await cubit.close();
+    });
+
+    test('the verify call gets the challenge with the same binding', () async {
+      OtpChallenge? seen;
+      final cubit = OtpLoginCubit(
+        repo,
+        ticker: _instantTicker,
+        bindingGenerator: () => 'secret-1',
+        verifier: (challenge, code) {
+          seen = challenge;
+          return Future.value(const Left(ValidationFailure('wrong', 'otp_invalid')));
+        },
+      );
+      await cubit.submitPhone('0821234567');
+      await cubit.submitCode('123456');
+      expect(seen!.binding, 'secret-1');
+      // A wrong code keeps the attempt: a resend still uses the same binding.
+      await Future<void>.delayed(Duration.zero);
+      await cubit.resend();
+      expect(repo.bindings, ['secret-1', 'secret-1']);
+      await cubit.close();
+    });
+
+    test('a spent code that could not start a session restarts with a new binding', () async {
+      final cubit = OtpLoginCubit(
+        repo,
+        ticker: _instantTicker,
+        bindingGenerator: () => 'b-${repo.requests}',
+        verifier: (_, _) async => const Left(SessionSetupFailure()),
+      );
+      await cubit.submitPhone('0821234567');
+      await cubit.submitCode('123456');
+      expect(cubit.state.step, OtpStep.phone);
+      await cubit.submitPhone('0821234567');
+      expect(repo.bindings, ['b-0', 'b-1']);
+      await cubit.close();
+    });
+
+    test('the cubit shows the reference the server sent, via the challenge', () async {
+      final cubit = build();
+      await cubit.submitPhone('0821234567');
+      expect(cubit.state.challenge!.reference, MockAuthRepository.demoReference);
+      await cubit.close();
+    });
   });
 }

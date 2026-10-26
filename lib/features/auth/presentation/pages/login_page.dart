@@ -367,6 +367,16 @@ class _LoginViewState extends State<_LoginView> {
         l10n.otpSentTo(maskPhone(otp.challenge!.phoneE164)),
         style: theme.textTheme.bodyLarge,
       ),
+      if (otp.challenge!.reference case final reference?
+          when reference.isNotEmpty) ...[
+        const SizedBox(height: 4),
+        Text(
+          l10n.otpUseSmsReference(reference),
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+        ),
+      ],
       const SizedBox(height: 12),
       TextField(
         controller: _codeController,

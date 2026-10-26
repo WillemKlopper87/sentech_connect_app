@@ -24,8 +24,16 @@ class PiiScrubber {
     (RegExp(r'\b[A-Za-z0-9_\-]{32,}\b'), '[token]'),
   ];
 
+  /// `binding`, one-time `code`s, the human-check `turnstile_token` and session
+  /// tokens in JSON or `key=value` text: the value goes whatever it looks like
+  /// (a 6-digit code would pass every other rule).
+  static final _secretFields = RegExp(
+    r'''(["']?(?<![A-Za-z_])(?:binding|code|turnstile_token|refresh_token|access_token)["']?\s*[:=]\s*["']?)[^"'\s,&})\]]+''',
+    caseSensitive: false,
+  );
+
   static String scrub(String input) {
-    var out = input;
+    var out = input.replaceAllMapped(_secretFields, (m) => '${m[1]}[redacted]');
     for (final (pattern, replacement) in _rules) {
       out = out.replaceAll(pattern, replacement);
     }
