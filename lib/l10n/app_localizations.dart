@@ -2901,6 +2901,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Close'**
   String get accountDeleteClose;
+
+  /// Shown on a pass whose status is suspended (the provider paused the service, for example an unpaid invoice). Not an expiry; there is no countdown.
+  ///
+  /// In en, this message translates to:
+  /// **'Your provider has paused this service. Contact them to get it back.'**
+  String get passesSuspendedNote;
 }
 
 class _AppLocalizationsDelegate

@@ -5,6 +5,7 @@ import 'package:sentech_connect_app/core/network/auth_tokens.dart';
 import 'package:sentech_connect_app/core/network/interceptors.dart';
 import 'package:sentech_connect_app/core/network/tenant_context.dart';
 import 'package:sentech_connect_app/core/network/token_refresher.dart';
+import 'package:sentech_connect_app/core/security/human_check_provider.dart';
 import 'package:sentech_connect_app/core/utils/phone_number.dart';
 import 'package:sentech_connect_app/features/auth/domain/entities/otp_challenge.dart';
 import 'package:sentech_connect_app/features/auth/domain/entities/user.dart';
@@ -19,6 +20,7 @@ class HttpAuthRepository implements AuthRepository {
     required this._tenant,
     DateTime Function()? now,
     this.logoutTimeout = const Duration(seconds: 8),
+    this._humanCheck = const NoHumanCheckProvider(),
   }) : _now = now ?? DateTime.now;
 
   static final _sixDigits = RegExp(r'^\d{6}$');
@@ -31,6 +33,7 @@ class HttpAuthRepository implements AuthRepository {
   final TokenStore _tokens;
   final TenantContext _tenant;
   final DateTime Function() _now;
+  final HumanCheckProvider _humanCheck;
 
   @override
   Future<Either<Failure, OtpChallenge>> requestOtp({required String phoneNumber, required String binding}) async {
@@ -38,10 +41,13 @@ class HttpAuthRepository implements AuthRepository {
     if (phone == null) {
       return const Left(ValidationFailure('Enter a valid South African mobile number.', 'invalid_phone'));
     }
+    // SEAM (M2): staging and prod want a human-check token; the default
+    // provider has none, so the field is left out (dev and test accept that).
+    final humanCheck = await _humanCheck.token();
     return _api.post<OtpChallenge>(
       '/v1/auth/otp/request',
       authenticated: false,
-      body: {'tenant': _tenant.slug, 'phone': phone, 'binding': binding},
+      body: {'tenant': _tenant.slug, 'phone': phone, 'binding': binding, 'turnstile_token': ?humanCheck},
       decode: (data) {
         final map = data! as Map;
         return OtpChallenge(

@@ -454,6 +454,21 @@ void main() {
       expect(find.text('0 MB left'), findsOneWidget);
       expect(find.text('of 1 GB'), findsWidgets);
     });
+
+    testWidgets('My passes labels a suspended pass and explains it', (tester) async {
+      final repo = _ManualRepo();
+      final cubit = PassesCubit(repo);
+      addTearDown(cubit.close);
+      await pumpPage(tester, cubit);
+      repo.calls[0].$2.complete(
+        Right([_pass('s', status: PassStatus.suspended, name: 'Fibre 50')]),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Fibre 50'), findsOneWidget);
+      expect(find.text('Service suspended'), findsWidgets);
+      expect(find.textContaining('Your provider has paused this service'), findsOneWidget);
+      expect(find.byType(LinearProgressIndicator), findsNothing);
+    });
   });
 
   group('formatting', () {

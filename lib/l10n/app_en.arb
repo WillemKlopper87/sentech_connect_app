@@ -2104,5 +2104,7 @@
   "accountDeleteCodeBody": "For your safety we sent a 6-digit code by SMS to the number on your account. Enter it to delete your account and all your data. This cannot be undone.",
   "@accountDeleteCodeBody": {"description": "Body of the second delete-account step: why a code is asked for and that deleting cannot be undone."},
   "accountDeleteClose": "Close",
-  "@accountDeleteClose": {"description": "Closes the delete-account dialog when nothing more can be done there (for example contact support)."}
+  "@accountDeleteClose": {"description": "Closes the delete-account dialog when nothing more can be done there (for example contact support)."},
+  "passesSuspendedNote": "Your provider has paused this service. Contact them to get it back.",
+  "@passesSuspendedNote": {"description": "Shown on a pass whose status is suspended (the provider paused the service, for example an unpaid invoice). Not an expiry; there is no countdown."}
 }

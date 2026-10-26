@@ -47,11 +47,12 @@ Pass _pass({
   int? dataMb = 1024,
   int used = 0,
   Duration left = const Duration(hours: 2),
+  PassStatus status = PassStatus.active,
 }) => Pass(
   id: 'p',
   orderId: 'o',
   productName: 'Day Pass',
-  status: PassStatus.active,
+  status: status,
   startsAt: _now.subtract(const Duration(hours: 1)),
   expiresAt: _now.add(left),
   durationMinutes: 180,
@@ -289,4 +290,12 @@ void main() {
       expect(find.text('View my passes'), findsOneWidget);
     },
   );
+
+  testWidgets('a suspended pass stays on the dashboard as Service suspended', (tester) async {
+    await _pump(tester, _Passes([Right([_pass(status: PassStatus.suspended)])]));
+    expect(find.text('Service suspended'), findsWidgets);
+    expect(find.textContaining('Your provider has paused this service'), findsOneWidget);
+    expect(find.byType(LinearProgressIndicator), findsNothing);
+    expect(find.text('No active pass'), findsNothing);
+  });
 }

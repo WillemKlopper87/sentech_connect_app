@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentech_connect_app/core/error/failure.dart';
 import 'package:sentech_connect_app/core/network/auth_tokens.dart';
+import 'package:sentech_connect_app/core/security/human_check_provider.dart';
 import 'package:sentech_connect_app/features/auth/data/repositories/http_auth_repository.dart';
 import 'package:sentech_connect_app/features/auth/domain/entities/otp_challenge.dart';
 import 'package:sentech_connect_app/features/auth/domain/entities/user.dart';
@@ -22,6 +23,11 @@ const _challenge = OtpChallenge(
   binding: _binding,
   reference: 'AB2C',
 );
+
+class _Check implements HumanCheckProvider {
+  @override
+  Future<String?> token() async => 'human-token';
+}
 
 void main() {
   late ApiHarness h;
@@ -46,6 +52,19 @@ void main() {
     final challenge = (await repo.requestOtp(phoneNumber: '0821234567', binding: _binding)).getOrElse((f) => throw StateError(f.message));
     expect(challenge.reference, 'AB2C');
     expect(challenge.binding, _binding);
+  });
+
+  test('no human-check token is sent without a provider; with one it is schema-valid', () async {
+    h.adapter.on('POST', '/v1/auth/otp/request', (_) => FakeReply(202, fixture('otp_request.json')));
+    await repo.requestOtp(phoneNumber: '0821234567', binding: _binding);
+    expect((h.adapter.requests.single.data as Map).containsKey('turnstile_token'), isFalse);
+
+    final withCheck = HttpAuthRepository(h.api, tokens: h.tokens, tenant: h.tenantContext, humanCheck: _Check());
+    await withCheck.requestOtp(phoneNumber: '0821234567', binding: _binding);
+    final body = h.adapter.requests.last.data;
+    expect((body as Map)['turnstile_token'], 'human-token');
+    final api = OpenApiSnapshot.load();
+    expect(api.validate(body, api.schema('OtpRequestIn')), isEmpty);
   });
 
   test('an older server that sends no reference still works', () async {

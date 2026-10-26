@@ -109,4 +109,31 @@ void main() {
       );
     },
   );
+
+  group('suspended (the provider paused the service)', () {
+    test('shows Service suspended with no countdown, no bar, and does not become expired by the clock', () {
+      for (final expiresIn in [
+        const Duration(hours: 2),
+        Duration.zero,
+        const Duration(hours: -5),
+      ]) {
+        final s = PassSummary.of(
+          pass(status: PassStatus.suspended, dataMb: 1024, usedBytes: 100 << 20, expiresIn: expiresIn),
+          en,
+          now: t0,
+          localeTag: 'en',
+        );
+        expect(s.effectiveStatus, PassStatus.suspended, reason: '$expiresIn');
+        expect(s.headline, 'Service suspended');
+        expect(s.endsText, contains('paused'));
+        expect(s.fractionLeft, isNull);
+        expect(s.tier, UsageTier.suspended);
+        expect(s.capText, 'of 1 GB', reason: 'the plan size is still information');
+      }
+    });
+
+    test('a suspended pass is not "current" (not usable) but is not ended either', () {
+      expect(pass(status: PassStatus.suspended).isCurrent, isFalse);
+    });
+  });
 }

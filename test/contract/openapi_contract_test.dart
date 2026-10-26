@@ -204,6 +204,18 @@ void main() {
     }
   });
 
+  test('every entitlement status the API can send parses to its own PassStatus', () {
+    final status =
+        (api.schema('EntitlementOut')['properties']! as Map)['status'] as Map;
+    final base = Map<String, Object?>.from(
+      (fixtureMap('entitlements_page.json')['items']! as List).first as Map,
+    );
+    for (final v in (status['enum']! as List).cast<String>()) {
+      expect(passFromJson({...base, 'status': v}).status.name, v);
+    }
+    expect(passFromJson({...base, 'status': 'suspended'}).isCurrent, isFalse);
+  });
+
   test('a null product_id and the service source are tolerated', () {
     final base = Map<String, Object?>.from(
       (fixtureMap('entitlements_page.json')['items']! as List).first as Map,

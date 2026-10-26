@@ -67,9 +67,20 @@ void main() {
       ['p1:100', 'p1:expiry1h'],
     );
   });
+  test('a suspended pass never alerts, even over 80% or inside the last hour', () {
+    expect(
+      UsageAlertPolicy.due(
+        pass(status: PassStatus.suspended, usedMb: 1000, expiresAt: sast(14, 30)),
+        now: sast(14, 0),
+        alreadySent: {},
+      ),
+      isEmpty,
+    );
+  });
   test('scheduled and ended passes have no alerts', () {
     for (final status in [
       PassStatus.scheduled,
+      PassStatus.suspended,
       PassStatus.expired,
       PassStatus.exhausted,
       PassStatus.revoked,

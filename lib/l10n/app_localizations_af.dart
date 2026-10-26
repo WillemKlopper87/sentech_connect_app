@@ -1678,4 +1678,8 @@ class AppLocalizationsAf extends AppLocalizations {
 
   @override
   String get accountDeleteClose => 'Maak toe';
+
+  @override
+  String get passesSuspendedNote =>
+      'Jou verskaffer het hierdie diens gepouseer. Kontak hulle om dit terug te kry.';
 }

@@ -1676,4 +1676,8 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get accountDeleteClose => 'Close';
+
+  @override
+  String get passesSuspendedNote =>
+      'Your provider has paused this service. Contact them to get it back.';
 }

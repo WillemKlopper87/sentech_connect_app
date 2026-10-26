@@ -19,6 +19,9 @@ class UsageAlertPolicy {
     required DateTime now,
     required Set<String> alreadySent,
   }) {
+    // Only a running pass is alerted about. A suspended one (the provider
+    // paused the service) gets no 80%, full or expiry alert: the customer cannot
+    // use it, and the fix is with the provider, not a top-up.
     final local = now.toUtc().add(const Duration(hours: 2));
     if (local.hour >= 21 ||
         local.hour < 7 ||

@@ -2095,5 +2095,7 @@
   "accountDeleteCodeBody": "Ukuze uphephe sithumele ikhodi enezinombolo ezi-6 nge-SMS enombolweni ku-akhawunti yakho. Yifake ukuze usule i-akhawunti yakho nayo yonke idatha. Lokhu akunakuhlehliswa.",
   "@accountDeleteCodeBody": {"description": "Customer app copy: accountDeleteCodeBody."},
   "accountDeleteClose": "Vala",
-  "@accountDeleteClose": {"description": "Customer app copy: accountDeleteClose."}
+  "@accountDeleteClose": {"description": "Customer app copy: accountDeleteClose."},
+  "passesSuspendedNote": "Umhlinzeki wakho umise le sevisi. Xhumana naye ukuze ibuyiswe.",
+  "@passesSuspendedNote": {"description": "Customer app copy: passesSuspendedNote."}
 }

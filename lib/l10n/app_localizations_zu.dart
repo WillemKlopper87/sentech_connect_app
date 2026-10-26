@@ -1677,4 +1677,8 @@ class AppLocalizationsZu extends AppLocalizations {
 
   @override
   String get accountDeleteClose => 'Vala';
+
+  @override
+  String get passesSuspendedNote =>
+      'Umhlinzeki wakho umise le sevisi. Xhumana naye ukuze ibuyiswe.';
 }

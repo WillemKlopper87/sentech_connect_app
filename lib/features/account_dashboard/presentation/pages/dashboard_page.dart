@@ -501,6 +501,10 @@ class _CurrentPassCardState extends State<_CurrentPassCard> {
                 .firstOrNull ??
             state.passes
                 .where((p) => p.status == PassStatus.scheduled)
+                .firstOrNull ??
+            // A paused service stays on the dashboard, labelled as suspended.
+            state.passes
+                .where((p) => p.status == PassStatus.suspended)
                 .firstOrNull;
         final failed = state.status == PassesStatus.failure && current == null;
         final loading = state.status == PassesStatus.loading && current == null;

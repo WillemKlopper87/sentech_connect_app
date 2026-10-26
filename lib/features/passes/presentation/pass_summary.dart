@@ -3,7 +3,8 @@ import 'package:sentech_connect_app/features/passes/domain/entities/pass.dart';
 import 'package:sentech_connect_app/features/passes/presentation/pass_format.dart';
 import 'package:sentech_connect_app/l10n/app_localizations.dart';
 
-enum UsageTier { plenty, low, critical, ended }
+/// [suspended]: the provider paused the service; there is no usage to warn about.
+enum UsageTier { plenty, low, critical, ended, suspended }
 
 class PassSummary {
   const PassSummary({
@@ -32,6 +33,9 @@ class PassSummary {
             (p.status == PassStatus.active || p.status == PassStatus.scheduled)
         ? PassStatus.expired
         : p.status;
+    // Suspended is the server's word and is shown as such whatever the clock
+    // says: it is neither running (no countdown) nor over (it can come back).
+    final suspended = effectiveStatus == PassStatus.suspended;
     final ended =
         effectiveStatus == PassStatus.expired ||
         effectiveStatus == PassStatus.exhausted ||
@@ -43,11 +47,13 @@ class PassSummary {
       0,
       cap,
     );
-    final fraction = ended || !capped || cap == 0
+    final fraction = ended || suspended || !capped || cap == 0
         ? null
         : (left / cap).clamp(0, 1).toDouble();
     final tier = ended
         ? UsageTier.ended
+        : suspended
+        ? UsageTier.suspended
         : effectiveStatus == PassStatus.scheduled
         ? UsageTier.plenty
         : fraction == null
@@ -66,11 +72,14 @@ class PassSummary {
         date,
         formatTimeLeft(l10n, remaining),
       ),
+      PassStatus.suspended => l10n.passesSuspendedNote,
       PassStatus.expired => l10n.passesExpiredAt(date),
       _ => l10n.passesEndedAt(date),
     };
     final headline = ended
         ? l10n.passEnded
+        : suspended
+        ? l10n.passesStatusSuspended
         : effectiveStatus == PassStatus.scheduled
         ? l10n.passesStatusScheduled
         : capped

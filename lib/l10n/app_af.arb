@@ -2095,5 +2095,7 @@
   "accountDeleteCodeBody": "Vir jou veiligheid het ons 'n 6-syfer-kode per SMS gestuur na die nommer op jou rekening. Voer dit in om jou rekening en al jou data uit te vee. Dit kan nie ongedaan gemaak word nie.",
   "@accountDeleteCodeBody": {"description": "Customer app copy: accountDeleteCodeBody."},
   "accountDeleteClose": "Maak toe",
-  "@accountDeleteClose": {"description": "Customer app copy: accountDeleteClose."}
+  "@accountDeleteClose": {"description": "Customer app copy: accountDeleteClose."},
+  "passesSuspendedNote": "Jou verskaffer het hierdie diens gepouseer. Kontak hulle om dit terug te kry.",
+  "@passesSuspendedNote": {"description": "Customer app copy: passesSuspendedNote."}
 }
