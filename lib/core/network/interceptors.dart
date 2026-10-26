@@ -12,6 +12,13 @@ import 'package:sentech_connect_app/core/network/token_refresher.dart';
 const kAuthenticated = 'sc.authenticated';
 const kOperationScope = 'sc.operationScope';
 
+/// A 401 on this request is an answer about the REQUEST (for example "this
+/// account has no phone number to send a code to"), not proof that the session
+/// is dead: the usual one refresh and one retry still happen, but if the
+/// refreshed token is refused too the session is NOT ended. A refresh the
+/// server itself rejects still ends it.
+const kKeepSessionOn401 = 'sc.keepSessionOn401';
+
 bool _scopeIsCurrent(RequestOptions options) {
   final scope = options.extra[kOperationScope];
   return scope is! ApiOperationScope || scope.isCurrent;
@@ -232,6 +239,7 @@ class AuthInterceptor extends Interceptor {
           // access token. End it instead of leaving a zombie until the next
           // refresh.
           if (retryError.response?.statusCode == 401 &&
+              options.extra[kKeepSessionOn401] != true &&
               _scopeIsCurrent(options)) {
             await _refresher.expireSession(ifGeneration: retryGeneration);
           }

@@ -1660,4 +1660,21 @@ class AppLocalizationsZu extends AppLocalizations {
   @override
   String get failureActiveServiceExists =>
       'Usenayo isevisi esebenzayo. Qala ngokuyiklomelisa, noma uxhumane nomuntu onikezayo.';
+
+  @override
+  String get failureDeleteContactSupport =>
+      'Asikwazi ukuthumela ikhodi kule akhawunti. Xhumana nosekelo ukuze isuswe i-akhawunti yakho.';
+
+  @override
+  String get accountDeleteSendCode => 'Ngithumelele ikhodi';
+
+  @override
+  String get accountDeleteCodeTitle => 'Faka ikhodi esikuthumelele yona';
+
+  @override
+  String get accountDeleteCodeBody =>
+      'Ukuze uphephe sithumele ikhodi enezinombolo ezi-6 nge-SMS enombolweni ku-akhawunti yakho. Yifake ukuze usule i-akhawunti yakho nayo yonke idatha. Lokhu akunakuhlehliswa.';
+
+  @override
+  String get accountDeleteClose => 'Vala';
 }

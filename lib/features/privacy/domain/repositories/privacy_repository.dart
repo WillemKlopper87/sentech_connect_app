@@ -18,12 +18,35 @@ class PrivacyRequestReceipt extends Equatable {
   List<Object?> get props => [reference, requestedAt, exportJson];
 }
 
+/// The fresh re-check of an account deletion: a code was sent by SMS to the
+/// phone number on the account (`POST /v1/me/delete-challenge`).
+class DeleteChallenge extends Equatable {
+  const DeleteChallenge({required this.challengeId, required this.expiresIn, this.reference});
+
+  final String challengeId;
+  final Duration expiresIn;
+
+  /// Four characters the SMS shows as `Code ref AB12`.
+  final String? reference;
+
+  @override
+  List<Object?> get props => [challengeId, expiresIn, reference];
+}
+
 /// Real implementation calls the backend (which deletes/exports server-side
 /// data and cascades to the BSS/CRM, payment provider and KYC vendor). The
 /// app only wipes local data AFTER the server accepted the deletion request.
 abstract class PrivacyRepository {
-  /// Asks the server to permanently delete the account and its personal data.
-  Future<Either<Failure, PrivacyRequestReceipt>> requestAccountDeletion();
+  /// Step 1 of deleting the account: the platform sends a code to the phone on
+  /// the account. A 401 (no phone number to send to) is a
+  /// [DeleteCodeUnavailableFailure] and does NOT end the session.
+  Future<Either<Failure, DeleteChallenge>> requestDeleteChallenge();
+
+  /// Step 2: permanently deletes the account and its personal data, once
+  /// [code] (from the SMS of [challengeId]) proves the customer still holds
+  /// the phone. A wrong, used or expired code is a [ReauthRequiredFailure] and
+  /// nothing is deleted.
+  Future<Either<Failure, PrivacyRequestReceipt>> deleteAccount({required String challengeId, required String code});
 
   /// Asks the server to prepare an export of the customer's data, delivered
   /// to their verified email.

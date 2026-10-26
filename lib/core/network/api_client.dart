@@ -133,11 +133,19 @@ class ApiClient {
     Duration? timeout,
     Map<String, String>? headers,
     ApiOperationScope? scope,
+    bool keepSessionOn401 = false,
   }) => _send(
     () => _dio.post<Object?>(
       path,
       data: body,
-      options: _options(authenticated, timeout, idempotencyKey, headers, scope),
+      options: _options(
+        authenticated,
+        timeout,
+        idempotencyKey,
+        headers,
+        scope,
+        keepSessionOn401,
+      ),
     ),
     decode,
     scope: scope,
@@ -160,15 +168,29 @@ class ApiClient {
     scope: scope,
   );
 
+  /// `DELETE`, optionally with a JSON [body] (`DELETE /v1/me` carries the
+  /// re-check code) and an [idempotencyKey] like [post].
   Future<Either<Failure, Unit>> delete(
     String path, {
+    Object? body,
     bool authenticated = true,
+    String? idempotencyKey,
     Duration? timeout,
+    Map<String, String>? headers,
     ApiOperationScope? scope,
+    bool keepSessionOn401 = false,
   }) => _send(
     () => _dio.delete<Object?>(
       path,
-      options: _options(authenticated, timeout, null, null, scope),
+      data: body,
+      options: _options(
+        authenticated,
+        timeout,
+        idempotencyKey,
+        headers,
+        scope,
+        keepSessionOn401,
+      ),
     ),
     (_) => unit,
     scope: scope,
@@ -180,8 +202,13 @@ class ApiClient {
     String? idempotencyKey, [
     Map<String, String>? headers,
     ApiOperationScope? scope,
+    bool keepSessionOn401 = false,
   ]) => Options(
-    extra: {kAuthenticated: authenticated, kOperationScope: ?scope},
+    extra: {
+      kAuthenticated: authenticated,
+      kOperationScope: ?scope,
+      if (keepSessionOn401) kKeepSessionOn401: true,
+    },
     sendTimeout: timeout,
     receiveTimeout: timeout,
     headers: {...?headers, 'Idempotency-Key': ?idempotencyKey},

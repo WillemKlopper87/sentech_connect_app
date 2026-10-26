@@ -2085,5 +2085,15 @@
   "failureSubscriberNotFound": "Ons kon nie 'n diensrekening vir jou by hierdie verskaffer vind nie.",
   "@failureSubscriberNotFound": {"description": "Customer app copy: failureSubscriberNotFound."},
   "failureActiveServiceExists": "Jy het nog 'n aktiewe diens. Kanselleer dit eers, of kontak jou verskaffer.",
-  "@failureActiveServiceExists": {"description": "Customer app copy: failureActiveServiceExists."}
+  "@failureActiveServiceExists": {"description": "Customer app copy: failureActiveServiceExists."},
+  "failureDeleteContactSupport": "Ons kan nie 'n kode na hierdie rekening stuur nie. Kontak ondersteuning om jou rekening uit te vee.",
+  "@failureDeleteContactSupport": {"description": "Customer app copy: failureDeleteContactSupport."},
+  "accountDeleteSendCode": "Stuur vir my 'n kode",
+  "@accountDeleteSendCode": {"description": "Customer app copy: accountDeleteSendCode."},
+  "accountDeleteCodeTitle": "Voer die kode in wat ons vir jou gestuur het",
+  "@accountDeleteCodeTitle": {"description": "Customer app copy: accountDeleteCodeTitle."},
+  "accountDeleteCodeBody": "Vir jou veiligheid het ons 'n 6-syfer-kode per SMS gestuur na die nommer op jou rekening. Voer dit in om jou rekening en al jou data uit te vee. Dit kan nie ongedaan gemaak word nie.",
+  "@accountDeleteCodeBody": {"description": "Customer app copy: accountDeleteCodeBody."},
+  "accountDeleteClose": "Maak toe",
+  "@accountDeleteClose": {"description": "Customer app copy: accountDeleteClose."}
 }

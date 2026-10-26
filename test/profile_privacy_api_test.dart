@@ -22,6 +22,8 @@ const _details = RegistrationDetails(
   address: '12 Main Road, Soweto',
 );
 
+const _challengeId = '9d1c5e2a-7b3f-4c8d-a6e1-0f2b4c6d8e1a';
+
 void main() {
   late ApiHarness h;
 
@@ -297,12 +299,13 @@ void main() {
   });
 
   group('HttpPrivacyRepository', () {
-    test('account deletion is DELETE /v1/me and returns a receipt', () async {
+    test('account deletion is DELETE /v1/me with the re-check code and returns a receipt', () async {
       final repo = HttpPrivacyRepository(h.api, now: () => h.now);
       h.adapter.on('DELETE', '/v1/me', (_) => const FakeReply(204));
-      final receipt = (await repo.requestAccountDeletion()).getOrElse((f) => throw StateError(f.message));
+      final receipt = (await repo.deleteAccount(challengeId: _challengeId, code: '123456')).getOrElse((f) => throw StateError(f.message));
       expect(receipt.reference, startsWith('DEL-'));
       expect(h.adapter.requests.single.headers['Authorization'], 'Bearer access-1');
+      expect(h.adapter.requests.single.data, {'challenge_id': _challengeId, 'code': '123456'});
     });
 
     test('the export request carries the bearer token', () async {
@@ -318,7 +321,13 @@ void main() {
         var wiped = 0;
         final cubit = PrivacyActionsCubit(HttpPrivacyRepository(h.api), onAccountDeleted: () async => wiped++);
         addTearDown(cubit.close);
-        method == 'DELETE' ? await cubit.deleteAccount() : await cubit.requestDataExport();
+        if (method == 'DELETE') {
+          h.adapter.on('POST', '/v1/me/delete-challenge', (_) => FakeReply(202, fixture('delete_challenge.json')));
+          await cubit.requestDeleteCode();
+          await cubit.deleteAccount('123456');
+        } else {
+          await cubit.requestDataExport();
+        }
         expect(wiped, 0, reason: 'a refused request must not wipe anything');
         return cubit;
       }
@@ -370,12 +379,14 @@ void main() {
       });
       final cubit = PrivacyActionsCubit(HttpPrivacyRepository(h.api), onAccountDeleted: () async => wiped++);
       addTearDown(cubit.close);
+      h.adapter.on('POST', '/v1/me/delete-challenge', (_) => FakeReply(202, fixture('delete_challenge.json')));
+      await cubit.requestDeleteCode();
 
-      await cubit.deleteAccount();
+      await cubit.deleteAccount('123456');
       expect(cubit.state.status, PrivacyActionStatus.failed);
       expect(wiped, 0);
 
-      await cubit.deleteAccount();
+      await cubit.deleteAccount('123456');
       expect(cubit.state.status, PrivacyActionStatus.deleted);
       expect(wiped, 1);
     });

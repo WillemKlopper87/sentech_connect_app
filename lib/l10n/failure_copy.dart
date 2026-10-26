@@ -96,6 +96,7 @@ Map<String, String> typedFailureTexts(AppLocalizations l10n) => {
       l10n.failureConsentVersionOutdated,
   const SubscriberNotFoundFailure().message: l10n.failureSubscriberNotFound,
   const ActiveServiceExistsFailure().message: l10n.failureActiveServiceExists,
+  const DeleteCodeUnavailableFailure().message: l10n.failureDeleteContactSupport,
 };
 
 /// Customer text for a typed refusal, or null when [failure] is not one (the
@@ -126,6 +127,8 @@ String? typedFailureText(AppLocalizations l10n, Failure? failure) {
       return l10n.failureSubscriberNotFound;
     case ActiveServiceExistsFailure():
       return l10n.failureActiveServiceExists;
+    case DeleteCodeUnavailableFailure():
+      return l10n.failureDeleteContactSupport;
     default:
       return null;
   }

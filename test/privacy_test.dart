@@ -180,12 +180,21 @@ void main() {
       final cubit = PrivacyActionsCubit(MockPrivacyRepository(network), onAccountDeleted: () async => wiped++);
       addTearDown(cubit.close);
 
-      await cubit.deleteAccount();
+      await cubit.requestDeleteCode();
       expect(cubit.state.status, PrivacyActionStatus.failed);
       expect(wiped, 0);
 
       network.offline = false;
-      await cubit.deleteAccount();
+      await cubit.requestDeleteCode();
+      expect(cubit.state.status, PrivacyActionStatus.deleteCodeSent);
+      expect(wiped, 0, reason: 'asking for the code deletes nothing');
+
+      expect(await cubit.deleteAccount(MockPrivacyRepository.rejectedDemoCode), isFalse);
+      expect(cubit.state.status, PrivacyActionStatus.failed);
+      expect(cubit.state.failure, isA<ReauthRequiredFailure>());
+      expect(wiped, 0, reason: 'a wrong code wipes nothing');
+
+      expect(await cubit.deleteAccount('123456'), isTrue);
       expect(cubit.state.status, PrivacyActionStatus.deleted);
       expect(wiped, 1);
     });
@@ -270,6 +279,25 @@ void main() {
 
       await tester.tap(find.text('Delete my account & data'));
       await tester.pumpAndSettle();
+      // Step 1: confirm; the platform sends a code to the number on the account.
+      await tester.tap(find.text('Send me a code'));
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
+      await tester.pump();
+      expect(find.text('Enter the code we sent you'), findsOneWidget);
+      expect(find.text('Use the SMS that shows reference AB23.'), findsOneWidget);
+      expect(auth.state.isSignedIn, isTrue, reason: 'nothing is deleted before the code is entered');
+      // A wrong code explains and deletes nothing.
+      await tester.enterText(find.byType(TextField), '000000');
+      await tester.tap(find.text('Delete everything'));
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
+      await tester.pump();
+      expect(find.textContaining('That code did not work'), findsOneWidget);
+      expect(auth.state.isSignedIn, isTrue);
+      expect(secureStore.snapshot, isNotEmpty);
+      // The right code deletes.
+      await tester.enterText(find.byType(TextField), '123456');
       await tester.tap(find.text('Delete everything'));
       await tester.pump();
       await tester.pump(const Duration(seconds: 1));

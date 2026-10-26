@@ -2094,5 +2094,15 @@
   "failureSubscriberNotFound": "We could not find a service account for you with this provider.",
   "@failureSubscriberNotFound": {"description": "Customer error for 404 subscriber_not_found: the customer has no subscriber record with this provider yet."},
   "failureActiveServiceExists": "You still have an active service. Cancel it first, or contact your provider.",
-  "@failureActiveServiceExists": {"description": "Customer error for 409 active_service_exists: deleting the account (or signing up again) is refused while a service is active."}
+  "@failureActiveServiceExists": {"description": "Customer error for 409 active_service_exists: deleting the account (or signing up again) is refused while a service is active."},
+  "failureDeleteContactSupport": "We cannot send a code to this account. Contact support to delete your account.",
+  "@failureDeleteContactSupport": {"description": "Customer error when the delete-account code cannot be sent (401 from delete-challenge: no phone number on the account). The customer stays signed in."},
+  "accountDeleteSendCode": "Send me a code",
+  "@accountDeleteSendCode": {"description": "Button on the first delete-account step: asks the platform to SMS a 6-digit code to the number on the account."},
+  "accountDeleteCodeTitle": "Enter the code we sent you",
+  "@accountDeleteCodeTitle": {"description": "Title of the second delete-account step."},
+  "accountDeleteCodeBody": "For your safety we sent a 6-digit code by SMS to the number on your account. Enter it to delete your account and all your data. This cannot be undone.",
+  "@accountDeleteCodeBody": {"description": "Body of the second delete-account step: why a code is asked for and that deleting cannot be undone."},
+  "accountDeleteClose": "Close",
+  "@accountDeleteClose": {"description": "Closes the delete-account dialog when nothing more can be done there (for example contact support)."}
 }

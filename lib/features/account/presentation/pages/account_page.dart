@@ -7,6 +7,7 @@ import 'package:sentech_connect_app/core/local/data_saver.dart';
 import 'package:sentech_connect_app/core/notifications/notification_permission_cubit.dart';
 import 'package:sentech_connect_app/core/notifications/notification_service.dart';
 import 'package:sentech_connect_app/features/passes/domain/usage_alert_scheduler.dart';
+import 'package:sentech_connect_app/features/account/presentation/widgets/delete_account_dialog.dart';
 import 'package:sentech_connect_app/features/auth/presentation/bloc/auth_cubit.dart';
 import 'package:sentech_connect_app/features/privacy/presentation/bloc/privacy_actions_cubit.dart';
 import 'package:sentech_connect_app/features/privacy/presentation/pages/data_export_page.dart';
@@ -117,7 +118,9 @@ class _AccountView extends StatelessWidget {
                 SnackBar(content: Text(l10n.accountDownloadDataDone)),
               );
           }
-        } else if (state.status == PrivacyActionStatus.failed) {
+        } else if (state.status == PrivacyActionStatus.failed &&
+            state.action == PrivacyAction.export) {
+          // Delete failures are shown inside the delete dialog.
           messenger
             ..hideCurrentSnackBar()
             ..showSnackBar(
@@ -377,32 +380,8 @@ class _AccountView extends StatelessWidget {
     await context.read<AuthCubit>().logOut();
   }
 
-  Future<void> _confirmDelete(BuildContext context) async {
-    final l10n = context.l10n;
-    final theme = Theme.of(context);
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l10n.accountDeleteTitle),
-        content: Text(l10n.accountDeleteBody),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(l10n.commonCancel),
-          ),
-          FilledButton(
-            style: FilledButton.styleFrom(
-              backgroundColor: theme.colorScheme.error,
-            ),
-            onPressed: () => Navigator.pop(context, true),
-            child: Text(l10n.accountDeleteConfirm),
-          ),
-        ],
-      ),
-    );
-    if (confirmed != true || !context.mounted) return;
-    await context.read<PrivacyActionsCubit>().deleteAccount();
-  }
+  /// Two steps (confirm, then the SMS code); see [showDeleteAccountDialog].
+  Future<void> _confirmDelete(BuildContext context) => showDeleteAccountDialog(context);
 }
 
 /// A bottom sheet with one radio per option. Choosing one applies it and closes the sheet.

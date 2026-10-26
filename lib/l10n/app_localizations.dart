@@ -2871,6 +2871,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You still have an active service. Cancel it first, or contact your provider.'**
   String get failureActiveServiceExists;
+
+  /// Customer error when the delete-account code cannot be sent (401 from delete-challenge: no phone number on the account). The customer stays signed in.
+  ///
+  /// In en, this message translates to:
+  /// **'We cannot send a code to this account. Contact support to delete your account.'**
+  String get failureDeleteContactSupport;
+
+  /// Button on the first delete-account step: asks the platform to SMS a 6-digit code to the number on the account.
+  ///
+  /// In en, this message translates to:
+  /// **'Send me a code'**
+  String get accountDeleteSendCode;
+
+  /// Title of the second delete-account step.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the code we sent you'**
+  String get accountDeleteCodeTitle;
+
+  /// Body of the second delete-account step: why a code is asked for and that deleting cannot be undone.
+  ///
+  /// In en, this message translates to:
+  /// **'For your safety we sent a 6-digit code by SMS to the number on your account. Enter it to delete your account and all your data. This cannot be undone.'**
+  String get accountDeleteCodeBody;
+
+  /// Closes the delete-account dialog when nothing more can be done there (for example contact support).
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get accountDeleteClose;
 }
 
 class _AppLocalizationsDelegate

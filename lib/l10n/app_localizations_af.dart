@@ -1660,4 +1660,22 @@ class AppLocalizationsAf extends AppLocalizations {
   @override
   String get failureActiveServiceExists =>
       'Jy het nog \'n aktiewe diens. Kanselleer dit eers, of kontak jou verskaffer.';
+
+  @override
+  String get failureDeleteContactSupport =>
+      'Ons kan nie \'n kode na hierdie rekening stuur nie. Kontak ondersteuning om jou rekening uit te vee.';
+
+  @override
+  String get accountDeleteSendCode => 'Stuur vir my \'n kode';
+
+  @override
+  String get accountDeleteCodeTitle =>
+      'Voer die kode in wat ons vir jou gestuur het';
+
+  @override
+  String get accountDeleteCodeBody =>
+      'Vir jou veiligheid het ons \'n 6-syfer-kode per SMS gestuur na die nommer op jou rekening. Voer dit in om jou rekening en al jou data uit te vee. Dit kan nie ongedaan gemaak word nie.';
+
+  @override
+  String get accountDeleteClose => 'Maak toe';
 }

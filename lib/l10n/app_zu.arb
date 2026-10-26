@@ -2085,5 +2085,15 @@
   "failureSubscriberNotFound": "Asikwazanga ukuthola i-akhawunti yesevisi yakho kulo muntu onikezayo.",
   "@failureSubscriberNotFound": {"description": "Customer app copy: failureSubscriberNotFound."},
   "failureActiveServiceExists": "Usenayo isevisi esebenzayo. Qala ngokuyiklomelisa, noma uxhumane nomuntu onikezayo.",
-  "@failureActiveServiceExists": {"description": "Customer app copy: failureActiveServiceExists."}
+  "@failureActiveServiceExists": {"description": "Customer app copy: failureActiveServiceExists."},
+  "failureDeleteContactSupport": "Asikwazi ukuthumela ikhodi kule akhawunti. Xhumana nosekelo ukuze isuswe i-akhawunti yakho.",
+  "@failureDeleteContactSupport": {"description": "Customer app copy: failureDeleteContactSupport."},
+  "accountDeleteSendCode": "Ngithumelele ikhodi",
+  "@accountDeleteSendCode": {"description": "Customer app copy: accountDeleteSendCode."},
+  "accountDeleteCodeTitle": "Faka ikhodi esikuthumelele yona",
+  "@accountDeleteCodeTitle": {"description": "Customer app copy: accountDeleteCodeTitle."},
+  "accountDeleteCodeBody": "Ukuze uphephe sithumele ikhodi enezinombolo ezi-6 nge-SMS enombolweni ku-akhawunti yakho. Yifake ukuze usule i-akhawunti yakho nayo yonke idatha. Lokhu akunakuhlehliswa.",
+  "@accountDeleteCodeBody": {"description": "Customer app copy: accountDeleteCodeBody."},
+  "accountDeleteClose": "Vala",
+  "@accountDeleteClose": {"description": "Customer app copy: accountDeleteClose."}
 }

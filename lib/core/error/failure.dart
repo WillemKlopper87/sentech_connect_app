@@ -164,3 +164,10 @@ class OrderNotPayableFailure extends ValidationFailure {
   const OrderNotPayableFailure([String message = 'This order can no longer be paid.', bool messageIsDetail = false])
       : super(message, 'order_not_payable', messageIsDetail);
 }
+
+/// `POST /v1/me/delete-challenge` answered 401: the account has no phone
+/// number to send the re-check code to (or no longer exists). The customer is
+/// NOT signed out; they are told to contact support to delete the account.
+class DeleteCodeUnavailableFailure extends Failure {
+  const DeleteCodeUnavailableFailure([super.message = 'We cannot send a code to this account. Contact support to delete your account.']);
+}

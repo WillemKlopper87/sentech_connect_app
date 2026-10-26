@@ -1659,4 +1659,21 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get failureActiveServiceExists =>
       'You still have an active service. Cancel it first, or contact your provider.';
+
+  @override
+  String get failureDeleteContactSupport =>
+      'We cannot send a code to this account. Contact support to delete your account.';
+
+  @override
+  String get accountDeleteSendCode => 'Send me a code';
+
+  @override
+  String get accountDeleteCodeTitle => 'Enter the code we sent you';
+
+  @override
+  String get accountDeleteCodeBody =>
+      'For your safety we sent a 6-digit code by SMS to the number on your account. Enter it to delete your account and all your data. This cannot be undone.';
+
+  @override
+  String get accountDeleteClose => 'Close';
 }
