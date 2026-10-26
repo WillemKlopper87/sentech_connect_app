@@ -41,9 +41,12 @@ class HttpAuthRepository implements AuthRepository {
     if (phone == null) {
       return const Left(ValidationFailure('Enter a valid South African mobile number.', 'invalid_phone'));
     }
-    // SEAM (M2): staging and prod want a human-check token; the default
-    // provider has none, so the field is left out (dev and test accept that).
-    final humanCheck = await _humanCheck.token();
+    // Staging and prod want a human-check token; the default provider has
+    // none, so the field is left out (dev and test accept that).
+    final check = await acquireHumanCheck(_humanCheck);
+    final checkFailure = check.match((f) => f, (_) => null);
+    if (checkFailure != null) return Left(checkFailure);
+    final humanCheck = check.match((_) => null, (t) => t);
     return _api.post<OtpChallenge>(
       '/v1/auth/otp/request',
       authenticated: false,

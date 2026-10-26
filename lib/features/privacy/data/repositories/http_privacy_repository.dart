@@ -22,9 +22,12 @@ class HttpPrivacyRepository implements PrivacyRepository {
 
   @override
   Future<Either<Failure, DeleteChallenge>> requestDeleteChallenge() async {
-    // SEAM (M2): the human-check token is sent only when a provider has one.
-    // The default provider has none, so the request has no body.
-    final humanCheck = await _humanCheck.token();
+    // The human-check token is sent only when a provider has one. The default
+    // provider has none, so the request has no body.
+    final check = await acquireHumanCheck(_humanCheck);
+    final checkFailure = check.match((f) => f, (_) => null);
+    if (checkFailure != null) return Left(checkFailure);
+    final humanCheck = check.match((_) => null, (t) => t);
     final result = await _api.post<DeleteChallenge>(
       '/v1/me/delete-challenge',
       body: humanCheck == null ? null : {'turnstile_token': humanCheck},

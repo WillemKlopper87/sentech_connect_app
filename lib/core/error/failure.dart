@@ -121,6 +121,13 @@ class HumanVerificationUnavailableFailure extends Failure {
   List<Object?> get props => [message, retryAfter];
 }
 
+/// The customer closed the human check (Quick check sheet) without finishing
+/// it. Nothing was sent. The screens return to where they were and show no
+/// error. The default text reuses the localised "The request was cancelled."
+class HumanCheckCancelledFailure extends Failure {
+  const HumanCheckCancelledFailure([super.message = 'The request was cancelled.']);
+}
+
 /// 403 `reauth_required`: the fresh code for a sensitive action (deleting the
 /// account) was missing, wrong, used or expired. Nothing was changed.
 class ReauthRequiredFailure extends Failure {

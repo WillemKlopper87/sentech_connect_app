@@ -173,6 +173,11 @@ class OtpLoginCubit extends Cubit<OtpLoginState> {
   /// countdown; a spent code (the session could not be set up) goes back to
   /// the phone step so the customer is never stuck on a dead code.
   void _fail(Failure failure) {
+    if (failure is HumanCheckCancelledFailure) {
+      // The customer closed the Quick check: back to where they were, no error.
+      emit(state.copyWith(status: OtpLoginStatus.idle));
+      return;
+    }
     if (failure is SessionSetupFailure) {
       _countdown?.cancel();
       _forgetBinding(); // the code is spent: the next attempt starts afresh

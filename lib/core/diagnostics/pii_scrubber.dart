@@ -28,7 +28,7 @@ class PiiScrubber {
   /// tokens in JSON or `key=value` text: the value goes whatever it looks like
   /// (a 6-digit code would pass every other rule).
   static final _secretFields = RegExp(
-    r'''(["']?(?<![A-Za-z_])(?:binding|code|turnstile_token|refresh_token|access_token)["']?\s*[:=]\s*["']?)[^"'\s,&})\]]+''',
+    r'''(["']?(?<![A-Za-z_])(?:binding|code|token|turnstile_token|refresh_token|access_token)["']?\s*[:=]\s*["']?)[^"'\s,&})\]]+''',
     caseSensitive: false,
   );
 

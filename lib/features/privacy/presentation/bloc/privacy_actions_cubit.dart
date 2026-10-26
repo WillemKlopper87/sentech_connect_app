@@ -187,6 +187,16 @@ class PrivacyActionsCubit extends Cubit<PrivacyActionsState> {
   /// A 429 locks the buttons for the wait the server asked for (never less
   /// than the normal resend cooldown), like the sign-in screen.
   void _fail(Failure failure, PrivacyAction action, DeleteChallenge? challenge) {
+    if (failure is HumanCheckCancelledFailure) {
+      // The customer closed the Quick check: back to where they were, no error.
+      emit(PrivacyActionsState(
+        deleteChallenge: challenge,
+        resendIn: state.resendIn,
+        rateLimited: state.rateLimited,
+        status: challenge == null ? PrivacyActionStatus.idle : PrivacyActionStatus.deleteCodeSent,
+      ));
+      return;
+    }
     if (failure is RateLimitedFailure) {
       final asked = failure.retryAfter?.inSeconds ?? 0;
       final wait = asked > resendCooldown.inSeconds ? asked : resendCooldown.inSeconds;
