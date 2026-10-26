@@ -2799,6 +2799,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Selected by us for you'**
   String get planBadgeOurPickHint;
+
+  /// Status label of a pass whose service the provider has paused (status suspended). Not expired: it can come back.
+  ///
+  /// In en, this message translates to:
+  /// **'Service suspended'**
+  String get passesStatusSuspended;
 }
 
 class _AppLocalizationsDelegate

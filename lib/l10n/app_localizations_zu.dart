@@ -1610,4 +1610,7 @@ class AppLocalizationsZu extends AppLocalizations {
 
   @override
   String get planBadgeOurPickHint => 'Selected by us for you';
+
+  @override
+  String get passesStatusSuspended => 'Isevisi imisiwe';
 }

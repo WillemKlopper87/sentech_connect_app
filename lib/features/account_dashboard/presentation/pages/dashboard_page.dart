@@ -589,6 +589,7 @@ class _CurrentPassCardState extends State<_CurrentPassCard> {
             switch (summary.effectiveStatus) {
               PassStatus.active => l10n.passesStatusActive,
               PassStatus.scheduled => l10n.passesStatusScheduled,
+              PassStatus.suspended => l10n.passesStatusSuspended,
               PassStatus.expired => l10n.passesStatusExpired,
               PassStatus.exhausted => l10n.passesStatusExhausted,
               PassStatus.revoked => l10n.passesStatusRevoked,

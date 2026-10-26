@@ -2070,5 +2070,7 @@
   "planBadgeOurPickHint": "Selected by us for you",
   "@planBadgeOurPickHint": {
     "description": "Editorial recommendation; no popularity claim."
-  }
+  },
+  "passesStatusSuspended": "Service suspended",
+  "@passesStatusSuspended": {"description": "Status label of a pass whose service the provider has paused (status suspended). Not expired: it can come back."}
 }

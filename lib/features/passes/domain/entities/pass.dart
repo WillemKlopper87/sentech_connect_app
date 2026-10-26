@@ -1,9 +1,11 @@
 import 'package:equatable/equatable.dart';
 
-enum PassStatus { scheduled, active, expired, exhausted, revoked }
+/// `suspended`: the provider paused the service (for example an unpaid
+/// invoice); it can come back, so it is neither expired nor revoked.
+enum PassStatus { scheduled, active, suspended, expired, exhausted, revoked }
 
 /// Where a pass came from. A newer server may add values: those read as [unknown].
-enum PassSource { order, voucher, admin, unknown }
+enum PassSource { order, voucher, admin, service, unknown }
 
 /// Why a pass exists (`origin_type`). A newer server may add values: those
 /// read as [unknown]. Nothing here is displayed yet (display waits for WP-30).
@@ -169,6 +171,7 @@ PassOrigin _originFromJson(Map<String, Object?> json) {
     PassSource.order => PassOrigin.order,
     PassSource.voucher => PassOrigin.voucher,
     PassSource.admin => PassOrigin.admin,
+    PassSource.service => PassOrigin.service,
     PassSource.unknown => PassOrigin.unknown,
   };
 }

@@ -20,6 +20,7 @@ const fixtureSchemas = {
   'entitlements_page.json': 'Page_EntitlementOut_',
   'voucher_redeem_ok.json': 'RedeemOut',
   'otp_request.json': 'OtpRequestOut',
+  'delete_challenge.json': 'OtpRequestOut', // POST /v1/me/delete-challenge answers the same shape
   'token_pair.json': 'TokenPairOut',
   'profile.json': 'ProfileOut',
   'profile_complete.json': 'ProfileOut',
@@ -99,6 +100,11 @@ const decoderReads = <String, Set<String>>{
     'home_serving_differs',
   },
   'EntitlementScopeOut': {'kind'},
+  'OtpRequestOut': {'challenge_id', 'expires_in_seconds', 'reference'},
+  // Request bodies the app sends (every key must exist in the API schema).
+  'OtpRequestIn': {'tenant', 'phone', 'binding'},
+  'OtpVerifyIn': {'tenant', 'challenge_id', 'code', 'binding'},
+  'DeleteAccountIn': {'challenge_id', 'code'},
   'ProblemDetail': {'code', 'title', 'detail', 'request_id'},
 };
 
@@ -181,5 +187,49 @@ void main() {
         (api.schema('EntitlementOut')['properties']! as Map)['status'] as Map;
     final names = PassStatus.values.map((s) => s.name).toSet();
     expect((status['enum']! as List).toSet().difference(names), isEmpty);
+  });
+
+  test('every entitlement source parses without throwing or going unknown', () {
+    final source =
+        (api.schema('EntitlementOut')['properties']! as Map)['source'] as Map;
+    final base = Map<String, Object?>.from(
+      (fixtureMap('entitlements_page.json')['items']! as List).first as Map,
+    );
+    for (final v in (source['enum']! as List).cast<String>()) {
+      expect(
+        passFromJson({...base, 'source': v}).source,
+        isNot(PassSource.unknown),
+        reason: v,
+      );
+    }
+  });
+
+  test('a null product_id and the service source are tolerated', () {
+    final base = Map<String, Object?>.from(
+      (fixtureMap('entitlements_page.json')['items']! as List).first as Map,
+    );
+    final pass = passFromJson({...base, 'product_id': null, 'source': 'service'});
+    expect(pass.source, PassSource.service);
+  });
+
+  test('an unknown entitlement status still fails loudly', () {
+    final base = Map<String, Object?>.from(
+      (fixtureMap('entitlements_page.json')['items']! as List).first as Map,
+    );
+    expect(
+      () => passFromJson({...base, 'status': 'frozen'}),
+      throwsFormatException,
+    );
+  });
+
+  test('the delete-challenge route answers OtpRequestOut and takes DeleteChallengeIn', () {
+    final route = api.path('/v1/me/delete-challenge', 'post');
+    expect(api.responseSchemaName(route, '202'), 'OtpRequestOut');
+    expect(
+      api.properties('DeleteChallengeIn'),
+      contains('turnstile_token'), // sent later (M2)
+    );
+    final del = api.path('/v1/me', 'delete');
+    expect(api.requestBodySchemaName(del), 'DeleteAccountIn');
   });
 }

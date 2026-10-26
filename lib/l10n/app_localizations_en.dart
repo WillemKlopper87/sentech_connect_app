@@ -1609,4 +1609,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get planBadgeOurPickHint => 'Selected by us for you';
+
+  @override
+  String get passesStatusSuspended => 'Service suspended';
 }

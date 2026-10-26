@@ -13,6 +13,41 @@ class OpenApiSnapshot {
 
   final Map<String, Object?> _schemas;
 
+  late final Map<String, Object?> _paths = Map<String, Object?>.from(
+    (jsonDecode(File('test/contract/openapi.json').readAsStringSync()) as Map)['paths'] as Map,
+  );
+
+  /// The operation object of [method] on [path].
+  Map<String, Object?> path(String path, String method) {
+    final item = _paths[path];
+    if (item is! Map || item[method] is! Map) throw ArgumentError('No $method $path in the snapshot');
+    return Map<String, Object?>.from(item[method] as Map);
+  }
+
+  static String? _refName(Object? node) {
+    if (node is! Map) return null;
+    final ref = node[r'$ref'];
+    if (ref is String) return ref.split('/').last;
+    for (final option in (node['anyOf'] as List? ?? const [])) {
+      final name = _refName(option);
+      if (name != null) return name;
+    }
+    return null;
+  }
+
+  /// The schema name of the JSON body an operation answers with for [status].
+  String? responseSchemaName(Map<String, Object?> operation, String status) {
+    final response = (operation['responses'] as Map?)?[status] as Map?;
+    final content = response?['content'] as Map?;
+    return _refName(((content?.values.firstOrNull) as Map?)?['schema']);
+  }
+
+  /// The schema name of an operation's JSON request body.
+  String? requestBodySchemaName(Map<String, Object?> operation) {
+    final content = (operation['requestBody'] as Map?)?['content'] as Map?;
+    return _refName(((content?.values.firstOrNull) as Map?)?['schema']);
+  }
+
   Map<String, Object?> schema(String name) {
     final s = _schemas[name];
     if (s is! Map) throw ArgumentError('No schema $name in the snapshot');

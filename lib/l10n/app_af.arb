@@ -2061,5 +2061,7 @@
   "planBadgeOurPickHint": "Selected by us for you",
   "@planBadgeOurPickHint": {
     "description": "English fallback pending translation. Editorial recommendation; no popularity claim."
-  }
+  },
+  "passesStatusSuspended": "Diens opgeskort",
+  "@passesStatusSuspended": {"description": "Customer app copy: passesStatusSuspended."}
 }
