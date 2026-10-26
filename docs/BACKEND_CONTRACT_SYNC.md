@@ -14,7 +14,7 @@ Status words: **done** (real repository, tested), **mock** (a `Mock*Repository` 
 |---|---|---|
 | `GET /v1/tenants` | done | provider picker |
 | `GET /v1/app-config` | done | modules, `collection_mode_public`, branding, legal, support |
-| `POST /v1/auth/otp/request` | done | sends `binding` (CSPRNG, one per sign-in attempt) and reads `reference`; `turnstile_token` is a seam that sends nothing yet (M2) |
+| `POST /v1/auth/otp/request` | done | sends `binding` (CSPRNG, one per sign-in attempt) and reads `reference`; `turnstile_token` comes from the human check: the Turnstile WebView when the build has `TURNSTILE_SITE_KEY` and `TURNSTILE_BASE_URL` (M2d), nothing otherwise |
 | `POST /v1/auth/otp/verify` | done | sends the same `binding`; a wrong or missing binding is `400 otp_invalid` |
 | `POST /v1/auth/token/refresh` | done | single-flight refresh |
 | `POST /v1/auth/logout` | done | best effort, bounded |
@@ -22,7 +22,7 @@ Status words: **done** (real repository, tested), **mock** (a `Mock*Repository` 
 | `GET /v1/me/profile`, `PATCH /v1/me/profile` | done | |
 | `GET /v1/me/consents`, `POST /v1/me/consents` | done | `422 consent_version_outdated` is now a typed failure |
 | `GET /v1/me/export` | done | |
-| `POST /v1/me/delete-challenge` | done | step 1 of deleting the account; a 401 (no phone on the account) does not sign the customer out; `turnstile_token` is a seam (M2) |
+| `POST /v1/me/delete-challenge` | done | step 1 of deleting the account; a 401 (no phone on the account) does not sign the customer out; `turnstile_token` from the same human check (M2d) |
 | `DELETE /v1/me` | done | step 2, JSON body `{challenge_id, code}`; `403 reauth_required` for a wrong, used or expired code |
 | `GET /v1/me/entitlements` | done | `suspended` status, `service` source, nullable `product_id` tolerated; see "Known gaps" |
 | `POST /v1/me/vouchers/redeem` | done | |
@@ -75,11 +75,20 @@ All 289 `/v1/admin/*` and `/v1/platform/*` operations belong to the web consoles
 
 - The `binding` is 32 bytes from `Random.secure()` as base64url without padding (43 characters). It lives in memory with the sign-in attempt and is never logged (the log lines carry no bodies and `PiiScrubber` also removes `binding`, `code`, `turnstile_token` and token values).
 - One binding per attempt: a resend reuses it (a new request closes only earlier codes of the same binding, and at most 3 codes per phone are live). A new binding is made when the number changes or the flow starts over.
-- Dev and test accept sign-in without a human check. **Staging and prod do not**: until task M2 lands, the app can only sign in against dev and test.
+- Dev and test accept sign-in without a human check. **Staging and prod do not**: the app needs the Turnstile build defines below (M2d).
+
+## Human check (M2d)
+
+- **Tier B is built: Turnstile in a WebView** (`TurnstileWebViewProvider`, `lib/core/security/turnstile/`). Tier A (platform attestation, Play Integrity and App Attest) is not built; the research doc (platform repo `docs/research/2026-10-26-mobile-human-check-attestation.md`, verdict GO WITH CHANGES) orders it second.
+- **Tier idea.** The repositories only know `HumanCheckProvider`. Attestation is added later as a second provider and composed as "attestation preferred, Turnstile as fallback" in `_registerHumanCheck` (`lib/app/locator.dart`); no repository, cubit or screen changes. The server rule stays "a token that is sent is always checked".
+- **What is sent.** `turnstile_token` on `POST /v1/auth/otp/request` and `POST /v1/me/delete-challenge`, from a NEW widget run for every request (a resend or a retry gets a new token; a token is never cached, reused or logged). Widget action is `signin`, the only action those routes accept.
+- **Hostname rule.** The platform's `TurnstileVerifier` accepts a token only when Cloudflare reports a hostname equal to, or a subdomain of, `SENTECH_TURNSTILE_ALLOWED_HOSTNAMES` (default in staging and prod: the public web hostname). The app loads the widget page as an HTML string with `TURNSTILE_BASE_URL` as base URL, so the page origin is that hostname and Cloudflare reports it. The same hostname must be listed on the Turnstile widget in Cloudflare.
+- **Outcomes.** Cancel: nothing is sent and the screen returns to where it was, no error. Widget error, expiry or widget timeout: two quiet resets, then "Try again" in the sheet. No network or a page that does not load in 25 s: "Try again" at once. The check could not be shown at all: `HumanVerificationUnavailableFailure`. The server's 403 `human_verification_failed` and 503 `human_verification_unavailable` (with `Retry-After`) keep their existing typed copy.
+- **Demo flavor** never has a WebView and registers no check provider.
 
 ## Known gaps and findings
 
-1. **M2, human check (owner decision D4a).** Staging and prod want a `turnstile_token` on `otp/request` and `delete-challenge`. The seam is `HumanCheckProvider` (`lib/core/security/human_check_provider.dart`); the only implementation returns null. Options: a Turnstile WebView widget, or platform attestation (Play Integrity, App Attest) verified by the server with a server-issued nonce. The platform recommends attestation. Needs the decision and, for attestation, a backend endpoint that does not exist yet.
+1. **M2d, human check: where the Turnstile site key comes from (open gap on the platform side).** The API exposes NO Turnstile site key and no web page URL: not in `GET /v1/tenants/{slug}/app-config` and not in any other route of the OpenAPI file (the web gets its key from its own `TURNSTILE_SITE_KEY` setting). We did not invent an API change. The app therefore takes two build-time values, `--dart-define=TURNSTILE_SITE_KEY=...` (the PUBLIC site key) and `--dart-define=TURNSTILE_BASE_URL=https://<public web hostname>`. Proposed backend change, our assumption and not agreed: the small public `GET /v1/auth/human-check/config?tenant=` from the research doc (`docs/research/2026-10-26-mobile-human-check-attestation.md` section 5.6) returning `turnstile.site_key` and `turnstile.base_url`, so an owner change needs no app release. When it exists, only `TurnstileConfig` (`lib/core/security/turnstile/turnstile_config.dart`) changes. Without both defines the build sends no token (right for dev and test stacks only).
 2. **`GET /v1/me/entitlements?status=current` hides suspended passes.** The platform's `current` filter is `status = 'active' AND expires_at > now`, so a `suspended` pass appears only with `status=all` (the app asks for `all` only behind "Show expired passes"). The app is ready to show it (Service suspended, no alerts), but by default the customer will not see it. Backend change proposed: include `suspended` in `current`. This is our assumption, not agreed.
 3. **A subscriber's `service` pass** has `source: service` and may have a null `product_id`; both are tolerated.
 4. **`DELETE /v1/me` has no 429 in the OpenAPI file**, but the runbook caps delete verifies (10 an hour per customer); the app handles a 429 there like on the sign-in screen.

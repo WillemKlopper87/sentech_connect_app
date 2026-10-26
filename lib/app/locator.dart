@@ -1,6 +1,7 @@
 import 'package:sentech_connect_app/features/catalog_checkout/data/repositories/http_catalog_repository.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/data/repositories/http_checkout_repository.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:get_it/get_it.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/data/dev_payment_simulator.dart';
 import 'package:sentech_connect_app/app/default_personal_data_wiper.dart';
@@ -16,6 +17,10 @@ import 'package:sentech_connect_app/core/network/connectivity_service.dart';
 import 'package:sentech_connect_app/core/network/session_events.dart';
 import 'package:sentech_connect_app/core/network/simulated_network.dart';
 import 'package:sentech_connect_app/core/network/tenant_context.dart';
+import 'package:sentech_connect_app/core/security/human_check_provider.dart';
+import 'package:sentech_connect_app/core/security/turnstile/turnstile_config.dart';
+import 'package:sentech_connect_app/core/security/turnstile/turnstile_provider.dart';
+import 'package:sentech_connect_app/shared/widgets/human_check_sheet.dart';
 import 'package:sentech_connect_app/core/notifications/notification_service.dart';
 import 'package:sentech_connect_app/core/storage/flutter_secure_store.dart';
 import 'package:sentech_connect_app/core/storage/secure_store.dart';
@@ -92,6 +97,7 @@ const mockUntilLaterTasks = <Type>[];
 void setupLocator({
   CrashReporter? crashReporter,
   AppEnvironment environment = AppEnvironment.demo,
+  TurnstileConfig? turnstile,
 }) {
   // Validate before registering anything, so a bad environment leaves no
   // half-built container. A prod flavor must never fall back to mocks: that
@@ -106,7 +112,7 @@ void setupLocator({
   if (environment.isDemo) {
     _registerDemoRepositories();
   } else {
-    _registerProdRepositories(baseUrl!);
+    _registerProdRepositories(baseUrl!, turnstile ?? TurnstileConfig.fromDefines());
   }
 }
 
@@ -199,7 +205,8 @@ void _registerDemoRepositories() {
   );
 }
 
-void _registerProdRepositories(Uri baseUrl) {
+void _registerProdRepositories(Uri baseUrl, TurnstileConfig? turnstile) {
+  _registerHumanCheck(turnstile);
   locator.registerLazySingleton<TokenStore>(() => SecureTokenStore(locator()));
   locator.registerLazySingleton<ApiClient>(
     () => ApiClient(
@@ -220,10 +227,15 @@ void _registerProdRepositories(Uri baseUrl) {
     ),
   );
   locator.registerLazySingleton<PrivacyRepository>(
-    () => HttpPrivacyRepository(locator()),
+    () => HttpPrivacyRepository(locator(), humanCheck: locator()),
   );
   locator.registerLazySingleton<AuthRepository>(
-    () => HttpAuthRepository(locator(), tokens: locator(), tenant: locator()),
+    () => HttpAuthRepository(
+      locator(),
+      tokens: locator(),
+      tenant: locator(),
+      humanCheck: locator(),
+    ),
   );
   locator.registerLazySingleton<PassesRepository>(
     () => HttpPassesRepository(
@@ -267,5 +279,25 @@ void _registerProdRepositories(Uri baseUrl) {
       locator(),
       local: LocalRegistrationRepository(locator()),
     ),
+  );
+}
+
+/// The human check for the real API (prod flavor only; the demo flavor never
+/// has a WebView and uses no check at all).
+///
+/// Tiers, in order of preference: (A, not built yet) platform attestation,
+/// (B) the Turnstile WebView, (none) dev and test stacks that accept a request
+/// without a token. A future attestation provider is registered here as
+/// `FallbackHumanCheckProvider(primary: attestation, fallback: turnstile)`;
+/// the repositories only ever see a [HumanCheckProvider].
+void _registerHumanCheck(TurnstileConfig? turnstile) {
+  if (turnstile == null) {
+    locator.registerLazySingleton<HumanCheckProvider>(() => const NoHumanCheckProvider());
+    return;
+  }
+  final presenter = NavigatorHumanCheckPresenter(GlobalKey<NavigatorState>(debugLabel: 'root'));
+  locator.registerSingleton<NavigatorHumanCheckPresenter>(presenter);
+  locator.registerLazySingleton<HumanCheckProvider>(
+    () => TurnstileWebViewProvider(config: turnstile, presenter: presenter),
   );
 }

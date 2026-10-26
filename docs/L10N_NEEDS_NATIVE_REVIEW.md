@@ -24,3 +24,14 @@ Other af and zu strings that still read as English fallbacks are listed by `dart
 | `accountDeleteCodeTitle` | Enter the code we sent you | Voer die kode in wat ons vir jou gestuur het | Faka ikhodi esikuthumelele yona |
 | `accountDeleteCodeBody` | For your safety we sent a 6-digit code by SMS to the number on your account. Enter it to delete your account and all your data. This cannot be undone. | Vir jou veiligheid het ons 'n 6-syfer-kode per SMS gestuur na die nommer op jou rekening. Voer dit in om jou rekening en al jou data uit te vee. Dit kan nie ongedaan gemaak word nie. | Ukuze uphephe sithumele ikhodi enezinombolo ezi-6 nge-SMS enombolweni ku-akhawunti yakho. Yifake ukuze usule i-akhawunti yakho nayo yonke idatha. Lokhu akunakuhlehliswa. |
 | `accountDeleteClose` | Close | Maak toe | Vala |
+| `humanCheckTitle` | Quick check: confirm you are a person | Vinnige kontrole: bevestig dat jy 'n mens is | Ukuhlola okusheshayo: qinisekisa ukuthi ungumuntu |
+| `humanCheckBody` | This keeps automated sign-ups out. It usually takes a second. | Dit hou outomatiese aanmeldings uit. Dit neem gewoonlik net 'n sekonde. | Lokhu kugcina ukubhaliswa okuzenzakalelayo kuphume. Ngokuvamile kuthatha isekhondi kuphela. |
+| `humanCheckLoading` | Loading the check… | Laai tans die kontrole… | Iyalayisha ukuhlola… |
+| `humanCheckChallenge` | Please complete the check below. | Voltooi asseblief die kontrole hieronder. | Sicela ugcwalise ukuhlola ngezansi. |
+| `humanCheckFailedNetwork` | We could not load the check. Check your connection and try again. | Ons kon nie die kontrole laai nie. Kontroleer jou verbinding en probeer weer. | Asikwazanga ukulayisha ukuhlola. Hlola uxhumo lwakho bese uyazama futhi. |
+| `humanCheckFailedWidget` | The check did not work this time. Please try again. | Die kontrole het hierdie keer nie gewerk nie. Probeer asseblief weer. | Ukuhlola akusebenzanga kulokhu. Sicela uzame futhi. |
+| `humanCheckFailedTimeout` | The check took too long. Please try again. | Die kontrole het te lank gevat. Probeer asseblief weer. | Ukuhlola kuthathe isikhathi eside kakhulu. Sicela uzame futhi. |
+| `humanCheckRetry` | Try again | Probeer weer | Zama futhi |
+| `humanCheckCancel` | Cancel | Kanselleer | Khansela |
+| `humanCheckWidgetLabel` | Security check | Sekuriteitskontrole | Ukuhlola ukuphepha |
+| `humanCheckHelp` | Still stuck? Cancel and sign in on the website, or contact support. | Nog vas? Kanselleer en meld aan op die webwerf, of kontak ondersteuning. | Usabambekile? Khansela bese ungena kuwebhusayithi, noma uxhumane nosekelo. |

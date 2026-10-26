@@ -223,6 +223,7 @@ class AppRouter {
     TenantCubit? tenantCubit,
     String initialLocation = AppRoutes.splash,
     bool quickSplash = false,
+    GlobalKey<NavigatorState>? navigatorKey,
   }) : _refresh = _GuardRefresh(authCubit, tenantCubit) {
     router = _buildRouter(
       authCubit,
@@ -230,6 +231,7 @@ class AppRouter {
       _refresh,
       initialLocation,
       quickSplash,
+      navigatorKey,
     );
   }
 
@@ -248,8 +250,10 @@ GoRouter _buildRouter(
   Listenable refresh,
   String initialLocation,
   bool quickSplash,
+  GlobalKey<NavigatorState>? navigatorKey,
 ) {
   return GoRouter(
+    navigatorKey: navigatorKey,
     initialLocation: initialLocation,
     refreshListenable: refresh,
     redirect: (context, state) =>

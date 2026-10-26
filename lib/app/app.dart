@@ -16,6 +16,7 @@ import 'package:sentech_connect_app/features/auth/presentation/bloc/auth_cubit.d
 import 'package:sentech_connect_app/features/cart/presentation/bloc/cart_cubit.dart';
 import 'package:sentech_connect_app/features/tenant/presentation/bloc/tenant_cubit.dart';
 import 'package:sentech_connect_app/l10n/app_localizations.dart';
+import 'package:sentech_connect_app/shared/widgets/human_check_sheet.dart' show NavigatorHumanCheckPresenter;
 
 /// App-lifetime state (auth session, cart contents, theme choice) is
 /// provided once here at the root, rather than per-route, so it survives
@@ -70,6 +71,11 @@ class _SentechConnectAppState extends State<SentechConnectApp> {
     _authCubit,
     tenantCubit: _tenantCubit,
     quickSplash: widget.quickSplash,
+    // The Quick check sheet (human check) opens over this navigator; only
+    // registered when the Turnstile WebView is configured.
+    navigatorKey: locator.isRegistered<NavigatorHumanCheckPresenter>()
+        ? locator<NavigatorHumanCheckPresenter>().navigatorKey
+        : null,
   );
 
   StreamSubscription<String>? _moduleRefusedSub;
