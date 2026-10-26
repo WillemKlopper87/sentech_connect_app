@@ -2907,6 +2907,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your provider has paused this service. Contact them to get it back.'**
   String get passesSuspendedNote;
+
+  /// Title of the sheet that asks the customer to pass the human check (Turnstile) before an SMS code is sent.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick check: confirm you are a person'**
+  String get humanCheckTitle;
+
+  /// Why the human check exists, shown under the title.
+  ///
+  /// In en, this message translates to:
+  /// **'This keeps automated sign-ups out. It usually takes a second.'**
+  String get humanCheckBody;
+
+  /// Status while the human check widget loads.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading the check…'**
+  String get humanCheckLoading;
+
+  /// Status when the widget needs the customer to tick or solve something.
+  ///
+  /// In en, this message translates to:
+  /// **'Please complete the check below.'**
+  String get humanCheckChallenge;
+
+  /// Shown when the human check page could not load (no network, blocked).
+  ///
+  /// In en, this message translates to:
+  /// **'We could not load the check. Check your connection and try again.'**
+  String get humanCheckFailedNetwork;
+
+  /// Shown when the human check widget reported an error after quiet retries.
+  ///
+  /// In en, this message translates to:
+  /// **'The check did not work this time. Please try again.'**
+  String get humanCheckFailedWidget;
+
+  /// Shown when the human check took too long or expired.
+  ///
+  /// In en, this message translates to:
+  /// **'The check took too long. Please try again.'**
+  String get humanCheckFailedTimeout;
+
+  /// Button that starts the human check again.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get humanCheckRetry;
+
+  /// Button that closes the human check without finishing it.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get humanCheckCancel;
+
+  /// Accessibility label of the embedded human check widget.
+  ///
+  /// In en, this message translates to:
+  /// **'Security check'**
+  String get humanCheckWidgetLabel;
+
+  /// Shown with a failed human check: a way out that does not need the check.
+  ///
+  /// In en, this message translates to:
+  /// **'Still stuck? Cancel and sign in on the website, or contact support.'**
+  String get humanCheckHelp;
 }
 
 class _AppLocalizationsDelegate

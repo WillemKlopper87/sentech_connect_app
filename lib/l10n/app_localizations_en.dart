@@ -1680,4 +1680,42 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get passesSuspendedNote =>
       'Your provider has paused this service. Contact them to get it back.';
+
+  @override
+  String get humanCheckTitle => 'Quick check: confirm you are a person';
+
+  @override
+  String get humanCheckBody =>
+      'This keeps automated sign-ups out. It usually takes a second.';
+
+  @override
+  String get humanCheckLoading => 'Loading the check…';
+
+  @override
+  String get humanCheckChallenge => 'Please complete the check below.';
+
+  @override
+  String get humanCheckFailedNetwork =>
+      'We could not load the check. Check your connection and try again.';
+
+  @override
+  String get humanCheckFailedWidget =>
+      'The check did not work this time. Please try again.';
+
+  @override
+  String get humanCheckFailedTimeout =>
+      'The check took too long. Please try again.';
+
+  @override
+  String get humanCheckRetry => 'Try again';
+
+  @override
+  String get humanCheckCancel => 'Cancel';
+
+  @override
+  String get humanCheckWidgetLabel => 'Security check';
+
+  @override
+  String get humanCheckHelp =>
+      'Still stuck? Cancel and sign in on the website, or contact support.';
 }

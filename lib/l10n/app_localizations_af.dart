@@ -1682,4 +1682,42 @@ class AppLocalizationsAf extends AppLocalizations {
   @override
   String get passesSuspendedNote =>
       'Jou verskaffer het hierdie diens gepouseer. Kontak hulle om dit terug te kry.';
+
+  @override
+  String get humanCheckTitle => 'Vinnige kontrole: bevestig dat jy \'n mens is';
+
+  @override
+  String get humanCheckBody =>
+      'Dit hou outomatiese aanmeldings uit. Dit neem gewoonlik net \'n sekonde.';
+
+  @override
+  String get humanCheckLoading => 'Laai tans die kontrole…';
+
+  @override
+  String get humanCheckChallenge => 'Voltooi asseblief die kontrole hieronder.';
+
+  @override
+  String get humanCheckFailedNetwork =>
+      'Ons kon nie die kontrole laai nie. Kontroleer jou verbinding en probeer weer.';
+
+  @override
+  String get humanCheckFailedWidget =>
+      'Die kontrole het hierdie keer nie gewerk nie. Probeer asseblief weer.';
+
+  @override
+  String get humanCheckFailedTimeout =>
+      'Die kontrole het te lank gevat. Probeer asseblief weer.';
+
+  @override
+  String get humanCheckRetry => 'Probeer weer';
+
+  @override
+  String get humanCheckCancel => 'Kanselleer';
+
+  @override
+  String get humanCheckWidgetLabel => 'Sekuriteitskontrole';
+
+  @override
+  String get humanCheckHelp =>
+      'Nog vas? Kanselleer en meld aan op die webwerf, of kontak ondersteuning.';
 }

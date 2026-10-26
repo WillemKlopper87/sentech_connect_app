@@ -1681,4 +1681,43 @@ class AppLocalizationsZu extends AppLocalizations {
   @override
   String get passesSuspendedNote =>
       'Umhlinzeki wakho umise le sevisi. Xhumana naye ukuze ibuyiswe.';
+
+  @override
+  String get humanCheckTitle =>
+      'Ukuhlola okusheshayo: qinisekisa ukuthi ungumuntu';
+
+  @override
+  String get humanCheckBody =>
+      'Lokhu kugcina ukubhaliswa okuzenzakalelayo kuphume. Ngokuvamile kuthatha isekhondi kuphela.';
+
+  @override
+  String get humanCheckLoading => 'Iyalayisha ukuhlola…';
+
+  @override
+  String get humanCheckChallenge => 'Sicela ugcwalise ukuhlola ngezansi.';
+
+  @override
+  String get humanCheckFailedNetwork =>
+      'Asikwazanga ukulayisha ukuhlola. Hlola uxhumo lwakho bese uyazama futhi.';
+
+  @override
+  String get humanCheckFailedWidget =>
+      'Ukuhlola akusebenzanga kulokhu. Sicela uzame futhi.';
+
+  @override
+  String get humanCheckFailedTimeout =>
+      'Ukuhlola kuthathe isikhathi eside kakhulu. Sicela uzame futhi.';
+
+  @override
+  String get humanCheckRetry => 'Zama futhi';
+
+  @override
+  String get humanCheckCancel => 'Khansela';
+
+  @override
+  String get humanCheckWidgetLabel => 'Ukuhlola ukuphepha';
+
+  @override
+  String get humanCheckHelp =>
+      'Usabambekile? Khansela bese ungena kuwebhusayithi, noma uxhumane nosekelo.';
 }
