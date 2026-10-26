@@ -1617,4 +1617,46 @@ class AppLocalizationsEn extends AppLocalizations {
   String otpUseSmsReference(String reference) {
     return 'Use the SMS that shows reference $reference.';
   }
+
+  @override
+  String get failureBindingRequired =>
+      'Sign-in could not be completed. Please update the app and try again.';
+
+  @override
+  String get failureHumanVerificationFailed =>
+      'We could not confirm that you are a person. Please try again.';
+
+  @override
+  String get failureHumanVerificationUnavailable =>
+      'The security check is not available right now. Please try again in a moment.';
+
+  @override
+  String failureHumanVerificationUnavailableSeconds(int seconds) {
+    return 'The security check is not available right now. Please try again in $seconds seconds.';
+  }
+
+  @override
+  String failureHumanVerificationUnavailableMinutes(int minutes) {
+    return 'The security check is not available right now. Please try again in $minutes minutes.';
+  }
+
+  @override
+  String get failureReauthRequired =>
+      'That code did not work. Check it and try again.';
+
+  @override
+  String get failureSmsUnavailable =>
+      'We could not send the SMS. Please try again in a moment.';
+
+  @override
+  String get failureConsentVersionOutdated =>
+      'The terms were updated. Please review and accept the latest version.';
+
+  @override
+  String get failureSubscriberNotFound =>
+      'We could not find a service account for you with this provider.';
+
+  @override
+  String get failureActiveServiceExists =>
+      'You still have an active service. Cancel it first, or contact your provider.';
 }

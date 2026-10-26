@@ -42,7 +42,7 @@ void main() {
   });
 
   test('a validation problem without detail falls back to its title', () {
-    final f = failureFromDioException(_bad(409, _problem(409, 'order_not_payable')));
+    final f = failureFromDioException(_bad(409, _problem(409, 'something_else')));
     expect(f.message, 'Problem');
   });
 
@@ -213,7 +213,7 @@ void main() {
     });
 
     test('a huge title is truncated when there is no detail', () {
-      final body = {..._problem(409, 'order_not_payable'), 'title': huge};
+      final body = {..._problem(409, 'some_conflict'), 'title': huge};
       expect(failureFromDioException(_bad(409, body)).message.length, 300);
     });
 
@@ -285,5 +285,67 @@ void main() {
   test('another 409 stays a plain ValidationFailure', () {
     final p = ApiProblem.tryParse(409, {'code': 'order_not_payable', 'title': 'Conflict', 'request_id': 'r'});
     expect(failureFromStatus(409, p), isA<ValidationFailure>());
+  });
+
+  group('typed refusals of the platform', () {
+    Failure map(int status, String code, {String? detail, Map<String, List<String>> headers = const {}}) =>
+        failureFromDioException(_bad(status, _problem(status, code, detail: detail), headers: headers));
+
+    test('422 binding_required', () {
+      final f = map(422, 'binding_required', detail: 'Send a binding.');
+      expect(f, isA<BindingRequiredFailure>());
+      expect((f as ValidationFailure).code, 'binding_required');
+      expect(f.messageIsDetail, isFalse, reason: 'the server wording is not shown');
+    });
+
+    test('403 human_verification_failed is not a generic server failure', () {
+      expect(map(403, 'human_verification_failed'), isA<HumanVerificationFailedFailure>());
+    });
+
+    test('503 human_verification_unavailable keeps Retry-After', () {
+      final f = map(503, 'human_verification_unavailable', headers: {'retry-after': ['45']});
+      expect(f, const HumanVerificationUnavailableFailure(Duration(seconds: 45)));
+      expect(map(503, 'human_verification_unavailable'), const HumanVerificationUnavailableFailure());
+    });
+
+    test('403 reauth_required', () {
+      expect(map(403, 'reauth_required'), isA<ReauthRequiredFailure>());
+    });
+
+    test('503 sms_unavailable', () {
+      expect(map(503, 'sms_unavailable', headers: {'retry-after': ['30']}), const SmsUnavailableFailure(Duration(seconds: 30)));
+    });
+
+    test('an unknown 503 stays a plain ServerFailure', () {
+      expect(map(503, 'db_down'), isA<ServerFailure>());
+    });
+
+    test('422 consent_version_outdated', () {
+      final f = map(422, 'consent_version_outdated');
+      expect(f, isA<ConsentVersionOutdatedFailure>());
+      expect((f as ValidationFailure).code, 'consent_version_outdated');
+    });
+
+    test('404 subscriber_not_found is a NotFoundFailure subtype; other 404s are not', () {
+      expect(map(404, 'subscriber_not_found'), isA<SubscriberNotFoundFailure>());
+      expect(map(404, 'subscriber_not_found'), isA<NotFoundFailure>());
+      expect(map(404, 'order_not_found'), isNot(isA<SubscriberNotFoundFailure>()));
+    });
+
+    test('409 active_service_exists', () {
+      final f = map(409, 'active_service_exists', detail: 'Cancel first.');
+      expect(f, isA<ActiveServiceExistsFailure>());
+      expect((f as ValidationFailure).code, 'active_service_exists');
+    });
+
+    test('409 order_not_payable stays a ValidationFailure with its code and keeps a server detail', () {
+      final plain = map(409, 'order_not_payable');
+      expect(plain, isA<OrderNotPayableFailure>());
+      expect((plain as ValidationFailure).code, 'order_not_payable');
+      expect(plain.messageIsDetail, isFalse);
+      final detailed = map(409, 'order_not_payable', detail: 'Replaced by a newer order.');
+      expect(detailed.message, 'Replaced by a newer order.');
+      expect((detailed as ValidationFailure).messageIsDetail, isTrue);
+    });
   });
 }

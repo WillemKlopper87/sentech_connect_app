@@ -53,6 +53,17 @@ class _RateLimitedRepository extends MockAuthRepository {
   );
 }
 
+class _RefusingRepository extends MockAuthRepository {
+  _RefusingRepository(this.failure) : super(latency: Duration.zero);
+  final Failure failure;
+
+  @override
+  Future<Either<Failure, OtpChallenge>> requestOtp({
+    required String phoneNumber,
+    required String binding,
+  }) async => Left(failure);
+}
+
 class _RateLimitedOnVerifyRepository extends MockAuthRepository {
   _RateLimitedOnVerifyRepository() : super(latency: Duration.zero);
 
@@ -163,6 +174,35 @@ void main() {
       find.text('Use the SMS that shows reference ${MockAuthRepository.demoReference}.'),
       findsOneWidget,
     );
+  });
+
+  testWidgets('typed refusals of the platform read as customer copy', (
+    tester,
+  ) async {
+    final cases = <Failure, String>{
+      const HumanVerificationUnavailableFailure(Duration(seconds: 45)):
+          'The security check is not available right now. Please try again in 45 seconds.',
+      const HumanVerificationFailedFailure():
+          'We could not confirm that you are a person. Please try again.',
+      const SmsUnavailableFailure():
+          'We could not send the SMS. Please try again in a moment.',
+      const BindingRequiredFailure():
+          'Sign-in could not be completed. Please update the app and try again.',
+    };
+    for (final entry in cases.entries) {
+      await locator.unregister<AuthRepository>();
+      locator.registerSingleton<AuthRepository>(_RefusingRepository(entry.key));
+      await pumpLogin(tester);
+      await tester.enterText(
+        find.widgetWithText(TextField, 'Mobile number'),
+        '082 123 4567',
+      );
+      await tester.tap(find.widgetWithText(ElevatedButton, 'Send code'));
+      await tester.pump();
+      await tester.pump();
+      expect(find.text(entry.value), findsOneWidget, reason: '${entry.key}');
+      await tester.pumpWidget(const SizedBox());
+    }
   });
 
   testWidgets('an invalid number shows guidance and stays on the phone step', (

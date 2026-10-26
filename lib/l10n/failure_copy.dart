@@ -1,3 +1,4 @@
+import 'package:sentech_connect_app/core/error/failure.dart';
 import 'package:sentech_connect_app/l10n/app_localizations.dart';
 
 /// Stable source/default text identifies owned failures at the UI boundary.
@@ -75,6 +76,57 @@ String localizedFailureText(AppLocalizations l10n, String message) {
         l10n.failureYouAlreadyHaveAFreeWifiSession,
     "You've reached today's free WiFi limit.":
         l10n.failureYouVeReachedTodaySFreeWifi,
+    ...typedFailureTexts(l10n),
   };
   return owned[message] ?? message;
+}
+
+/// The platform's typed refusals (`binding_required`, `reauth_required`, ...)
+/// keyed by their fixed English default text, so the message-only path
+/// ([localizedFailureText]) localises them too.
+Map<String, String> typedFailureTexts(AppLocalizations l10n) => {
+  const BindingRequiredFailure().message: l10n.failureBindingRequired,
+  const HumanVerificationFailedFailure().message:
+      l10n.failureHumanVerificationFailed,
+  const HumanVerificationUnavailableFailure().message:
+      l10n.failureHumanVerificationUnavailable,
+  const ReauthRequiredFailure().message: l10n.failureReauthRequired,
+  const SmsUnavailableFailure().message: l10n.failureSmsUnavailable,
+  const ConsentVersionOutdatedFailure().message:
+      l10n.failureConsentVersionOutdated,
+  const SubscriberNotFoundFailure().message: l10n.failureSubscriberNotFound,
+  const ActiveServiceExistsFailure().message: l10n.failureActiveServiceExists,
+};
+
+/// Customer text for a typed refusal, or null when [failure] is not one (the
+/// caller then uses its own mapping). Knows the `Retry-After` hint of
+/// `human_verification_unavailable`.
+String? typedFailureText(AppLocalizations l10n, Failure? failure) {
+  switch (failure) {
+    case BindingRequiredFailure():
+      return l10n.failureBindingRequired;
+    case HumanVerificationFailedFailure():
+      return l10n.failureHumanVerificationFailed;
+    case HumanVerificationUnavailableFailure(:final retryAfter):
+      if (retryAfter == null || retryAfter <= Duration.zero) {
+        return l10n.failureHumanVerificationUnavailable;
+      }
+      return retryAfter.inSeconds < 120
+          ? l10n.failureHumanVerificationUnavailableSeconds(retryAfter.inSeconds)
+          : l10n.failureHumanVerificationUnavailableMinutes(
+              (retryAfter.inSeconds / 60).ceil(),
+            );
+    case ReauthRequiredFailure():
+      return l10n.failureReauthRequired;
+    case SmsUnavailableFailure():
+      return l10n.failureSmsUnavailable;
+    case ConsentVersionOutdatedFailure():
+      return l10n.failureConsentVersionOutdated;
+    case SubscriberNotFoundFailure():
+      return l10n.failureSubscriberNotFound;
+    case ActiveServiceExistsFailure():
+      return l10n.failureActiveServiceExists;
+    default:
+      return null;
+  }
 }

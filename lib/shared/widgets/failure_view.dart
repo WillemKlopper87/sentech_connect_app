@@ -30,7 +30,8 @@ class FailureView extends StatelessWidget {
         ? context.l10n.failureYouReOfflineCheckYourConnection
         : (failure == null
               ? context.l10n.failureSomethingWentWrongPleaseTryAgain
-              : localizedFailureText(context.l10n, failure!.message));
+              : typedFailureText(context.l10n, failure) ??
+                    localizedFailureText(context.l10n, failure!.message));
     final content = Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: compact

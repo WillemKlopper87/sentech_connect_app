@@ -1618,4 +1618,46 @@ class AppLocalizationsZu extends AppLocalizations {
   String otpUseSmsReference(String reference) {
     return 'Sebenzisa i-SMS ekhombisa inkomba $reference.';
   }
+
+  @override
+  String get failureBindingRequired =>
+      'Ukungena akukwazanga ukuqedwa. Sicela ubuyekeze uhlelo lokusebenza bese uyazama futhi.';
+
+  @override
+  String get failureHumanVerificationFailed =>
+      'Asikwazanga ukuqinisekisa ukuthi ungumuntu. Sicela uzame futhi.';
+
+  @override
+  String get failureHumanVerificationUnavailable =>
+      'Ukuhlolwa kokuphepha akutholakali manje. Sicela uzame futhi ngemva kwesikhashana.';
+
+  @override
+  String failureHumanVerificationUnavailableSeconds(int seconds) {
+    return 'Ukuhlolwa kokuphepha akutholakali manje. Sicela uzame futhi ngemva kwemizuzwana engu-$seconds.';
+  }
+
+  @override
+  String failureHumanVerificationUnavailableMinutes(int minutes) {
+    return 'Ukuhlolwa kokuphepha akutholakali manje. Sicela uzame futhi ngemva kwemizuzu engu-$minutes.';
+  }
+
+  @override
+  String get failureReauthRequired =>
+      'Leyo khodi ayisebenzanga. Yihlole bese uyazama futhi.';
+
+  @override
+  String get failureSmsUnavailable =>
+      'Asikwazanga ukuthumela i-SMS. Sicela uzame futhi ngemva kwesikhashana.';
+
+  @override
+  String get failureConsentVersionOutdated =>
+      'Imigomo ibuyekeziwe. Sicela ubuyekeze futhi wamukele inguqulo yamuva.';
+
+  @override
+  String get failureSubscriberNotFound =>
+      'Asikwazanga ukuthola i-akhawunti yesevisi yakho kulo muntu onikezayo.';
+
+  @override
+  String get failureActiveServiceExists =>
+      'Usenayo isevisi esebenzayo. Qala ngokuyiklomelisa, noma uxhumane nomuntu onikezayo.';
 }

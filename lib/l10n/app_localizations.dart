@@ -2811,6 +2811,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Use the SMS that shows reference {reference}.'**
   String otpUseSmsReference(String reference);
+
+  /// Customer error for 422 binding_required: the platform wants the sign-in binding that this build did not send, so the app must be updated.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign-in could not be completed. Please update the app and try again.'**
+  String get failureBindingRequired;
+
+  /// Customer error for 403 human_verification_failed: the human check (Turnstile) token was missing, wrong or expired.
+  ///
+  /// In en, this message translates to:
+  /// **'We could not confirm that you are a person. Please try again.'**
+  String get failureHumanVerificationFailed;
+
+  /// Customer error for 503 human_verification_unavailable when the server gave no wait time. Nobody can request a code until the check provider is back.
+  ///
+  /// In en, this message translates to:
+  /// **'The security check is not available right now. Please try again in a moment.'**
+  String get failureHumanVerificationUnavailable;
+
+  /// Same as the previous message with the Retry-After wait of the server, under two minutes.
+  ///
+  /// In en, this message translates to:
+  /// **'The security check is not available right now. Please try again in {seconds} seconds.'**
+  String failureHumanVerificationUnavailableSeconds(int seconds);
+
+  /// Same as the previous message with the Retry-After wait of the server, two minutes or more (rounded up).
+  ///
+  /// In en, this message translates to:
+  /// **'The security check is not available right now. Please try again in {minutes} minutes.'**
+  String failureHumanVerificationUnavailableMinutes(int minutes);
+
+  /// Customer error for 403 reauth_required: the fresh code for deleting the account was wrong, used or expired. Nothing was deleted.
+  ///
+  /// In en, this message translates to:
+  /// **'That code did not work. Check it and try again.'**
+  String get failureReauthRequired;
+
+  /// Customer error for 503 sms_unavailable: the one-time code could not be sent by SMS right now.
+  ///
+  /// In en, this message translates to:
+  /// **'We could not send the SMS. Please try again in a moment.'**
+  String get failureSmsUnavailable;
+
+  /// Customer error for 422 consent_version_outdated: the terms or privacy version the app sent is not the current one.
+  ///
+  /// In en, this message translates to:
+  /// **'The terms were updated. Please review and accept the latest version.'**
+  String get failureConsentVersionOutdated;
+
+  /// Customer error for 404 subscriber_not_found: the customer has no subscriber record with this provider yet.
+  ///
+  /// In en, this message translates to:
+  /// **'We could not find a service account for you with this provider.'**
+  String get failureSubscriberNotFound;
+
+  /// Customer error for 409 active_service_exists: deleting the account (or signing up again) is refused while a service is active.
+  ///
+  /// In en, this message translates to:
+  /// **'You still have an active service. Cancel it first, or contact your provider.'**
+  String get failureActiveServiceExists;
 }
 
 class _AppLocalizationsDelegate

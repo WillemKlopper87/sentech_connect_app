@@ -1618,4 +1618,46 @@ class AppLocalizationsAf extends AppLocalizations {
   String otpUseSmsReference(String reference) {
     return 'Gebruik die SMS wat verwysing $reference wys.';
   }
+
+  @override
+  String get failureBindingRequired =>
+      'Aanmelding kon nie voltooi word nie. Werk die toepassing op en probeer weer.';
+
+  @override
+  String get failureHumanVerificationFailed =>
+      'Ons kon nie bevestig dat jy \'n mens is nie. Probeer asseblief weer.';
+
+  @override
+  String get failureHumanVerificationUnavailable =>
+      'Die sekuriteitskontrole is tans nie beskikbaar nie. Probeer oor \'n oomblik weer.';
+
+  @override
+  String failureHumanVerificationUnavailableSeconds(int seconds) {
+    return 'Die sekuriteitskontrole is tans nie beskikbaar nie. Probeer oor $seconds sekondes weer.';
+  }
+
+  @override
+  String failureHumanVerificationUnavailableMinutes(int minutes) {
+    return 'Die sekuriteitskontrole is tans nie beskikbaar nie. Probeer oor $minutes minute weer.';
+  }
+
+  @override
+  String get failureReauthRequired =>
+      'Daardie kode het nie gewerk nie. Kontroleer dit en probeer weer.';
+
+  @override
+  String get failureSmsUnavailable =>
+      'Ons kon nie die SMS stuur nie. Probeer oor \'n oomblik weer.';
+
+  @override
+  String get failureConsentVersionOutdated =>
+      'Die bepalings is opgedateer. Hersien en aanvaar asseblief die nuutste weergawe.';
+
+  @override
+  String get failureSubscriberNotFound =>
+      'Ons kon nie \'n diensrekening vir jou by hierdie verskaffer vind nie.';
+
+  @override
+  String get failureActiveServiceExists =>
+      'Jy het nog \'n aktiewe diens. Kanselleer dit eers, of kontak jou verskaffer.';
 }

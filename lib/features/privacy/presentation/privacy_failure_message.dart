@@ -17,6 +17,8 @@ const _genericServerTexts = {
 /// carries it in the failure: that detail is shown. Everything else (offline,
 /// rate limits, 5xx, anything unknown) gets a localised message.
 String privacyFailureMessage(AppLocalizations l10n, Failure? failure) {
+  final typed = typedFailureText(l10n, failure);
+  if (typed != null) return typed;
   return switch (failure) {
     NetworkFailure() => l10n.accountRequestOffline,
     RateLimitedFailure() => l10n.accountRequestRateLimited,

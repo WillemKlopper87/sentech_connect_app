@@ -162,6 +162,8 @@ class _LoginViewState extends State<_LoginView> {
 
   String _otpMessage(Failure failure) {
     final l10n = context.l10n;
+    final typed = typedFailureText(l10n, failure);
+    if (typed != null) return typed;
     if (failure is ValidationFailure) {
       switch (failure.code) {
         case 'invalid_phone':

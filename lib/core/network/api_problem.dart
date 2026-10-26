@@ -117,14 +117,25 @@ Failure failureFromDioException(DioException e) {
 Failure failureFromStatus(int status, ApiProblem? problem, {String? requestId, Duration? retryAfter}) {
   final detail = problem?.detail == null ? null : _capped(problem!.detail!);
   if (status == 401) return const UnauthorizedFailure();
+  if (status == 404 && problem?.code == 'subscriber_not_found') return const SubscriberNotFoundFailure();
   if (status == 404) return NotFoundFailure(detail ?? 'We could not find that.');
   if (status == 429) return RateLimitedFailure(detail ?? 'Too many attempts. Please wait and try again.', retryAfter);
+  if (status == 503 && problem?.code == 'human_verification_unavailable') return HumanVerificationUnavailableFailure(retryAfter);
+  if (status == 503 && problem?.code == 'sms_unavailable') return SmsUnavailableFailure(retryAfter);
   if (status >= 500 || problem == null) return ServerFailure('Something went wrong on our end.', requestId);
   if (status == 403 && problem.code == 'tenant_suspended') return const ProviderUnavailableFailure();
   if (status == 403 && (problem.code == 'module_not_enabled' || problem.code == 'module_disabled')) {
     return ModuleDisabledFailure(problem.module);
   }
+  if (status == 403 && problem.code == 'human_verification_failed') return const HumanVerificationFailedFailure();
+  if (status == 403 && problem.code == 'reauth_required') return const ReauthRequiredFailure();
   if (status == 403) return ServerFailure(detail ?? 'You are not allowed to do that.', requestId);
   if (status == 409 && problem.code == 'collection_external') return const CollectionExternalFailure();
+  if (status == 409 && problem.code == 'active_service_exists') return const ActiveServiceExistsFailure();
+  if (status == 409 && problem.code == 'order_not_payable') {
+    return detail == null ? const OrderNotPayableFailure() : OrderNotPayableFailure(detail, true);
+  }
+  if (status == 422 && problem.code == 'binding_required') return const BindingRequiredFailure();
+  if (status == 422 && problem.code == 'consent_version_outdated') return const ConsentVersionOutdatedFailure();
   return ValidationFailure(detail ?? _capped(problem.title), problem.code, detail != null);
 }
