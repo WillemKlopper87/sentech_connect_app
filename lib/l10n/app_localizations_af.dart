@@ -1720,4 +1720,63 @@ class AppLocalizationsAf extends AppLocalizations {
   @override
   String get humanCheckHelp =>
       'Nog vas? Kanselleer en meld aan op die webwerf, of kontak ondersteuning.';
+
+  @override
+  String get failureFeatureDisabled =>
+      'Dit is nie by jou verskaffer beskikbaar nie.';
+
+  @override
+  String get failureOrderNotCancellable =>
+      'Hierdie bestelling kan nie meer gekanselleer word nie.';
+
+  @override
+  String get failureOrderCancelled => 'Hierdie bestelling is gekanselleer.';
+
+  @override
+  String get failureSupportUnavailable =>
+      'Ondersteuningsboodskappe is nou nie beskikbaar nie. Probeer asseblief later weer.';
+
+  @override
+  String get failureSupportContactNotConfigured =>
+      'Jou verskaffer het nog nie ondersteuningsboodskappe opgestel nie.';
+
+  @override
+  String get failureInvalidMessage =>
+      'Kontroleer jou boodskap en probeer weer.';
+
+  @override
+  String get failureInvalidContact =>
+      'Kontroleer jou kontakbesonderhede en probeer weer.';
+
+  @override
+  String get failureInvoiceNotPayable =>
+      'Hierdie faktuur kan nie meer betaal word nie.';
+
+  @override
+  String get failureCustomerLinkRequired =>
+      'Jou rekening is nog nie aan jou verskaffer gekoppel nie. Kontak jou verskaffer.';
+
+  @override
+  String get failureSubscriberProfileInvalid =>
+      'Werk jou kontakbesonderhede op voordat jy inteken.';
+
+  @override
+  String get failureNoActiveEntitlement =>
+      'Jy het \'n aktiewe pas nodig om aanlyn te kom.';
+
+  @override
+  String get failureMacInvalid =>
+      'Ons kon nie hierdie toestel identifiseer nie. Koppel eerder vanaf die Wi-Fi-aanmeldbladsy.';
+
+  @override
+  String get failureNasUnavailable =>
+      'Hierdie warmkol is nou nie beskikbaar nie. Probeer \'n ander een.';
+
+  @override
+  String get failureLoginUrlInvalid =>
+      'Hierdie warmkol-aanmelding kon nie oopgemaak word nie. Koppel eerder vanaf die Wi-Fi-aanmeldbladsy.';
+
+  @override
+  String get failureControllerNotSupported =>
+      'Eenklik-aanmelding word nie by hierdie warmkol ondersteun nie. Koppel eerder vanaf die Wi-Fi-aanmeldbladsy.';
 }

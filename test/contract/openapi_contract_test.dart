@@ -18,6 +18,8 @@ const fixtureSchemas = {
   'checkout_fake.json': 'CheckoutOut',
   'checkout_netcash.json': 'CheckoutOut',
   'entitlements_page.json': 'Page_EntitlementOut_',
+  // GET /v1/me/entitlements?status=current: a suspended pass past expires_at is listed (platform d4be7ce).
+  'entitlements_current_suspended.json': 'Page_EntitlementOut_',
   'voucher_redeem_ok.json': 'RedeemOut',
   'otp_request.json': 'OtpRequestOut',
   'delete_challenge.json': 'OtpRequestOut', // POST /v1/me/delete-challenge answers the same shape
@@ -214,6 +216,16 @@ void main() {
       expect(passFromJson({...base, 'status': v}).status.name, v);
     }
     expect(passFromJson({...base, 'status': 'suspended'}).isCurrent, isFalse);
+  });
+
+  test('status=current lists a suspended pass past expires_at, and the app keeps it suspended and not usable', () {
+    final items = (fixtureMap('entitlements_current_suspended.json')['items']! as List)
+        .map((i) => passFromJson(Map<String, Object?>.from(i as Map)))
+        .toList();
+    final suspended = items.singleWhere((p) => p.status == PassStatus.suspended);
+    expect(suspended.expiresAt.isBefore(DateTime.utc(2026, 10, 29)), isTrue);
+    expect(suspended.source, PassSource.service);
+    expect(suspended.isCurrent, isFalse, reason: 'RADIUS and voucher redemption still need active');
   });
 
   test('a null product_id and the service source are tolerated', () {

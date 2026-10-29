@@ -1870,6 +1870,7 @@
           "status": {
             "enum": [
               "running",
+              "partial",
               "completed",
               "failed"
             ],
@@ -11666,6 +11667,22 @@
             "title": "Matched",
             "type": "integer"
           },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "skipped_same_operator": {
+            "default": 0,
+            "title": "Skipped Same Operator",
+            "type": "integer"
+          },
           "unmatched": {
             "title": "Unmatched",
             "type": "integer"
@@ -12387,10 +12404,26 @@
             "title": "Held",
             "type": "array"
           },
+          "holiday_table_lapsed": {
+            "default": false,
+            "title": "Holiday Table Lapsed",
+            "type": "boolean"
+          },
           "id": {
             "format": "uuid",
             "title": "Id",
             "type": "string"
+          },
+          "lag_days": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lag Days"
           },
           "paid_at": {
             "anyOf": [
@@ -12438,6 +12471,35 @@
           },
           "totals": {
             "$ref": "#/components/schemas/SettlementPayoutTotalsOut"
+          },
+          "unreconciled_cents": {
+            "default": 0,
+            "title": "Unreconciled Cents",
+            "type": "integer"
+          },
+          "unreconciled_count": {
+            "default": 0,
+            "title": "Unreconciled Count",
+            "type": "integer"
+          },
+          "unreconciled_pays_after": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unreconciled Pays After"
+          },
+          "waiting": {
+            "items": {
+              "$ref": "#/components/schemas/SettlementWaitingLineOut"
+            },
+            "title": "Waiting",
+            "type": "array"
           }
         },
         "required": [
@@ -12453,7 +12515,8 @@
           "exported_at",
           "payouts",
           "totals",
-          "held"
+          "held",
+          "waiting"
         ],
         "title": "SettlementBatchDetailOut",
         "type": "object"
@@ -12497,6 +12560,17 @@
             "title": "Id",
             "type": "string"
           },
+          "lag_days": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lag Days"
+          },
           "paid_at": {
             "anyOf": [
               {
@@ -12533,6 +12607,28 @@
             ],
             "title": "Status",
             "type": "string"
+          },
+          "unreconciled_cents": {
+            "default": 0,
+            "title": "Unreconciled Cents",
+            "type": "integer"
+          },
+          "unreconciled_count": {
+            "default": 0,
+            "title": "Unreconciled Count",
+            "type": "integer"
+          },
+          "unreconciled_pays_after": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unreconciled Pays After"
           }
         },
         "required": [
@@ -12793,6 +12889,49 @@
           "payout_cents"
         ],
         "title": "SettlementPayoutTotalsOut",
+        "type": "object"
+      },
+      "SettlementWaitingLineOut": {
+        "description": "A provider whose funds the gate kept back: waiting for the bank (or the lag) to pay.",
+        "properties": {
+          "pays_after": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pays After"
+          },
+          "tenant_id": {
+            "format": "uuid",
+            "title": "Tenant Id",
+            "type": "string"
+          },
+          "tenant_name": {
+            "title": "Tenant Name",
+            "type": "string"
+          },
+          "unreconciled_cents": {
+            "title": "Unreconciled Cents",
+            "type": "integer"
+          },
+          "unreconciled_count": {
+            "title": "Unreconciled Count",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "tenant_id",
+          "tenant_name",
+          "unreconciled_cents",
+          "unreconciled_count",
+          "pays_after"
+        ],
+        "title": "SettlementWaitingLineOut",
         "type": "object"
       },
       "SiteOut": {

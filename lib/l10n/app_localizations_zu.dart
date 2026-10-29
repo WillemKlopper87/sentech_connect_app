@@ -1720,4 +1720,60 @@ class AppLocalizationsZu extends AppLocalizations {
   @override
   String get humanCheckHelp =>
       'Usabambekile? Khansela bese ungena kuwebhusayithi, noma uxhumane nosekelo.';
+
+  @override
+  String get failureFeatureDisabled => 'Lokhu akutholakali kumuntu onikezayo.';
+
+  @override
+  String get failureOrderNotCancellable =>
+      'I-oda leli alisakwazi ukukhanselwa.';
+
+  @override
+  String get failureOrderCancelled => 'I-oda leli likhanseliwe.';
+
+  @override
+  String get failureSupportUnavailable =>
+      'Imiyalezo yosizo ayitholakali okwamanje. Sicela uzame futhi kamuva.';
+
+  @override
+  String get failureSupportContactNotConfigured =>
+      'Umuntu onikezayo akakawumisi umyalezo wosizo.';
+
+  @override
+  String get failureInvalidMessage => 'Hlola umyalezo wakho bese uzame futhi.';
+
+  @override
+  String get failureInvalidContact =>
+      'Hlola imininingwane yakho yokuxhumana bese uzame futhi.';
+
+  @override
+  String get failureInvoiceNotPayable => 'I-invoyisi le ayisakwazi ukukhokhwa.';
+
+  @override
+  String get failureCustomerLinkRequired =>
+      'I-akhawunti yakho ayikaxhunyaniswa nomuntu onikezayo. Xhumana nomuntu onikezayo.';
+
+  @override
+  String get failureSubscriberProfileInvalid =>
+      'Buyekeza imininingwane yakho yokuxhumana ngaphambi kokubhalisa.';
+
+  @override
+  String get failureNoActiveEntitlement =>
+      'Udinga ipasi elisebenzayo ukuze uxhume ku-inthanethi.';
+
+  @override
+  String get failureMacInvalid =>
+      'Asikwazanga ukuhlonza le divayisi. Xhuma ngekhasi lokungena le-Wi-Fi esikhundleni.';
+
+  @override
+  String get failureNasUnavailable =>
+      'Le hotspot ayitholakali okwamanje. Zama enye.';
+
+  @override
+  String get failureLoginUrlInvalid =>
+      'Ukungena kwale hotspot akukwazanga ukuvulwa. Xhuma ngekhasi lokungena le-Wi-Fi esikhundleni.';
+
+  @override
+  String get failureControllerNotSupported =>
+      'Ukungena ngokuthinta kanye akuxhaswa kule hotspot. Xhuma ngekhasi lokungena le-Wi-Fi esikhundleni.';
 }

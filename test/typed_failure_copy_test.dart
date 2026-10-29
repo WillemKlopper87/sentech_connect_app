@@ -15,6 +15,21 @@ void main() {
     const ConsentVersionOutdatedFailure(),
     const SubscriberNotFoundFailure(),
     const ActiveServiceExistsFailure(),
+    const FeatureDisabledFailure(),
+    const OrderNotCancellableFailure(),
+    const OrderCancelledFailure(),
+    const SupportUnavailableFailure(),
+    const SupportContactNotConfiguredFailure(),
+    const InvalidMessageFailure(),
+    const InvalidContactFailure(),
+    const InvoiceNotPayableFailure(),
+    const CustomerLinkRequiredFailure(),
+    const SubscriberProfileInvalidFailure(),
+    const NoActiveEntitlementFailure(),
+    const MacInvalidFailure(),
+    const NasUnavailableFailure(),
+    const LoginUrlInvalidFailure(),
+    const ControllerNotSupportedFailure(),
   ];
 
   for (final l10n in [AppLocalizationsEn(), AppLocalizationsAf(), AppLocalizationsZu()]) {

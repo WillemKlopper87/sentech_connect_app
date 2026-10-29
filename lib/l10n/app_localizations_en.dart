@@ -1718,4 +1718,61 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get humanCheckHelp =>
       'Still stuck? Cancel and sign in on the website, or contact support.';
+
+  @override
+  String get failureFeatureDisabled =>
+      'This is not available from your provider.';
+
+  @override
+  String get failureOrderNotCancellable =>
+      'This order can no longer be cancelled.';
+
+  @override
+  String get failureOrderCancelled => 'This order was cancelled.';
+
+  @override
+  String get failureSupportUnavailable =>
+      'Support messages are not available right now. Please try again later.';
+
+  @override
+  String get failureSupportContactNotConfigured =>
+      'Your provider has not set up support messages yet.';
+
+  @override
+  String get failureInvalidMessage => 'Check your message and try again.';
+
+  @override
+  String get failureInvalidContact =>
+      'Check your contact details and try again.';
+
+  @override
+  String get failureInvoiceNotPayable => 'This invoice can no longer be paid.';
+
+  @override
+  String get failureCustomerLinkRequired =>
+      'Your account is not linked to your provider yet. Contact your provider.';
+
+  @override
+  String get failureSubscriberProfileInvalid =>
+      'Update your contact details before signing up.';
+
+  @override
+  String get failureNoActiveEntitlement =>
+      'You need an active pass to get online.';
+
+  @override
+  String get failureMacInvalid =>
+      'We could not identify this device. Connect from the Wi-Fi login page instead.';
+
+  @override
+  String get failureNasUnavailable =>
+      'This hotspot is not available right now. Try another one.';
+
+  @override
+  String get failureLoginUrlInvalid =>
+      'This hotspot login could not be opened. Connect from the Wi-Fi login page instead.';
+
+  @override
+  String get failureControllerNotSupported =>
+      'One-tap login is not supported at this hotspot. Connect from the Wi-Fi login page instead.';
 }

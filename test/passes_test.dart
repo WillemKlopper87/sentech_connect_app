@@ -98,6 +98,22 @@ void main() {
       );
     });
 
+    test('status=current returns a suspended pass past its expiry and keeps it suspended', () async {
+      h.adapter.on(
+        'GET',
+        '/v1/me/entitlements',
+        (_) => FakeReply(200, fixture('entitlements_current_suspended.json')),
+      );
+      final passes = (await HttpPassesRepository(
+        h.api,
+      ).getPasses()).getOrElse((f) => throw StateError(f.message));
+      expect(h.adapter.requests.single.uri.queryParameters['status'], 'current');
+      expect(passes.map((p) => p.status), [PassStatus.active, PassStatus.suspended]);
+      final suspended = passes.last;
+      expect(suspended.isCurrent, isFalse);
+      expect(suspended.expiresAt.isBefore(DateTime.utc(2026, 10, 29)), isTrue);
+    });
+
     test('"show expired" asks for all entitlements', () async {
       h.adapter.on(
         'GET',
@@ -467,6 +483,31 @@ void main() {
       expect(find.text('Fibre 50'), findsOneWidget);
       expect(find.text('Service suspended'), findsWidgets);
       expect(find.textContaining('Your provider has paused this service'), findsOneWidget);
+      expect(find.byType(LinearProgressIndicator), findsNothing);
+    });
+  });
+
+  group('suspended pass past its expiry', () {
+    testWidgets('My passes shows it as suspended, not expired, and offers no usage bar', (tester) async {
+      final repo = _ManualRepo();
+      final cubit = PassesCubit(repo);
+      addTearDown(cubit.close);
+      await pumpThemed(
+        tester,
+        BlocProvider.value(
+          value: cubit,
+          // Two days after the pass's expires_at (12:00 on 1 Oct).
+          child: MyPassesPage(now: () => DateTime.utc(2026, 10, 3, 12)),
+        ),
+      );
+      repo.calls[0].$2.complete(
+        Right([_pass('s', status: PassStatus.suspended, name: 'Fibre 50')]),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Fibre 50'), findsOneWidget);
+      expect(find.text('Service suspended'), findsWidgets);
+      expect(find.textContaining('Your provider has paused this service'), findsOneWidget);
+      expect(find.textContaining(RegExp(r'^Expired \w')), findsNothing);
       expect(find.byType(LinearProgressIndicator), findsNothing);
     });
   });

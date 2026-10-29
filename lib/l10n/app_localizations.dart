@@ -2973,6 +2973,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Still stuck? Cancel and sign in on the website, or contact support.'**
   String get humanCheckHelp;
+
+  /// Customer error for problem code feature_disabled.
+  ///
+  /// In en, this message translates to:
+  /// **'This is not available from your provider.'**
+  String get failureFeatureDisabled;
+
+  /// Customer error for problem code order_not_cancellable.
+  ///
+  /// In en, this message translates to:
+  /// **'This order can no longer be cancelled.'**
+  String get failureOrderNotCancellable;
+
+  /// Customer error for problem code order_cancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'This order was cancelled.'**
+  String get failureOrderCancelled;
+
+  /// Customer error for problem code support_unavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Support messages are not available right now. Please try again later.'**
+  String get failureSupportUnavailable;
+
+  /// Customer error for problem code support_contact_not_configured.
+  ///
+  /// In en, this message translates to:
+  /// **'Your provider has not set up support messages yet.'**
+  String get failureSupportContactNotConfigured;
+
+  /// Customer error for problem code invalid_message.
+  ///
+  /// In en, this message translates to:
+  /// **'Check your message and try again.'**
+  String get failureInvalidMessage;
+
+  /// Customer error for problem code invalid_contact.
+  ///
+  /// In en, this message translates to:
+  /// **'Check your contact details and try again.'**
+  String get failureInvalidContact;
+
+  /// Customer error for problem code invoice_not_payable.
+  ///
+  /// In en, this message translates to:
+  /// **'This invoice can no longer be paid.'**
+  String get failureInvoiceNotPayable;
+
+  /// Customer error for problem code customer_link_required.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account is not linked to your provider yet. Contact your provider.'**
+  String get failureCustomerLinkRequired;
+
+  /// Customer error for problem code subscriber_profile_invalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Update your contact details before signing up.'**
+  String get failureSubscriberProfileInvalid;
+
+  /// Customer error for problem code no_active_entitlement.
+  ///
+  /// In en, this message translates to:
+  /// **'You need an active pass to get online.'**
+  String get failureNoActiveEntitlement;
+
+  /// Customer error for problem code mac_invalid.
+  ///
+  /// In en, this message translates to:
+  /// **'We could not identify this device. Connect from the Wi-Fi login page instead.'**
+  String get failureMacInvalid;
+
+  /// Customer error for problem code nas_unavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'This hotspot is not available right now. Try another one.'**
+  String get failureNasUnavailable;
+
+  /// Customer error for problem code login_url_invalid.
+  ///
+  /// In en, this message translates to:
+  /// **'This hotspot login could not be opened. Connect from the Wi-Fi login page instead.'**
+  String get failureLoginUrlInvalid;
+
+  /// Customer error for problem code controller_not_supported.
+  ///
+  /// In en, this message translates to:
+  /// **'One-tap login is not supported at this hotspot. Connect from the Wi-Fi login page instead.'**
+  String get failureControllerNotSupported;
 }
 
 class _AppLocalizationsDelegate

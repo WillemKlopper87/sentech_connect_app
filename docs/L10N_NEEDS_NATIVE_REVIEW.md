@@ -35,3 +35,23 @@ Other af and zu strings that still read as English fallbacks are listed by `dart
 | `humanCheckCancel` | Cancel | Kanselleer | Khansela |
 | `humanCheckWidgetLabel` | Security check | Sekuriteitskontrole | Ukuhlola ukuphepha |
 | `humanCheckHelp` | Still stuck? Cancel and sign in on the website, or contact support. | Nog vas? Kanselleer en meld aan op die webwerf, of kontak ondersteuning. | Usabambekile? Khansela bese ungena kuwebhusayithi, noma uxhumane nosekelo. |
+
+Typed problem codes added 2026-10-29 (contract re-sync, audit row 15). Same review rule: machine-quality drafts, native review before release.
+
+| Key | English | Afrikaans | isiZulu |
+|---|---|---|---|
+| `failureFeatureDisabled` | This is not available from your provider. | Dit is nie by jou verskaffer beskikbaar nie. | Lokhu akutholakali kumuntu onikezayo. |
+| `failureOrderNotCancellable` | This order can no longer be cancelled. | Hierdie bestelling kan nie meer gekanselleer word nie. | I-oda leli alisakwazi ukukhanselwa. |
+| `failureOrderCancelled` | This order was cancelled. | Hierdie bestelling is gekanselleer. | I-oda leli likhanseliwe. |
+| `failureSupportUnavailable` | Support messages are not available right now. Please try again later. | Ondersteuningsboodskappe is nou nie beskikbaar nie. Probeer asseblief later weer. | Imiyalezo yosizo ayitholakali okwamanje. Sicela uzame futhi kamuva. |
+| `failureSupportContactNotConfigured` | Your provider has not set up support messages yet. | Jou verskaffer het nog nie ondersteuningsboodskappe opgestel nie. | Umuntu onikezayo akakawumisi umyalezo wosizo. |
+| `failureInvalidMessage` | Check your message and try again. | Kontroleer jou boodskap en probeer weer. | Hlola umyalezo wakho bese uzame futhi. |
+| `failureInvalidContact` | Check your contact details and try again. | Kontroleer jou kontakbesonderhede en probeer weer. | Hlola imininingwane yakho yokuxhumana bese uzame futhi. |
+| `failureInvoiceNotPayable` | This invoice can no longer be paid. | Hierdie faktuur kan nie meer betaal word nie. | I-invoyisi le ayisakwazi ukukhokhwa. |
+| `failureCustomerLinkRequired` | Your account is not linked to your provider yet. Contact your provider. | Jou rekening is nog nie aan jou verskaffer gekoppel nie. Kontak jou verskaffer. | I-akhawunti yakho ayikaxhunyaniswa nomuntu onikezayo. Xhumana nomuntu onikezayo. |
+| `failureSubscriberProfileInvalid` | Update your contact details before signing up. | Werk jou kontakbesonderhede op voordat jy inteken. | Buyekeza imininingwane yakho yokuxhumana ngaphambi kokubhalisa. |
+| `failureNoActiveEntitlement` | You need an active pass to get online. | Jy het 'n aktiewe pas nodig om aanlyn te kom. | Udinga ipasi elisebenzayo ukuze uxhume ku-inthanethi. |
+| `failureMacInvalid` | We could not identify this device. Connect from the Wi-Fi login page instead. | Ons kon nie hierdie toestel identifiseer nie. Koppel eerder vanaf die Wi-Fi-aanmeldbladsy. | Asikwazanga ukuhlonza le divayisi. Xhuma ngekhasi lokungena le-Wi-Fi esikhundleni. |
+| `failureNasUnavailable` | This hotspot is not available right now. Try another one. | Hierdie warmkol is nou nie beskikbaar nie. Probeer 'n ander een. | Le hotspot ayitholakali okwamanje. Zama enye. |
+| `failureLoginUrlInvalid` | This hotspot login could not be opened. Connect from the Wi-Fi login page instead. | Hierdie warmkol-aanmelding kon nie oopgemaak word nie. Koppel eerder vanaf die Wi-Fi-aanmeldbladsy. | Ukungena kwale hotspot akukwazanga ukuvulwa. Xhuma ngekhasi lokungena le-Wi-Fi esikhundleni. |
+| `failureControllerNotSupported` | One-tap login is not supported at this hotspot. Connect from the Wi-Fi login page instead. | Eenklik-aanmelding word nie by hierdie warmkol ondersteun nie. Koppel eerder vanaf die Wi-Fi-aanmeldbladsy. | Ukungena ngokuthinta kanye akuxhaswa kule hotspot. Xhuma ngekhasi lokungena le-Wi-Fi esikhundleni. |

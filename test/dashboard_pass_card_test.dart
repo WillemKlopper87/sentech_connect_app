@@ -298,4 +298,15 @@ void main() {
     expect(find.byType(LinearProgressIndicator), findsNothing);
     expect(find.text('No active pass'), findsNothing);
   });
+
+  testWidgets('a suspended pass past its expiry still reads Service suspended, not expired', (tester) async {
+    await _pump(
+      tester,
+      _Passes([Right([_pass(status: PassStatus.suspended, left: const Duration(days: -2))])]),
+    );
+    expect(find.text('Service suspended'), findsWidgets);
+    expect(find.textContaining('Your provider has paused this service'), findsOneWidget);
+    expect(find.text('No active pass'), findsNothing);
+    expect(find.byType(LinearProgressIndicator), findsNothing);
+  });
 }

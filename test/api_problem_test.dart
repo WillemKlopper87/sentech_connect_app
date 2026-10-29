@@ -51,7 +51,7 @@ void main() {
   });
 
   test('404 is a NotFoundFailure with the server detail', () {
-    final f = failureFromDioException(_bad(404, _problem(404, 'order_not_found', detail: 'Unknown order.')));
+    final f = failureFromDioException(_bad(404, _problem(404, 'thing_not_found', detail: 'Unknown order.')));
     expect(f, isA<NotFoundFailure>());
     expect(f.message, 'Unknown order.');
   });
@@ -218,7 +218,7 @@ void main() {
     });
 
     test('404 and 429 details are capped too', () {
-      expect(failureFromDioException(_bad(404, _problem(404, 'order_not_found', detail: huge))).message.length, 300);
+      expect(failureFromDioException(_bad(404, _problem(404, 'thing_not_found', detail: huge))).message.length, 300);
       expect(failureFromDioException(_bad(429, _problem(429, 'rate_limited', detail: huge))).message.length, 300);
     });
 
@@ -346,6 +346,58 @@ void main() {
       final detailed = map(409, 'order_not_payable', detail: 'Replaced by a newer order.');
       expect(detailed.message, 'Replaced by a newer order.');
       expect((detailed as ValidationFailure).messageIsDetail, isTrue);
+    });
+  });
+
+  group('customer problem codes (parity audit row 15)', () {
+    final refusals = <(int, String, Type)>[
+      (409, 'feature_disabled', FeatureDisabledFailure),
+      (409, 'order_not_cancellable', OrderNotCancellableFailure),
+      (409, 'order_cancelled', OrderCancelledFailure),
+      (409, 'support_contact_not_configured', SupportContactNotConfiguredFailure),
+      (422, 'invalid_message', InvalidMessageFailure),
+      (422, 'invalid_contact', InvalidContactFailure),
+      (409, 'invoice_not_payable', InvoiceNotPayableFailure),
+      (409, 'customer_link_required', CustomerLinkRequiredFailure),
+      (422, 'subscriber_profile_invalid', SubscriberProfileInvalidFailure),
+      (409, 'no_active_entitlement', NoActiveEntitlementFailure),
+      (422, 'mac_invalid', MacInvalidFailure),
+      (422, 'nas_unavailable', NasUnavailableFailure),
+      (422, 'login_url_invalid', LoginUrlInvalidFailure),
+      (422, 'controller_not_supported', ControllerNotSupportedFailure),
+    ];
+    for (final (status, code, type) in refusals) {
+      test('$status $code is a typed ValidationFailure that ignores the server wording', () {
+        final f = failureFromDioException(_bad(status, _problem(status, code, detail: 'server words')));
+        expect(f.runtimeType, type);
+        expect(f, isA<ValidationFailure>());
+        expect((f as ValidationFailure).code, code);
+        expect(f.messageIsDetail, isFalse);
+        expect(f.message, isNot(contains('server words')));
+      });
+    }
+
+    test('404 order_not_found is a NotFoundFailure subtype', () {
+      final f = failureFromDioException(_bad(404, _problem(404, 'order_not_found', detail: 'Unknown order.')));
+      expect(f, isA<OrderNotFoundFailure>());
+      expect(f, isA<NotFoundFailure>());
+    });
+
+    test('503 support_unavailable keeps Retry-After and is not a generic server failure', () {
+      final f = failureFromDioException(_bad(503, _problem(503, 'support_unavailable'), headers: {'retry-after': ['30']}));
+      expect(f, isA<SupportUnavailableFailure>());
+      expect((f as SupportUnavailableFailure).retryAfter, const Duration(seconds: 30));
+    });
+
+    test('other 409/422 codes and a 5xx with these codes are unchanged', () {
+      expect(failureFromDioException(_bad(409, _problem(409, 'something_else'))), isA<ValidationFailure>());
+      expect(failureFromDioException(_bad(409, _problem(409, 'something_else'))), isNot(isA<FeatureDisabledFailure>()));
+      expect(failureFromDioException(_bad(500, _problem(500, 'feature_disabled'))), isA<ServerFailure>());
+    });
+
+    test('order_not_payable keeps its server detail', () {
+      final f = failureFromDioException(_bad(409, _problem(409, 'order_not_payable', detail: 'Paid already.')));
+      expect(f.message, 'Paid already.');
     });
   });
 }

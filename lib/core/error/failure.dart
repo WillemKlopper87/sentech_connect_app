@@ -178,3 +178,107 @@ class OrderNotPayableFailure extends ValidationFailure {
 class DeleteCodeUnavailableFailure extends Failure {
   const DeleteCodeUnavailableFailure([super.message = 'We cannot send a code to this account. Contact support to delete your account.']);
 }
+
+// More typed refusals the platform sends with a stable problem `code` (parity
+// audit 2026-10-29, row 15). Each is a [ValidationFailure] carrying its code
+// (so existing `is ValidationFailure` handling still works) with fixed
+// customer copy; the server's own wording is not shown.
+
+/// 409 `feature_disabled`: the provider has switched this feature off.
+class FeatureDisabledFailure extends ValidationFailure {
+  const FeatureDisabledFailure()
+      : super('This is not available from your provider.', 'feature_disabled', false);
+}
+
+/// 409 `order_not_cancellable`: the order has moved past the point where it
+/// can be cancelled (paid, expired or already closed).
+class OrderNotCancellableFailure extends ValidationFailure {
+  const OrderNotCancellableFailure()
+      : super('This order can no longer be cancelled.', 'order_not_cancellable', false);
+}
+
+/// `order_cancelled`: the order was cancelled, so it cannot be paid or used.
+class OrderCancelledFailure extends ValidationFailure {
+  const OrderCancelledFailure() : super('This order was cancelled.', 'order_cancelled', false);
+}
+
+/// 404 `order_not_found`: no such order for this customer.
+class OrderNotFoundFailure extends NotFoundFailure {
+  const OrderNotFoundFailure([super.message = 'We could not find that order.']);
+}
+
+/// 503 `support_unavailable`: the provider cannot take support messages now.
+class SupportUnavailableFailure extends Failure {
+  const SupportUnavailableFailure([this.retryAfter, super.message = 'Support messages are not available right now. Please try again later.']);
+
+  final Duration? retryAfter;
+
+  @override
+  List<Object?> get props => [message, retryAfter];
+}
+
+/// 409 `support_contact_not_configured`: the provider has not set up a support
+/// address to receive messages.
+class SupportContactNotConfiguredFailure extends ValidationFailure {
+  const SupportContactNotConfiguredFailure()
+      : super('Your provider has not set up support messages yet.', 'support_contact_not_configured', false);
+}
+
+/// 422 `invalid_message`: the support message is empty, too long or has
+/// characters that are not allowed.
+class InvalidMessageFailure extends ValidationFailure {
+  const InvalidMessageFailure() : super('Check your message and try again.', 'invalid_message', false);
+}
+
+/// 422 `invalid_contact`: the reply contact on a support message is not a
+/// valid email address or phone number.
+class InvalidContactFailure extends ValidationFailure {
+  const InvalidContactFailure() : super('Check your contact details and try again.', 'invalid_contact', false);
+}
+
+/// 409 `invoice_not_payable`: the invoice is paid, void or otherwise closed.
+class InvoiceNotPayableFailure extends ValidationFailure {
+  const InvoiceNotPayableFailure() : super('This invoice can no longer be paid.', 'invoice_not_payable', false);
+}
+
+/// 409 `customer_link_required`: the account is not linked to a customer
+/// record yet.
+class CustomerLinkRequiredFailure extends ValidationFailure {
+  const CustomerLinkRequiredFailure()
+      : super('Your account is not linked to your provider yet. Contact your provider.', 'customer_link_required', false);
+}
+
+/// 422 `subscriber_profile_invalid`: the profile details are not complete
+/// enough to sign up for a service.
+class SubscriberProfileInvalidFailure extends ValidationFailure {
+  const SubscriberProfileInvalidFailure()
+      : super('Update your contact details before signing up.', 'subscriber_profile_invalid', false);
+}
+
+/// 409 `no_active_entitlement`: one-tap login needs a pass that is running.
+class NoActiveEntitlementFailure extends ValidationFailure {
+  const NoActiveEntitlementFailure()
+      : super('You need an active pass to get online.', 'no_active_entitlement', false);
+}
+
+/// 422 `mac_invalid`: the device address sent for one-tap login is not valid.
+class MacInvalidFailure extends ValidationFailure {
+  const MacInvalidFailure() : super('We could not identify this device. Connect from the Wi-Fi login page instead.', 'mac_invalid', false);
+}
+
+/// 422 `nas_unavailable`: the access point for this hotspot is not available.
+class NasUnavailableFailure extends ValidationFailure {
+  const NasUnavailableFailure() : super('This hotspot is not available right now. Try another one.', 'nas_unavailable', false);
+}
+
+/// 422 `login_url_invalid`: the hotspot's login address cannot be used.
+class LoginUrlInvalidFailure extends ValidationFailure {
+  const LoginUrlInvalidFailure() : super('This hotspot login could not be opened. Connect from the Wi-Fi login page instead.', 'login_url_invalid', false);
+}
+
+/// 422 `controller_not_supported`: this hotspot's equipment does not support
+/// one-tap login.
+class ControllerNotSupportedFailure extends ValidationFailure {
+  const ControllerNotSupportedFailure()
+      : super('One-tap login is not supported at this hotspot. Connect from the Wi-Fi login page instead.', 'controller_not_supported', false);
+}

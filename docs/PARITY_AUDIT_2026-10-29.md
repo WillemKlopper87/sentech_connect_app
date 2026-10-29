@@ -54,9 +54,9 @@ Status: **real** (HTTP repository, contract-tested), **mock** (`Mock*Repository`
 | 12 | Free Wi-Fi via rewarded ad | No API (credits, ads and referrals modules do not exist) | mock (`MockFreeWifiRepository`, 3 ads a day, device-local; `watch_ad_dialog.dart`) | mock must not ship as real; hide or relabel in prod until the credits engine exists | S now, L later | G (see gamification plan) |
 | 13 | Promotions | No API (no offers route; M9 `GET /v1/me/deals` not built) | mock (`MockPromotionsRepository`) | hide in prod or back it with `/me/deals` later | S | G |
 | 14 | Push notifications | No customer route to register a device; the API only sends SMS and email. M13 push design is not built | local notifications only (`lib/core/notifications`, usage alerts) | needs API `push_device` first; blocks streak reminders and expiry warnings | M each side | G, after P3 |
-| 15 | Error-code coverage | see section above | 10 of about 25 customer codes typed | add with the slice that needs each | S | ride along |
+| 15 | Error-code coverage | see section above | **Done for the listed codes:** the 15 listed codes typed (added in `feat/contract-resync`, af/zu copy awaiting native review); the screens that raise them are still to build | none for typing; screens per their own rows | S | ride along |
 | 16 | `GET /v1/me` | `sub, roles, tenant_id, email` | unused (app reads `/v1/me/profile`) | none needed; do not add | none | skip |
-| 17 | Contract snapshot | `9d3cba5` | `39f5a44` | re-run `dart run tool/sync_openapi.dart`, add the suspended-in-current fixture, update `BACKEND_CONTRACT_SYNC.md` "Known gaps" 2 | S | P0 |
+| 17 | Contract snapshot | `9d3cba5` | `39f5a44` | **Done** (branch `feat/contract-resync`): snapshot re-synced to platform `d4be7ce`, suspended-in-current fixture and tests added, `BACKEND_CONTRACT_SYNC.md` Known gap 2 closed | S | P0 |
 
 Rows that are already **real** and match the API: tenants, app-config (modules, flags, `collection_mode_public`, legal, support), OTP request and verify with binding, token refresh and logout, profile get and patch, consents get and post (`consent_version_outdated`), export, delete challenge and delete, products, orders create, list, get, checkout (`order_not_payable`), entitlements (all statuses, origins, scope kinds), voucher redeem (`voucher_invalid`).
 

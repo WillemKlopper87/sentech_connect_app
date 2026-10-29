@@ -118,10 +118,12 @@ Failure failureFromStatus(int status, ApiProblem? problem, {String? requestId, D
   final detail = problem?.detail == null ? null : _capped(problem!.detail!);
   if (status == 401) return const UnauthorizedFailure();
   if (status == 404 && problem?.code == 'subscriber_not_found') return const SubscriberNotFoundFailure();
+  if (status == 404 && problem?.code == 'order_not_found') return const OrderNotFoundFailure();
   if (status == 404) return NotFoundFailure(detail ?? 'We could not find that.');
   if (status == 429) return RateLimitedFailure(detail ?? 'Too many attempts. Please wait and try again.', retryAfter);
   if (status == 503 && problem?.code == 'human_verification_unavailable') return HumanVerificationUnavailableFailure(retryAfter);
   if (status == 503 && problem?.code == 'sms_unavailable') return SmsUnavailableFailure(retryAfter);
+  if (status == 503 && problem?.code == 'support_unavailable') return SupportUnavailableFailure(retryAfter);
   if (status >= 500 || problem == null) return ServerFailure('Something went wrong on our end.', requestId);
   if (status == 403 && problem.code == 'tenant_suspended') return const ProviderUnavailableFailure();
   if (status == 403 && (problem.code == 'module_not_enabled' || problem.code == 'module_disabled')) {
@@ -135,7 +137,30 @@ Failure failureFromStatus(int status, ApiProblem? problem, {String? requestId, D
   if (status == 409 && problem.code == 'order_not_payable') {
     return detail == null ? const OrderNotPayableFailure() : OrderNotPayableFailure(detail, true);
   }
+  if (status == 409 || status == 422) {
+    final typed = _typedRefusals[problem.code];
+    if (typed != null) return typed;
+  }
   if (status == 422 && problem.code == 'binding_required') return const BindingRequiredFailure();
   if (status == 422 && problem.code == 'consent_version_outdated') return const ConsentVersionOutdatedFailure();
   return ValidationFailure(detail ?? _capped(problem.title), problem.code, detail != null);
 }
+
+/// Refusals (409 or 422) whose code alone says what happened. Looked up after
+/// the status-specific cases above so `order_not_payable` etc. keep their detail.
+const _typedRefusals = <String, Failure>{
+  'feature_disabled': FeatureDisabledFailure(),
+  'order_not_cancellable': OrderNotCancellableFailure(),
+  'order_cancelled': OrderCancelledFailure(),
+  'support_contact_not_configured': SupportContactNotConfiguredFailure(),
+  'invalid_message': InvalidMessageFailure(),
+  'invalid_contact': InvalidContactFailure(),
+  'invoice_not_payable': InvoiceNotPayableFailure(),
+  'customer_link_required': CustomerLinkRequiredFailure(),
+  'subscriber_profile_invalid': SubscriberProfileInvalidFailure(),
+  'no_active_entitlement': NoActiveEntitlementFailure(),
+  'mac_invalid': MacInvalidFailure(),
+  'nas_unavailable': NasUnavailableFailure(),
+  'login_url_invalid': LoginUrlInvalidFailure(),
+  'controller_not_supported': ControllerNotSupportedFailure(),
+};

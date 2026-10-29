@@ -97,6 +97,21 @@ Map<String, String> typedFailureTexts(AppLocalizations l10n) => {
   const SubscriberNotFoundFailure().message: l10n.failureSubscriberNotFound,
   const ActiveServiceExistsFailure().message: l10n.failureActiveServiceExists,
   const DeleteCodeUnavailableFailure().message: l10n.failureDeleteContactSupport,
+  const FeatureDisabledFailure().message: l10n.failureFeatureDisabled,
+  const OrderNotCancellableFailure().message: l10n.failureOrderNotCancellable,
+  const OrderCancelledFailure().message: l10n.failureOrderCancelled,
+  const SupportUnavailableFailure().message: l10n.failureSupportUnavailable,
+  const SupportContactNotConfiguredFailure().message: l10n.failureSupportContactNotConfigured,
+  const InvalidMessageFailure().message: l10n.failureInvalidMessage,
+  const InvalidContactFailure().message: l10n.failureInvalidContact,
+  const InvoiceNotPayableFailure().message: l10n.failureInvoiceNotPayable,
+  const CustomerLinkRequiredFailure().message: l10n.failureCustomerLinkRequired,
+  const SubscriberProfileInvalidFailure().message: l10n.failureSubscriberProfileInvalid,
+  const NoActiveEntitlementFailure().message: l10n.failureNoActiveEntitlement,
+  const MacInvalidFailure().message: l10n.failureMacInvalid,
+  const NasUnavailableFailure().message: l10n.failureNasUnavailable,
+  const LoginUrlInvalidFailure().message: l10n.failureLoginUrlInvalid,
+  const ControllerNotSupportedFailure().message: l10n.failureControllerNotSupported,
 };
 
 /// Customer text for a typed refusal, or null when [failure] is not one (the
@@ -129,6 +144,36 @@ String? typedFailureText(AppLocalizations l10n, Failure? failure) {
       return l10n.failureActiveServiceExists;
     case DeleteCodeUnavailableFailure():
       return l10n.failureDeleteContactSupport;
+    case FeatureDisabledFailure():
+      return l10n.failureFeatureDisabled;
+    case OrderNotCancellableFailure():
+      return l10n.failureOrderNotCancellable;
+    case OrderCancelledFailure():
+      return l10n.failureOrderCancelled;
+    case SupportUnavailableFailure():
+      return l10n.failureSupportUnavailable;
+    case SupportContactNotConfiguredFailure():
+      return l10n.failureSupportContactNotConfigured;
+    case InvalidMessageFailure():
+      return l10n.failureInvalidMessage;
+    case InvalidContactFailure():
+      return l10n.failureInvalidContact;
+    case InvoiceNotPayableFailure():
+      return l10n.failureInvoiceNotPayable;
+    case CustomerLinkRequiredFailure():
+      return l10n.failureCustomerLinkRequired;
+    case SubscriberProfileInvalidFailure():
+      return l10n.failureSubscriberProfileInvalid;
+    case NoActiveEntitlementFailure():
+      return l10n.failureNoActiveEntitlement;
+    case MacInvalidFailure():
+      return l10n.failureMacInvalid;
+    case NasUnavailableFailure():
+      return l10n.failureNasUnavailable;
+    case LoginUrlInvalidFailure():
+      return l10n.failureLoginUrlInvalid;
+    case ControllerNotSupportedFailure():
+      return l10n.failureControllerNotSupported;
     default:
       return null;
   }
