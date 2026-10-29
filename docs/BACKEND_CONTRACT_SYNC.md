@@ -101,3 +101,7 @@ All 289 `/v1/admin/*` and `/v1/platform/*` operations belong to the web consoles
 - `PassStatus.suspended` and `PassSource.service`, which a subscriber's service shows up as.
 - The module gate `subscriber_billing` from `GET /v1/app-config` (already parsed).
 - The contract test pattern: add the fixture to `fixtureSchemas`, the keys to `decoderReads`, the request body keys to the same map.
+
+## Update 2026-10-29
+
+Audit against platform `9d3cba5`: no customer or public route changed since `39f5a44`. `status=current` on entitlements now includes suspended passes (Known gap 2 is fixed on the API). The human-check config route is still not built. The ranked gap list, per-area table and slice order are in `docs/PARITY_AUDIT_2026-10-29.md`.
