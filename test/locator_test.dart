@@ -11,6 +11,9 @@ import 'package:sentech_connect_app/core/network/api_client.dart';
 import 'package:sentech_connect_app/core/network/auth_tokens.dart';
 import 'package:sentech_connect_app/features/auth/data/repositories/http_auth_repository.dart';
 import 'package:sentech_connect_app/features/auth/domain/repositories/auth_repository.dart';
+import 'package:sentech_connect_app/features/support/data/repositories/http_support_message_repository.dart';
+import 'package:sentech_connect_app/features/support/data/repositories/mock_support_message_repository.dart';
+import 'package:sentech_connect_app/features/support/domain/repositories/support_message_repository.dart';
 import 'package:sentech_connect_app/features/tenant/data/repositories/http_tenant_repository.dart';
 import 'package:sentech_connect_app/features/tenant/data/repositories/mock_tenant_repository.dart';
 import 'package:sentech_connect_app/features/tenant/domain/repositories/tenant_repository.dart';
@@ -72,6 +75,18 @@ void main() {
     expect(locator<CheckoutRepository>(), isA<HttpCheckoutRepository>());
     expect(locator<VoucherRepository>(), isA<HttpVoucherRepository>());
     expect(locator<WifiHotspotsRepository>(), isA<HttpWifiHotspotsRepository>());
+  });
+
+  test('prod sends real support messages', () {
+    setupLocator(environment: prod);
+    registerTestFakes();
+    expect(locator<SupportMessageRepository>(), isA<HttpSupportMessageRepository>());
+  });
+
+  test('demo sends no real support message', () {
+    setupLocator();
+    registerTestFakes();
+    expect(locator<SupportMessageRepository>(), isA<MockSupportMessageRepository>());
   });
 
   test('demo keeps the mock voucher service', () {

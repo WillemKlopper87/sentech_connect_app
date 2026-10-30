@@ -15,6 +15,7 @@ import 'package:sentech_connect_app/features/catalog_checkout/presentation/bloc/
 import 'package:sentech_connect_app/features/catalog_checkout/presentation/pages/catalog_page.dart';
 import 'package:sentech_connect_app/features/passes/presentation/bloc/passes_cubit.dart';
 import 'package:sentech_connect_app/features/passes/domain/usage_alert_scheduler.dart';
+import 'package:sentech_connect_app/features/support/domain/entities/support_message.dart';
 import 'package:sentech_connect_app/features/support/presentation/bloc/support_cubit.dart';
 import 'package:sentech_connect_app/features/support/presentation/pages/support_page.dart';
 import 'package:sentech_connect_app/features/tenant/domain/entities/app_config.dart';
@@ -135,12 +136,9 @@ class _MainShellState extends State<MainShell> {
             onBuyPass: () => _goToShop(ProductCategory.hotspotPass),
             onTopUp: () => _goToShop(ProductCategory.voucher),
             onUpgrade: () => _goToShop(ProductCategory.home5g),
-            onReportIssue: widget.showMockFeatures
-                ? () => submitSupportTicket(
-                    context,
-                    initialCategory: TicketCategory.technical,
-                  )
-                : null,
+            // A real message to the provider's support (POST /v1/support/messages).
+            onReportIssue: () =>
+                submitSupportTicket(context, topic: SupportTopic.connecting),
             onOpenPromotions: (widget.showPromotions ?? widget.showMockFeatures)
                 ? widget.onOpenPromotions
                 : null,
@@ -183,22 +181,24 @@ class _MainShellState extends State<MainShell> {
             label: context.l10n.navScan,
           ),
         ),
-      if (widget.showMockFeatures)
-        (
-          id: _Tab.help,
-          page: BlocProvider(
-            create: (_) => SupportCubit(locator()),
-            child: SupportPage(
-              cpe: widget.showRouterCard,
-              whatsAppNumber: widget.supportWhatsAppNumber,
-            ),
-          ),
-          dest: NavigationDestination(
-            icon: Icon(Icons.support_agent_outlined),
-            selectedIcon: Icon(Icons.support_agent),
-            label: context.l10n.navHelp,
+      // Contact support is real in both flavors; the FAQ list is mock, so
+      // only the demo flavor shows it.
+      (
+        id: _Tab.help,
+        page: BlocProvider(
+          create: (_) => SupportCubit(locator()),
+          child: SupportPage(
+            showFaqs: widget.showMockFeatures,
+            cpe: widget.showRouterCard,
+            whatsAppNumber: widget.supportWhatsAppNumber,
           ),
         ),
+        dest: NavigationDestination(
+          icon: Icon(Icons.support_agent_outlined),
+          selectedIcon: Icon(Icons.support_agent),
+          label: context.l10n.navHelp,
+        ),
+      ),
       (
         id: _Tab.account,
         page: AccountPage(

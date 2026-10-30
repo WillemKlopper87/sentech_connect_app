@@ -8,8 +8,17 @@ import 'package:sentech_connect_app/shared/actions/support_actions.dart';
 import 'package:sentech_connect_app/core/local/data_saver.dart';
 
 class SupportPage extends StatelessWidget {
-  const SupportPage({super.key, this.cpe = false, this.whatsAppNumber});
+  const SupportPage({
+    super.key,
+    this.cpe = false,
+    this.whatsAppNumber,
+    this.showFaqs = true,
+  });
   final bool cpe;
+
+  /// The FAQ list is mock content: hidden in prod, where only the contact
+  /// actions (WhatsApp, message support) show.
+  final bool showFaqs;
   final String? whatsAppNumber;
 
   @override
@@ -17,91 +26,74 @@ class SupportPage extends StatelessWidget {
     final l10n = context.l10n;
     return Scaffold(
       appBar: AppBar(title: Text(l10n.supportTitle)),
-      body: BlocBuilder<SupportCubit, SupportState>(
-        builder: (context, state) {
-          if (state.status == SupportStatus.loading) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          final theme = Theme.of(context);
-          final query = state.query.trim().toLowerCase();
-          final canWhatsApp = supportWhatsAppUri(whatsAppNumber) != null;
-          final faqs = state.allFaqs
-              .where(
-                (faq) =>
-                    cpe || !{'speed', 'topup', 'router-red'}.contains(faq.id),
-              )
-              .map((faq) => localizeDemoFaq(faq, l10n))
-              .where(
-                (faq) =>
-                    query.isEmpty || faq.question.toLowerCase().contains(query),
-              )
-              .toList();
-          return Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                TextField(
-                  onChanged: (value) =>
-                      context.read<SupportCubit>().search(value),
-                  decoration: InputDecoration(
-                    hintText: l10n.supportSearchHint,
-                    prefixIcon: const Icon(Icons.search, size: 20),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Expanded(
-                  child: faqs.isEmpty
-                      ? Center(
-                          child: Text(
-                            l10n.supportNoResults(state.query),
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              color: theme.colorScheme.onSurfaceVariant,
-                            ),
-                          ),
-                        )
-                      : ListView.separated(
-                          itemCount: faqs.length,
-                          separatorBuilder: (_, _) => const Divider(height: 1),
-                          itemBuilder: (context, i) => _FaqTile(
-                            faq: faqs[i],
-                            expanded: state.expandedId == faqs[i].id,
-                            onTap: () => context
-                                .read<SupportCubit>()
-                                .toggleExpanded(faqs[i].id),
-                          ),
+      body: !showFaqs
+          ? Padding(
+              padding: const EdgeInsets.all(20),
+              child: _ContactActions(whatsAppNumber: whatsAppNumber),
+            )
+          : BlocBuilder<SupportCubit, SupportState>(
+              builder: (context, state) {
+                if (state.status == SupportStatus.loading) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                final theme = Theme.of(context);
+                final query = state.query.trim().toLowerCase();
+                final faqs = state.allFaqs
+                    .where(
+                      (faq) =>
+                          cpe ||
+                          !{'speed', 'topup', 'router-red'}.contains(faq.id),
+                    )
+                    .map((faq) => localizeDemoFaq(faq, l10n))
+                    .where(
+                      (faq) =>
+                          query.isEmpty ||
+                          faq.question.toLowerCase().contains(query),
+                    )
+                    .toList();
+                return Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      TextField(
+                        onChanged: (value) =>
+                            context.read<SupportCubit>().search(value),
+                        decoration: InputDecoration(
+                          hintText: l10n.supportSearchHint,
+                          prefixIcon: const Icon(Icons.search, size: 20),
                         ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  l10n.supportStillStuck,
-                  style: theme.textTheme.labelLarge?.copyWith(
-                    letterSpacing: 0.6,
+                      ),
+                      const SizedBox(height: 8),
+                      Expanded(
+                        child: faqs.isEmpty
+                            ? Center(
+                                child: Text(
+                                  l10n.supportNoResults(state.query),
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    color: theme.colorScheme.onSurfaceVariant,
+                                  ),
+                                ),
+                              )
+                            : ListView.separated(
+                                itemCount: faqs.length,
+                                separatorBuilder: (_, _) =>
+                                    const Divider(height: 1),
+                                itemBuilder: (context, i) => _FaqTile(
+                                  faq: faqs[i],
+                                  expanded: state.expandedId == faqs[i].id,
+                                  onTap: () => context
+                                      .read<SupportCubit>()
+                                      .toggleExpanded(faqs[i].id),
+                                ),
+                              ),
+                      ),
+                      _ContactActions(whatsAppNumber: whatsAppNumber),
+                    ],
                   ),
-                ),
-                const SizedBox(height: 8),
-                if (canWhatsApp) ...[
-                  ElevatedButton.icon(
-                    onPressed: () =>
-                        openWhatsAppChat(context, number: whatsAppNumber),
-                    icon: const Icon(Icons.chat_bubble_outline, size: 18),
-                    label: Text(l10n.supportWhatsApp),
-                  ),
-                  const SizedBox(height: 8),
-                ],
-                OutlinedButton.icon(
-                  onPressed: () => submitSupportTicket(context),
-                  icon: const Icon(
-                    Icons.confirmation_number_outlined,
-                    size: 18,
-                  ),
-                  label: Text(l10n.supportSubmitTicket),
-                ),
-              ],
+                );
+              },
             ),
-          );
-        },
-      ),
     );
   }
 }
@@ -174,6 +166,46 @@ class _FaqTile extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// "Still stuck?": WhatsApp (when the provider published a number) and the
+/// real message form.
+class _ContactActions extends StatelessWidget {
+  const _ContactActions({this.whatsAppNumber});
+
+  final String? whatsAppNumber;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final theme = Theme.of(context);
+    final canWhatsApp = supportWhatsAppUri(whatsAppNumber) != null;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const SizedBox(height: 8),
+        Text(
+          l10n.supportStillStuck,
+          style: theme.textTheme.labelLarge?.copyWith(letterSpacing: 0.6),
+        ),
+        const SizedBox(height: 8),
+        if (canWhatsApp) ...[
+          ElevatedButton.icon(
+            onPressed: () => openWhatsAppChat(context, number: whatsAppNumber),
+            icon: const Icon(Icons.chat_bubble_outline, size: 18),
+            label: Text(l10n.supportWhatsApp),
+          ),
+          const SizedBox(height: 8),
+        ],
+        OutlinedButton.icon(
+          onPressed: () => submitSupportTicket(context),
+          icon: const Icon(Icons.confirmation_number_outlined, size: 18),
+          label: Text(l10n.supportSubmitTicket),
+        ),
+      ],
     );
   }
 }

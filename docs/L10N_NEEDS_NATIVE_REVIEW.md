@@ -61,3 +61,30 @@ Typed problem codes added 2026-10-29 (contract re-sync, audit row 15). Same revi
 | `orderCancelConfirmTitle` | Cancel this order? | Kanselleer hierdie bestelling? | Khansela leli oda? |
 | `orderCancelConfirmBody` | This order will be closed. You can place a new order any time. | Hierdie bestelling sal gesluit word. Jy kan enige tyd 'n nuwe bestelling plaas. | Leli oda lizovalwa. Ungenza i-oda elisha noma nini. |
 | `orderCancelKeep` | Keep order | Hou bestelling | Gcina i-oda |
+
+Support message form (2026-10-30, `POST /v1/support/messages`). Machine-quality drafts, native review before release.
+
+| Key | English | Afrikaans | isiZulu |
+|---|---|---|---|
+| `supportComposeTitle` | Message support | Stuur boodskap aan ondersteuning | Thumela umlayezo osizweni |
+| `supportTopicLabel` | Topic | Onderwerp | Isihloko |
+| `supportTopicConnecting` | Connecting to Wi-Fi | Koppel aan Wi-Fi | Ukuxhuma ku-Wi-Fi |
+| `supportTopicPayment` | Payment | Betaling | Inkokhelo |
+| `supportTopicPass` | My pass | My pas | Ipasi lami |
+| `supportTopicAccount` | My account | My rekening | I-akhawunti yami |
+| `supportTopicOther` | Other | Ander | Okunye |
+| `supportContactKindEmail` | Email | E-pos | I-imeyili |
+| `supportContactKindPhone` | Mobile | Selfoon | Iselula |
+| `supportContactEmailLabel` | Your email address | Jou e-posadres | Ikheli lakho le-imeyili |
+| `supportContactPhoneLabel` | Your mobile number | Jou selfoonnommer | Inombolo yakho yeselula |
+| `supportMessageLabel` | Your message | Jou boodskap | Umlayezo wakho |
+| `supportOrderRefLabel` | Order reference (optional) | Bestellingverwysing (opsioneel) | Inkomba ye-oda (akuphoqelekile) |
+| `supportSendMessage` | Send message | Stuur boodskap | Thumela umlayezo |
+| `supportSentTitle` | Message sent | Boodskap gestuur | Umlayezo uthunyelwe |
+| `supportSentBody` | We have your message. Quote this reference if you contact support again. | Ons het jou boodskap. Noem hierdie verwysing as jy weer met ondersteuning skakel. | Silutholile umlayezo wakho. Sebenzisa le nkomba uma uphinda uxhumana nosizo. |
+| `supportSentReference` | Reference: {reference} | Verwysing: {reference} | Inkomba: {reference} |
+| `supportDone` | Done | Klaar | Kwenziwe |
+| `supportIssueMessageTooShort` | Write at least 10 characters. | Skryf ten minste 10 karakters. | Bhala okungenani izinhlamvu eziyi-10. |
+| `supportIssueMessageTooLong` | Keep your message under 2000 characters. | Hou jou boodskap onder 2000 karakters. | Gcina umlayezo wakho ungaphansi kwezinhlamvu ezi-2000. |
+| `supportIssueOrderRef` | An order reference has letters, numbers and dashes only (4 to 40). | 'n Bestellingverwysing het net letters, syfers en koppeltekens (4 tot 40). | Inkomba ye-oda inamagama, izinombolo namadashi kuphela (4 kuya ku-40). |
+| `supportEmailInstead` | Email us instead | Stuur eerder vir ons 'n e-pos | Sithumelele i-imeyili esikhundleni |

@@ -1,4 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sentech_connect_app/app/locator.dart';
+import 'package:sentech_connect_app/core/network/tenant_context.dart';
+import 'package:sentech_connect_app/features/support/domain/entities/support_message.dart';
+import 'package:sentech_connect_app/features/support/presentation/widgets/support_message_sheet.dart';
+import 'package:sentech_connect_app/features/tenant/presentation/bloc/tenant_cubit.dart';
 import 'package:sentech_connect_app/l10n/l10n.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:sentech_connect_app/features/tenant/domain/entities/tenant.dart';
@@ -15,24 +21,6 @@ Uri? supportWhatsAppUri(String? number, {String? message}) {
 }
 
 const supportEmail = 'support@sentech.co.za'; // from the Sentech CI manual
-
-enum TicketCategory { billing, technical, other }
-
-extension TicketCategoryLabel on TicketCategory {
-  /// English label used in the email subject that support staff read.
-  String get label => switch (this) {
-    TicketCategory.billing => 'Billing',
-    TicketCategory.technical => 'Technical',
-    TicketCategory.other => 'Other',
-  };
-
-  /// Label shown to the customer, in their language.
-  String localizedLabel(BuildContext context) => switch (this) {
-    TicketCategory.billing => context.l10n.supportCategoryBilling,
-    TicketCategory.technical => context.l10n.supportCategoryTechnical,
-    TicketCategory.other => context.l10n.supportCategoryOther,
-  };
-}
 
 /// Opens a WhatsApp chat with Sentech support. Shared between the Support
 /// tab and any other entry point (e.g. the dashboard) that offers a
@@ -54,111 +42,25 @@ Future<void> openWhatsAppChat(BuildContext context, {String? number}) async {
   }
 }
 
-/// Opens the ticket-category-and-description dialog, then hands off to
-/// the device's email app addressed to Sentech support. Shared for the
-/// same reason as [openWhatsAppChat] — the dashboard's "Report issue"
-/// quick action and the Support tab both need the identical flow.
+/// The address "Email us instead" opens when the platform has no support inbox
+/// for this provider (`support_contact_not_configured`): the provider's own
+/// published address, else the Sentech one for the default provider only.
+String? supportFallbackEmail(BuildContext context) {
+  final configured = context.read<TenantCubit?>()?.state.config?.support.email;
+  if (configured != null) return configured;
+  final isDefault =
+      locator.isRegistered<TenantContext>() &&
+      locator<TenantContext>().slug == TenantContext.defaultSlug;
+  return isDefault ? supportEmail : null;
+}
+
+/// Opens the "message support" form (a real `POST /v1/support/messages`).
+/// Shared between the Support tab and the dashboard's "Report issue" shortcut.
 Future<void> submitSupportTicket(
   BuildContext context, {
-  TicketCategory initialCategory = TicketCategory.technical,
-}) async {
-  final result = await showDialog<(TicketCategory, String)>(
-    context: context,
-    builder: (context) => _TicketDialog(initialCategory: initialCategory),
-  );
-  if (result == null || !context.mounted) return;
-  final (category, description) = result;
-
-  final uri = Uri(
-    scheme: 'mailto',
-    path: supportEmail,
-    query:
-        'subject=${Uri.encodeComponent(context.l10n.supportEmailSubject(category.localizedLabel(context)))}'
-        '&body=${Uri.encodeComponent(description)}',
-  );
-  final launched = await launchUrl(uri);
-  if (!context.mounted) return;
-  ScaffoldMessenger.of(context)
-    ..hideCurrentSnackBar()
-    ..showSnackBar(
-      SnackBar(
-        content: Text(
-          launched
-              ? context.l10n.supportTicketOpened
-              : context.l10n.supportTicketNoEmail,
-        ),
-      ),
-    );
-}
-
-class _TicketDialog extends StatefulWidget {
-  const _TicketDialog({required this.initialCategory});
-
-  final TicketCategory initialCategory;
-
-  @override
-  State<_TicketDialog> createState() => _TicketDialogState();
-}
-
-class _TicketDialogState extends State<_TicketDialog> {
-  late TicketCategory _category = widget.initialCategory;
-  final _descriptionController = TextEditingController();
-
-  @override
-  void dispose() {
-    _descriptionController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    return AlertDialog(
-      title: Text(l10n.supportSubmitTicket),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          DropdownButtonFormField<TicketCategory>(
-            initialValue: _category,
-            decoration: InputDecoration(labelText: l10n.supportTicketCategory),
-            items: TicketCategory.values
-                .map(
-                  (c) => DropdownMenuItem(
-                    value: c,
-                    child: Text(c.localizedLabel(context)),
-                  ),
-                )
-                .toList(),
-            onChanged: (c) => setState(() => _category = c!),
-          ),
-          const SizedBox(height: 12),
-          TextField(
-            controller: _descriptionController,
-            onChanged: (_) => setState(() {}),
-            maxLines: 4,
-            decoration: InputDecoration(
-              labelText: l10n.supportTicketDescribe,
-              alignLabelWithHint: true,
-            ),
-          ),
-        ],
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text(l10n.commonCancel),
-        ),
-        FilledButton(
-          onPressed: _descriptionController.text.trim().isEmpty
-              ? null
-              : () => Navigator.pop(context, (
-                  _category,
-                  _descriptionController.text.trim(),
-                )),
-          child: Text(l10n.commonContinue),
-        ),
-      ],
-    );
-  }
-}
+  SupportTopic topic = SupportTopic.connecting,
+}) => showSupportMessageSheet(
+  context,
+  topic: topic,
+  fallbackEmail: supportFallbackEmail(context),
+);

@@ -718,6 +718,138 @@ abstract class AppLocalizations {
   /// **'Could not open an email app on this device.'**
   String get supportTicketNoEmail;
 
+  /// Customer app copy: supportComposeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Message support'**
+  String get supportComposeTitle;
+
+  /// Customer app copy: supportTopicLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Topic'**
+  String get supportTopicLabel;
+
+  /// Customer app copy: supportTopicConnecting.
+  ///
+  /// In en, this message translates to:
+  /// **'Connecting to Wi-Fi'**
+  String get supportTopicConnecting;
+
+  /// Customer app copy: supportTopicPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment'**
+  String get supportTopicPayment;
+
+  /// Customer app copy: supportTopicPass.
+  ///
+  /// In en, this message translates to:
+  /// **'My pass'**
+  String get supportTopicPass;
+
+  /// Customer app copy: supportTopicAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'My account'**
+  String get supportTopicAccount;
+
+  /// Customer app copy: supportTopicOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get supportTopicOther;
+
+  /// Customer app copy: supportContactKindEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get supportContactKindEmail;
+
+  /// Customer app copy: supportContactKindPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Mobile'**
+  String get supportContactKindPhone;
+
+  /// Customer app copy: supportContactEmailLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Your email address'**
+  String get supportContactEmailLabel;
+
+  /// Customer app copy: supportContactPhoneLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Your mobile number'**
+  String get supportContactPhoneLabel;
+
+  /// Customer app copy: supportMessageLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Your message'**
+  String get supportMessageLabel;
+
+  /// Customer app copy: supportOrderRefLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Order reference (optional)'**
+  String get supportOrderRefLabel;
+
+  /// Customer app copy: supportSendMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Send message'**
+  String get supportSendMessage;
+
+  /// Customer app copy: supportSentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Message sent'**
+  String get supportSentTitle;
+
+  /// Customer app copy: supportSentBody.
+  ///
+  /// In en, this message translates to:
+  /// **'We have your message. Quote this reference if you contact support again.'**
+  String get supportSentBody;
+
+  /// Customer app copy: reference of a sent support message.
+  ///
+  /// In en, this message translates to:
+  /// **'Reference: {reference}'**
+  String supportSentReference(String reference);
+
+  /// Customer app copy: supportDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get supportDone;
+
+  /// Customer app copy: supportIssueMessageTooShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Write at least 10 characters.'**
+  String get supportIssueMessageTooShort;
+
+  /// Customer app copy: supportIssueMessageTooLong.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep your message under 2000 characters.'**
+  String get supportIssueMessageTooLong;
+
+  /// Customer app copy: supportIssueOrderRef.
+  ///
+  /// In en, this message translates to:
+  /// **'An order reference has letters, numbers and dashes only (4 to 40).'**
+  String get supportIssueOrderRef;
+
+  /// Customer app copy: supportEmailInstead.
+  ///
+  /// In en, this message translates to:
+  /// **'Email us instead'**
+  String get supportEmailInstead;
+
   /// Customer app copy: consent title.
   ///
   /// In en, this message translates to:

@@ -5,6 +5,9 @@ import 'package:sentech_connect_app/features/tenant/domain/entities/tenant.dart'
 import 'package:sentech_connect_app/shared/actions/support_actions.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sentech_connect_app/app/locator.dart';
+import 'package:sentech_connect_app/features/support/data/repositories/mock_support_message_repository.dart';
+import 'package:sentech_connect_app/features/support/domain/repositories/support_message_repository.dart';
 import 'package:sentech_connect_app/features/support/data/repositories/mock_support_repository.dart';
 import 'package:sentech_connect_app/features/support/presentation/bloc/support_cubit.dart';
 import 'package:sentech_connect_app/features/support/presentation/pages/support_page.dart';
@@ -64,46 +67,43 @@ void main() {
     expect(state(), CrossFadeState.showFirst);
   });
 
-  testWidgets('ticket dialog requires a description before it can continue', (
-    tester,
-  ) async {
+  testWidgets('Submit a ticket opens the real message form', (tester) async {
+    await locator.reset();
+    locator.registerLazySingleton<SupportMessageRepository>(
+      () => MockSupportMessageRepository(),
+    );
+    addTearDown(locator.reset);
     await pumpPage(tester);
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Submit a ticket'));
     await tester.pumpAndSettle();
 
-    expect(
-      find.text('Submit a ticket'),
-      findsWidgets,
-    ); // app bar action + dialog title
-    expect(find.text('Category'), findsOneWidget);
-
-    // Continue is disabled until a description is entered — dialog is
-    // dismissed via Cancel rather than Continue, since Continue triggers a
-    // real launchUrl() call that has no platform implementation in tests.
-    final continueButton = tester.widget<FilledButton>(
-      find.widgetWithText(FilledButton, 'Continue'),
-    );
-    expect(continueButton.onPressed, isNull);
+    expect(find.text('Message support'), findsOneWidget);
+    expect(find.text('Send message'), findsOneWidget);
 
     await tester.enterText(
-      find.descendant(
-        of: find.byType(AlertDialog),
-        matching: find.byType(TextField),
-      ),
+      find.byKey(const Key('support-contact')),
+      'thandi@example.co.za',
+    );
+    await tester.enterText(
+      find.byKey(const Key('support-message')),
       'My router keeps disconnecting.',
     );
-    await tester.pump();
-
-    final continueButtonAfter = tester.widget<FilledButton>(
-      find.widgetWithText(FilledButton, 'Continue'),
-    );
-    expect(continueButtonAfter.onPressed, isNotNull);
-
-    await tester.tap(find.text('Cancel'));
+    await tester.tap(find.text('Send message'));
+    await tester.pump(const Duration(seconds: 1));
     await tester.pumpAndSettle();
-    expect(find.text('Category'), findsNothing);
+    expect(find.text('Reference: DEMO-0001'), findsOneWidget);
+  });
+
+  testWidgets('prod: no FAQ list (it is mock), the contact actions stay', (
+    tester,
+  ) async {
+    await pumpThemed(tester, const SupportPage(showFaqs: false));
+    await tester.pumpAndSettle();
+    expect(find.text("I can't connect to the WiFi"), findsNothing);
+    expect(find.byType(TextField), findsNothing);
+    expect(find.text('Submit a ticket'), findsOneWidget);
   });
 
   test(
@@ -185,6 +185,11 @@ void main() {
   testWidgets(
     'absent or invalid WhatsApp leaves an accessible secondary ticket',
     (tester) async {
+      await locator.reset();
+      locator.registerLazySingleton<SupportMessageRepository>(
+        () => MockSupportMessageRepository(),
+      );
+      addTearDown(locator.reset);
       for (final number in <String?>[null, '270000000000']) {
         final cubit = SupportCubit(MockSupportRepository());
         await pumpThemed(
@@ -202,9 +207,10 @@ void main() {
         );
         await tester.tap(find.text('Submit a ticket'));
         await tester.pumpAndSettle();
-        expect(find.byType(AlertDialog), findsOneWidget);
-        await tester.tap(find.text('Cancel'));
+        expect(find.text('Message support'), findsOneWidget);
+        await tester.tapAt(const Offset(10, 10)); // the barrier closes the sheet
         await tester.pumpAndSettle();
+        expect(find.text('Message support'), findsNothing);
         await cubit.close();
       }
     },

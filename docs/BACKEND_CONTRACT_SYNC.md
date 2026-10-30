@@ -28,6 +28,8 @@ Status words: **done** (real repository, tested), **mock** (a `Mock*Repository` 
 | `POST /v1/orders/{order_id}/cancel` | done | "Cancel order" on the payment screen after a confirm dialog; `order_not_cancellable`, `order_cancelled`, `order_not_found` are the typed failures; the order is reloaded after a refusal |
 | `GET /v1/me/entitlements` | done | `suspended` status, `service` source, nullable `product_id` tolerated; `status=current` includes suspended passes (Known gap 2, closed) |
 | `POST /v1/me/vouchers/redeem` | done | |
+| `POST /v1/support/messages` | done | 202 `{reference}`, shown to the customer to quote. Body `tenant, topic (connecting, payment, pass, account, other), reply {type email or phone, value}, message (10 to 2000 after trimming), order_ref (optional), turnstile_token`; required `Idempotency-Key` header, one key per submission and reused for a retry of the same draft (a changed draft gets a new key, otherwise 422 `idempotency_key_reused`). Public: no session sent. Human check action `support`. Failures typed: `support_unavailable` (Retry-After), `support_contact_not_configured` (the form offers a mailto fallback to the app-config support email), `invalid_message`, `invalid_contact`, 429, 403/503 human check. `HttpSupportMessageRepository`; demo flavor uses `MockSupportMessageRepository` (reference `DEMO-0001`) |
+| `GET /v1/auth/human-check/config` | done | `HttpHumanCheckConfigRepository` + `HumanCheckGate`, see Human check (M2d) |
 | `POST /v1/me/hotspot/login-token` | not started | one-tap hotspot login |
 | `GET /v1/products` | done | |
 | `GET /v1/orders`, `POST /v1/orders`, `GET /v1/orders/{order_id}` | done | |

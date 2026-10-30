@@ -357,6 +357,77 @@ class AppLocalizationsAf extends AppLocalizations {
       'Kon nie \'n e-pos-toepassing op hierdie toestel oopmaak nie.';
 
   @override
+  String get supportComposeTitle => 'Stuur boodskap aan ondersteuning';
+
+  @override
+  String get supportTopicLabel => 'Onderwerp';
+
+  @override
+  String get supportTopicConnecting => 'Koppel aan Wi-Fi';
+
+  @override
+  String get supportTopicPayment => 'Betaling';
+
+  @override
+  String get supportTopicPass => 'My pas';
+
+  @override
+  String get supportTopicAccount => 'My rekening';
+
+  @override
+  String get supportTopicOther => 'Ander';
+
+  @override
+  String get supportContactKindEmail => 'E-pos';
+
+  @override
+  String get supportContactKindPhone => 'Selfoon';
+
+  @override
+  String get supportContactEmailLabel => 'Jou e-posadres';
+
+  @override
+  String get supportContactPhoneLabel => 'Jou selfoonnommer';
+
+  @override
+  String get supportMessageLabel => 'Jou boodskap';
+
+  @override
+  String get supportOrderRefLabel => 'Bestellingverwysing (opsioneel)';
+
+  @override
+  String get supportSendMessage => 'Stuur boodskap';
+
+  @override
+  String get supportSentTitle => 'Boodskap gestuur';
+
+  @override
+  String get supportSentBody =>
+      'Ons het jou boodskap. Noem hierdie verwysing as jy weer met ondersteuning skakel.';
+
+  @override
+  String supportSentReference(String reference) {
+    return 'Verwysing: $reference';
+  }
+
+  @override
+  String get supportDone => 'Klaar';
+
+  @override
+  String get supportIssueMessageTooShort => 'Skryf ten minste 10 karakters.';
+
+  @override
+  String get supportIssueMessageTooLong =>
+      'Hou jou boodskap onder 2000 karakters.';
+
+  @override
+  String get supportIssueOrderRef =>
+      '\'n Bestellingverwysing het net letters, syfers en koppeltekens (4 tot 40).';
+
+  @override
+  String get supportEmailInstead => 'Stuur eerder vir ons \'n e-pos';
+
+  @override
   String get consentTitle => 'Jou privaatheid';
 
   @override

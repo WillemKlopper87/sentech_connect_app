@@ -356,6 +356,77 @@ class AppLocalizationsEn extends AppLocalizations {
       'Could not open an email app on this device.';
 
   @override
+  String get supportComposeTitle => 'Message support';
+
+  @override
+  String get supportTopicLabel => 'Topic';
+
+  @override
+  String get supportTopicConnecting => 'Connecting to Wi-Fi';
+
+  @override
+  String get supportTopicPayment => 'Payment';
+
+  @override
+  String get supportTopicPass => 'My pass';
+
+  @override
+  String get supportTopicAccount => 'My account';
+
+  @override
+  String get supportTopicOther => 'Other';
+
+  @override
+  String get supportContactKindEmail => 'Email';
+
+  @override
+  String get supportContactKindPhone => 'Mobile';
+
+  @override
+  String get supportContactEmailLabel => 'Your email address';
+
+  @override
+  String get supportContactPhoneLabel => 'Your mobile number';
+
+  @override
+  String get supportMessageLabel => 'Your message';
+
+  @override
+  String get supportOrderRefLabel => 'Order reference (optional)';
+
+  @override
+  String get supportSendMessage => 'Send message';
+
+  @override
+  String get supportSentTitle => 'Message sent';
+
+  @override
+  String get supportSentBody =>
+      'We have your message. Quote this reference if you contact support again.';
+
+  @override
+  String supportSentReference(String reference) {
+    return 'Reference: $reference';
+  }
+
+  @override
+  String get supportDone => 'Done';
+
+  @override
+  String get supportIssueMessageTooShort => 'Write at least 10 characters.';
+
+  @override
+  String get supportIssueMessageTooLong =>
+      'Keep your message under 2000 characters.';
+
+  @override
+  String get supportIssueOrderRef =>
+      'An order reference has letters, numbers and dashes only (4 to 40).';
+
+  @override
+  String get supportEmailInstead => 'Email us instead';
+
+  @override
   String get consentTitle => 'Your privacy';
 
   @override

@@ -15,7 +15,7 @@ The app has two flavors (`--dart-define=APP_FLAVOR=demo|prod`):
 - **`demo`** (default in debug/profile): every repository is a mock; works fully offline. All tests run in this flavor.
 - **`prod`**: tenants, sign-in (SMS one-time code), catalogue (hotspot passes), orders, payment hand-off, "My passes", profile, consents, data export and account deletion use the Sentech Connect platform API. It **requires** `--dart-define=API_BASE_URL=https://...` (an origin only; https, except cleartext to local dev hosts in debug builds). **Release builds must set `APP_FLAVOR` explicitly** (`demo` or `prod`); a release build without it stops at startup.
 
-Still mock in **both** flavors because the platform has no API for them yet (listed in `stillMockInProd`, `lib/app/locator.dart`): coverage, free Wi-Fi, account usage/router summary, promotions, support and RICA liveness. Voucher redemption is real in prod (`HttpVoucherRepository`, `POST /v1/me/vouchers/redeem`), so the Scan tab shows in both flavors. The hotspot map is real in prod (`GET /v1/hotspots`). In a prod build the mock-backed Support, free Wi-Fi and Promotions entry points and the router/usage card are hidden (shown in demo only), so customers never see fabricated account data.
+Still mock in **both** flavors because the platform has no API for them yet (listed in `stillMockInProd`, `lib/app/locator.dart`): coverage, free Wi-Fi, account usage/router summary, promotions, the support FAQ list and RICA liveness. Sending a support message is real in both flavors (`HttpSupportMessageRepository`, `POST /v1/support/messages`; the demo flavor uses a labelled mock). Voucher redemption is real in prod (`HttpVoucherRepository`, `POST /v1/me/vouchers/redeem`), so the Scan tab shows in both flavors. The hotspot map is real in prod (`GET /v1/hotspots`). In a prod build the Help tab shows only the contact actions (WhatsApp, message support), not the mock FAQ list, and the mock-backed free Wi-Fi and Promotions entry points and the router/usage card are hidden (shown in demo only), so customers never see fabricated account data.
 
 ## Quick start
 
@@ -112,7 +112,8 @@ These repositories are listed in `stillMockInProd` (`lib/app/locator.dart`) and 
 | Usage and router | `account_dashboard/data/repositories/mock_account_repository.dart` | none yet (network) | WP-17 |
 | Promotions | `promotions/data/repositories/mock_promotions_repository.dart` | none yet (listings) | WP-24 |
 | Subscriber account (signup, services, invoices, KYC) | not built yet (M3) | `GET/PATCH /v1/me/subscriber`, `POST /v1/me/subscriber/signup`, `.../services`, `.../invoices`, `.../kyc`, `GET /v1/subscriber-plans` | M3 |
-| Support | `support/data/repositories/mock_support_repository.dart` | `POST /v1/support/messages` (Idempotency-Key, 202 `{reference}`); tickets come later | WP-11 |
+| Support FAQ | `support/data/repositories/mock_support_repository.dart` | no FAQ API on the platform | none planned |
+| Support message (real) | `support/data/repositories/http_support_message_repository.dart` | `POST /v1/support/messages` (Idempotency-Key, 202 `{reference}`) | done |
 | RICA liveness | `rica/data/repositories/mock_liveness_repository.dart` | none (needs a vendor) | not in the V1 app |
 
 ### Modules and branding

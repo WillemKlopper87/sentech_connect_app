@@ -57,7 +57,10 @@ import 'package:sentech_connect_app/features/passes/data/repositories/pass_local
 import 'package:sentech_connect_app/features/passes/data/repositories/mock_passes_repository.dart';
 import 'package:sentech_connect_app/features/passes/domain/repositories/passes_repository.dart';
 import 'package:sentech_connect_app/features/passes/domain/usage_alert_scheduler.dart';
+import 'package:sentech_connect_app/features/support/data/repositories/http_support_message_repository.dart';
+import 'package:sentech_connect_app/features/support/data/repositories/mock_support_message_repository.dart';
 import 'package:sentech_connect_app/features/support/data/repositories/mock_support_repository.dart';
+import 'package:sentech_connect_app/features/support/domain/repositories/support_message_repository.dart';
 import 'package:sentech_connect_app/features/support/domain/repositories/support_repository.dart';
 import 'package:sentech_connect_app/features/tenant/data/repositories/http_tenant_repository.dart';
 import 'package:sentech_connect_app/features/tenant/data/repositories/mock_tenant_repository.dart';
@@ -204,6 +207,9 @@ void _registerDemoRepositories() {
   locator.registerLazySingleton<VoucherRepository>(
     () => MockVoucherRepository(locator(), network: locator()),
   );
+  locator.registerLazySingleton<SupportMessageRepository>(
+    () => MockSupportMessageRepository(),
+  );
 }
 
 void _registerProdRepositories(Uri baseUrl, TurnstileConfig? turnstile) {
@@ -281,6 +287,13 @@ void _registerProdRepositories(Uri baseUrl, TurnstileConfig? turnstile) {
       () => DevPaymentSimulator(locator()),
     );
   }
+  locator.registerLazySingleton<SupportMessageRepository>(
+    () => HttpSupportMessageRepository(
+      locator(),
+      tenant: locator(),
+      humanCheck: locator<HumanCheckGate>().forAction(HumanCheckAction.supportMessage),
+    ),
+  );
   locator.registerLazySingleton<RegistrationRepository>(
     () => HttpRegistrationRepository(
       locator(),

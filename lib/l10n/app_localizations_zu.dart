@@ -357,6 +357,78 @@ class AppLocalizationsZu extends AppLocalizations {
       'Ayikwazanga ukuvula i-app ye-imeyili kule divayisi.';
 
   @override
+  String get supportComposeTitle => 'Thumela umlayezo osizweni';
+
+  @override
+  String get supportTopicLabel => 'Isihloko';
+
+  @override
+  String get supportTopicConnecting => 'Ukuxhuma ku-Wi-Fi';
+
+  @override
+  String get supportTopicPayment => 'Inkokhelo';
+
+  @override
+  String get supportTopicPass => 'Ipasi lami';
+
+  @override
+  String get supportTopicAccount => 'I-akhawunti yami';
+
+  @override
+  String get supportTopicOther => 'Okunye';
+
+  @override
+  String get supportContactKindEmail => 'I-imeyili';
+
+  @override
+  String get supportContactKindPhone => 'Iselula';
+
+  @override
+  String get supportContactEmailLabel => 'Ikheli lakho le-imeyili';
+
+  @override
+  String get supportContactPhoneLabel => 'Inombolo yakho yeselula';
+
+  @override
+  String get supportMessageLabel => 'Umlayezo wakho';
+
+  @override
+  String get supportOrderRefLabel => 'Inkomba ye-oda (akuphoqelekile)';
+
+  @override
+  String get supportSendMessage => 'Thumela umlayezo';
+
+  @override
+  String get supportSentTitle => 'Umlayezo uthunyelwe';
+
+  @override
+  String get supportSentBody =>
+      'Silutholile umlayezo wakho. Sebenzisa le nkomba uma uphinda uxhumana nosizo.';
+
+  @override
+  String supportSentReference(String reference) {
+    return 'Inkomba: $reference';
+  }
+
+  @override
+  String get supportDone => 'Kwenziwe';
+
+  @override
+  String get supportIssueMessageTooShort =>
+      'Bhala okungenani izinhlamvu eziyi-10.';
+
+  @override
+  String get supportIssueMessageTooLong =>
+      'Gcina umlayezo wakho ungaphansi kwezinhlamvu ezi-2000.';
+
+  @override
+  String get supportIssueOrderRef =>
+      'Inkomba ye-oda inamagama, izinombolo namadashi kuphela (4 kuya ku-40).';
+
+  @override
+  String get supportEmailInstead => 'Sithumelele i-imeyili esikhundleni';
+
+  @override
   String get consentTitle => 'Ubumfihlo bakho';
 
   @override

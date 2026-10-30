@@ -73,7 +73,7 @@ void main() {
   );
 
   testWidgets(
-    'prod: Scan (real voucher redemption) shows; mock-backed Support and report-issue are hidden',
+    'prod: Scan (real voucher redemption), contact support and report-issue show; the mock FAQ and promotions do not',
     (tester) async {
       await _pump(tester, mock: false);
       expect(
@@ -86,8 +86,8 @@ void main() {
       expect(find.text('Shop'), findsOneWidget);
       expect(find.text('Account'), findsOneWidget);
       expect(find.text('Scan'), findsOneWidget);
-      expect(find.text('Help'), findsNothing);
-      expect(find.text('Report issue'), findsNothing);
+      expect(find.text('Help'), findsOneWidget, reason: 'contact support is real');
+      expect(find.text('Report issue'), findsOneWidget);
       expect(
         find.text(
           lookupAppLocalizations(const Locale('en')).homePromotionsLabel,
