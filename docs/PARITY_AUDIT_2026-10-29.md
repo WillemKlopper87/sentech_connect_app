@@ -2,6 +2,8 @@
 
 Question from the owner: does the app match the main app (the platform API)? Short answer: **no. The app covers the hotspot-pass customer (sign-in, privacy, catalog, orders, payment, passes, voucher redeem) for real, and nothing else.** The recurring-subscriber lane, one-tap hotspot login, support, coverage, hotspots and the account dashboard are missing or mock.
 
+> **Plan for rows 1, 2, 3, 4, 6 and 10:** `docs/superpowers/plans/2026-10-30-subscriber-account-slices.md` (API facts read from platform source, ten slices, decisions, owner questions, platform tasks). It corrects two audit assumptions: the platform never emits `active_service_exists`, and KYC has no liveness step (staff verify a JSON capture).
+
 ## Method
 
 - API side: platform repo `origin/codex/naas-implementation` at `9d3cba5`: `apps/api/openapi.json` (340 operations), routers under `apps/api/src/sentech_api/modules/`, error codes in the customer routers, `entitlements/repository.py`, `tenants/flags.py`, `plan_modules/catalog.py`.
