@@ -2137,6 +2137,193 @@ class AppLocalizationsZu extends AppLocalizations {
       'Kunenkinga ne-akhawunti yakho. Xhumana nomhlinzeki wakho.';
 
   @override
+  String get kycTitle => 'Ukuhlolwa kwe-ID';
+
+  @override
+  String get kycRowSubtitle => 'Kudingeka kwezinye izinhlelo zenyanga';
+
+  @override
+  String get kycNoAccount =>
+      'Awunayo i-akhawunti ye-inthanethi yasekhaya okwamanje, ngakho akukho ukuhlolwa kwe-ID okufanele kwenziwe.';
+
+  @override
+  String get kycNoneTitle => 'Sidinga ukuhlola i-ID yakho';
+
+  @override
+  String get kycNoneBody =>
+      'Ezinye izinhlelo zenyanga zidinga ukuthi i-ID yakho ihlolwe ngaphambi kokuqala. Thumela imininingwane ye-ID yakho nesithombe esisodwa sedokhumenti ye-ID. Umhlinzeki wakho uyihlola ngesandla.';
+
+  @override
+  String get kycStart => 'Qala ukuhlolwa kwe-ID';
+
+  @override
+  String get kycPendingTitle => 'Siyayihlola i-ID yakho';
+
+  @override
+  String get kycPendingBody =>
+      'Umhlinzeki wakho uyahlola lokho okuthumele. Sizokwazisa uma sekunesinqumo.';
+
+  @override
+  String get kycVerifiedTitle => 'I-ID yakho iqinisekisiwe';
+
+  @override
+  String get kycVerifiedBody =>
+      'Akukho okunye okufanele ukwenze. Ukuhlolwa kwe-ID yakho kuqediwe.';
+
+  @override
+  String kycVerifiedOn(String date) {
+    return 'Iqinisekiswe ngomhla ka-$date';
+  }
+
+  @override
+  String kycSentOn(String date) {
+    return 'Kuthunyelwe ngomhla ka-$date';
+  }
+
+  @override
+  String get kycRejectedTitle =>
+      'Asikwazanga ukwamukela ukuhlolwa kwe-ID yakho';
+
+  @override
+  String get kycRejectedBody =>
+      'Sicela uhlole imininingwane yakho bese uyithumela futhi. Umhlinzeki wakho angakutshela okwengeziwe.';
+
+  @override
+  String get kycSubmitAgain => 'Thumela futhi';
+
+  @override
+  String get kycIdTypeSaId => 'Inombolo ye-ID yaseNingizimu Afrika';
+
+  @override
+  String get kycIdTypePassport => 'Inombolo yephasipoti';
+
+  @override
+  String get kycIdTypeCompanyReg => 'Inombolo yokubhaliswa kwenkampani';
+
+  @override
+  String kycEndingIn(String type, String last4) {
+    return '$type equkela ku-$last4';
+  }
+
+  @override
+  String get kycFormIntro =>
+      'Faka imininingwane ngqo njengoba ivela kudokhumenti yakho ye-ID.';
+
+  @override
+  String get kycFieldIdType => 'Uhlobo lwe-ID';
+
+  @override
+  String get kycHintSaId => 'Izinombolo eziyi-13';
+
+  @override
+  String get kycHintPassport => 'Amalungu angu-6 kuya ku-12 noma izinombolo';
+
+  @override
+  String get kycHintCompanyReg => 'Ifomethi 1234/123456/12';
+
+  @override
+  String get kycFieldAddress => 'Ikheli lasekhaya';
+
+  @override
+  String get kycFieldAddressHint =>
+      'Isitaladi, indawo, idolobha nekhodi yeposi';
+
+  @override
+  String get kycPhotoTitle => 'Isithombe sedokhumenti yakho ye-ID';
+
+  @override
+  String get kycPhotoHelp =>
+      'Thatha isithombe esicacile ekukhanyeni okuhle, onxande abane bonke nombhalo wonke ufundeka.';
+
+  @override
+  String get kycTakePhoto => 'Thatha isithombe';
+
+  @override
+  String get kycChoosePhoto => 'Khetha kugalari';
+
+  @override
+  String get kycReplacePhoto => 'Shintsha isithombe';
+
+  @override
+  String get kycRemovePhoto => 'Susa isithombe';
+
+  @override
+  String get kycPhotoPreview =>
+      'Ukubuka kuqala isithombe sedokhumenti yakho ye-ID';
+
+  @override
+  String get kycPhotoPreparing => 'Silungisa isithombe sakho…';
+
+  @override
+  String get kycPhotoDenied =>
+      'Asikwazi ukuvula ikhamera noma izithombe zakho. Khetha enye indlela, noma uvumele ukufinyelela Kumasethingi.';
+
+  @override
+  String get kycOpenSettings => 'Vula Amasethingi';
+
+  @override
+  String get kycPhotoUnreadable =>
+      'Asikwazanga ukufunda lesi sithombe. Khetha esinye.';
+
+  @override
+  String get kycPhotoTooLarge =>
+      'Lesi sithombe sikhulu kakhulu ukuthi singathunyelwa. Khetha esincane.';
+
+  @override
+  String get kycPhotoFailed =>
+      'Asikwazanga ukuthola isithombe. Sicela uzame futhi.';
+
+  @override
+  String get kycPhotoRequired => 'Engeza isithombe sedokhumenti yakho ye-ID.';
+
+  @override
+  String get kycConsentLabel =>
+      'Ngiyavuma ukuthi umhlinzeki wami angasebenzisa le mininingwane nesi sithombe ukuhlola ubunikazi bami, njengoba kuchaziwe esitatimendeni sobumfihlo.';
+
+  @override
+  String get kycConsentRequired => 'Sicela uvume ukuze uqhubeke.';
+
+  @override
+  String get kycPrivacyLink => 'Funda isitatimende sobumfihlo';
+
+  @override
+  String get kycSendNote =>
+      'Uhlelo lokusebenza alugcini inombolo ye-ID yakho noma isithombe ngemva kokuthi usithumele.';
+
+  @override
+  String get kycSubmit => 'Thumela ukuze kuhlolwe';
+
+  @override
+  String get kycSubmitting => 'Iyathumela…';
+
+  @override
+  String get kycSuccessTitle => 'Ukuhlolwa kwe-ID yakho kuthunyelwe';
+
+  @override
+  String get kycSuccessBody =>
+      'Umhlinzeki wakho uzokuhlola. Sizokwazisa uma sekunesinqumo.';
+
+  @override
+  String get kycSuccessDone => 'Buka isimo';
+
+  @override
+  String get failureKycInvalidId => 'Hlola inombolo yakho ye-ID.';
+
+  @override
+  String get failureKycInvalidAddress => 'Hlola ikheli lakho.';
+
+  @override
+  String get failureKycDocumentRejected =>
+      'Sebenzisa isithombe esicacile se-JPEG noma se-PNG esingaphansi kuka-5 MB.';
+
+  @override
+  String get failureKycUploadFailed =>
+      'Asikwazanga ukulayisha idokhumenti yakho. Zama futhi.';
+
+  @override
+  String get failureKycRequired => 'Kudingeka ukuthi uqale ngokuhlolwa kwe-ID.';
+
+  @override
   String get failureSubscriberProfileInvalid =>
       'Buyekeza imininingwane yakho yokuxhumana ngaphambi kokubhalisa.';
 

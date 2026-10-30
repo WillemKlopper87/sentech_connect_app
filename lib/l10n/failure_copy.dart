@@ -96,6 +96,11 @@ Map<String, String> typedFailureTexts(AppLocalizations l10n) => {
       l10n.failureConsentVersionOutdated,
   const SubscriberNotFoundFailure().message: l10n.failureSubscriberNotFound,
   const ActiveServiceExistsFailure().message: l10n.failureActiveServiceExists,
+  const KycInvalidIdFailure().message: l10n.failureKycInvalidId,
+  const KycInvalidAddressFailure().message: l10n.failureKycInvalidAddress,
+  const KycDocumentRejectedFailure().message: l10n.failureKycDocumentRejected,
+  const KycUploadFailedFailure().message: l10n.failureKycUploadFailed,
+  const KycRequiredFailure().message: l10n.failureKycRequired,
   const DeleteCodeUnavailableFailure().message: l10n.failureDeleteContactSupport,
   const FeatureDisabledFailure().message: l10n.failureFeatureDisabled,
   const OrderNotCancellableFailure().message: l10n.failureOrderNotCancellable,
@@ -145,6 +150,16 @@ String? typedFailureText(AppLocalizations l10n, Failure? failure) {
       return l10n.failureSubscriberNotFound;
     case ActiveServiceExistsFailure():
       return l10n.failureActiveServiceExists;
+    case KycInvalidIdFailure():
+      return l10n.failureKycInvalidId;
+    case KycInvalidAddressFailure():
+      return l10n.failureKycInvalidAddress;
+    case KycDocumentRejectedFailure():
+      return l10n.failureKycDocumentRejected;
+    case KycUploadFailedFailure():
+      return l10n.failureKycUploadFailed;
+    case KycRequiredFailure():
+      return l10n.failureKycRequired;
     case DeleteCodeUnavailableFailure():
       return l10n.failureDeleteContactSupport;
     case FeatureDisabledFailure():

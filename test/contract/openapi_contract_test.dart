@@ -6,6 +6,8 @@ import 'package:sentech_connect_app/features/passes/domain/entities/pass.dart';
 import 'package:sentech_connect_app/features/subscriber/data/repositories/invoice_json.dart';
 import 'package:sentech_connect_app/features/subscriber/data/repositories/subscriber_json.dart';
 import 'package:sentech_connect_app/features/subscriber/domain/entities/subscriber_invoice.dart';
+import 'package:sentech_connect_app/features/subscriber/data/repositories/http_kyc_repository.dart';
+import 'package:sentech_connect_app/features/subscriber/domain/entities/kyc.dart';
 import 'package:sentech_connect_app/features/subscriber/domain/entities/subscriber_service.dart';
 import 'package:sentech_connect_app/features/wifi_voucher/domain/entities/wifi_hotspot.dart';
 
@@ -34,6 +36,9 @@ const fixtureSchemas = {
   'subscriber_invoice.json': 'SubscriberInvoiceOut',
   'subscriber_invoices_page.json': 'Page_SubscriberInvoiceOut_',
   'invoice_checkout.json': 'CheckoutOut',
+  // ID check (S4): GET answers either schema; POST 201 answers SubscriberKycOut.
+  'subscriber_kyc_none.json': 'KycNoneOut',
+  'subscriber_kyc_pending.json': 'SubscriberKycOut',
   'voucher_redeem_ok.json': 'RedeemOut',
   'otp_request.json': 'OtpRequestOut',
   'delete_challenge.json': 'OtpRequestOut', // POST /v1/me/delete-challenge answers the same shape
@@ -142,6 +147,9 @@ const decoderReads = <String, Set<String>>{
   },
   'SubscriberInvoiceLineOut': {
     'position', 'kind', 'description', 'quantity', 'unit_price_cents', 'line_total_cents', 'vat_rate_bp', 'vat_cents',
+  },
+  'SubscriberKycOut': {
+    'status', 'id_type', 'id_number_last4', 'consent_version', 'consent_at', 'verified_at',
   },
   'OtpRequestOut': {'challenge_id', 'expires_in_seconds', 'reference'},
   // Request bodies the app sends (every key must exist in the API schema).
@@ -419,6 +427,45 @@ void main() {
     expect(route.containsKey('security'), isFalse);
     final params = (route['parameters']! as List).cast<Map>();
     expect(params.map((p) => p['name']), ['tenant']);
+  });
+
+  group('/v1/me/subscriber/kyc', () {
+    test('GET answers either KycNoneOut or SubscriberKycOut; POST answers 201 SubscriberKycOut and needs the Idempotency-Key', () {
+      final get = api.path('/v1/me/subscriber/kyc', 'get');
+      final ok = (((get['responses']! as Map)['200']! as Map)['content']! as Map).values.first as Map;
+      final names = ((ok['schema']! as Map)['anyOf']! as List).map((o) => (o as Map)[r'$ref'].toString().split('/').last).toSet();
+      expect(names, {'SubscriberKycOut', 'KycNoneOut'});
+      final post = api.path('/v1/me/subscriber/kyc', 'post');
+      expect(api.responseSchemaName(post, '201'), 'SubscriberKycOut');
+      final headers = (post['parameters']! as List).cast<Map>().where((p) => p['in'] == 'header');
+      expect(headers.single['name'], 'Idempotency-Key');
+    });
+
+    test('the body the app sends validates against SubscriberKycIn and uses only its keys', () {
+      final post = api.path('/v1/me/subscriber/kyc', 'post');
+      final content = (post['requestBody']! as Map)['content']! as Map;
+      final schema = Map<String, Object?>.from((content['application/json']! as Map)['schema']! as Map);
+      final body = const KycSubmission(
+        idType: KycIdType.saId,
+        idNumber: '8001015009087',
+        addressText: '1 Main Road, Sandton, 2196',
+        consentVersion: '2026-09-30',
+        documentBase64: 'AAAA',
+      ).toJson();
+      expect(api.validate(body, schema), isEmpty);
+      expect(body.keys.toSet().difference((schema['properties']! as Map).keys.cast<String>().toSet()), isEmpty);
+    });
+
+    test('every status the API can send is handled', () {
+      final statuses = ((api.schema('SubscriberKycOut')['properties']! as Map)['status']! as Map)['enum']! as List;
+      final base = fixtureMap('subscriber_kyc_pending.json');
+      for (final v in statuses.cast<String>()) {
+        final record = kycRecordFromJson({...base, 'status': v});
+        expect(record?.status.name, v == 'erased' ? null : v);
+      }
+      final types = ((api.schema('SubscriberKycOut')['properties']! as Map)['id_type']! as Map)['enum']! as List;
+      expect(KycIdType.values.map((t) => t.api).toSet(), types.toSet());
+    });
   });
 
   group('POST /v1/support/messages', () {

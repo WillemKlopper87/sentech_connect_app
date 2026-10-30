@@ -157,6 +157,36 @@ class SubscriberNotFoundFailure extends NotFoundFailure {
   const SubscriberNotFoundFailure([super.message = 'We could not find a service account for you with this provider.']);
 }
 
+/// 422 `invalid_identity_number`: the ID number is not valid for its type.
+class KycInvalidIdFailure extends ValidationFailure {
+  const KycInvalidIdFailure() : super('Check your ID number.', 'invalid_identity_number', false);
+}
+
+/// 422 `invalid_address`: the address text is empty or has forbidden characters.
+class KycInvalidAddressFailure extends ValidationFailure {
+  const KycInvalidAddressFailure() : super('Check your address.', 'invalid_address', false);
+}
+
+/// The ID photo was refused: 422 `invalid_document_encoding` or
+/// `document_type_not_allowed`, 413 `document_too_large`. The code says which;
+/// the copy is one sentence for all of them (choose another photo).
+class KycDocumentRejectedFailure extends ValidationFailure {
+  const KycDocumentRejectedFailure([String code = 'invalid_document_encoding'])
+      : super('Use a clear JPEG or PNG photo under 5 MB.', code, false);
+}
+
+/// 503 `document_upload_failed` or 409 `document_upload_expired`: the platform
+/// could not store the photo. Safe to retry.
+class KycUploadFailedFailure extends ValidationFailure {
+  const KycUploadFailedFailure([String code = 'document_upload_failed'])
+      : super('We could not upload your document. Try again.', code, false);
+}
+
+/// 409 `kyc_required`: the plan or service needs a verified ID check first.
+class KycRequiredFailure extends ValidationFailure {
+  const KycRequiredFailure() : super('You need an ID check first.', 'kyc_required', false);
+}
+
 /// 409 `active_service_exists`: refused because the customer still has an
 /// active service (for example deleting the account, or signing up twice).
 class ActiveServiceExistsFailure extends ValidationFailure {

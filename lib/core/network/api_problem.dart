@@ -122,6 +122,8 @@ Failure failureFromStatus(int status, ApiProblem? problem, {String? requestId, D
   if (status == 404 && problem?.code == 'subscriber_plan_not_found') return const PlanUnavailableFailure('subscriber_plan_not_found');
   if (status == 404) return NotFoundFailure(detail ?? 'We could not find that.');
   if (status == 429) return RateLimitedFailure(detail ?? 'Too many attempts. Please wait and try again.', retryAfter);
+  if (status == 503 && problem?.code == 'document_upload_failed') return const KycUploadFailedFailure();
+  if (status == 413 && problem?.code == 'document_too_large') return const KycDocumentRejectedFailure('document_too_large');
   if (status == 503 && problem?.code == 'human_verification_unavailable') return HumanVerificationUnavailableFailure(retryAfter);
   if (status == 503 && problem?.code == 'sms_unavailable') return SmsUnavailableFailure(retryAfter);
   if (status == 503 && problem?.code == 'support_unavailable') return SupportUnavailableFailure(retryAfter);
@@ -169,6 +171,13 @@ const _typedRefusals = <String, Failure>{
   'subscriber_plan_inactive': PlanUnavailableFailure('subscriber_plan_inactive'),
   'subscriber_version_unavailable': PlanUnavailableFailure('subscriber_version_unavailable'),
   'plan_kind_mismatch': PlanUnavailableFailure('plan_kind_mismatch'),
+  'invalid_identity_number': KycInvalidIdFailure(),
+  'invalid_address': KycInvalidAddressFailure(),
+  'invalid_document_encoding': KycDocumentRejectedFailure('invalid_document_encoding'),
+  'document_type_not_allowed': KycDocumentRejectedFailure('document_type_not_allowed'),
+  'document_upload_expired': KycUploadFailedFailure('document_upload_expired'),
+  'invalid_consent_version': ConsentVersionOutdatedFailure(),
+  'kyc_required': KycRequiredFailure(),
   'account_closed': ServiceStateFailure('account_closed'),
   'illegal_transition': ServiceStateFailure('illegal_transition'),
   'no_active_entitlement': NoActiveEntitlementFailure(),

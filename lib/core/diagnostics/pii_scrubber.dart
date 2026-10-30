@@ -32,8 +32,16 @@ class PiiScrubber {
     caseSensitive: false,
   );
 
+  /// ID check fields (`id_number`, `address_text`, the base64 `document`): the
+  /// whole value goes, quoted text with spaces included.
+  static final _identityFields = RegExp(
+    r'''(["']?(?<![A-Za-z_])(?:id_number|address_text|document|install_address)["']?\s*[:=]\s*)("[^"]*"|'[^']*'|[^\s,&})\]]+)''',
+    caseSensitive: false,
+  );
+
   static String scrub(String input) {
-    var out = input.replaceAllMapped(_secretFields, (m) => '${m[1]}[redacted]');
+    var out = input.replaceAllMapped(_identityFields, (m) => '${m[1]}[redacted]');
+    out = out.replaceAllMapped(_secretFields, (m) => '${m[1]}[redacted]');
     for (final (pattern, replacement) in _rules) {
       out = out.replaceAll(pattern, replacement);
     }

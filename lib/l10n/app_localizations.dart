@@ -3676,6 +3676,330 @@ abstract class AppLocalizations {
   /// **'There is a problem with your account. Contact your provider.'**
   String get failureAccountProblem;
 
+  /// Screen title and Account row for the ID check.
+  ///
+  /// In en, this message translates to:
+  /// **'ID check'**
+  String get kycTitle;
+
+  /// Subtitle of the ID check row in Account.
+  ///
+  /// In en, this message translates to:
+  /// **'Needed for some monthly plans'**
+  String get kycRowSubtitle;
+
+  /// Shown when the customer has no home internet account yet.
+  ///
+  /// In en, this message translates to:
+  /// **'You do not have a home internet account yet, so there is no ID check to do.'**
+  String get kycNoAccount;
+
+  /// Heading when no ID check was sent yet.
+  ///
+  /// In en, this message translates to:
+  /// **'We need to check your ID'**
+  String get kycNoneTitle;
+
+  /// Explains what the ID check needs.
+  ///
+  /// In en, this message translates to:
+  /// **'Some monthly plans need your ID checked before they start. Send your ID details and one photo of your ID document. Your provider checks them by hand.'**
+  String get kycNoneBody;
+
+  /// Button that opens the ID check form.
+  ///
+  /// In en, this message translates to:
+  /// **'Start ID check'**
+  String get kycStart;
+
+  /// Heading while staff are checking.
+  ///
+  /// In en, this message translates to:
+  /// **'We are checking your ID'**
+  String get kycPendingTitle;
+
+  /// Body while staff are checking. No time promise.
+  ///
+  /// In en, this message translates to:
+  /// **'Your provider is checking what you sent. We will notify you when there is a decision.'**
+  String get kycPendingBody;
+
+  /// Heading when the ID check passed.
+  ///
+  /// In en, this message translates to:
+  /// **'Your ID is verified'**
+  String get kycVerifiedTitle;
+
+  /// Body when the ID check passed.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing more to do. Your ID check is done.'**
+  String get kycVerifiedBody;
+
+  /// Date the ID was verified.
+  ///
+  /// In en, this message translates to:
+  /// **'Verified on {date}'**
+  String kycVerifiedOn(String date);
+
+  /// Date the ID check was sent.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent on {date}'**
+  String kycSentOn(String date);
+
+  /// Heading when staff did not accept the ID check.
+  ///
+  /// In en, this message translates to:
+  /// **'We could not accept your ID check'**
+  String get kycRejectedTitle;
+
+  /// Body when staff did not accept. The reason is not available to the app.
+  ///
+  /// In en, this message translates to:
+  /// **'Please check your details and send them again. Your provider can tell you more.'**
+  String get kycRejectedBody;
+
+  /// Button to send the ID check again.
+  ///
+  /// In en, this message translates to:
+  /// **'Send again'**
+  String get kycSubmitAgain;
+
+  /// Name of the South African ID number type.
+  ///
+  /// In en, this message translates to:
+  /// **'South African ID number'**
+  String get kycIdTypeSaId;
+
+  /// Name of the passport number type.
+  ///
+  /// In en, this message translates to:
+  /// **'Passport number'**
+  String get kycIdTypePassport;
+
+  /// Name of the company registration number type.
+  ///
+  /// In en, this message translates to:
+  /// **'Company registration number'**
+  String get kycIdTypeCompanyReg;
+
+  /// ID type with the last characters of the number, e.g. South African ID number ending in 1234.
+  ///
+  /// In en, this message translates to:
+  /// **'{type} ending in {last4}'**
+  String kycEndingIn(String type, String last4);
+
+  /// Intro above the ID check form.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the details exactly as they appear on your ID document.'**
+  String get kycFormIntro;
+
+  /// Label of the ID type chooser.
+  ///
+  /// In en, this message translates to:
+  /// **'Type of ID'**
+  String get kycFieldIdType;
+
+  /// Format hint for a South African ID number.
+  ///
+  /// In en, this message translates to:
+  /// **'13 digits'**
+  String get kycHintSaId;
+
+  /// Format hint for a passport number.
+  ///
+  /// In en, this message translates to:
+  /// **'6 to 12 letters or digits'**
+  String get kycHintPassport;
+
+  /// Format hint for a company registration number.
+  ///
+  /// In en, this message translates to:
+  /// **'Format 1234/123456/12'**
+  String get kycHintCompanyReg;
+
+  /// Label of the address field.
+  ///
+  /// In en, this message translates to:
+  /// **'Home address'**
+  String get kycFieldAddress;
+
+  /// Hint inside the address field.
+  ///
+  /// In en, this message translates to:
+  /// **'Street, suburb, city and postal code'**
+  String get kycFieldAddressHint;
+
+  /// Heading of the ID document photo section.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo of your ID document'**
+  String get kycPhotoTitle;
+
+  /// Advice for taking the ID photo.
+  ///
+  /// In en, this message translates to:
+  /// **'Take a clear photo in good light, with all four corners and all the text readable.'**
+  String get kycPhotoHelp;
+
+  /// Button that opens the camera.
+  ///
+  /// In en, this message translates to:
+  /// **'Take a photo'**
+  String get kycTakePhoto;
+
+  /// Button that opens the photo gallery.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose from gallery'**
+  String get kycChoosePhoto;
+
+  /// Button that replaces the chosen photo.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace photo'**
+  String get kycReplacePhoto;
+
+  /// Button that removes the chosen photo.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove photo'**
+  String get kycRemovePhoto;
+
+  /// Accessibility label of the photo preview.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview of your ID document photo'**
+  String get kycPhotoPreview;
+
+  /// Shown while the photo is being prepared.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing your photo…'**
+  String get kycPhotoPreparing;
+
+  /// Shown when camera or photos access is denied.
+  ///
+  /// In en, this message translates to:
+  /// **'We cannot open the camera or your photos. Choose another way, or allow access in Settings.'**
+  String get kycPhotoDenied;
+
+  /// Button that opens the system settings.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Settings'**
+  String get kycOpenSettings;
+
+  /// Shown when the photo cannot be read.
+  ///
+  /// In en, this message translates to:
+  /// **'We could not read that photo. Choose another one.'**
+  String get kycPhotoUnreadable;
+
+  /// Shown when the photo is too big even after shrinking.
+  ///
+  /// In en, this message translates to:
+  /// **'That photo is too large to send. Choose a smaller one.'**
+  String get kycPhotoTooLarge;
+
+  /// Shown when the camera or gallery failed.
+  ///
+  /// In en, this message translates to:
+  /// **'We could not get a photo. Please try again.'**
+  String get kycPhotoFailed;
+
+  /// Field error when no photo was added.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a photo of your ID document.'**
+  String get kycPhotoRequired;
+
+  /// Consent checkbox for using the ID details.
+  ///
+  /// In en, this message translates to:
+  /// **'I agree that my provider may use these details and this photo to check my identity, as set out in the privacy notice.'**
+  String get kycConsentLabel;
+
+  /// Field error when the consent box is not ticked.
+  ///
+  /// In en, this message translates to:
+  /// **'Please agree to continue.'**
+  String get kycConsentRequired;
+
+  /// Link to the privacy notice.
+  ///
+  /// In en, this message translates to:
+  /// **'Read the privacy notice'**
+  String get kycPrivacyLink;
+
+  /// Reassurance under the form about what the app keeps.
+  ///
+  /// In en, this message translates to:
+  /// **'The app does not keep your ID number or photo after you send them.'**
+  String get kycSendNote;
+
+  /// Button that sends the ID check.
+  ///
+  /// In en, this message translates to:
+  /// **'Send for checking'**
+  String get kycSubmit;
+
+  /// Shown on the button while sending.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending…'**
+  String get kycSubmitting;
+
+  /// Heading after the ID check was sent.
+  ///
+  /// In en, this message translates to:
+  /// **'Your ID check is sent'**
+  String get kycSuccessTitle;
+
+  /// Body after the ID check was sent. No time promise.
+  ///
+  /// In en, this message translates to:
+  /// **'Your provider will check it. We will notify you when there is a decision.'**
+  String get kycSuccessBody;
+
+  /// Button that returns to the ID check status.
+  ///
+  /// In en, this message translates to:
+  /// **'View status'**
+  String get kycSuccessDone;
+
+  /// Customer error for problem code invalid_identity_number.
+  ///
+  /// In en, this message translates to:
+  /// **'Check your ID number.'**
+  String get failureKycInvalidId;
+
+  /// Customer error for problem code invalid_address.
+  ///
+  /// In en, this message translates to:
+  /// **'Check your address.'**
+  String get failureKycInvalidAddress;
+
+  /// Customer error for problem codes invalid_document_encoding, document_type_not_allowed and document_too_large.
+  ///
+  /// In en, this message translates to:
+  /// **'Use a clear JPEG or PNG photo under 5 MB.'**
+  String get failureKycDocumentRejected;
+
+  /// Customer error for problem codes document_upload_failed and document_upload_expired.
+  ///
+  /// In en, this message translates to:
+  /// **'We could not upload your document. Try again.'**
+  String get failureKycUploadFailed;
+
+  /// Customer error for problem code kyc_required.
+  ///
+  /// In en, this message translates to:
+  /// **'You need an ID check first.'**
+  String get failureKycRequired;
+
   /// Customer error for problem code subscriber_profile_invalid.
   ///
   /// In en, this message translates to:

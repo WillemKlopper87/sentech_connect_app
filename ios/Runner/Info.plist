@@ -49,7 +49,9 @@
 	</dict>
 	<!-- Privacy usage descriptions (required by App Store review; shown in the system permission prompts). -->
 	<key>NSCameraUsageDescription</key>
-	<string>Sentech Connect uses the camera to scan voucher QR codes and to verify your identity (RICA).</string>
+	<string>Sentech Connect uses the camera to scan voucher QR codes, to photograph your ID document for the ID check, and to verify your identity (RICA).</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Sentech Connect lets you choose a photo of your ID document from your photos for the ID check. It reads only the photo you choose.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Sentech Connect uses your location once to check 5G coverage at your address and to find nearby WiFi hotspots.</string>
 	<key>NSFaceIDUsageDescription</key>

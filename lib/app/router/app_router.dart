@@ -48,6 +48,10 @@ import 'package:sentech_connect_app/features/tenant/presentation/bloc/tenant_cub
 import 'package:sentech_connect_app/features/subscriber/presentation/bloc/service_detail_cubit.dart';
 import 'package:sentech_connect_app/features/subscriber/presentation/bloc/services_cubit.dart';
 import 'package:sentech_connect_app/features/subscriber/presentation/pages/service_detail_page.dart';
+import 'package:sentech_connect_app/features/subscriber/presentation/kyc/kyc_form_cubit.dart';
+import 'package:sentech_connect_app/features/subscriber/presentation/kyc/kyc_form_page.dart';
+import 'package:sentech_connect_app/features/subscriber/presentation/kyc/kyc_status_cubit.dart';
+import 'package:sentech_connect_app/features/subscriber/presentation/kyc/kyc_status_page.dart';
 import 'package:sentech_connect_app/features/subscriber/presentation/pages/services_page.dart';
 import 'package:sentech_connect_app/features/tenant/presentation/pages/tenant_picker_page.dart';
 import 'package:sentech_connect_app/features/tenant/presentation/pages/update_required_page.dart';
@@ -85,6 +89,7 @@ abstract class AppRoutes {
   static const invoices = '/invoices';
   static const invoiceDetail = '/invoices/:invoiceId';
   static const kyc = '/kyc';
+  static const kycForm = '/kyc/new';
 
   static String planFor(String planId) => '/plans/$planId';
   static String signupFor(String planId) => '/signup/$planId';
@@ -475,6 +480,29 @@ GoRouter _buildRouter(
           create: (_) => ServiceDetailCubit(locator(), state.pathParameters['serviceId']!),
           child: const ServiceDetailPage(),
         ),
+      ),
+      // ID check (S4). Hidden when the module is off.
+      GoRoute(
+        path: AppRoutes.kyc,
+        redirect: (context, state) => _subscriberModuleOff(tenantCubit) ? AppRoutes.main : null,
+        builder: (context, state) => BlocProvider(
+          create: (_) => KycStatusCubit(locator()),
+          child: KycStatusPage(onOpenForm: () => context.push<void>(AppRoutes.kycForm)),
+        ),
+        routes: [
+          GoRoute(
+            path: 'new',
+            redirect: (context, state) => _subscriberModuleOff(tenantCubit) ? AppRoutes.main : null,
+            builder: (context, state) => BlocProvider(
+              create: (_) => KycFormCubit(
+                locator(),
+                locator(),
+                consentVersion: tenantCubit?.state.config?.legal.privacy,
+              ),
+              child: KycFormPage(onDone: () => context.pop()),
+            ),
+          ),
+        ],
       ),
       GoRoute(
         path: AppRoutes.cart,

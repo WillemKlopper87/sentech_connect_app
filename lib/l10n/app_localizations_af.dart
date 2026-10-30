@@ -2139,6 +2139,190 @@ class AppLocalizationsAf extends AppLocalizations {
       'Daar is \'n probleem met jou rekening. Kontak jou verskaffer.';
 
   @override
+  String get kycTitle => 'ID-kontrole';
+
+  @override
+  String get kycRowSubtitle => 'Nodig vir sommige maandelikse planne';
+
+  @override
+  String get kycNoAccount =>
+      'Jy het nog nie \'n tuisinternet-rekening nie, so daar is nog geen ID-kontrole om te doen nie.';
+
+  @override
+  String get kycNoneTitle => 'Ons moet jou ID nagaan';
+
+  @override
+  String get kycNoneBody =>
+      'Sommige maandelikse planne vereis dat jou ID eers nagegaan word. Stuur jou ID-besonderhede en een foto van jou ID-dokument. Jou verskaffer gaan dit met die hand na.';
+
+  @override
+  String get kycStart => 'Begin ID-kontrole';
+
+  @override
+  String get kycPendingTitle => 'Ons gaan jou ID na';
+
+  @override
+  String get kycPendingBody =>
+      'Jou verskaffer gaan na wat jy gestuur het. Ons sal jou in kennis stel sodra daar \'n besluit is.';
+
+  @override
+  String get kycVerifiedTitle => 'Jou ID is geverifieer';
+
+  @override
+  String get kycVerifiedBody =>
+      'Niks meer om te doen nie. Jou ID-kontrole is klaar.';
+
+  @override
+  String kycVerifiedOn(String date) {
+    return 'Geverifieer op $date';
+  }
+
+  @override
+  String kycSentOn(String date) {
+    return 'Gestuur op $date';
+  }
+
+  @override
+  String get kycRejectedTitle => 'Ons kon nie jou ID-kontrole aanvaar nie';
+
+  @override
+  String get kycRejectedBody =>
+      'Kontroleer asseblief jou besonderhede en stuur dit weer. Jou verskaffer kan jou meer vertel.';
+
+  @override
+  String get kycSubmitAgain => 'Stuur weer';
+
+  @override
+  String get kycIdTypeSaId => 'Suid-Afrikaanse ID-nommer';
+
+  @override
+  String get kycIdTypePassport => 'Paspoortnommer';
+
+  @override
+  String get kycIdTypeCompanyReg => 'Maatskappyregistrasienommer';
+
+  @override
+  String kycEndingIn(String type, String last4) {
+    return '$type wat eindig op $last4';
+  }
+
+  @override
+  String get kycFormIntro =>
+      'Voer die besonderhede presies in soos dit op jou ID-dokument verskyn.';
+
+  @override
+  String get kycFieldIdType => 'Tipe ID';
+
+  @override
+  String get kycHintSaId => '13 syfers';
+
+  @override
+  String get kycHintPassport => '6 tot 12 letters of syfers';
+
+  @override
+  String get kycHintCompanyReg => 'Formaat 1234/123456/12';
+
+  @override
+  String get kycFieldAddress => 'Huisadres';
+
+  @override
+  String get kycFieldAddressHint => 'Straat, voorstad, stad en poskode';
+
+  @override
+  String get kycPhotoTitle => 'Foto van jou ID-dokument';
+
+  @override
+  String get kycPhotoHelp =>
+      'Neem \'n duidelike foto in goeie lig, met al vier hoeke en al die teks leesbaar.';
+
+  @override
+  String get kycTakePhoto => 'Neem \'n foto';
+
+  @override
+  String get kycChoosePhoto => 'Kies uit galery';
+
+  @override
+  String get kycReplacePhoto => 'Vervang foto';
+
+  @override
+  String get kycRemovePhoto => 'Verwyder foto';
+
+  @override
+  String get kycPhotoPreview => 'Voorskou van jou ID-dokumentfoto';
+
+  @override
+  String get kycPhotoPreparing => 'Berei tans jou foto voor…';
+
+  @override
+  String get kycPhotoDenied =>
+      'Ons kan nie die kamera of jou foto\'s oopmaak nie. Kies \'n ander manier, of laat toegang toe in Instellings.';
+
+  @override
+  String get kycOpenSettings => 'Maak Instellings oop';
+
+  @override
+  String get kycPhotoUnreadable =>
+      'Ons kon nie daardie foto lees nie. Kies \'n ander een.';
+
+  @override
+  String get kycPhotoTooLarge =>
+      'Daardie foto is te groot om te stuur. Kies \'n kleiner een.';
+
+  @override
+  String get kycPhotoFailed =>
+      'Ons kon nie \'n foto kry nie. Probeer asseblief weer.';
+
+  @override
+  String get kycPhotoRequired => 'Voeg \'n foto van jou ID-dokument by.';
+
+  @override
+  String get kycConsentLabel =>
+      'Ek stem in dat my verskaffer hierdie besonderhede en foto mag gebruik om my identiteit na te gaan, soos in die privaatheidskennisgewing uiteengesit.';
+
+  @override
+  String get kycConsentRequired => 'Stem asseblief in om voort te gaan.';
+
+  @override
+  String get kycPrivacyLink => 'Lees die privaatheidskennisgewing';
+
+  @override
+  String get kycSendNote =>
+      'Die toepassing hou nie jou ID-nommer of foto nadat jy dit gestuur het nie.';
+
+  @override
+  String get kycSubmit => 'Stuur vir nagaan';
+
+  @override
+  String get kycSubmitting => 'Stuur tans…';
+
+  @override
+  String get kycSuccessTitle => 'Jou ID-kontrole is gestuur';
+
+  @override
+  String get kycSuccessBody =>
+      'Jou verskaffer sal dit nagaan. Ons sal jou in kennis stel sodra daar \'n besluit is.';
+
+  @override
+  String get kycSuccessDone => 'Sien status';
+
+  @override
+  String get failureKycInvalidId => 'Kontroleer jou ID-nommer.';
+
+  @override
+  String get failureKycInvalidAddress => 'Kontroleer jou adres.';
+
+  @override
+  String get failureKycDocumentRejected =>
+      'Gebruik \'n duidelike JPEG- of PNG-foto onder 5 MB.';
+
+  @override
+  String get failureKycUploadFailed =>
+      'Ons kon nie jou dokument oplaai nie. Probeer weer.';
+
+  @override
+  String get failureKycRequired => 'Jy moet eers \'n ID-kontrole hê.';
+
+  @override
   String get failureSubscriberProfileInvalid =>
       'Werk jou kontakbesonderhede op voordat jy inteken.';
 

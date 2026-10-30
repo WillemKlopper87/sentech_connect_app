@@ -257,10 +257,10 @@ void main() {
       expect(find.text('SERVICES SCREEN'), findsOneWidget);
     });
 
-    test('registry: services and invoices registered, kyc not yet', () {
+    test('registry: services, invoices and kyc registered', () {
       expect(subscriberEntryRegistered('/services'), isTrue);
       expect(subscriberEntryRegistered('/invoices'), isTrue);
-      expect(subscriberEntryRegistered('/kyc'), isFalse);
+      expect(subscriberEntryRegistered('/kyc'), isTrue);
     });
   });
 }

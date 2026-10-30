@@ -180,3 +180,61 @@ Subscriber invoices (S2, 2026-10-30). Machine-quality drafts, native review befo
 | `invoiceCollectionExternal` | Your provider collects payment for this invoice directly. | Jou verskaffer vorder betaling vir hierdie faktuur self in. | Umhlinzeki wakho uqoqa inkokhelo yale nvoyisi ngokwakhe. |
 | `invoiceBackToInvoices` | Back to invoices | Terug na fakture | Buyela kuma-invoyisi |
 | `failureAccountProblem` | There is a problem with your account. Contact your provider. | Daar is 'n probleem met jou rekening. Kontak jou verskaffer. | Kunenkinga ne-akhawunti yakho. Xhumana nomhlinzeki wakho. |
+ID check (slice S4, 2026-10-30). Same rule: machine-quality drafts, native review before release. Placeholders `{date}`, `{type}`, `{last4}` must stay.
+
+| Key | English | Afrikaans (draft) | isiZulu (draft) |
+|---|---|---|---|
+| `kycTitle` | ID check | ID-kontrole | Ukuhlolwa kwe-ID |
+| `kycRowSubtitle` | Needed for some monthly plans | Nodig vir sommige maandelikse planne | Kudingeka kwezinye izinhlelo zenyanga |
+| `kycNoAccount` | You do not have a home internet account yet, so there is no ID check to do. | Jy het nog nie 'n tuisinternet-rekening nie, so daar is nog geen ID-kontrole om te doen nie. | Awunayo i-akhawunti ye-inthanethi yasekhaya okwamanje, ngakho akukho ukuhlolwa kwe-ID okufanele kwenziwe. |
+| `kycNoneTitle` | We need to check your ID | Ons moet jou ID nagaan | Sidinga ukuhlola i-ID yakho |
+| `kycNoneBody` | Some monthly plans need your ID checked before they start. Send your ID details and one photo of your ID document. Your provider checks them by hand. | Sommige maandelikse planne vereis dat jou ID eers nagegaan word. Stuur jou ID-besonderhede en een foto van jou ID-dokument. Jou verskaffer gaan dit met die hand na. | Ezinye izinhlelo zenyanga zidinga ukuthi i-ID yakho ihlolwe ngaphambi kokuqala. Thumela imininingwane ye-ID yakho nesithombe esisodwa sedokhumenti ye-ID. Umhlinzeki wakho uyihlola ngesandla. |
+| `kycStart` | Start ID check | Begin ID-kontrole | Qala ukuhlolwa kwe-ID |
+| `kycPendingTitle` | We are checking your ID | Ons gaan jou ID na | Siyayihlola i-ID yakho |
+| `kycPendingBody` | Your provider is checking what you sent. We will notify you when there is a decision. | Jou verskaffer gaan na wat jy gestuur het. Ons sal jou in kennis stel sodra daar 'n besluit is. | Umhlinzeki wakho uyahlola lokho okuthumele. Sizokwazisa uma sekunesinqumo. |
+| `kycVerifiedTitle` | Your ID is verified | Jou ID is geverifieer | I-ID yakho iqinisekisiwe |
+| `kycVerifiedBody` | Nothing more to do. Your ID check is done. | Niks meer om te doen nie. Jou ID-kontrole is klaar. | Akukho okunye okufanele ukwenze. Ukuhlolwa kwe-ID yakho kuqediwe. |
+| `kycVerifiedOn` | Verified on {date} | Geverifieer op {date} | Iqinisekiswe ngomhla ka-{date} |
+| `kycSentOn` | Sent on {date} | Gestuur op {date} | Kuthunyelwe ngomhla ka-{date} |
+| `kycRejectedTitle` | We could not accept your ID check | Ons kon nie jou ID-kontrole aanvaar nie | Asikwazanga ukwamukela ukuhlolwa kwe-ID yakho |
+| `kycRejectedBody` | Please check your details and send them again. Your provider can tell you more. | Kontroleer asseblief jou besonderhede en stuur dit weer. Jou verskaffer kan jou meer vertel. | Sicela uhlole imininingwane yakho bese uyithumela futhi. Umhlinzeki wakho angakutshela okwengeziwe. |
+| `kycSubmitAgain` | Send again | Stuur weer | Thumela futhi |
+| `kycIdTypeSaId` | South African ID number | Suid-Afrikaanse ID-nommer | Inombolo ye-ID yaseNingizimu Afrika |
+| `kycIdTypePassport` | Passport number | Paspoortnommer | Inombolo yephasipoti |
+| `kycIdTypeCompanyReg` | Company registration number | Maatskappyregistrasienommer | Inombolo yokubhaliswa kwenkampani |
+| `kycEndingIn` | {type} ending in {last4} | {type} wat eindig op {last4} | {type} equkela ku-{last4} |
+| `kycFormIntro` | Enter the details exactly as they appear on your ID document. | Voer die besonderhede presies in soos dit op jou ID-dokument verskyn. | Faka imininingwane ngqo njengoba ivela kudokhumenti yakho ye-ID. |
+| `kycFieldIdType` | Type of ID | Tipe ID | Uhlobo lwe-ID |
+| `kycHintSaId` | 13 digits | 13 syfers | Izinombolo eziyi-13 |
+| `kycHintPassport` | 6 to 12 letters or digits | 6 tot 12 letters of syfers | Amalungu angu-6 kuya ku-12 noma izinombolo |
+| `kycHintCompanyReg` | Format 1234/123456/12 | Formaat 1234/123456/12 | Ifomethi 1234/123456/12 |
+| `kycFieldAddress` | Home address | Huisadres | Ikheli lasekhaya |
+| `kycFieldAddressHint` | Street, suburb, city and postal code | Straat, voorstad, stad en poskode | Isitaladi, indawo, idolobha nekhodi yeposi |
+| `kycPhotoTitle` | Photo of your ID document | Foto van jou ID-dokument | Isithombe sedokhumenti yakho ye-ID |
+| `kycPhotoHelp` | Take a clear photo in good light, with all four corners and all the text readable. | Neem 'n duidelike foto in goeie lig, met al vier hoeke en al die teks leesbaar. | Thatha isithombe esicacile ekukhanyeni okuhle, onxande abane bonke nombhalo wonke ufundeka. |
+| `kycTakePhoto` | Take a photo | Neem 'n foto | Thatha isithombe |
+| `kycChoosePhoto` | Choose from gallery | Kies uit galery | Khetha kugalari |
+| `kycReplacePhoto` | Replace photo | Vervang foto | Shintsha isithombe |
+| `kycRemovePhoto` | Remove photo | Verwyder foto | Susa isithombe |
+| `kycPhotoPreview` | Preview of your ID document photo | Voorskou van jou ID-dokumentfoto | Ukubuka kuqala isithombe sedokhumenti yakho ye-ID |
+| `kycPhotoPreparing` | Preparing your photo… | Berei tans jou foto voor… | Silungisa isithombe sakho… |
+| `kycPhotoDenied` | We cannot open the camera or your photos. Choose another way, or allow access in Settings. | Ons kan nie die kamera of jou foto's oopmaak nie. Kies 'n ander manier, of laat toegang toe in Instellings. | Asikwazi ukuvula ikhamera noma izithombe zakho. Khetha enye indlela, noma uvumele ukufinyelela Kumasethingi. |
+| `kycOpenSettings` | Open Settings | Maak Instellings oop | Vula Amasethingi |
+| `kycPhotoUnreadable` | We could not read that photo. Choose another one. | Ons kon nie daardie foto lees nie. Kies 'n ander een. | Asikwazanga ukufunda lesi sithombe. Khetha esinye. |
+| `kycPhotoTooLarge` | That photo is too large to send. Choose a smaller one. | Daardie foto is te groot om te stuur. Kies 'n kleiner een. | Lesi sithombe sikhulu kakhulu ukuthi singathunyelwa. Khetha esincane. |
+| `kycPhotoFailed` | We could not get a photo. Please try again. | Ons kon nie 'n foto kry nie. Probeer asseblief weer. | Asikwazanga ukuthola isithombe. Sicela uzame futhi. |
+| `kycPhotoRequired` | Add a photo of your ID document. | Voeg 'n foto van jou ID-dokument by. | Engeza isithombe sedokhumenti yakho ye-ID. |
+| `kycConsentLabel` | I agree that my provider may use these details and this photo to check my identity, as set out in the privacy notice. | Ek stem in dat my verskaffer hierdie besonderhede en foto mag gebruik om my identiteit na te gaan, soos in die privaatheidskennisgewing uiteengesit. | Ngiyavuma ukuthi umhlinzeki wami angasebenzisa le mininingwane nesi sithombe ukuhlola ubunikazi bami, njengoba kuchaziwe esitatimendeni sobumfihlo. |
+| `kycConsentRequired` | Please agree to continue. | Stem asseblief in om voort te gaan. | Sicela uvume ukuze uqhubeke. |
+| `kycPrivacyLink` | Read the privacy notice | Lees die privaatheidskennisgewing | Funda isitatimende sobumfihlo |
+| `kycSendNote` | The app does not keep your ID number or photo after you send them. | Die toepassing hou nie jou ID-nommer of foto nadat jy dit gestuur het nie. | Uhlelo lokusebenza alugcini inombolo ye-ID yakho noma isithombe ngemva kokuthi usithumele. |
+| `kycSubmit` | Send for checking | Stuur vir nagaan | Thumela ukuze kuhlolwe |
+| `kycSubmitting` | Sending… | Stuur tans… | Iyathumela… |
+| `kycSuccessTitle` | Your ID check is sent | Jou ID-kontrole is gestuur | Ukuhlolwa kwe-ID yakho kuthunyelwe |
+| `kycSuccessBody` | Your provider will check it. We will notify you when there is a decision. | Jou verskaffer sal dit nagaan. Ons sal jou in kennis stel sodra daar 'n besluit is. | Umhlinzeki wakho uzokuhlola. Sizokwazisa uma sekunesinqumo. |
+| `kycSuccessDone` | View status | Sien status | Buka isimo |
+| `failureKycInvalidId` | Check your ID number. | Kontroleer jou ID-nommer. | Hlola inombolo yakho ye-ID. |
+| `failureKycInvalidAddress` | Check your address. | Kontroleer jou adres. | Hlola ikheli lakho. |
+| `failureKycDocumentRejected` | Use a clear JPEG or PNG photo under 5 MB. | Gebruik 'n duidelike JPEG- of PNG-foto onder 5 MB. | Sebenzisa isithombe esicacile se-JPEG noma se-PNG esingaphansi kuka-5 MB. |
+| `failureKycUploadFailed` | We could not upload your document. Try again. | Ons kon nie jou dokument oplaai nie. Probeer weer. | Asikwazanga ukulayisha idokhumenti yakho. Zama futhi. |
+| `failureKycRequired` | You need an ID check first. | Jy moet eers 'n ID-kontrole hê. | Kudingeka ukuthi uqale ngokuhlolwa kwe-ID. |

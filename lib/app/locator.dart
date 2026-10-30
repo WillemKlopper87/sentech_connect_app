@@ -57,6 +57,11 @@ import 'package:sentech_connect_app/features/subscriber/data/repositories/mock_s
 import 'package:sentech_connect_app/features/subscriber/domain/repositories/invoice_repository.dart';
 import 'package:sentech_connect_app/features/subscriber/domain/repositories/subscriber_plans_repository.dart';
 import 'package:sentech_connect_app/features/subscriber/domain/repositories/subscriber_repository.dart';
+import 'package:sentech_connect_app/features/subscriber/data/kyc/plugin_id_image_picker.dart';
+import 'package:sentech_connect_app/features/subscriber/data/repositories/http_kyc_repository.dart';
+import 'package:sentech_connect_app/features/subscriber/data/repositories/mock_kyc_repository.dart';
+import 'package:sentech_connect_app/features/subscriber/domain/kyc/id_image_picker.dart';
+import 'package:sentech_connect_app/features/subscriber/domain/repositories/kyc_repository.dart';
 import 'package:sentech_connect_app/features/promotions/data/repositories/mock_promotions_repository.dart';
 import 'package:sentech_connect_app/features/promotions/domain/repositories/promotions_repository.dart';
 import 'package:sentech_connect_app/features/rica/data/repositories/mock_liveness_repository.dart';
@@ -122,6 +127,7 @@ void setupLocator({
   locator.registerSingleton<AppEnvironment>(environment);
   _registerPlatformServices(crashReporter);
   _registerStillMockRepositories();
+  locator.registerLazySingleton<IdImagePicker>(() => PluginIdImagePicker());
   if (environment.isDemo) {
     _registerDemoRepositories();
   } else {
@@ -206,6 +212,7 @@ void _registerDemoRepositories() {
   locator.registerLazySingleton<InvoiceRepository>(
     () => MockInvoiceRepository(),
   );
+  locator.registerLazySingleton<KycRepository>(() => MockKycRepository());
   locator.registerLazySingleton<PrivacyRepository>(
     () => MockPrivacyRepository(locator()),
   );
@@ -301,6 +308,7 @@ void _registerProdRepositories(Uri baseUrl, TurnstileConfig? turnstile) {
   locator.registerLazySingleton<InvoiceRepository>(
     () => HttpInvoiceRepository(locator()),
   );
+  locator.registerLazySingleton<KycRepository>(() => HttpKycRepository(locator()));
   locator.registerLazySingleton<CheckoutRepository>(
     () => HttpCheckoutRepository(locator()),
   );

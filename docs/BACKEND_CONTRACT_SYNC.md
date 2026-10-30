@@ -93,6 +93,25 @@ All 289 `/v1/admin/*` and `/v1/platform/*` operations belong to the web consoles
 | 409 `no_active_entitlement` | `NoActiveEntitlementFailure` | you need an active pass to get online |
 | 422 `mac_invalid`, `nas_unavailable`, `login_url_invalid`, `controller_not_supported` | `MacInvalidFailure`, `NasUnavailableFailure`, `LoginUrlInvalidFailure`, `ControllerNotSupportedFailure` | one-tap login fallbacks: use the Wi-Fi login page / try another hotspot |
 | 401 on `delete-challenge` | `DeleteCodeUnavailableFailure` | contact support to delete the account |
+| 422 `invalid_identity_number` | `KycInvalidIdFailure` | check your ID number |
+| 422 `invalid_address` | `KycInvalidAddressFailure` | check your address |
+| 422 `invalid_document_encoding`, `document_type_not_allowed`, 413 `document_too_large` | `KycDocumentRejectedFailure` (code kept) | use a clear JPEG or PNG photo under 5 MB |
+| 503 `document_upload_failed`, 409 `document_upload_expired` | `KycUploadFailedFailure` (code kept) | we could not upload your document, try again |
+| 422 `invalid_consent_version` | `ConsentVersionOutdatedFailure` | review the latest terms (the app sends `app-config.legal.privacy`) |
+| 409 `kyc_required` | `KycRequiredFailure` | you need an ID check first (used by signup and plan change) |
+
+## ID check data handling (slice S4)
+
+`POST /v1/me/subscriber/kyc` carries an ID number, a home address and a photo of an ID document. What the app does with them:
+
+- **Sent once, kept nowhere.** The draft lives in `KycFormCubit` memory only: no `SharedPreferences`, no secure storage, no restore after the app is killed. After a successful send the state is emptied; leaving the form drops it. The picked file is read into memory and deleted at once on Android and iOS (the plugin hands back its own cache copy; on desktop the path may be the original, so it is never deleted there).
+- **The photo is re-encoded**: decoded, rotated by its EXIF flag, scaled to a 2000 px long edge, saved as JPEG quality 80 with a fresh, empty EXIF block (no location or device data), under 4 MB. The platform accepts 5 MiB (base64 body up to 7 MiB).
+- **Never logged**: `KycSubmission`, `KycFormState` print a redacted `toString`; `PiiScrubber` removes `id_number`, `address_text`, `document` and `install_address` values from any crash or log line; the ApiClient does not log bodies. The ID number is not obscured on screen but autocorrect, suggestions and keyboard learning are off.
+- **Screens are capture-protected** (`SecureScreen`, `FLAG_SECURE` on Android).
+- **Consent**: `consent_version` is `app-config.legal.privacy` and `consent_via` is `app`. The platform only checks the date format (P13); the privacy notice text is the tenant's configured URL.
+- **Platform side** (read from `subscribers/kyc*.py`): ID number and address are stored encrypted, the document goes to private object storage, only the last four characters come back, and records past `retain_until` read as `none`.
+- **Permissions**: the system photo picker (Android) and `PHPicker` (iOS) need none. The camera uses `android.permission.CAMERA` (already declared for the voucher scanner; the plugin asks at run time) and `NSCameraUsageDescription` (text extended). `NSPhotoLibraryUsageDescription` is added because App Store policy wants the entry; the app passes `requestFullMetadata: false` so iOS never prompts for the photo library.
+- **Store forms** (owner action): Play Data safety must declare "Personal info: government ID numbers, address" and "Photos" as collected, sent to the provider, not shared with third parties, encrypted in transit, deletable on request; the iOS privacy nutrition label needs "Sensitive Info" / "Other User Content" linked to the user, used for App Functionality. The app has no `PrivacyInfo.xcprivacy` yet; the app's own manifest (declaring the ID, address and photo data types, no tracking) should be added before the iOS release, and the plugin manifests checked at that time (not verified here).
 
 ## Sign-in security (backend P3 and P4)
 

@@ -45,6 +45,14 @@ void main() {
       expect(PiiScrubber.scrub('verify failed code: 123456'), 'verify failed code: [redacted]');
     });
 
+    test('removes the ID check fields: number, address text with spaces, and the base64 photo', () {
+      expect(
+        PiiScrubber.scrub('{"id_type":"sa_id","id_number":"8001015009087","address_text":"1 Main Road, Sandton 2196","consent_version":"2026-09-30","document":"/9j/4AAQSkZJRg=="}'),
+        '{"id_type":"sa_id","id_number":[redacted],"address_text":[redacted],"consent_version":"2026-09-30","document":[redacted]}',
+      );
+      expect(PiiScrubber.scrub('id_number=ZA12345678&x=1'), 'id_number=[redacted]&x=1');
+    });
+
     test('leaves ordinary diagnostics alone', () {
       const text =
           'RenderFlex overflowed by 12 pixels on the right (lib/features/cart/cart_page.dart:42)';

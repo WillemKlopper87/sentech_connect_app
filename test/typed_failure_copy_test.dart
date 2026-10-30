@@ -33,6 +33,11 @@ void main() {
     const NasUnavailableFailure(),
     const LoginUrlInvalidFailure(),
     const ControllerNotSupportedFailure(),
+    const KycInvalidIdFailure(),
+    const KycInvalidAddressFailure(),
+    const KycDocumentRejectedFailure(),
+    const KycUploadFailedFailure(),
+    const KycRequiredFailure(),
   ];
 
   for (final l10n in [AppLocalizationsEn(), AppLocalizationsAf(), AppLocalizationsZu()]) {

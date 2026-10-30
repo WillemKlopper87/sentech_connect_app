@@ -2135,6 +2135,188 @@ class AppLocalizationsEn extends AppLocalizations {
       'There is a problem with your account. Contact your provider.';
 
   @override
+  String get kycTitle => 'ID check';
+
+  @override
+  String get kycRowSubtitle => 'Needed for some monthly plans';
+
+  @override
+  String get kycNoAccount =>
+      'You do not have a home internet account yet, so there is no ID check to do.';
+
+  @override
+  String get kycNoneTitle => 'We need to check your ID';
+
+  @override
+  String get kycNoneBody =>
+      'Some monthly plans need your ID checked before they start. Send your ID details and one photo of your ID document. Your provider checks them by hand.';
+
+  @override
+  String get kycStart => 'Start ID check';
+
+  @override
+  String get kycPendingTitle => 'We are checking your ID';
+
+  @override
+  String get kycPendingBody =>
+      'Your provider is checking what you sent. We will notify you when there is a decision.';
+
+  @override
+  String get kycVerifiedTitle => 'Your ID is verified';
+
+  @override
+  String get kycVerifiedBody => 'Nothing more to do. Your ID check is done.';
+
+  @override
+  String kycVerifiedOn(String date) {
+    return 'Verified on $date';
+  }
+
+  @override
+  String kycSentOn(String date) {
+    return 'Sent on $date';
+  }
+
+  @override
+  String get kycRejectedTitle => 'We could not accept your ID check';
+
+  @override
+  String get kycRejectedBody =>
+      'Please check your details and send them again. Your provider can tell you more.';
+
+  @override
+  String get kycSubmitAgain => 'Send again';
+
+  @override
+  String get kycIdTypeSaId => 'South African ID number';
+
+  @override
+  String get kycIdTypePassport => 'Passport number';
+
+  @override
+  String get kycIdTypeCompanyReg => 'Company registration number';
+
+  @override
+  String kycEndingIn(String type, String last4) {
+    return '$type ending in $last4';
+  }
+
+  @override
+  String get kycFormIntro =>
+      'Enter the details exactly as they appear on your ID document.';
+
+  @override
+  String get kycFieldIdType => 'Type of ID';
+
+  @override
+  String get kycHintSaId => '13 digits';
+
+  @override
+  String get kycHintPassport => '6 to 12 letters or digits';
+
+  @override
+  String get kycHintCompanyReg => 'Format 1234/123456/12';
+
+  @override
+  String get kycFieldAddress => 'Home address';
+
+  @override
+  String get kycFieldAddressHint => 'Street, suburb, city and postal code';
+
+  @override
+  String get kycPhotoTitle => 'Photo of your ID document';
+
+  @override
+  String get kycPhotoHelp =>
+      'Take a clear photo in good light, with all four corners and all the text readable.';
+
+  @override
+  String get kycTakePhoto => 'Take a photo';
+
+  @override
+  String get kycChoosePhoto => 'Choose from gallery';
+
+  @override
+  String get kycReplacePhoto => 'Replace photo';
+
+  @override
+  String get kycRemovePhoto => 'Remove photo';
+
+  @override
+  String get kycPhotoPreview => 'Preview of your ID document photo';
+
+  @override
+  String get kycPhotoPreparing => 'Preparing your photo…';
+
+  @override
+  String get kycPhotoDenied =>
+      'We cannot open the camera or your photos. Choose another way, or allow access in Settings.';
+
+  @override
+  String get kycOpenSettings => 'Open Settings';
+
+  @override
+  String get kycPhotoUnreadable =>
+      'We could not read that photo. Choose another one.';
+
+  @override
+  String get kycPhotoTooLarge =>
+      'That photo is too large to send. Choose a smaller one.';
+
+  @override
+  String get kycPhotoFailed => 'We could not get a photo. Please try again.';
+
+  @override
+  String get kycPhotoRequired => 'Add a photo of your ID document.';
+
+  @override
+  String get kycConsentLabel =>
+      'I agree that my provider may use these details and this photo to check my identity, as set out in the privacy notice.';
+
+  @override
+  String get kycConsentRequired => 'Please agree to continue.';
+
+  @override
+  String get kycPrivacyLink => 'Read the privacy notice';
+
+  @override
+  String get kycSendNote =>
+      'The app does not keep your ID number or photo after you send them.';
+
+  @override
+  String get kycSubmit => 'Send for checking';
+
+  @override
+  String get kycSubmitting => 'Sending…';
+
+  @override
+  String get kycSuccessTitle => 'Your ID check is sent';
+
+  @override
+  String get kycSuccessBody =>
+      'Your provider will check it. We will notify you when there is a decision.';
+
+  @override
+  String get kycSuccessDone => 'View status';
+
+  @override
+  String get failureKycInvalidId => 'Check your ID number.';
+
+  @override
+  String get failureKycInvalidAddress => 'Check your address.';
+
+  @override
+  String get failureKycDocumentRejected =>
+      'Use a clear JPEG or PNG photo under 5 MB.';
+
+  @override
+  String get failureKycUploadFailed =>
+      'We could not upload your document. Try again.';
+
+  @override
+  String get failureKycRequired => 'You need an ID check first.';
+
+  @override
   String get failureSubscriberProfileInvalid =>
       'Update your contact details before signing up.';
 
