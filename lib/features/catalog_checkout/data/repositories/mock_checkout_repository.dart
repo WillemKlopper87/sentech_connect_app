@@ -228,6 +228,24 @@ class MockCheckoutRepository implements CheckoutRepository {
     );
   }
 
+  /// Same rules as the platform: only an unpaid, open order can be cancelled.
+  @override
+  Future<Either<Failure, Order>> cancelOrder(String orderId) async {
+    if (_network.failure case final failure?) return Left(failure);
+    final orders = await _load();
+    final index = orders.indexWhere((o) => o.id == orderId);
+    if (index == -1) return const Left(OrderNotFoundFailure());
+    final order = orders[index];
+    if (order.status == OrderStatus.cancelled) {
+      return const Left(OrderCancelledFailure());
+    }
+    if (!order.isOpen) return const Left(OrderNotCancellableFailure());
+    final cancelled = order.copyWith(status: OrderStatus.cancelled);
+    orders[index] = cancelled;
+    await _save(orders);
+    return Right(cancelled);
+  }
+
   @override
   Future<void> clearLocalOrders() {
     final result = _creationTail.then((_) async {

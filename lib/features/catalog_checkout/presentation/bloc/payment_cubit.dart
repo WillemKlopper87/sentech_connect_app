@@ -22,6 +22,9 @@ enum PaymentStatus {
   /// Asking the server for the hosted payment page.
   starting,
 
+  /// Asking the server to cancel the unpaid order.
+  cancelling,
+
   /// The page must open [PaymentState.handoff], then call `handoffFinished`.
   handoff,
 
@@ -59,6 +62,7 @@ class PaymentState extends Equatable {
     this.order,
     this.handoff,
     this.failure,
+    this.cancelFailure,
   });
 
   final PaymentStatus status;
@@ -66,20 +70,36 @@ class PaymentState extends Equatable {
   final PaymentHandoff? handoff;
   final Failure? failure;
 
+  /// Why the last cancel did not go through (shown once, as a message).
+  final Failure? cancelFailure;
+
+  /// An unpaid order the customer may still cancel. Never offered once the
+  /// order is paid or closed, or while a payment is being started or
+  /// confirmed (the server decides; this only avoids offering the obvious).
+  bool get canCancel =>
+      order != null &&
+      order!.isOpen &&
+      order!.status != OrderStatus.pendingVerification &&
+      (status == PaymentStatus.ready ||
+          status == PaymentStatus.payFailed ||
+          status == PaymentStatus.stillPending);
+
   PaymentState copyWith({
     PaymentStatus? status,
     Order? order,
     PaymentHandoff? handoff,
     Failure? failure,
+    Failure? cancelFailure,
   }) => PaymentState(
     status: status ?? this.status,
     order: order ?? this.order,
     handoff: handoff ?? this.handoff,
     failure: failure,
+    cancelFailure: cancelFailure,
   );
 
   @override
-  List<Object?> get props => [status, order, handoff, failure];
+  List<Object?> get props => [status, order, handoff, failure, cancelFailure];
 }
 
 /// Pay for an order: start the hosted payment, hand off to the gateway,
@@ -153,6 +173,7 @@ class PaymentCubit extends Cubit<PaymentState> {
       PaymentStatus.loadFailed,
       PaymentStatus.needsVerification,
       PaymentStatus.starting,
+      PaymentStatus.cancelling,
       PaymentStatus.handoff,
       PaymentStatus.confirming,
       PaymentStatus.paid,
@@ -214,6 +235,33 @@ class PaymentCubit extends Cubit<PaymentState> {
         );
       case _:
         emit(state.copyWith(status: PaymentStatus.payFailed, failure: refusal));
+    }
+  }
+
+  /// Explicitly cancels the unpaid order (the customer confirmed). The server
+  /// decides: on success the order is closed; a refusal reloads the order so
+  /// the screen shows what is true (for example it was paid in the meantime).
+  Future<void> cancel() async {
+    if (isClosed || !state.canCancel) return;
+    final before = state;
+    emit(state.copyWith(status: PaymentStatus.cancelling));
+    final result = await _repository.cancelOrder(orderId);
+    if (isClosed) return;
+    switch (result) {
+      case Right(value: final order):
+        emit(state.copyWith(status: PaymentStatus.closed, order: order));
+      case Left(value: final failure):
+        if (failure is OrderNotCancellableFailure ||
+            failure is OrderCancelledFailure) {
+          await load();
+          if (isClosed) return;
+          emit(state.copyWith(status: state.status, failure: state.failure, cancelFailure: failure));
+        } else if (failure is NotFoundFailure) {
+          emit(state.copyWith(status: PaymentStatus.loadFailed, failure: failure));
+        } else {
+          // Offline or a server error: nothing changed, stay where we were.
+          emit(before.copyWith(failure: before.failure, cancelFailure: failure));
+        }
     }
   }
 

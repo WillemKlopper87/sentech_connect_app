@@ -32,6 +32,11 @@ abstract class CheckoutRepository {
     required String orderId,
   });
 
+  /// Cancels an unpaid order (`POST /v1/orders/{id}/cancel`) and returns it
+  /// as the server now holds it. Refusals are typed: [OrderNotCancellableFailure]
+  /// (paid or already closed), [OrderCancelledFailure], [OrderNotFoundFailure].
+  Future<Either<Failure, Order>> cancelOrder(String orderId);
+
   /// Removes locally held order data (logout / account deletion).
   Future<void> clearLocalOrders();
 }

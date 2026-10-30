@@ -127,6 +127,13 @@ class HttpCheckoutRepository implements CheckoutRepository {
   );
 
   @override
+  Future<Either<Failure, Order>> cancelOrder(String orderId) => _api.post<Order>(
+    '/v1/orders/${Uri.encodeComponent(orderId)}/cancel',
+    timeout: const Duration(seconds: 15),
+    decode: (data) => orderFromJson(Map<String, Object?>.from(data! as Map)),
+  );
+
+  @override
   Future<void> clearLocalOrders() async {}
 }
 

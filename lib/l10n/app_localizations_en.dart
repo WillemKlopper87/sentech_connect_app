@@ -1449,6 +1449,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get hotspotsEmpty => 'No hotspots are listed yet. Check back soon.';
 
   @override
+  String get orderCancelAction => 'Cancel order';
+
+  @override
+  String get orderCancelConfirmTitle => 'Cancel this order?';
+
+  @override
+  String get orderCancelConfirmBody =>
+      'This order will be closed. You can place a new order any time.';
+
+  @override
+  String get orderCancelKeep => 'Keep order';
+
+  @override
   String get loginTitleNew => 'Hello!';
 
   @override

@@ -1451,6 +1451,19 @@ class AppLocalizationsAf extends AppLocalizations {
       'Daar is nog geen warmkolle gelys nie. Kyk gou weer.';
 
   @override
+  String get orderCancelAction => 'Kanselleer bestelling';
+
+  @override
+  String get orderCancelConfirmTitle => 'Kanselleer hierdie bestelling?';
+
+  @override
+  String get orderCancelConfirmBody =>
+      'Hierdie bestelling sal gesluit word. Jy kan enige tyd \'n nuwe bestelling plaas.';
+
+  @override
+  String get orderCancelKeep => 'Hou bestelling';
+
+  @override
   String get loginTitleNew => 'Hello!';
 
   @override

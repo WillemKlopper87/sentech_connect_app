@@ -1859,6 +1859,14 @@
   "@hotspotsStatusMaintenance": {"description": "Chip on a hotspot that is temporarily not working."},
   "hotspotsEmpty": "No hotspots are listed yet. Check back soon.",
   "@hotspotsEmpty": {"description": "Empty state of the hotspots page."},
+  "orderCancelAction": "Cancel order",
+  "@orderCancelAction": {"description": "Button on the payment screen that cancels an unpaid order."},
+  "orderCancelConfirmTitle": "Cancel this order?",
+  "@orderCancelConfirmTitle": {"description": "Title of the confirm dialog before cancelling an unpaid order."},
+  "orderCancelConfirmBody": "This order will be closed. You can place a new order any time.",
+  "@orderCancelConfirmBody": {"description": "Body of the confirm dialog before cancelling an unpaid order."},
+  "orderCancelKeep": "Keep order",
+  "@orderCancelKeep": {"description": "Dialog button that leaves the order as it is."},
   "loginTitleNew": "Hello!",
   "@loginTitleNew": {
     "description": "Greeting for an unknown or signed-out customer."

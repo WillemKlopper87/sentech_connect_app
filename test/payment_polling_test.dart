@@ -71,6 +71,15 @@ class _ScriptedCheckout implements CheckoutRepository {
     return startResult ?? Right(_handoff);
   }
 
+  Either<Failure, Order>? cancelResult;
+  int cancelCalls = 0;
+
+  @override
+  Future<Either<Failure, Order>> cancelOrder(String orderId) async {
+    cancelCalls++;
+    return cancelResult ?? Right(_order(OrderStatus.cancelled));
+  }
+
   @override
   Future<Either<Failure, Order>> createOrder({
     required List<CartItem> items,

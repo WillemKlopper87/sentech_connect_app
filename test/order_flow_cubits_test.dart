@@ -528,6 +528,10 @@ class _KeyRecordingCheckout implements CheckoutRepository {
       _inner.getOrder(orderId);
 
   @override
+  Future<Either<Failure, Order>> cancelOrder(String orderId) =>
+      _inner.cancelOrder(orderId);
+
+  @override
   Future<Either<Failure, Order?>> getOpenOrder() => _inner.getOpenOrder();
 
   @override

@@ -11,6 +11,7 @@ import 'package:sentech_connect_app/features/catalog_checkout/presentation/bloc/
 import 'package:sentech_connect_app/features/catalog_checkout/presentation/payment/fake_gateway_sheet.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/presentation/payment/payment_web_view_page.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/presentation/widgets/buy_now_sheet.dart';
+import 'package:sentech_connect_app/l10n/failure_copy.dart';
 import 'package:sentech_connect_app/shared/widgets/failure_view.dart';
 
 /// Pay for an order on the gateway's hosted page, then wait for the server
@@ -81,9 +82,17 @@ class PaymentPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: Text(context.l10n.paymentPayment)),
       body: BlocConsumer<PaymentCubit, PaymentState>(
-        listenWhen: (previous, current) => previous.status != current.status,
+        listenWhen: (previous, current) =>
+            previous.status != current.status ||
+            (current.cancelFailure != null &&
+                previous.cancelFailure != current.cancelFailure),
         listener: (context, state) {
           final order = state.order;
+          if (state.cancelFailure case final failure?) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(_cancelFailureText(context, failure))),
+            );
+          }
           if (state.status == PaymentStatus.handoff && state.handoff != null) {
             _handOff(context, state.handoff!);
           }
@@ -155,6 +164,10 @@ class PaymentPage extends StatelessWidget {
                       onPressed: cubit.pay,
                       child: Text(l10n.paymentPayAgain),
                     ),
+                    if (state.canCancel) ...[
+                      const SizedBox(height: 8),
+                      _CancelOrderButton(onCancel: cubit.cancel),
+                    ],
                   ],
                 ),
               );
@@ -165,6 +178,7 @@ class PaymentPage extends StatelessWidget {
           if (order == null) return const SizedBox.shrink();
           final busy =
               state.status == PaymentStatus.starting ||
+              state.status == PaymentStatus.cancelling ||
               state.status == PaymentStatus.handoff;
           return SafeArea(
             child: Column(
@@ -260,6 +274,10 @@ class PaymentPage extends StatelessWidget {
                                 ),
                               ),
                       ),
+                      if (state.canCancel) ...[
+                        const SizedBox(height: 4),
+                        _CancelOrderButton(onCancel: cubit.cancel),
+                      ],
                     ],
                   ),
                 ),
@@ -270,6 +288,50 @@ class PaymentPage extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Why a cancel did not go through, in the customer's language.
+String _cancelFailureText(BuildContext context, Failure failure) {
+  final l10n = context.l10n;
+  if (failure is NetworkFailure) return l10n.failureYouReOfflineCheckYourConnection;
+  return typedFailureText(l10n, failure) ??
+      localizedFailureText(l10n, failure.message);
+}
+
+/// "Cancel order": asks first, then runs [onCancel] only when confirmed.
+class _CancelOrderButton extends StatelessWidget {
+  const _CancelOrderButton({required this.onCancel});
+
+  final VoidCallback onCancel;
+
+  Future<void> _confirm(BuildContext context) async {
+    final l10n = context.l10n;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialog) => AlertDialog(
+        title: Text(l10n.orderCancelConfirmTitle),
+        content: Text(l10n.orderCancelConfirmBody),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialog).pop(false),
+            child: Text(l10n.orderCancelKeep),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(dialog).pop(true),
+            child: Text(l10n.orderCancelAction),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true) onCancel();
+  }
+
+  @override
+  Widget build(BuildContext context) => TextButton(
+    key: const ValueKey('cancel-order'),
+    onPressed: () => _confirm(context),
+    child: Text(context.l10n.orderCancelAction),
+  );
 }
 
 class _Message extends StatelessWidget {

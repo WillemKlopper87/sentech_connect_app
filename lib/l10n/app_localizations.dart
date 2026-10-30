@@ -2524,6 +2524,30 @@ abstract class AppLocalizations {
   /// **'No hotspots are listed yet. Check back soon.'**
   String get hotspotsEmpty;
 
+  /// Button on the payment screen that cancels an unpaid order.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel order'**
+  String get orderCancelAction;
+
+  /// Title of the confirm dialog before cancelling an unpaid order.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel this order?'**
+  String get orderCancelConfirmTitle;
+
+  /// Body of the confirm dialog before cancelling an unpaid order.
+  ///
+  /// In en, this message translates to:
+  /// **'This order will be closed. You can place a new order any time.'**
+  String get orderCancelConfirmBody;
+
+  /// Dialog button that leaves the order as it is.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep order'**
+  String get orderCancelKeep;
+
   /// Greeting for an unknown or signed-out customer.
   ///
   /// In en, this message translates to:

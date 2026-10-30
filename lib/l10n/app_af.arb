@@ -1858,6 +1858,14 @@
   "@hotspotsStatusMaintenance": {"description": "Chip on a hotspot that is temporarily not working."},
   "hotspotsEmpty": "Daar is nog geen warmkolle gelys nie. Kyk gou weer.",
   "@hotspotsEmpty": {"description": "Empty state of the hotspots page."},
+  "orderCancelAction": "Kanselleer bestelling",
+  "@orderCancelAction": {"description": "Button on the payment screen that cancels an unpaid order."},
+  "orderCancelConfirmTitle": "Kanselleer hierdie bestelling?",
+  "@orderCancelConfirmTitle": {"description": "Title of the confirm dialog before cancelling an unpaid order."},
+  "orderCancelConfirmBody": "Hierdie bestelling sal gesluit word. Jy kan enige tyd 'n nuwe bestelling plaas.",
+  "@orderCancelConfirmBody": {"description": "Body of the confirm dialog before cancelling an unpaid order."},
+  "orderCancelKeep": "Hou bestelling",
+  "@orderCancelKeep": {"description": "Dialog button that leaves the order as it is."},
   "loginTitleNew": "Hello!",
   "@loginTitleNew": {
     "description": "Greeting for an unknown or signed-out customer."

@@ -256,6 +256,11 @@ void main() {
     );
   });
 
+  test('the order cancel route answers OrderOut', () {
+    final route = api.path('/v1/orders/{order_id}/cancel', 'post');
+    expect(api.responseSchemaName(route, '200'), 'OrderOut');
+  });
+
   test('the delete-challenge route answers OtpRequestOut and takes DeleteChallengeIn', () {
     final route = api.path('/v1/me/delete-challenge', 'post');
     expect(api.responseSchemaName(route, '202'), 'OtpRequestOut');

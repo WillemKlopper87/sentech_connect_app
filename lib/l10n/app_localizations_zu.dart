@@ -1451,6 +1451,19 @@ class AppLocalizationsZu extends AppLocalizations {
       'Awekho ama-hotspot abhaliwe okwamanje. Buyela maduze.';
 
   @override
+  String get orderCancelAction => 'Khansela i-oda';
+
+  @override
+  String get orderCancelConfirmTitle => 'Khansela leli oda?';
+
+  @override
+  String get orderCancelConfirmBody =>
+      'Leli oda lizovalwa. Ungenza i-oda elisha noma nini.';
+
+  @override
+  String get orderCancelKeep => 'Gcina i-oda';
+
+  @override
   String get loginTitleNew => 'Hello!';
 
   @override
