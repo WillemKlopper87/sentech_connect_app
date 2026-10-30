@@ -696,6 +696,148 @@ class AppLocalizationsAf extends AppLocalizations {
   String get serviceActionIdCheck => 'Begin ID-kontrole';
 
   @override
+  String get serviceChangePlanAction => 'Verander plan';
+
+  @override
+  String get serviceChangePlanBlockedCancelling =>
+      'Nie beskikbaar terwyl kansellasie geskeduleer is nie.';
+
+  @override
+  String get serviceChangePlanBlockedInactive =>
+      'Beskikbaar sodra jou diens aktief is.';
+
+  @override
+  String get serviceCancelAction => 'Kanselleer diens';
+
+  @override
+  String get serviceCancelPendingContact =>
+      'Kontak ondersteuning om \'n diens wat nog nie begin het nie te kanselleer.';
+
+  @override
+  String get serviceCancelNoUndo =>
+      '\'n Geskeduleerde kansellasie kan nie in die toepassing ontdoen word nie. Kontak jou verskaffer as jy van plan verander het.';
+
+  @override
+  String get changePlanTitle => 'Verander plan';
+
+  @override
+  String changePlanCurrent(String plan) {
+    return 'Jou plan: $plan';
+  }
+
+  @override
+  String get changePlanChoose => 'Kies \'n nuwe plan';
+
+  @override
+  String get changePlanEmpty =>
+      'Daar is tans geen ander planne waarna jy kan oorskakel nie.';
+
+  @override
+  String get changePlanIdCheckNeeded => 'ID-kontrole nodig';
+
+  @override
+  String changeConfirmTitle(String plan) {
+    return 'Verander na $plan?';
+  }
+
+  @override
+  String get changeConfirmHigher =>
+      'Skakel nou oor. Jy sal gefaktureer word vir die verskil vir die res van hierdie maand.';
+
+  @override
+  String changeConfirmLower(String date) {
+    return 'Tree in werking op $date. Tot dan hou jy jou huidige plan.';
+  }
+
+  @override
+  String get changeConfirmUnknown =>
+      'Jou verskaffer besluit wanneer dit in werking tree.';
+
+  @override
+  String get changeConfirmButton => 'Verander plan';
+
+  @override
+  String get changeSubmitting => 'Verander tans plan…';
+
+  @override
+  String get changeResultAppliedTitle => 'Plan verander';
+
+  @override
+  String changeResultAppliedBody(String plan) {
+    return 'Jy is nou op $plan.';
+  }
+
+  @override
+  String get changeResultScheduledTitle => 'Planverandering geskeduleer';
+
+  @override
+  String changeResultScheduledBody(String date) {
+    return 'Geskeduleer vir $date. Tot dan hou jy jou huidige plan.';
+  }
+
+  @override
+  String get changeResultViewInvoice => 'Sien faktuur';
+
+  @override
+  String get cancelDialogTitle => 'Kanselleer hierdie diens?';
+
+  @override
+  String cancelDialogBody(String date) {
+    return 'Jou diens bly aktief tot $date. Daarna stop dit en jy sal nie weer gefaktureer word nie.';
+  }
+
+  @override
+  String get cancelDialogNoUndo =>
+      'Dit kan nie in die toepassing ontdoen word nie.';
+
+  @override
+  String get cancelReasonLabel => 'Hoekom vertrek jy?';
+
+  @override
+  String get cancelReasonMoving => 'Ek trek';
+
+  @override
+  String get cancelReasonExpensive => 'Te duur';
+
+  @override
+  String get cancelReasonUnreliable => 'Nie betroubaar genoeg nie';
+
+  @override
+  String get cancelReasonOther => 'Ander';
+
+  @override
+  String get cancelReasonDetailLabel => 'Vertel ons meer (opsioneel)';
+
+  @override
+  String get cancelReasonRequired => 'Kies \'n rede.';
+
+  @override
+  String get cancelKeep => 'Hou diens';
+
+  @override
+  String get cancelConfirm => 'Kanselleer diens';
+
+  @override
+  String get cancelSubmitting => 'Kanselleer tans…';
+
+  @override
+  String cancelDone(String date) {
+    return 'Kansellasie geskeduleer vir $date';
+  }
+
+  @override
+  String get failureCancellationScheduled =>
+      'Hierdie diens is reeds gestel om te eindig.';
+
+  @override
+  String get failurePlanChangeBilled =>
+      'Jou volgende tydperk is reeds gefaktureer. Probeer weer nadat dit begin het.';
+
+  @override
+  String get failurePendingCancel =>
+      'Kontak ondersteuning om \'n diens wat nog nie begin het nie te kanselleer.';
+
+  @override
   String accountContactProvider(String provider) {
     return 'Contact $provider';
   }

@@ -115,6 +115,9 @@ Map<String, String> typedFailureTexts(AppLocalizations l10n) => {
   const SubscriberProfileInvalidFailure().message: l10n.failureSubscriberProfileInvalid,
   const PlanUnavailableFailure().message: l10n.failurePlanUnavailable,
   const ServiceStateFailure().message: l10n.failureServiceState,
+  const CancellationScheduledFailure().message: l10n.failureCancellationScheduled,
+  const PlanChangeBilledFailure().message: l10n.failurePlanChangeBilled,
+  const PendingCancelFailure().message: l10n.failurePendingCancel,
   const NoActiveEntitlementFailure().message: l10n.failureNoActiveEntitlement,
   const MacInvalidFailure().message: l10n.failureMacInvalid,
   const NasUnavailableFailure().message: l10n.failureNasUnavailable,
@@ -188,6 +191,12 @@ String? typedFailureText(AppLocalizations l10n, Failure? failure) {
       return l10n.failurePlanUnavailable;
     case ServiceStateFailure():
       return l10n.failureServiceState;
+    case CancellationScheduledFailure():
+      return l10n.failureCancellationScheduled;
+    case PlanChangeBilledFailure():
+      return l10n.failurePlanChangeBilled;
+    case PendingCancelFailure():
+      return l10n.failurePendingCancel;
     case NoActiveEntitlementFailure():
       return l10n.failureNoActiveEntitlement;
     case MacInvalidFailure():

@@ -309,6 +309,27 @@ class ServiceStateFailure extends ValidationFailure {
       : super("This service can't be changed right now.", code, false);
 }
 
+/// 409 `service_cancellation_scheduled`: the service is already set to end, so
+/// a plan change is refused.
+class CancellationScheduledFailure extends ValidationFailure {
+  const CancellationScheduledFailure()
+      : super('This service is already set to end.', 'service_cancellation_scheduled', false);
+}
+
+/// 409 `service_plan_change_already_billed` or `service_plan_change_already_invoiced`:
+/// the next period is already billed, so the change has to wait for it to start.
+class PlanChangeBilledFailure extends ValidationFailure {
+  const PlanChangeBilledFailure([String code = 'service_plan_change_already_billed'])
+      : super('Your next period is already billed. Try again after it starts.', code, false);
+}
+
+/// 409 `pending_requires_immediate_cancellation`: a customer cannot cancel a
+/// service that has not started (there is no undo or void route in the app).
+class PendingCancelFailure extends ValidationFailure {
+  const PendingCancelFailure()
+      : super('Contact support to cancel a service that has not started.', 'pending_requires_immediate_cancellation', false);
+}
+
 /// 409 `no_active_entitlement`: one-tap login needs a pass that is running.
 class NoActiveEntitlementFailure extends ValidationFailure {
   const NoActiveEntitlementFailure()

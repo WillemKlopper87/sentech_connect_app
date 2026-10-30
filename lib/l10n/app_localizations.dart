@@ -1306,6 +1306,240 @@ abstract class AppLocalizations {
   /// **'Start ID check'**
   String get serviceActionIdCheck;
 
+  /// Button on the service detail screen that opens the plan picker.
+  ///
+  /// In en, this message translates to:
+  /// **'Change plan'**
+  String get serviceChangePlanAction;
+
+  /// Explains why Change plan is not offered when the service is set to end.
+  ///
+  /// In en, this message translates to:
+  /// **'Not available while cancellation is scheduled.'**
+  String get serviceChangePlanBlockedCancelling;
+
+  /// Explains why Change plan is not offered for a service that has not started.
+  ///
+  /// In en, this message translates to:
+  /// **'Available once your service is active.'**
+  String get serviceChangePlanBlockedInactive;
+
+  /// Button on the service detail screen that opens the cancel dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel service'**
+  String get serviceCancelAction;
+
+  /// Shown instead of Cancel service for a pending service (the platform refuses it).
+  ///
+  /// In en, this message translates to:
+  /// **'Contact support to cancel a service that has not started.'**
+  String get serviceCancelPendingContact;
+
+  /// Honest note under a scheduled cancellation: there is no undo route.
+  ///
+  /// In en, this message translates to:
+  /// **'A scheduled cancellation cannot be undone in the app. Contact your provider if you changed your mind.'**
+  String get serviceCancelNoUndo;
+
+  /// Title of the plan picker screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Change plan'**
+  String get changePlanTitle;
+
+  /// Current plan line on the plan picker.
+  ///
+  /// In en, this message translates to:
+  /// **'Your plan: {plan}'**
+  String changePlanCurrent(String plan);
+
+  /// Heading above the list of plans to switch to.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a new plan'**
+  String get changePlanChoose;
+
+  /// Plan picker empty state.
+  ///
+  /// In en, this message translates to:
+  /// **'There are no other plans you can switch to right now.'**
+  String get changePlanEmpty;
+
+  /// Chip on a plan in the picker that needs a verified ID check.
+  ///
+  /// In en, this message translates to:
+  /// **'ID check needed'**
+  String get changePlanIdCheckNeeded;
+
+  /// Title of the confirm sheet for a plan change.
+  ///
+  /// In en, this message translates to:
+  /// **'Change to {plan}?'**
+  String changeConfirmTitle(String plan);
+
+  /// Confirm sentence when the new plan costs more.
+  ///
+  /// In en, this message translates to:
+  /// **'Switches now. You will be invoiced the difference for the rest of this month.'**
+  String get changeConfirmHigher;
+
+  /// Confirm sentence when the new plan costs less or the same.
+  ///
+  /// In en, this message translates to:
+  /// **'Takes effect on {date}. Until then you keep your current plan.'**
+  String changeConfirmLower(String date);
+
+  /// Confirm sentence when the current price is unknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Your provider decides when this takes effect.'**
+  String get changeConfirmUnknown;
+
+  /// Confirm button of the plan change sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Change plan'**
+  String get changeConfirmButton;
+
+  /// Shown while the plan change is being sent.
+  ///
+  /// In en, this message translates to:
+  /// **'Changing plan…'**
+  String get changeSubmitting;
+
+  /// Result title when the change applied at once.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan changed'**
+  String get changeResultAppliedTitle;
+
+  /// Result text when the change applied at once.
+  ///
+  /// In en, this message translates to:
+  /// **'You are now on {plan}.'**
+  String changeResultAppliedBody(String plan);
+
+  /// Result title when the change is scheduled for later.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan change scheduled'**
+  String get changeResultScheduledTitle;
+
+  /// Result text when the change is scheduled for later.
+  ///
+  /// In en, this message translates to:
+  /// **'Scheduled for {date}. Until then you keep your current plan.'**
+  String changeResultScheduledBody(String date);
+
+  /// Result button to the invoice for the difference.
+  ///
+  /// In en, this message translates to:
+  /// **'View invoice'**
+  String get changeResultViewInvoice;
+
+  /// Title of the cancel confirmation dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel this service?'**
+  String get cancelDialogTitle;
+
+  /// Cancel dialog body with the day the service ends.
+  ///
+  /// In en, this message translates to:
+  /// **'Your service stays active until {date}. After that it stops and you will not be billed again.'**
+  String cancelDialogBody(String date);
+
+  /// Cancel dialog warning that there is no undo.
+  ///
+  /// In en, this message translates to:
+  /// **'This cannot be undone in the app.'**
+  String get cancelDialogNoUndo;
+
+  /// Label above the cancel reasons.
+  ///
+  /// In en, this message translates to:
+  /// **'Why are you leaving?'**
+  String get cancelReasonLabel;
+
+  /// Cancel reason: moving house.
+  ///
+  /// In en, this message translates to:
+  /// **'I am moving'**
+  String get cancelReasonMoving;
+
+  /// Cancel reason: price.
+  ///
+  /// In en, this message translates to:
+  /// **'Too expensive'**
+  String get cancelReasonExpensive;
+
+  /// Cancel reason: reliability.
+  ///
+  /// In en, this message translates to:
+  /// **'Not reliable enough'**
+  String get cancelReasonUnreliable;
+
+  /// Cancel reason: other.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get cancelReasonOther;
+
+  /// Label of the optional free text of the cancel reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell us more (optional)'**
+  String get cancelReasonDetailLabel;
+
+  /// Validation text when no cancel reason is chosen.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a reason.'**
+  String get cancelReasonRequired;
+
+  /// Cancel dialog button that closes it without cancelling.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep service'**
+  String get cancelKeep;
+
+  /// Destructive confirm button of the cancel dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel service'**
+  String get cancelConfirm;
+
+  /// Shown while the cancellation is being sent.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelling…'**
+  String get cancelSubmitting;
+
+  /// Snackbar after a cancellation was scheduled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancellation scheduled for {date}'**
+  String cancelDone(String date);
+
+  /// Customer error for problem code service_cancellation_scheduled.
+  ///
+  /// In en, this message translates to:
+  /// **'This service is already set to end.'**
+  String get failureCancellationScheduled;
+
+  /// Customer error for problem codes service_plan_change_already_billed and service_plan_change_already_invoiced.
+  ///
+  /// In en, this message translates to:
+  /// **'Your next period is already billed. Try again after it starts.'**
+  String get failurePlanChangeBilled;
+
+  /// Customer error for problem code pending_requires_immediate_cancellation.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact support to cancel a service that has not started.'**
+  String get failurePendingCancel;
+
   /// Account row that opens the provider's support channels.
   ///
   /// In en, this message translates to:

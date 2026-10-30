@@ -242,3 +242,42 @@ ID check (slice S4, 2026-10-30). Same rule: machine-quality drafts, native revie
 | `homeInvoiceDue` | {amount} due {date} | {amount} verskuldig op {date} | {amount} kufanele kukhokhwe ngo-{date} |
 | `homeInvoicePay` | Pay | Betaal | Khokha |
 | `homeInvoicesViewAll` | View all invoices | Sien alle fakture | Buka bonke odinga |
+| `serviceChangePlanAction` | Change plan | Verander plan | Shintsha uhlelo |
+| `serviceChangePlanBlockedCancelling` | Not available while cancellation is scheduled. | Nie beskikbaar terwyl kansellasie geskeduleer is nie. | Akutholakali ngenkathi ukukhansela kuhleliwe. |
+| `serviceChangePlanBlockedInactive` | Available once your service is active. | Beskikbaar sodra jou diens aktief is. | Kutholakala uma isevisi yakho isisebenza. |
+| `serviceCancelAction` | Cancel service | Kanselleer diens | Khansela isevisi |
+| `serviceCancelPendingContact` | Contact support to cancel a service that has not started. | Kontak ondersteuning om 'n diens wat nog nie begin het nie te kanselleer. | Xhumana nosizo ukuze ukhansele isevisi engakaqali. |
+| `serviceCancelNoUndo` | A scheduled cancellation cannot be undone in the app. Contact your provider if you changed your mind. | 'n Geskeduleerde kansellasie kan nie in die toepassing ontdoen word nie. Kontak jou verskaffer as jy van plan verander het. | Ukukhansela okuhleliwe akukwazi ukuhlehliswa kuhlelo lokusebenza. Xhumana nomhlinzeki wakho uma ushintshe umqondo. |
+| `changePlanTitle` | Change plan | Verander plan | Shintsha uhlelo |
+| `changePlanCurrent` | Your plan: {plan} | Jou plan: {plan} | Uhlelo lwakho: {plan} |
+| `changePlanChoose` | Choose a new plan | Kies 'n nuwe plan | Khetha uhlelo olusha |
+| `changePlanEmpty` | There are no other plans you can switch to right now. | Daar is tans geen ander planne waarna jy kan oorskakel nie. | Azikho ezinye izinhlelo ongashintshela kuzo njengamanje. |
+| `changePlanIdCheckNeeded` | ID check needed | ID-kontrole nodig | Kudingeka ukuhlolwa kwe-ID |
+| `changeConfirmTitle` | Change to {plan}? | Verander na {plan}? | Shintshela ku-{plan}? |
+| `changeConfirmHigher` | Switches now. You will be invoiced the difference for the rest of this month. | Skakel nou oor. Jy sal gefaktureer word vir die verskil vir die res van hierdie maand. | Kushintsha manje. Uzothola i-invoyisi yomehluko wesikhathi esisele salokhu inyanga. |
+| `changeConfirmLower` | Takes effect on {date}. Until then you keep your current plan. | Tree in werking op {date}. Tot dan hou jy jou huidige plan. | Kuqala ukusebenza ngo-{date}. Kuze kube yileso sikhathi ugcina uhlelo lwakho lwamanje. |
+| `changeConfirmUnknown` | Your provider decides when this takes effect. | Jou verskaffer besluit wanneer dit in werking tree. | Umhlinzeki wakho unquma ukuthi kuqala nini ukusebenza. |
+| `changeConfirmButton` | Change plan | Verander plan | Shintsha uhlelo |
+| `changeSubmitting` | Changing plan… | Verander tans plan… | Iyashintsha uhlelo… |
+| `changeResultAppliedTitle` | Plan changed | Plan verander | Uhlelo lushintshiwe |
+| `changeResultAppliedBody` | You are now on {plan}. | Jy is nou op {plan}. | Manje usohlelweni lwe-{plan}. |
+| `changeResultScheduledTitle` | Plan change scheduled | Planverandering geskeduleer | Ushintsho loluhlelo luhleliwe |
+| `changeResultScheduledBody` | Scheduled for {date}. Until then you keep your current plan. | Geskeduleer vir {date}. Tot dan hou jy jou huidige plan. | Kuhlelelwe ngo-{date}. Kuze kube yileso sikhathi ugcina uhlelo lwakho lwamanje. |
+| `changeResultViewInvoice` | View invoice | Sien faktuur | Buka i-invoyisi |
+| `cancelDialogTitle` | Cancel this service? | Kanselleer hierdie diens? | Khansela le sevisi? |
+| `cancelDialogBody` | Your service stays active until {date}. After that it stops and you will not be billed again. | Jou diens bly aktief tot {date}. Daarna stop dit en jy sal nie weer gefaktureer word nie. | Isevisi yakho ihlala isebenza kuze kube ngu-{date}. Ngemva kwalokho iyama futhi ngeke usatshaji futhi. |
+| `cancelDialogNoUndo` | This cannot be undone in the app. | Dit kan nie in die toepassing ontdoen word nie. | Lokhu akukwazi ukuhlehliswa kuhlelo lokusebenza. |
+| `cancelReasonLabel` | Why are you leaving? | Hoekom vertrek jy? | Kungani uhamba? |
+| `cancelReasonMoving` | I am moving | Ek trek | Ngiyathuthuka |
+| `cancelReasonExpensive` | Too expensive | Te duur | Kubiza kakhulu |
+| `cancelReasonUnreliable` | Not reliable enough | Nie betroubaar genoeg nie | Akwethembeki ngokwanele |
+| `cancelReasonOther` | Other | Ander | Okunye |
+| `cancelReasonDetailLabel` | Tell us more (optional) | Vertel ons meer (opsioneel) | Sitshele okwengeziwe (akuphoqelekile) |
+| `cancelReasonRequired` | Choose a reason. | Kies 'n rede. | Khetha isizathu. |
+| `cancelKeep` | Keep service | Hou diens | Gcina isevisi |
+| `cancelConfirm` | Cancel service | Kanselleer diens | Khansela isevisi |
+| `cancelSubmitting` | Cancelling… | Kanselleer tans… | Iyakhansela… |
+| `cancelDone` | Cancellation scheduled for {date} | Kansellasie geskeduleer vir {date} | Ukukhansela kuhlelelwe ngo-{date} |
+| `failureCancellationScheduled` | This service is already set to end. | Hierdie diens is reeds gestel om te eindig. | Le sevisi isivele ihlelelwe ukuphela. |
+| `failurePlanChangeBilled` | Your next period is already billed. Try again after it starts. | Jou volgende tydperk is reeds gefaktureer. Probeer weer nadat dit begin het. | Isikhathi sakho esilandelayo sesivele sitshajiwe. Zama futhi ngemva kokuthi siqale. |
+| `failurePendingCancel` | Contact support to cancel a service that has not started. | Kontak ondersteuning om 'n diens wat nog nie begin het nie te kanselleer. | Xhumana nosizo ukuze ukhansele isevisi engakaqali. |

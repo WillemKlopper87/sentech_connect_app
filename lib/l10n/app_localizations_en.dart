@@ -696,6 +696,147 @@ class AppLocalizationsEn extends AppLocalizations {
   String get serviceActionIdCheck => 'Start ID check';
 
   @override
+  String get serviceChangePlanAction => 'Change plan';
+
+  @override
+  String get serviceChangePlanBlockedCancelling =>
+      'Not available while cancellation is scheduled.';
+
+  @override
+  String get serviceChangePlanBlockedInactive =>
+      'Available once your service is active.';
+
+  @override
+  String get serviceCancelAction => 'Cancel service';
+
+  @override
+  String get serviceCancelPendingContact =>
+      'Contact support to cancel a service that has not started.';
+
+  @override
+  String get serviceCancelNoUndo =>
+      'A scheduled cancellation cannot be undone in the app. Contact your provider if you changed your mind.';
+
+  @override
+  String get changePlanTitle => 'Change plan';
+
+  @override
+  String changePlanCurrent(String plan) {
+    return 'Your plan: $plan';
+  }
+
+  @override
+  String get changePlanChoose => 'Choose a new plan';
+
+  @override
+  String get changePlanEmpty =>
+      'There are no other plans you can switch to right now.';
+
+  @override
+  String get changePlanIdCheckNeeded => 'ID check needed';
+
+  @override
+  String changeConfirmTitle(String plan) {
+    return 'Change to $plan?';
+  }
+
+  @override
+  String get changeConfirmHigher =>
+      'Switches now. You will be invoiced the difference for the rest of this month.';
+
+  @override
+  String changeConfirmLower(String date) {
+    return 'Takes effect on $date. Until then you keep your current plan.';
+  }
+
+  @override
+  String get changeConfirmUnknown =>
+      'Your provider decides when this takes effect.';
+
+  @override
+  String get changeConfirmButton => 'Change plan';
+
+  @override
+  String get changeSubmitting => 'Changing plan…';
+
+  @override
+  String get changeResultAppliedTitle => 'Plan changed';
+
+  @override
+  String changeResultAppliedBody(String plan) {
+    return 'You are now on $plan.';
+  }
+
+  @override
+  String get changeResultScheduledTitle => 'Plan change scheduled';
+
+  @override
+  String changeResultScheduledBody(String date) {
+    return 'Scheduled for $date. Until then you keep your current plan.';
+  }
+
+  @override
+  String get changeResultViewInvoice => 'View invoice';
+
+  @override
+  String get cancelDialogTitle => 'Cancel this service?';
+
+  @override
+  String cancelDialogBody(String date) {
+    return 'Your service stays active until $date. After that it stops and you will not be billed again.';
+  }
+
+  @override
+  String get cancelDialogNoUndo => 'This cannot be undone in the app.';
+
+  @override
+  String get cancelReasonLabel => 'Why are you leaving?';
+
+  @override
+  String get cancelReasonMoving => 'I am moving';
+
+  @override
+  String get cancelReasonExpensive => 'Too expensive';
+
+  @override
+  String get cancelReasonUnreliable => 'Not reliable enough';
+
+  @override
+  String get cancelReasonOther => 'Other';
+
+  @override
+  String get cancelReasonDetailLabel => 'Tell us more (optional)';
+
+  @override
+  String get cancelReasonRequired => 'Choose a reason.';
+
+  @override
+  String get cancelKeep => 'Keep service';
+
+  @override
+  String get cancelConfirm => 'Cancel service';
+
+  @override
+  String get cancelSubmitting => 'Cancelling…';
+
+  @override
+  String cancelDone(String date) {
+    return 'Cancellation scheduled for $date';
+  }
+
+  @override
+  String get failureCancellationScheduled =>
+      'This service is already set to end.';
+
+  @override
+  String get failurePlanChangeBilled =>
+      'Your next period is already billed. Try again after it starts.';
+
+  @override
+  String get failurePendingCancel =>
+      'Contact support to cancel a service that has not started.';
+
+  @override
   String accountContactProvider(String provider) {
     return 'Contact $provider';
   }

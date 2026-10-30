@@ -88,6 +88,9 @@ All 289 `/v1/admin/*` and `/v1/platform/*` operations belong to the web consoles
 | 422 `subscriber_profile_invalid` | `SubscriberProfileInvalidFailure` | update your contact details before signing up |
 | 404 `subscriber_plan_not_found`, 409 `subscriber_plan_inactive`, `subscriber_version_unavailable`, `plan_kind_mismatch` | `PlanUnavailableFailure` (a `ValidationFailure`, code kept) | this plan is no longer available |
 | 409 `account_closed`, `illegal_transition` | `ServiceStateFailure` (a `ValidationFailure`, code kept) | this service can't be changed right now |
+| 409 `service_cancellation_scheduled` | `CancellationScheduledFailure` | this service is already set to end |
+| 409 `service_plan_change_already_billed`, `service_plan_change_already_invoiced` | `PlanChangeBilledFailure` (code kept) | your next period is already billed, try again after it starts |
+| 409 `pending_requires_immediate_cancellation` | `PendingCancelFailure` | contact support to cancel a service that has not started |
 | 404 `service_not_found` | existing `NotFoundFailure` | we could not find that |
 | 400 `invalid_cursor` | generic `ValidationFailure` (code kept) | not shown: the app only sends cursors the API gave it |
 | 409 `no_active_entitlement` | `NoActiveEntitlementFailure` | you need an active pass to get online |

@@ -697,6 +697,148 @@ class AppLocalizationsZu extends AppLocalizations {
   String get serviceActionIdCheck => 'Qala ukuhlola i-ID';
 
   @override
+  String get serviceChangePlanAction => 'Shintsha uhlelo';
+
+  @override
+  String get serviceChangePlanBlockedCancelling =>
+      'Akutholakali ngenkathi ukukhansela kuhleliwe.';
+
+  @override
+  String get serviceChangePlanBlockedInactive =>
+      'Kutholakala uma isevisi yakho isisebenza.';
+
+  @override
+  String get serviceCancelAction => 'Khansela isevisi';
+
+  @override
+  String get serviceCancelPendingContact =>
+      'Xhumana nosizo ukuze ukhansele isevisi engakaqali.';
+
+  @override
+  String get serviceCancelNoUndo =>
+      'Ukukhansela okuhleliwe akukwazi ukuhlehliswa kuhlelo lokusebenza. Xhumana nomhlinzeki wakho uma ushintshe umqondo.';
+
+  @override
+  String get changePlanTitle => 'Shintsha uhlelo';
+
+  @override
+  String changePlanCurrent(String plan) {
+    return 'Uhlelo lwakho: $plan';
+  }
+
+  @override
+  String get changePlanChoose => 'Khetha uhlelo olusha';
+
+  @override
+  String get changePlanEmpty =>
+      'Azikho ezinye izinhlelo ongashintshela kuzo njengamanje.';
+
+  @override
+  String get changePlanIdCheckNeeded => 'Kudingeka ukuhlolwa kwe-ID';
+
+  @override
+  String changeConfirmTitle(String plan) {
+    return 'Shintshela ku-$plan?';
+  }
+
+  @override
+  String get changeConfirmHigher =>
+      'Kushintsha manje. Uzothola i-invoyisi yomehluko wesikhathi esisele salokhu inyanga.';
+
+  @override
+  String changeConfirmLower(String date) {
+    return 'Kuqala ukusebenza ngo-$date. Kuze kube yileso sikhathi ugcina uhlelo lwakho lwamanje.';
+  }
+
+  @override
+  String get changeConfirmUnknown =>
+      'Umhlinzeki wakho unquma ukuthi kuqala nini ukusebenza.';
+
+  @override
+  String get changeConfirmButton => 'Shintsha uhlelo';
+
+  @override
+  String get changeSubmitting => 'Iyashintsha uhlelo…';
+
+  @override
+  String get changeResultAppliedTitle => 'Uhlelo lushintshiwe';
+
+  @override
+  String changeResultAppliedBody(String plan) {
+    return 'Manje usohlelweni lwe-$plan.';
+  }
+
+  @override
+  String get changeResultScheduledTitle => 'Ushintsho loluhlelo luhleliwe';
+
+  @override
+  String changeResultScheduledBody(String date) {
+    return 'Kuhlelelwe ngo-$date. Kuze kube yileso sikhathi ugcina uhlelo lwakho lwamanje.';
+  }
+
+  @override
+  String get changeResultViewInvoice => 'Buka i-invoyisi';
+
+  @override
+  String get cancelDialogTitle => 'Khansela le sevisi?';
+
+  @override
+  String cancelDialogBody(String date) {
+    return 'Isevisi yakho ihlala isebenza kuze kube ngu-$date. Ngemva kwalokho iyama futhi ngeke usatshaji futhi.';
+  }
+
+  @override
+  String get cancelDialogNoUndo =>
+      'Lokhu akukwazi ukuhlehliswa kuhlelo lokusebenza.';
+
+  @override
+  String get cancelReasonLabel => 'Kungani uhamba?';
+
+  @override
+  String get cancelReasonMoving => 'Ngiyathuthuka';
+
+  @override
+  String get cancelReasonExpensive => 'Kubiza kakhulu';
+
+  @override
+  String get cancelReasonUnreliable => 'Akwethembeki ngokwanele';
+
+  @override
+  String get cancelReasonOther => 'Okunye';
+
+  @override
+  String get cancelReasonDetailLabel => 'Sitshele okwengeziwe (akuphoqelekile)';
+
+  @override
+  String get cancelReasonRequired => 'Khetha isizathu.';
+
+  @override
+  String get cancelKeep => 'Gcina isevisi';
+
+  @override
+  String get cancelConfirm => 'Khansela isevisi';
+
+  @override
+  String get cancelSubmitting => 'Iyakhansela…';
+
+  @override
+  String cancelDone(String date) {
+    return 'Ukukhansela kuhlelelwe ngo-$date';
+  }
+
+  @override
+  String get failureCancellationScheduled =>
+      'Le sevisi isivele ihlelelwe ukuphela.';
+
+  @override
+  String get failurePlanChangeBilled =>
+      'Isikhathi sakho esilandelayo sesivele sitshajiwe. Zama futhi ngemva kokuthi siqale.';
+
+  @override
+  String get failurePendingCancel =>
+      'Xhumana nosizo ukuze ukhansele isevisi engakaqali.';
+
+  @override
   String accountContactProvider(String provider) {
     return 'Contact $provider';
   }
