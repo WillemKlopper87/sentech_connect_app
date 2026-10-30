@@ -1444,6 +1444,13 @@ class AppLocalizationsZu extends AppLocalizations {
       'Map not available. Here are the WiFi spots.';
 
   @override
+  String get hotspotsStatusMaintenance => 'Ilungiswa';
+
+  @override
+  String get hotspotsEmpty =>
+      'Awekho ama-hotspot abhaliwe okwamanje. Buyela maduze.';
+
+  @override
   String get loginTitleNew => 'Hello!';
 
   @override

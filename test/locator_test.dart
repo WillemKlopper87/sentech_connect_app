@@ -17,6 +17,8 @@ import 'package:sentech_connect_app/features/tenant/domain/repositories/tenant_r
 import 'package:sentech_connect_app/features/voucher_scanner/data/repositories/http_voucher_repository.dart';
 import 'package:sentech_connect_app/features/voucher_scanner/data/repositories/mock_voucher_repository.dart';
 import 'package:sentech_connect_app/features/voucher_scanner/domain/repositories/voucher_repository.dart';
+import 'package:sentech_connect_app/features/wifi_voucher/data/repositories/http_wifi_hotspots_repository.dart';
+import 'package:sentech_connect_app/features/wifi_voucher/domain/repositories/wifi_hotspots_repository.dart';
 
 import 'helpers/test_setup.dart';
 
@@ -69,6 +71,7 @@ void main() {
     expect(locator<CatalogRepository>(), isA<HttpCatalogRepository>());
     expect(locator<CheckoutRepository>(), isA<HttpCheckoutRepository>());
     expect(locator<VoucherRepository>(), isA<HttpVoucherRepository>());
+    expect(locator<WifiHotspotsRepository>(), isA<HttpWifiHotspotsRepository>());
   });
 
   test('demo keeps the mock voucher service', () {

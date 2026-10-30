@@ -6,6 +6,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:sentech_connect_app/features/wifi_voucher/presentation/bloc/wifi_hotspots_cubit.dart';
 import 'package:sentech_connect_app/shared/widgets/osm_map.dart';
 import 'package:sentech_connect_app/core/local/data_saver.dart';
+import 'package:sentech_connect_app/shared/widgets/failure_view.dart';
 
 class WifiHotspotsPage extends StatelessWidget {
   const WifiHotspotsPage({super.key});
@@ -19,6 +20,12 @@ class WifiHotspotsPage extends StatelessWidget {
         builder: (context, state) {
           if (state.status == WifiHotspotsStatus.loading) {
             return const Center(child: CircularProgressIndicator());
+          }
+          if (state.status == WifiHotspotsStatus.failure) {
+            return FailureView(
+              failure: state.failure,
+              onRetry: () => context.read<WifiHotspotsCubit>().load(),
+            );
           }
           final theme = Theme.of(context);
           final center = state.hasUserLocation
@@ -76,85 +83,124 @@ class WifiHotspotsPage extends StatelessWidget {
                     style: theme.textTheme.bodyMedium,
                   ),
                 ),
-              Expanded(
-                child: ListView.separated(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: state.hotspots.length,
-                  separatorBuilder: (_, _) => const SizedBox(height: 10),
-                  itemBuilder: (context, i) {
-                    final entry = state.hotspots[i];
-                    final isNearest = i == 0 && state.hasUserLocation;
-                    return Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: isNearest
-                              ? theme.colorScheme.primary
-                              : theme.colorScheme.outlineVariant,
-                          width: isNearest ? 1.5 : 1,
-                        ),
-                        borderRadius: BorderRadius.circular(12),
+              if (state.hotspots.isEmpty)
+                Expanded(
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Text(
+                        context.l10n.hotspotsEmpty,
+                        textAlign: TextAlign.center,
+                        style: theme.textTheme.bodyLarge,
                       ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.wifi,
+                    ),
+                  ),
+                )
+              else
+                Expanded(
+                  child: ListView.separated(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: state.hotspots.length,
+                    separatorBuilder: (_, _) => const SizedBox(height: 10),
+                    itemBuilder: (context, i) {
+                      final entry = state.hotspots[i];
+                      final isNearest = i == 0 && state.hasUserLocation;
+                      return Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          border: Border.all(
                             color: isNearest
                                 ? theme.colorScheme.primary
-                                : theme.colorScheme.onSurfaceVariant,
+                                : theme.colorScheme.outlineVariant,
+                            width: isNearest ? 1.5 : 1,
                           ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  entry.hotspot.name,
-                                  style: theme.textTheme.titleMedium,
-                                ),
-                                if (entry.distanceMeters != null)
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.wifi,
+                              color: isNearest
+                                  ? theme.colorScheme.primary
+                                  : theme.colorScheme.onSurfaceVariant,
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
                                   Text(
-                                    entry.distanceMeters! < 1000
-                                        ? context.l10n.hotspotMetersAway(
-                                            entry.distanceMeters!
-                                                .round()
-                                                .toString(),
-                                          )
-                                        : context.l10n.hotspotKilometersAway(
-                                            (entry.distanceMeters! / 1000)
-                                                .toStringAsFixed(1),
-                                          ),
-                                    style: theme.textTheme.bodyMedium?.copyWith(
-                                      color: theme.colorScheme.onSurfaceVariant,
-                                    ),
+                                    entry.hotspot.name,
+                                    style: theme.textTheme.titleMedium,
                                   ),
-                              ],
+                                  if (entry.hotspot.address case final address?)
+                                    Text(
+                                      address,
+                                      style: theme.textTheme.bodyMedium
+                                          ?.copyWith(
+                                            color: theme
+                                                .colorScheme
+                                                .onSurfaceVariant,
+                                          ),
+                                    ),
+                                  if (entry.distanceMeters != null)
+                                    Text(
+                                      entry.distanceMeters! < 1000
+                                          ? context.l10n.hotspotMetersAway(
+                                              entry.distanceMeters!
+                                                  .round()
+                                                  .toString(),
+                                            )
+                                          : context.l10n.hotspotKilometersAway(
+                                              (entry.distanceMeters! / 1000)
+                                                  .toStringAsFixed(1),
+                                            ),
+                                      style: theme.textTheme.bodyMedium
+                                          ?.copyWith(
+                                            color: theme
+                                                .colorScheme
+                                                .onSurfaceVariant,
+                                          ),
+                                    ),
+                                ],
+                              ),
                             ),
-                          ),
-                          if (isNearest)
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 3,
-                              ),
-                              decoration: BoxDecoration(
-                                color: theme.colorScheme.primary,
-                                borderRadius: BorderRadius.circular(999),
-                              ),
-                              child: Text(
-                                context.l10n.hotspotsClosest,
-                                style: theme.textTheme.labelMedium?.copyWith(
-                                  fontWeight: FontWeight.w800,
-                                  color: Colors.white,
+                            if (entry.hotspot.isUnderMaintenance)
+                              Chip(
+                                key: const ValueKey('hotspot-maintenance-chip'),
+                                visualDensity: VisualDensity.compact,
+                                avatar: const Icon(
+                                  Icons.build_outlined,
+                                  size: 16,
+                                ),
+                                label: Text(
+                                  context.l10n.hotspotsStatusMaintenance,
                                 ),
                               ),
-                            ),
-                        ],
-                      ),
-                    );
-                  },
+                            if (isNearest && !entry.hotspot.isUnderMaintenance)
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 3,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: theme.colorScheme.primary,
+                                  borderRadius: BorderRadius.circular(999),
+                                ),
+                                child: Text(
+                                  context.l10n.hotspotsClosest,
+                                  style: theme.textTheme.labelMedium?.copyWith(
+                                    fontWeight: FontWeight.w800,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
                 ),
-              ),
             ],
           );
         },

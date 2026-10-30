@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/data/repositories/http_checkout_repository.dart';
 import 'package:sentech_connect_app/features/passes/domain/entities/pass.dart';
+import 'package:sentech_connect_app/features/wifi_voucher/domain/entities/wifi_hotspot.dart';
 
 import '../helpers/fixtures.dart';
 import 'openapi_schema.dart';
@@ -14,6 +15,7 @@ const fixtureSchemas = {
   'products_page_1.json': 'Page_ProductOut_',
   'products_page_2.json': 'Page_ProductOut_',
   'orders_page.json': 'Page_OrderOut_',
+  'hotspots_page.json': 'Page_HotspotPublicOut_',
   'order_draft.json': 'OrderOut',
   'checkout_fake.json': 'CheckoutOut',
   'checkout_netcash.json': 'CheckoutOut',
@@ -72,6 +74,7 @@ const decoderReads = <String, Set<String>>{
   'LegalVersions': {'terms', 'privacy'},
   'TenantDirectory': {'tenants', 'next_cursor'},
   'OrderOut': {'id', 'status', 'total', 'lines'},
+  'HotspotPublicOut': {'id', 'name', 'address_text', 'lat', 'lon', 'status'},
   'OrderLineOut': {'name', 'quantity'},
   'Money': {'amount_cents', 'currency'},
   'CheckoutOut': {
@@ -152,6 +155,13 @@ void main() {
         in (api.schema('OrderStatus')['enum']! as List).cast<String>()) {
       expect(() => orderStatusFromApi(s), returnsNormally, reason: s);
     }
+  });
+
+  test('every hotspot status the API can send is mapped', () {
+    final status =
+        (api.schema('HotspotPublicOut')['properties']! as Map)['status'] as Map;
+    final names = HotspotStatus.values.map((s) => s.name).toSet();
+    expect((status['enum']! as List).toSet(), names);
   });
 
   test('every entitlement origin and scope kind is typed, not unknown', () {

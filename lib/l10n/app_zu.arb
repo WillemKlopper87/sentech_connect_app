@@ -1854,6 +1854,10 @@
   "@mapUnavailableWifiSpots": {
     "description": "Fallback above a hotspot list when customer location is unavailable."
   },
+  "hotspotsStatusMaintenance": "Ilungiswa",
+  "@hotspotsStatusMaintenance": {"description": "Chip on a hotspot that is temporarily not working."},
+  "hotspotsEmpty": "Awekho ama-hotspot abhaliwe okwamanje. Buyela maduze.",
+  "@hotspotsEmpty": {"description": "Empty state of the hotspots page."},
   "loginTitleNew": "Hello!",
   "@loginTitleNew": {
     "description": "Greeting for an unknown or signed-out customer."

@@ -11,7 +11,7 @@ class MockWifiHotspotsRepository implements WifiHotspotsRepository {
     WifiHotspot(id: 'hs_2', name: 'Lifalethu Shopping Centre', latitude: -26.6935, longitude: 29.0668),
     WifiHotspot(id: 'hs_3', name: 'Sentech Sender Technology Park', latitude: -26.1234, longitude: 27.9345),
     WifiHotspot(id: 'hs_4', name: 'eMbalenhle Taxi Rank', latitude: -26.6801, longitude: 29.0789),
-    WifiHotspot(id: 'hs_5', name: 'Secunda Library', latitude: -26.5507, longitude: 29.1727),
+    WifiHotspot(id: 'hs_5', name: 'Secunda Library', latitude: -26.5507, longitude: 29.1727, status: HotspotStatus.maintenance, address: 'Secunda CBD'),
   ];
 
   @override

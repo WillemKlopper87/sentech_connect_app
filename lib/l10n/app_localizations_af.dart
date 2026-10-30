@@ -1444,6 +1444,13 @@ class AppLocalizationsAf extends AppLocalizations {
       'Map not available. Here are the WiFi spots.';
 
   @override
+  String get hotspotsStatusMaintenance => 'Onder instandhouding';
+
+  @override
+  String get hotspotsEmpty =>
+      'Daar is nog geen warmkolle gelys nie. Kyk gou weer.';
+
+  @override
   String get loginTitleNew => 'Hello!';
 
   @override

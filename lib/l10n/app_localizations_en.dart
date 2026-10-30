@@ -1443,6 +1443,12 @@ class AppLocalizationsEn extends AppLocalizations {
       'Map not available. Here are the WiFi spots.';
 
   @override
+  String get hotspotsStatusMaintenance => 'Under maintenance';
+
+  @override
+  String get hotspotsEmpty => 'No hotspots are listed yet. Check back soon.';
+
+  @override
   String get loginTitleNew => 'Hello!';
 
   @override

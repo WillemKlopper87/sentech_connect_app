@@ -65,6 +65,7 @@ import 'package:sentech_connect_app/features/voucher_scanner/data/repositories/h
 import 'package:sentech_connect_app/features/voucher_scanner/data/repositories/mock_voucher_repository.dart';
 import 'package:sentech_connect_app/features/voucher_scanner/domain/repositories/voucher_repository.dart';
 import 'package:sentech_connect_app/features/wifi_voucher/data/repositories/mock_free_wifi_repository.dart';
+import 'package:sentech_connect_app/features/wifi_voucher/data/repositories/http_wifi_hotspots_repository.dart';
 import 'package:sentech_connect_app/features/wifi_voucher/data/repositories/mock_wifi_hotspots_repository.dart';
 import 'package:sentech_connect_app/features/wifi_voucher/domain/repositories/free_wifi_repository.dart';
 import 'package:sentech_connect_app/features/wifi_voucher/domain/repositories/wifi_hotspots_repository.dart';
@@ -79,7 +80,6 @@ final locator = GetIt.instance;
 const stillMockInProd = <Type>[
   CoverageRepository,
   FreeWifiRepository,
-  WifiHotspotsRepository,
   AccountRepository,
   PromotionsRepository,
   SupportRepository,
@@ -172,12 +172,12 @@ void _registerStillMockRepositories() {
   locator.registerLazySingleton<FreeWifiRepository>(
     () => MockFreeWifiRepository(locator(), clock: locator()),
   );
-  locator.registerLazySingleton<WifiHotspotsRepository>(
-    () => MockWifiHotspotsRepository(),
-  );
 }
 
 void _registerDemoRepositories() {
+  locator.registerLazySingleton<WifiHotspotsRepository>(
+    () => MockWifiHotspotsRepository(),
+  );
   locator.registerLazySingleton<TenantRepository>(
     () => MockTenantRepository(locator()),
   );
@@ -215,6 +215,9 @@ void _registerProdRepositories(Uri baseUrl, TurnstileConfig? turnstile) {
       tenant: locator(),
       sessionEvents: locator(),
     ),
+  );
+  locator.registerLazySingleton<WifiHotspotsRepository>(
+    () => HttpWifiHotspotsRepository(locator(), locator()),
   );
   locator.registerLazySingleton<TenantRepository>(
     () => HttpTenantRepository(locator(), crashReporter: locator()),

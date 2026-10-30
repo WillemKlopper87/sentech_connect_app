@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:sentech_connect_app/core/error/failure.dart';
 import 'package:sentech_connect_app/l10n/app_localizations_en.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
@@ -35,6 +36,7 @@ class WifiHotspotsState extends Equatable {
     this.hotspots = const [],
     this.userLatitude,
     this.userLongitude,
+    this.failure,
   });
 
   final WifiHotspotsStatus status;
@@ -42,24 +44,33 @@ class WifiHotspotsState extends Equatable {
   final double? userLatitude;
   final double? userLongitude;
 
+  /// Set when [status] is [WifiHotspotsStatus.failure] (offline, server error).
+  final Failure? failure;
+
   bool get hasUserLocation => userLatitude != null && userLongitude != null;
 
   @override
-  List<Object?> get props => [status, hotspots, userLatitude, userLongitude];
+  List<Object?> get props => [
+    status,
+    hotspots,
+    userLatitude,
+    userLongitude,
+    failure,
+  ];
 }
 
 class WifiHotspotsCubit extends Cubit<WifiHotspotsState> {
-  WifiHotspotsCubit(this._repository) : super(const WifiHotspotsState()) {
+  /// [locate] is the device-position lookup; tests pass a fake.
+  WifiHotspotsCubit(this._repository, {Future<Position?> Function()? locate})
+    : _locate = locate ?? _deviceLocation,
+      super(const WifiHotspotsState()) {
     _load();
   }
 
   final WifiHotspotsRepository _repository;
+  final Future<Position?> Function() _locate;
 
-  Future<void> _load() async {
-    final result = await _repository.getHotspots();
-    final hotspots = result.getOrElse((_) => const []);
-
-    Position? position;
+  static Future<Position?> _deviceLocation() async {
     try {
       final serviceEnabled = await Geolocator.isLocationServiceEnabled();
       var permission = await Geolocator.checkPermission();
@@ -70,7 +81,7 @@ class WifiHotspotsCubit extends Cubit<WifiHotspotsState> {
           permission == LocationPermission.always ||
           permission == LocationPermission.whileInUse;
       if (serviceEnabled && hasPermission) {
-        position = await Geolocator.getCurrentPosition(
+        return await Geolocator.getCurrentPosition(
           locationSettings: const LocationSettings(
             accuracy: LocationAccuracy.medium,
           ),
@@ -79,6 +90,30 @@ class WifiHotspotsCubit extends Cubit<WifiHotspotsState> {
     } catch (_) {
       // Fall through with sorting disabled — the list still renders.
     }
+    return null;
+  }
+
+  /// Loads (or reloads, for the retry button) the hotspots.
+  Future<void> load() async {
+    if (state.status != WifiHotspotsStatus.loading) {
+      emit(const WifiHotspotsState());
+    }
+    await _load();
+  }
+
+  Future<void> _load() async {
+    final result = await _repository.getHotspots();
+    if (isClosed) return;
+    final failure = result.match((f) => f, (_) => null);
+    if (failure != null) {
+      emit(
+        WifiHotspotsState(status: WifiHotspotsStatus.failure, failure: failure),
+      );
+      return;
+    }
+    final hotspots = result.getOrElse((_) => const []);
+
+    final position = await _locate();
 
     final withDistance =
         hotspots.map((h) {
@@ -96,6 +131,7 @@ class WifiHotspotsCubit extends Cubit<WifiHotspotsState> {
           return a.distanceMeters!.compareTo(b.distanceMeters!);
         });
 
+    if (isClosed) return;
     emit(
       WifiHotspotsState(
         status: WifiHotspotsStatus.loaded,

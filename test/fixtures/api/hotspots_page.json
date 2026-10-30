@@ -1,0 +1,7 @@
+{
+  "items": [
+    {"id": "8a1f0c52-3b64-4d0e-9c11-5e2a7b9d0001", "name": "eMbalenhle Community Hall", "address_text": "Main Road, eMbalenhle", "lat": -26.6873, "lon": 29.0721, "status": "live"},
+    {"id": "8a1f0c52-3b64-4d0e-9c11-5e2a7b9d0002", "name": "Secunda Library", "address_text": null, "lat": -26.5507, "lon": 29.1727, "status": "maintenance"}
+  ],
+  "next_cursor": null
+}

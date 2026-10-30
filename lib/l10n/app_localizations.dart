@@ -2512,6 +2512,18 @@ abstract class AppLocalizations {
   /// **'Map not available. Here are the WiFi spots.'**
   String get mapUnavailableWifiSpots;
 
+  /// Chip on a hotspot that is temporarily not working.
+  ///
+  /// In en, this message translates to:
+  /// **'Under maintenance'**
+  String get hotspotsStatusMaintenance;
+
+  /// Empty state of the hotspots page.
+  ///
+  /// In en, this message translates to:
+  /// **'No hotspots are listed yet. Check back soon.'**
+  String get hotspotsEmpty;
+
   /// Greeting for an unknown or signed-out customer.
   ///
   /// In en, this message translates to:
