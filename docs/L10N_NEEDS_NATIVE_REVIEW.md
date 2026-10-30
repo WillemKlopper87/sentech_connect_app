@@ -55,3 +55,9 @@ Typed problem codes added 2026-10-29 (contract re-sync, audit row 15). Same revi
 | `failureNasUnavailable` | This hotspot is not available right now. Try another one. | Hierdie warmkol is nou nie beskikbaar nie. Probeer 'n ander een. | Le hotspot ayitholakali okwamanje. Zama enye. |
 | `failureLoginUrlInvalid` | This hotspot login could not be opened. Connect from the Wi-Fi login page instead. | Hierdie warmkol-aanmelding kon nie oopgemaak word nie. Koppel eerder vanaf die Wi-Fi-aanmeldbladsy. | Ukungena kwale hotspot akukwazanga ukuvulwa. Xhuma ngekhasi lokungena le-Wi-Fi esikhundleni. |
 | `failureControllerNotSupported` | One-tap login is not supported at this hotspot. Connect from the Wi-Fi login page instead. | Eenklik-aanmelding word nie by hierdie warmkol ondersteun nie. Koppel eerder vanaf die Wi-Fi-aanmeldbladsy. | Ukungena ngokuthinta kanye akuxhaswa kule hotspot. Xhuma ngekhasi lokungena le-Wi-Fi esikhundleni. |
+| `hotspotsStatusMaintenance` | Under maintenance | Onder instandhouding | Ilungiswa |
+| `hotspotsEmpty` | No hotspots are listed yet. Check back soon. | Daar is nog geen warmkolle gelys nie. Kyk gou weer. | Awekho ama-hotspot abhaliwe okwamanje. Buyela maduze. |
+| `orderCancelAction` | Cancel order | Kanselleer bestelling | Khansela i-oda |
+| `orderCancelConfirmTitle` | Cancel this order? | Kanselleer hierdie bestelling? | Khansela leli oda? |
+| `orderCancelConfirmBody` | This order will be closed. You can place a new order any time. | Hierdie bestelling sal gesluit word. Jy kan enige tyd 'n nuwe bestelling plaas. | Leli oda lizovalwa. Ungenza i-oda elisha noma nini. |
+| `orderCancelKeep` | Keep order | Hou bestelling | Gcina i-oda |

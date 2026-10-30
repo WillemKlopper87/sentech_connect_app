@@ -24,6 +24,8 @@ Status words: **done** (real repository, tested), **mock** (a `Mock*Repository` 
 | `GET /v1/me/export` | done | |
 | `POST /v1/me/delete-challenge` | done | step 1 of deleting the account; a 401 (no phone on the account) does not sign the customer out; `turnstile_token` from the same human check (M2d) |
 | `DELETE /v1/me` | done | step 2, JSON body `{challenge_id, code}`; `403 reauth_required` for a wrong, used or expired code |
+| `GET /v1/hotspots` | done | public, `tenant` query, cursor pages (limit 100); `live` and `maintenance` only; list with maintenance chip, address, empty and error states (fixture `hotspots_page.json` checked against `Page_HotspotPublicOut_`) |
+| `POST /v1/orders/{order_id}/cancel` | done | "Cancel order" on the payment screen after a confirm dialog; `order_not_cancellable`, `order_cancelled`, `order_not_found` are the typed failures; the order is reloaded after a refusal |
 | `GET /v1/me/entitlements` | done | `suspended` status, `service` source, nullable `product_id` tolerated; `status=current` includes suspended passes (Known gap 2, closed) |
 | `POST /v1/me/vouchers/redeem` | done | |
 | `POST /v1/me/hotspot/login-token` | not started | one-tap hotspot login |
@@ -121,3 +123,9 @@ Audit against platform `9d3cba5`: no customer or public route changed since `39f
 ## Update 2026-10-29 (P0 part 1: re-sync)
 
 Snapshot re-synced to platform `d4be7ce` (see the top of this file); suspended-in-current fixture and tests added; the 15 customer problem codes from audit row 15 typed. Audit row 17 is done. Not done here: the human-check config route (`GET /v1/auth/human-check/config`, audit row 5); the API route is being built separately and the app will read it in a later slice. Pointer: `docs/PARITY_AUDIT_2026-10-29.md`.
+
+## Update 2026-10-30 (P1: hotspots, order cancel, mock entry points)
+
+- `GET /v1/hotspots` is real (audit row 8) and `POST /v1/orders/{order_id}/cancel` is wired (row 11). `WifiHotspotsRepository` left `stillMockInProd`; the demo flavour keeps the mock.
+- **Free Wi-Fi by rewarded ad (row 12) and Promotions (row 13) are hidden in prod.** They have no API: `FreeWifiRepository` and `PromotionsRepository` stay in `stillMockInProd`. One switch, `lib/app/mock_feature_guard.dart` (`freeWifiVisible`, `promotionsVisible`), reads that list: a non-demo build hides the Free Wi-Fi card and the promotions banner and redirects `/promotions` home; demo, dev and test builds show them. In prod the Shop shows a plain "Find hotspots near me" entry instead of the ad card.
+- They return with the engagement-credits slices (platform plan `docs/superpowers/plans/2026-10-29-engagement-credits-rebaseline.md`): swap the repository in `locator.dart`, remove it from `stillMockInProd` (a test fails otherwise), and Free Wi-Fi additionally needs the provider's `credits` module on (`AppModuleKeys.credits`). No other change is needed to bring the entry points back.
