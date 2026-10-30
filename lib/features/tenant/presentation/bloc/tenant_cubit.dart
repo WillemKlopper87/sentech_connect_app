@@ -134,6 +134,33 @@ class TenantCubit extends Cubit<TenantState> {
     emit(state.copyWith(config: config.copyWithModules(base.without(key))));
   }
 
+  /// Re-reads the active tenant's app-config without leaving `ready` (no
+  /// `loading` state, no tenant change), so a screen that was refused for an
+  /// outdated legal version can use the current one. True when a fresh config
+  /// was applied; false on any failure or when no tenant is ready (the
+  /// current config stays). One request per call: callers must not loop.
+  Future<bool> refreshConfig() async {
+    final config = state.config;
+    if (config == null || state.status != TenantStatus.ready) return false;
+    final slug = config.tenant.slug;
+    try {
+      final result = await _repository.getAppConfig(slug);
+      if (isClosed || state.config?.tenant.slug != slug) return false;
+      return switch (result) {
+        Right(value: final fresh) when fresh.tenant.slug == slug => await _refreshed(slug, fresh),
+        _ => false,
+      };
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<bool> _refreshed(String slug, AppConfig fresh) async {
+    await _persist(slug, fresh);
+    await _apply(fresh);
+    return !isClosed;
+  }
+
   Future<void> retry() => _guard(() async {
     emit(state.copyWith(status: TenantStatus.loading));
     final target = _targetSlug;

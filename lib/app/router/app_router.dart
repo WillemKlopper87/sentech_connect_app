@@ -542,6 +542,7 @@ GoRouter _buildRouter(
             locator<SubscriberRepository>(),
             state.pathParameters['planId']!,
             termsVersion: () => tenantCubit?.state.config?.legal.terms,
+            refreshTerms: tenantCubit?.refreshConfig,
           ),
           child: SignupPage(
             // Leave the sign-up for the services list first, so Back from the

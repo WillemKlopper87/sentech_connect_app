@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:sentech_connect_app/core/error/failure.dart';
 import 'package:sentech_connect_app/core/network/idempotency.dart';
 import 'package:sentech_connect_app/features/subscriber/domain/entities/subscriber_plan.dart';
@@ -77,6 +78,7 @@ class SignupCubit extends Cubit<SignupState> {
     this.planId, {
     required this.termsVersion,
     String Function()? newKey,
+    this.refreshTerms,
   }) : _newKey = newKey ?? newIdempotencyKey,
        super(const SignupState()) {
     load();
@@ -90,6 +92,11 @@ class SignupCubit extends Cubit<SignupState> {
   /// is then refused with a retryable failure).
   final String? Function() termsVersion;
   final String Function() _newKey;
+
+  /// Reloads the tenant config (true when it did); null skips the reload.
+  /// Called once per refused submit on `consent_version_outdated`, never
+  /// repeatedly: the customer decides about the next attempt.
+  final Future<bool> Function()? refreshTerms;
 
   String? _key;
 
@@ -157,21 +164,37 @@ class SignupCubit extends Cubit<SignupState> {
       installAddress: _address,
     );
     if (isClosed) return;
-    result.match(
-      (failure) {
-        // The platform rolls a refused signup back, so the same key stays safe
-        // to retry. A changed terms version changes the body, which a reused
-        // key would refuse: start a new key for that one.
-        if (failure is ConsentVersionOutdatedFailure) _key = null;
-        // The plan is gone: the form cannot work again, send the customer back to the list.
-        emit(
-          failure is PlanUnavailableFailure
-              ? SignupState(phase: SignupPhase.planMissing, failure: failure)
-              : state.copyWith(phase: SignupPhase.ready, failure: failure),
-        );
-      },
+    if (result case Right(value: final signup)) {
       // The draft (address) leaves memory with the form.
-      (signup) => emit(SignupState(phase: SignupPhase.done, plan: state.plan, result: signup)),
+      emit(SignupState(phase: SignupPhase.done, plan: state.plan, result: signup));
+      return;
+    }
+    final failure = (result as Left<Failure, SubscriberSignup>).value;
+    // The platform rolls a refused signup back, so the same key stays safe
+    // to retry. A changed terms version changes the body, which a reused
+    // key would refuse: start a new key for that one.
+    if (failure is ConsentVersionOutdatedFailure) {
+      _key = null;
+      // Reload the config once so the next attempt names the current terms.
+      // When the version did change the customer has not seen it: the box is
+      // cleared and the terms link (read from the same config) is current, so
+      // they read and accept again.
+      final reload = refreshTerms;
+      var changed = false;
+      if (reload != null) {
+        await reload();
+        if (isClosed) return;
+        final now = termsVersion();
+        changed = now != null && now != version;
+      }
+      emit(state.copyWith(phase: SignupPhase.ready, failure: failure, acceptTerms: changed ? false : null));
+      return;
+    }
+    // The plan is gone: the form cannot work again, send the customer back to the list.
+    emit(
+      failure is PlanUnavailableFailure
+          ? SignupState(phase: SignupPhase.planMissing, failure: failure)
+          : state.copyWith(phase: SignupPhase.ready, failure: failure),
     );
   }
 }
