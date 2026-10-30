@@ -18,8 +18,9 @@ import 'package:sentech_connect_app/core/network/session_events.dart';
 import 'package:sentech_connect_app/core/network/simulated_network.dart';
 import 'package:sentech_connect_app/core/network/tenant_context.dart';
 import 'package:sentech_connect_app/core/security/human_check_provider.dart';
+import 'package:sentech_connect_app/core/security/human_check_config.dart';
+import 'package:sentech_connect_app/core/security/human_check_gate.dart';
 import 'package:sentech_connect_app/core/security/turnstile/turnstile_config.dart';
-import 'package:sentech_connect_app/core/security/turnstile/turnstile_provider.dart';
 import 'package:sentech_connect_app/shared/widgets/human_check_sheet.dart';
 import 'package:sentech_connect_app/core/notifications/notification_service.dart';
 import 'package:sentech_connect_app/core/storage/flutter_secure_store.dart';
@@ -230,14 +231,17 @@ void _registerProdRepositories(Uri baseUrl, TurnstileConfig? turnstile) {
     ),
   );
   locator.registerLazySingleton<PrivacyRepository>(
-    () => HttpPrivacyRepository(locator(), humanCheck: locator()),
+    () => HttpPrivacyRepository(
+      locator(),
+      humanCheck: locator<HumanCheckGate>().forAction(HumanCheckAction.deleteChallenge),
+    ),
   );
   locator.registerLazySingleton<AuthRepository>(
     () => HttpAuthRepository(
       locator(),
       tokens: locator(),
       tenant: locator(),
-      humanCheck: locator(),
+      humanCheck: locator<HumanCheckGate>().forAction(HumanCheckAction.otpRequest),
     ),
   );
   locator.registerLazySingleton<PassesRepository>(
@@ -288,19 +292,27 @@ void _registerProdRepositories(Uri baseUrl, TurnstileConfig? turnstile) {
 /// The human check for the real API (prod flavor only; the demo flavor never
 /// has a WebView and uses no check at all).
 ///
+/// [HumanCheckGate] asks the API what is enforced and which Turnstile site key
+/// to use (the API wins; the build defines in [turnstile] are only the
+/// fallback when that route fails) and hands each repository a
+/// [HumanCheckProvider] for ITS action: `locator<HumanCheckGate>().forAction(..)`.
 /// Tiers, in order of preference: (A, not built yet) platform attestation,
 /// (B) the Turnstile WebView, (none) dev and test stacks that accept a request
-/// without a token. A future attestation provider is registered here as
-/// `FallbackHumanCheckProvider(primary: attestation, fallback: turnstile)`;
+/// without a token. A future attestation provider is composed inside the gate
+/// as `FallbackHumanCheckProvider(primary: attestation, fallback: turnstile)`;
 /// the repositories only ever see a [HumanCheckProvider].
 void _registerHumanCheck(TurnstileConfig? turnstile) {
-  if (turnstile == null) {
-    locator.registerLazySingleton<HumanCheckProvider>(() => const NoHumanCheckProvider());
-    return;
-  }
   final presenter = NavigatorHumanCheckPresenter(GlobalKey<NavigatorState>(debugLabel: 'root'));
   locator.registerSingleton<NavigatorHumanCheckPresenter>(presenter);
-  locator.registerLazySingleton<HumanCheckProvider>(
-    () => TurnstileWebViewProvider(config: turnstile, presenter: presenter),
+  locator.registerLazySingleton<HumanCheckConfigRepository>(
+    () => HttpHumanCheckConfigRepository(locator()),
+  );
+  locator.registerLazySingleton<HumanCheckGate>(
+    () => HumanCheckGate(
+      repository: locator(),
+      tenant: locator(),
+      presenter: presenter,
+      buildConfig: turnstile,
+    ),
   );
 }

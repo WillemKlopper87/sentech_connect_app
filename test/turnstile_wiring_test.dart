@@ -4,7 +4,8 @@ import 'package:sentech_connect_app/app/locator.dart';
 import 'package:sentech_connect_app/core/config/app_environment.dart';
 import 'package:sentech_connect_app/core/security/human_check_provider.dart';
 import 'package:sentech_connect_app/core/security/turnstile/turnstile_config.dart';
-import 'package:sentech_connect_app/core/security/turnstile/turnstile_provider.dart';
+import 'package:sentech_connect_app/core/security/human_check_config.dart';
+import 'package:sentech_connect_app/core/security/human_check_gate.dart';
 import 'package:sentech_connect_app/core/security/turnstile/webview_turnstile_surface.dart';
 import 'package:sentech_connect_app/shared/widgets/human_check_sheet.dart';
 
@@ -27,20 +28,18 @@ void main() {
       expect(locator.isRegistered<NavigatorHumanCheckPresenter>(), isFalse);
     });
 
-    test('prod without Turnstile defines (dev and test stacks): NoHumanCheckProvider', () {
+    test('prod without Turnstile defines (dev and test stacks): the gate has no fallback config', () {
       setupLocator(environment: _prod);
       registerTestFakes();
-      expect(locator<HumanCheckProvider>(), isA<NoHumanCheckProvider>());
-      expect(locator.isRegistered<NavigatorHumanCheckPresenter>(), isFalse);
+      expect(locator<HumanCheckGate>().buildConfig, isNull);
+      expect(locator<HumanCheckConfigRepository>(), isA<HttpHumanCheckConfigRepository>());
+      expect(locator.isRegistered<HumanCheckProvider>(), isFalse, reason: 'each repository gets its own action provider');
     });
 
-    test('prod with Turnstile config: the WebView provider, presented over the router navigator', () {
+    test('prod with Turnstile defines: they are the fallback of the gate, presented over the router navigator', () {
       setupLocator(environment: _prod, turnstile: _config);
       registerTestFakes();
-      final provider = locator<HumanCheckProvider>();
-      expect(provider, isA<TurnstileWebViewProvider>());
-      expect((provider as TurnstileWebViewProvider).config, _config);
-      expect(provider.config.action, 'signin');
+      expect(locator<HumanCheckGate>().buildConfig, _config);
       expect(locator<NavigatorHumanCheckPresenter>().navigatorKey, isA<GlobalKey<NavigatorState>>());
     });
   });

@@ -63,3 +63,9 @@ Future<Either<Failure, String?>> acquireHumanCheck(HumanCheckProvider provider) 
     return const Left(HumanVerificationUnavailableFailure());
   }
 }
+
+/// The only token the platform FAKE verifier (dev and test stacks, which report
+/// `site_key: null` in the human-check config) accepts. `POST /v1/support/messages`
+/// has `turnstile_token` as a required body field, so with no widget the app
+/// sends this. A real verifier refuses it (403 `human_verification_failed`).
+const devTurnstilePass = 'dev-turnstile-pass';

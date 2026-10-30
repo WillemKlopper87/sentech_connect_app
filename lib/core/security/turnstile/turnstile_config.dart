@@ -10,8 +10,9 @@ class InvalidTurnstileConfig extends InvalidEnvironment {
   String toString() => 'InvalidTurnstileConfig: $message';
 }
 
-/// What the Turnstile WebView needs. The platform exposes NEITHER value (no
-/// field in the API or in the app config), so both come from the build:
+/// What the Turnstile WebView needs. **Precedence: the API wins.** The values
+/// come from `GET /v1/auth/human-check/config` (see `HumanCheckGate`); only
+/// when that route fails do these build values apply:
 ///
 ///  * `--dart-define=TURNSTILE_SITE_KEY=0x4AAAA...` the PUBLIC site key of the
 ///    Cloudflare Turnstile widget (never the secret key);
@@ -37,6 +38,9 @@ class TurnstileConfig {
   /// Origin only (https, or http on localhost in debug builds).
   final Uri baseUrl;
   final String action;
+
+  TurnstileConfig withAction(String value) =>
+      value == action ? this : TurnstileConfig(siteKey: siteKey, baseUrl: baseUrl, action: value);
 
   /// Null when [siteKey] and [baseUrl] are both unset: this build has no
   /// Turnstile (then no human check is sent). One without the other, or a bad
