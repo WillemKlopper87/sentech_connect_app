@@ -4,6 +4,7 @@ import 'package:sentech_connect_app/features/subscriber/data/repositories/mock_s
 import 'package:sentech_connect_app/features/subscriber/domain/entities/plan_change.dart';
 import 'package:sentech_connect_app/features/subscriber/domain/entities/subscriber_account.dart';
 import 'package:sentech_connect_app/features/subscriber/domain/entities/subscriber_service.dart';
+import 'package:sentech_connect_app/features/subscriber/domain/entities/subscriber_signup.dart';
 import 'package:sentech_connect_app/features/subscriber/domain/repositories/subscriber_repository.dart';
 
 import 'subscriber_service_fixtures.dart';
@@ -48,4 +49,11 @@ class FakeSubscriberRepository implements SubscriberRepository {
     result.map((updated) => service = updated);
     return result;
   }
+  @override
+  Future<Either<Failure, SubscriberSignup>> signup({
+    required String planId,
+    required String termsVersion,
+    required String idempotencyKey,
+    String? installAddress,
+  }) async => throw UnimplementedError('signup');
 }

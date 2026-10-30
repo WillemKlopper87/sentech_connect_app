@@ -2509,4 +2509,124 @@ class AppLocalizationsZu extends AppLocalizations {
 
   @override
   String get homeInvoicesViewAll => 'Buka bonke odinga';
+
+  @override
+  String get plansTitle => 'Amaphakheji ngenyanga';
+
+  @override
+  String get plansShopCardSubtitle =>
+      'I-inthanethi yasekhaya yomuzi wakho, ikhokhelwa ngenyanga';
+
+  @override
+  String get plansEmpty => 'Awekho amaphakheji atholakalayo okwamanje';
+
+  @override
+  String get planIdCheckChip => 'Kudingeka ukuhlolwa kwe-ID';
+
+  @override
+  String planSetupFee(String price) {
+    return 'Imali yokusetha $price';
+  }
+
+  @override
+  String planDevices(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Kufika kumadivayisi angu-$count',
+      one: 'idivayisi eyi-1',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String planFairUse(String amount) {
+    return 'Ukusetshenziswa okufanele: $amount ngenyanga';
+  }
+
+  @override
+  String planFairUseThrottle(String down, String up) {
+    return 'Ngemva kwalokho, isivinini sehla siye ku-$down / $up Mbps';
+  }
+
+  @override
+  String get planFairUseReduced =>
+      'Ngemva kwalokho, isivinini sakho siyehliswa';
+
+  @override
+  String planGigabytes(String amount) {
+    return '$amount GB';
+  }
+
+  @override
+  String planBurst(String down, String up, int seconds) {
+    return 'Ukuqhuma kuze kube ngu-$down / $up Mbps amasekhondi angu-$seconds';
+  }
+
+  @override
+  String get planDetailTitle => 'Imininingwane yephakheji';
+
+  @override
+  String get planChoose => 'Khetha leli phakheji';
+
+  @override
+  String get planBackToPlans => 'Buyela emaphakhejini';
+
+  @override
+  String get servicesSeePlans => 'Buka amaphakheji';
+
+  @override
+  String get signupTitle => 'Qinisekisa ukubhalisa';
+
+  @override
+  String get signupFirstInvoiceNote =>
+      'Inxephezelo yakho yokuqala ihlanganisa inyanga esele, kanye nanoma iyiphi imali yokusetha. Uyabona inani eliphelele ngaphambi kokuba ukhokhe.';
+
+  @override
+  String get signupAvailabilityNote =>
+      'Umhlinzeki wakho uqinisekisa ukutholakala ekhelini lakho.';
+
+  @override
+  String get signupAddressLabel => 'Ikheli lokufakwa';
+
+  @override
+  String get signupAddressRequired => 'Faka ikheli lokufakwa.';
+
+  @override
+  String get signupTermsLabel => 'Ngiyayamukela imigomo nezimo';
+
+  @override
+  String get signupTermsRequired => 'Yamukela imigomo ukuze uqhubeke.';
+
+  @override
+  String get signupSubmit => 'Bhalisa';
+
+  @override
+  String get signupSubmitting => 'Iyabhalisa…';
+
+  @override
+  String get signupDoneTitle => 'Usubhalisiwe';
+
+  @override
+  String signupDoneInvoice(String number, String amount, String date) {
+    return 'Inxephezelo yokuqala $number: $amount, kufanele ikhokhwe ngo-$date';
+  }
+
+  @override
+  String get signupPayNow => 'Khokha manje';
+
+  @override
+  String get signupPayLater => 'Khokha kamuva';
+
+  @override
+  String get signupInstallationNote =>
+      'Ngemva kokuthi ukhokhe, umhlinzeki wakho uzohlela ukufakwa nawe.';
+
+  @override
+  String get signupIdCheckNote =>
+      'Leli phakheji lidinga ukuhlolwa kwe-ID ngaphambi kokuthi liqale.';
+
+  @override
+  String get signupAccountClosed =>
+      'I-akhawunti yakho ivaliwe. Xhumana nomhlinzeki wakho.';
 }

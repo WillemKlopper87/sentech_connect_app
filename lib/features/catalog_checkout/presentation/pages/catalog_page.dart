@@ -9,6 +9,7 @@ import 'package:sentech_connect_app/features/catalog_checkout/domain/entities/pl
 import 'package:sentech_connect_app/features/catalog_checkout/domain/entities/order.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/presentation/bloc/catalog_cubit.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/presentation/widgets/buy_now_sheet.dart';
+import 'package:sentech_connect_app/features/subscriber/presentation/widgets/monthly_plans_card.dart';
 import 'package:sentech_connect_app/features/tenant/presentation/bloc/tenant_cubit.dart';
 import 'package:sentech_connect_app/features/wifi_voucher/presentation/bloc/free_wifi_cubit.dart';
 import 'package:sentech_connect_app/features/wifi_voucher/presentation/pages/free_wifi_card.dart';
@@ -130,6 +131,7 @@ class _CatalogScaffold extends StatelessWidget {
           return ListView(
             padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
             children: [
+              const MonthlyPlansCard(),
               if (state.availableCategories.length > 1)
                 _SegmentedRow(
                   categories: state.availableCategories,

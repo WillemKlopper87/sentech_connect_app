@@ -3,6 +3,7 @@ import 'package:sentech_connect_app/core/error/failure.dart';
 import 'package:sentech_connect_app/features/subscriber/domain/entities/plan_change.dart';
 import 'package:sentech_connect_app/features/subscriber/domain/entities/subscriber_account.dart';
 import 'package:sentech_connect_app/features/subscriber/domain/entities/subscriber_service.dart';
+import 'package:sentech_connect_app/features/subscriber/domain/entities/subscriber_signup.dart';
 
 abstract class SubscriberRepository {
   /// The customer's account, or `Right(null)` when they never signed up
@@ -26,4 +27,15 @@ abstract class SubscriberRepository {
   /// Schedules the end of a service at `cancel_effective_on`; never immediate.
   /// Returns the service as the platform now has it. There is no undo route.
   Future<Either<Failure, SubscriberService>> cancel(String serviceId, String reason, {required String idempotencyKey});
+  /// Signs the customer up for [planId] (`POST /v1/me/subscriber/signup`),
+  /// creating the account when there is none. [termsVersion] is
+  /// `app-config.legal.terms`; [installAddress] is sent for fixed wireless
+  /// only. One [idempotencyKey] per form draft: a retry with the same key
+  /// answers the same service.
+  Future<Either<Failure, SubscriberSignup>> signup({
+    required String planId,
+    required String termsVersion,
+    required String idempotencyKey,
+    String? installAddress,
+  });
 }

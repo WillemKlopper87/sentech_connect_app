@@ -7,6 +7,7 @@ import 'package:sentech_connect_app/features/subscriber/data/repositories/invoic
 import 'package:sentech_connect_app/features/subscriber/data/repositories/subscriber_json.dart';
 import 'package:sentech_connect_app/features/subscriber/domain/entities/subscriber_invoice.dart';
 import 'package:sentech_connect_app/features/subscriber/data/repositories/http_kyc_repository.dart';
+import 'package:sentech_connect_app/features/subscriber/data/repositories/http_subscriber_repository.dart';
 import 'package:sentech_connect_app/features/subscriber/domain/entities/kyc.dart';
 import 'package:sentech_connect_app/features/subscriber/domain/entities/subscriber_service.dart';
 import 'package:sentech_connect_app/features/subscriber/domain/service_actions.dart';
@@ -41,6 +42,8 @@ const fixtureSchemas = {
   'subscriber_invoice.json': 'SubscriberInvoiceOut',
   'subscriber_invoices_page.json': 'Page_SubscriberInvoiceOut_',
   'invoice_checkout.json': 'CheckoutOut',
+  // Plans and signup (S5): POST /v1/me/subscriber/signup 201.
+  'subscriber_signup.json': 'SubscriberSignupOut',
   // ID check (S4): GET answers either schema; POST 201 answers SubscriberKycOut.
   'subscriber_kyc_none.json': 'KycNoneOut',
   'subscriber_kyc_pending.json': 'SubscriberKycOut',
@@ -146,6 +149,7 @@ const decoderReads = <String, Set<String>>{
     'paid_through', 'created_at', 'activated_at', 'suspended_at', 'cancelled_at',
     'cancel_effective_on', 'pending_plan_id', 'pending_plan_name', 'plan_change_on',
   },
+  'SubscriberSignupOut': {'service', 'invoice', 'checkout_hint'},
   'PriceOut': {'amount_cents', 'currency'},
   'SubscriberInvoiceOut': {
     'id', 'service_id', 'invoice_no', 'kind', 'status', 'period_start', 'period_end', 'issue_date',
@@ -487,6 +491,37 @@ void main() {
     expect(route.containsKey('security'), isFalse);
     final params = (route['parameters']! as List).cast<Map>();
     expect(params.map((p) => p['name']), ['tenant']);
+  });
+
+  group('POST /v1/me/subscriber/signup (S5)', () {
+    test('answers 201 SubscriberSignupOut and needs the Idempotency-Key', () {
+      final post = api.path('/v1/me/subscriber/signup', 'post');
+      expect(api.responseSchemaName(post, '201'), 'SubscriberSignupOut');
+      final headers = (post['parameters']! as List).cast<Map>().where((p) => p['in'] == 'header');
+      expect(headers.single['name'], 'Idempotency-Key');
+    });
+
+    test('the bodies the app sends validate against SubscriberSignupIn and use only its keys', () {
+      final post = api.path('/v1/me/subscriber/signup', 'post');
+      final content = (post['requestBody']! as Map)['content']! as Map;
+      final schema = Map<String, Object?>.from((content['application/json']! as Map)['schema']! as Map);
+      expect(schema['required'], containsAll(['plan_id', 'accept_terms_version']));
+      for (final body in [
+        subscriberSignupBody(planId: '3c0d5f7a-1111-4a11-8a11-000000000001', termsVersion: '2026-09-30'),
+        subscriberSignupBody(planId: '3c0d5f7a-1111-4a11-8a11-000000000002', termsVersion: '2026-09-30', installAddress: '1 Main Road'),
+      ]) {
+        expect(api.validate(body, schema), isEmpty);
+        expect(body.keys.toSet().difference((schema['properties']! as Map).keys.cast<String>().toSet()), isEmpty);
+        expect(body.containsKey('term_months'), isFalse);
+      }
+    });
+
+    test('the decoder reads the fixture into a pending service and its first invoice', () {
+      final signup = subscriberSignupFromJson(fixtureMap('subscriber_signup.json'));
+      expect(signup.service.status.name, 'pending');
+      expect(signup.invoice.kind, 'initial');
+      expect(signup.invoice.lines, hasLength(2));
+    });
   });
 
   group('/v1/me/subscriber/kyc', () {

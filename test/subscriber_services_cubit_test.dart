@@ -6,6 +6,7 @@ import 'package:sentech_connect_app/core/error/failure.dart';
 import 'package:sentech_connect_app/features/subscriber/domain/entities/plan_change.dart';
 import 'package:sentech_connect_app/features/subscriber/domain/entities/subscriber_account.dart';
 import 'package:sentech_connect_app/features/subscriber/domain/entities/subscriber_service.dart';
+import 'package:sentech_connect_app/features/subscriber/domain/entities/subscriber_signup.dart';
 import 'package:sentech_connect_app/features/subscriber/domain/repositories/subscriber_repository.dart';
 import 'package:sentech_connect_app/features/subscriber/presentation/bloc/service_detail_cubit.dart';
 import 'package:sentech_connect_app/features/subscriber/presentation/bloc/services_cubit.dart';
@@ -54,6 +55,13 @@ class FakeSubscriberRepository implements SubscriberRepository {
     cancelCalls.add((serviceId: serviceId, reason: reason, key: idempotencyKey));
     return cancelResult ?? Right(testService(id: serviceId, cancelEffectiveOn: DateTime.utc(2026, 11, 30)));
   }
+  @override
+  Future<Either<Failure, SubscriberSignup>> signup({
+    required String planId,
+    required String termsVersion,
+    required String idempotencyKey,
+    String? installAddress,
+  }) async => throw UnimplementedError('signup');
 }
 
 void main() {

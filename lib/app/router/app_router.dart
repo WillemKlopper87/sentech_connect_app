@@ -42,6 +42,7 @@ import 'package:sentech_connect_app/features/subscriber/domain/repositories/subs
 import 'package:sentech_connect_app/features/subscriber/presentation/bloc/invoices_cubit.dart';
 import 'package:sentech_connect_app/features/subscriber/presentation/pages/invoice_detail_page.dart';
 import 'package:sentech_connect_app/features/subscriber/presentation/pages/invoices_page.dart';
+import 'package:sentech_connect_app/features/subscriber/presentation/subscriber_entries.dart';
 import 'package:sentech_connect_app/features/subscriber/subscriber_gate.dart';
 import 'package:sentech_connect_app/features/rica/presentation/bloc/rica_cubit.dart';
 import 'package:sentech_connect_app/features/rica/presentation/pages/rica_page.dart';
@@ -54,6 +55,11 @@ import 'package:sentech_connect_app/features/subscriber/presentation/kyc/kyc_for
 import 'package:sentech_connect_app/features/subscriber/presentation/kyc/kyc_status_cubit.dart';
 import 'package:sentech_connect_app/features/subscriber/presentation/kyc/kyc_status_page.dart';
 import 'package:sentech_connect_app/features/subscriber/presentation/pages/services_page.dart';
+import 'package:sentech_connect_app/features/subscriber/presentation/bloc/plans_cubit.dart';
+import 'package:sentech_connect_app/features/subscriber/presentation/bloc/signup_cubit.dart';
+import 'package:sentech_connect_app/features/subscriber/presentation/plans/plan_detail_page.dart';
+import 'package:sentech_connect_app/features/subscriber/presentation/plans/plans_page.dart';
+import 'package:sentech_connect_app/features/subscriber/presentation/plans/signup_page.dart';
 import 'package:sentech_connect_app/features/tenant/presentation/pages/tenant_picker_page.dart';
 import 'package:sentech_connect_app/features/tenant/presentation/pages/update_required_page.dart';
 import 'package:sentech_connect_app/features/wifi_voucher/presentation/bloc/wifi_hotspots_cubit.dart';
@@ -492,6 +498,58 @@ GoRouter _buildRouter(
             ),
           ),
         ],
+      ),
+      // Plans and signup (S5). Hidden when the module is off.
+      GoRoute(
+        path: AppRoutes.plans,
+        redirect: (context, state) => _subscriberModuleOff(tenantCubit) ? AppRoutes.main : null,
+        builder: (context, state) => BlocProvider(
+          create: (_) => PlansCubit(locator<SubscriberPlansRepository>()),
+          child: PlansPage(onOpenPlan: (plan) => context.push(AppRoutes.planFor(plan.id))),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.planDetail,
+        redirect: (context, state) => _subscriberModuleOff(tenantCubit) ? AppRoutes.main : null,
+        builder: (context, state) => BlocProvider(
+          create: (_) => PlansCubit(locator<SubscriberPlansRepository>()),
+          child: PlanDetailPage(
+            planId: state.pathParameters['planId']!,
+            onChoose: (plan) => context.push(AppRoutes.signupFor(plan.id)),
+            onBackToPlans: () => context.go(AppRoutes.plans),
+          ),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.signup,
+        redirect: (context, state) => _subscriberModuleOff(tenantCubit) ? AppRoutes.main : null,
+        builder: (context, state) => BlocProvider(
+          create: (_) => SignupCubit(
+            locator<SubscriberPlansRepository>(),
+            locator<SubscriberRepository>(),
+            state.pathParameters['planId']!,
+            termsVersion: () => tenantCubit?.state.config?.legal.terms,
+          ),
+          child: SignupPage(
+            // Leave the sign-up for the services list first, so Back from the
+            // invoice or the service never returns to a filled-in form.
+            onPayNow: (invoice) {
+              context.go(AppRoutes.services);
+              context.push(AppRoutes.invoiceFor(invoice.id));
+            },
+            onPayLater: (service) {
+              context.go(AppRoutes.services);
+              context.push(AppRoutes.serviceFor(service.id));
+            },
+            onStartIdCheck: subscriberEntryRegistered(AppRoutes.kyc)
+                ? () {
+                    context.go(AppRoutes.services);
+                    context.push(AppRoutes.kyc);
+                  }
+                : null,
+            onBackToPlans: () => context.go(AppRoutes.plans),
+          ),
+        ),
       ),
       GoRoute(
         path: AppRoutes.cart,

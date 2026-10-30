@@ -2500,4 +2500,123 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get homeInvoicesViewAll => 'View all invoices';
+
+  @override
+  String get plansTitle => 'Monthly plans';
+
+  @override
+  String get plansShopCardSubtitle =>
+      'Home internet for your household, billed monthly';
+
+  @override
+  String get plansEmpty => 'No plans available right now';
+
+  @override
+  String get planIdCheckChip => 'ID check needed';
+
+  @override
+  String planSetupFee(String price) {
+    return 'Setup fee $price';
+  }
+
+  @override
+  String planDevices(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Up to $count devices',
+      one: '1 device',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String planFairUse(String amount) {
+    return 'Fair use: $amount a month';
+  }
+
+  @override
+  String planFairUseThrottle(String down, String up) {
+    return 'After that, speeds drop to $down / $up Mbps';
+  }
+
+  @override
+  String get planFairUseReduced => 'After that, your speed is reduced';
+
+  @override
+  String planGigabytes(String amount) {
+    return '$amount GB';
+  }
+
+  @override
+  String planBurst(String down, String up, int seconds) {
+    return 'Bursts up to $down / $up Mbps for $seconds seconds';
+  }
+
+  @override
+  String get planDetailTitle => 'Plan details';
+
+  @override
+  String get planChoose => 'Choose this plan';
+
+  @override
+  String get planBackToPlans => 'Back to plans';
+
+  @override
+  String get servicesSeePlans => 'See plans';
+
+  @override
+  String get signupTitle => 'Confirm sign-up';
+
+  @override
+  String get signupFirstInvoiceNote =>
+      'Your first invoice covers the rest of this month, plus any setup fee. You see the exact amount before you pay.';
+
+  @override
+  String get signupAvailabilityNote =>
+      'Your provider confirms availability at your address.';
+
+  @override
+  String get signupAddressLabel => 'Installation address';
+
+  @override
+  String get signupAddressRequired => 'Enter the installation address.';
+
+  @override
+  String get signupTermsLabel => 'I accept the terms and conditions';
+
+  @override
+  String get signupTermsRequired => 'Accept the terms to continue.';
+
+  @override
+  String get signupSubmit => 'Sign up';
+
+  @override
+  String get signupSubmitting => 'Signing up…';
+
+  @override
+  String get signupDoneTitle => 'You are signed up';
+
+  @override
+  String signupDoneInvoice(String number, String amount, String date) {
+    return 'First invoice $number: $amount, due $date';
+  }
+
+  @override
+  String get signupPayNow => 'Pay now';
+
+  @override
+  String get signupPayLater => 'Pay later';
+
+  @override
+  String get signupInstallationNote =>
+      'After you pay, your provider arranges the installation with you.';
+
+  @override
+  String get signupIdCheckNote =>
+      'This plan needs an ID check before it can start.';
+
+  @override
+  String get signupAccountClosed =>
+      'Your account is closed. Contact your provider.';
 }

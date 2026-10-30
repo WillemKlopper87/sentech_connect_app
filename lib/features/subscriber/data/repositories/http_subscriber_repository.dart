@@ -4,8 +4,29 @@ import 'package:sentech_connect_app/core/network/api_client.dart';
 import 'package:sentech_connect_app/features/subscriber/data/repositories/subscriber_json.dart';
 import 'package:sentech_connect_app/features/subscriber/domain/entities/plan_change.dart';
 import 'package:sentech_connect_app/features/subscriber/domain/entities/subscriber_account.dart';
+import 'package:sentech_connect_app/features/subscriber/data/repositories/invoice_json.dart';
 import 'package:sentech_connect_app/features/subscriber/domain/entities/subscriber_service.dart';
+import 'package:sentech_connect_app/features/subscriber/domain/entities/subscriber_signup.dart';
 import 'package:sentech_connect_app/features/subscriber/domain/repositories/subscriber_repository.dart';
+
+/// `SubscriberSignupOut` -> [SubscriberSignup].
+SubscriberSignup subscriberSignupFromJson(Map<String, Object?> json) => SubscriberSignup(
+  service: subscriberServiceFromJson(Map<String, Object?>.from(json['service']! as Map)),
+  invoice: subscriberInvoiceFromJson(Map<String, Object?>.from(json['invoice']! as Map)),
+);
+
+/// The `SubscriberSignupIn` body: `plan_id` and `accept_terms_version`
+/// always; `install_address` only when given; `term_months` never (month to
+/// month, plan doc Q8).
+Map<String, Object?> subscriberSignupBody({
+  required String planId,
+  required String termsVersion,
+  String? installAddress,
+}) => {
+  'plan_id': planId,
+  'accept_terms_version': termsVersion,
+  'install_address': ?installAddress,
+};
 
 /// The signed-in customer's subscriber account and services
 /// (`/v1/me/subscriber*`). All calls need a session.
@@ -75,4 +96,21 @@ class HttpSubscriberRepository implements SubscriberRepository {
         body: {'reason': reason},
         decode: (data) => subscriberServiceFromJson(Map<String, Object?>.from(data! as Map)),
       );
+  /// The body carries `plan_id` and `accept_terms_version` always;
+  /// `install_address` only when given; `term_months` never (month to month).
+  /// No human check: the route has none.
+  @override
+  Future<Either<Failure, SubscriberSignup>> signup({
+    required String planId,
+    required String termsVersion,
+    required String idempotencyKey,
+    String? installAddress,
+  }) async => _api.post<SubscriberSignup>(
+    '/v1/me/subscriber/signup',
+    scope: await _api.captureScope(),
+    idempotencyKey: idempotencyKey,
+    timeout: const Duration(seconds: 30),
+    body: subscriberSignupBody(planId: planId, termsVersion: termsVersion, installAddress: installAddress),
+    decode: (data) => subscriberSignupFromJson(Map<String, Object?>.from(data! as Map)),
+  );
 }

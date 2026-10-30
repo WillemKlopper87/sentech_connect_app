@@ -27,6 +27,9 @@ List<SubscriberAccountEntry> subscriberAccountEntries() => [
   // --- S4 (ID check) adds its entry below this line ---
   SubscriberAccountEntry(route: AppRoutes.kyc, icon: Icons.badge_outlined, label: (l) => l.kycTitle),
 
+  // --- S5 (Plans and signup) adds its entry below this line ---
+  SubscriberAccountEntry(route: AppRoutes.plans, icon: Icons.wifi_outlined, label: (l) => l.plansTitle),
+
   // --- end of entries ---
 ];
 

@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sentech_connect_app/app/router/app_router.dart';
 import 'package:sentech_connect_app/features/subscriber/presentation/bloc/services_cubit.dart';
+import 'package:sentech_connect_app/features/subscriber/presentation/subscriber_entries.dart';
 import 'package:sentech_connect_app/features/subscriber/presentation/widgets/service_card.dart';
 import 'package:sentech_connect_app/l10n/l10n.dart';
 import 'package:sentech_connect_app/shared/widgets/failure_view.dart';
@@ -38,10 +39,23 @@ class ServicesPage extends StatelessWidget {
                       if (state.services.isEmpty)
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: 48),
-                          child: Text(
-                            l10n.servicesEmpty,
-                            textAlign: TextAlign.center,
-                            style: theme.textTheme.bodyLarge,
+                          child: Column(
+                            children: [
+                              Text(
+                                l10n.servicesEmpty,
+                                textAlign: TextAlign.center,
+                                style: theme.textTheme.bodyLarge,
+                              ),
+                              // The plans screen exists once its slice registered the entry.
+                              if (subscriberEntryRegistered(AppRoutes.plans)) ...[
+                                const SizedBox(height: 12),
+                                FilledButton.tonal(
+                                  key: const Key('services-see-plans'),
+                                  onPressed: () => context.push(AppRoutes.plans),
+                                  child: Text(l10n.servicesSeePlans),
+                                ),
+                              ],
+                            ],
                           ),
                         ),
                       for (final s in current) ...[

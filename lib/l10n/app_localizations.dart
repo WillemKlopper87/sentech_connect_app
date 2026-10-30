@@ -4305,6 +4305,192 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'View all invoices'**
   String get homeInvoicesViewAll;
+
+  /// Title of the plans list, the Shop card and the Account row.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly plans'**
+  String get plansTitle;
+
+  /// Shop card subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Home internet for your household, billed monthly'**
+  String get plansShopCardSubtitle;
+
+  /// Empty state of the plans list.
+  ///
+  /// In en, this message translates to:
+  /// **'No plans available right now'**
+  String get plansEmpty;
+
+  /// Chip on plans that need an ID check.
+  ///
+  /// In en, this message translates to:
+  /// **'ID check needed'**
+  String get planIdCheckChip;
+
+  /// Once-off setup fee of a plan.
+  ///
+  /// In en, this message translates to:
+  /// **'Setup fee {price}'**
+  String planSetupFee(String price);
+
+  /// Number of devices a plan allows.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 device} other{Up to {count} devices}}'**
+  String planDevices(int count);
+
+  /// Monthly fair-use data amount.
+  ///
+  /// In en, this message translates to:
+  /// **'Fair use: {amount} a month'**
+  String planFairUse(String amount);
+
+  /// What happens after the fair-use amount.
+  ///
+  /// In en, this message translates to:
+  /// **'After that, speeds drop to {down} / {up} Mbps'**
+  String planFairUseThrottle(String down, String up);
+
+  /// What happens after the fair-use amount when the reduced speed is not stated.
+  ///
+  /// In en, this message translates to:
+  /// **'After that, your speed is reduced'**
+  String get planFairUseReduced;
+
+  /// Data amount in gigabytes.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} GB'**
+  String planGigabytes(String amount);
+
+  /// Burst speed of a plan.
+  ///
+  /// In en, this message translates to:
+  /// **'Bursts up to {down} / {up} Mbps for {seconds} seconds'**
+  String planBurst(String down, String up, int seconds);
+
+  /// Title of the plan detail screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan details'**
+  String get planDetailTitle;
+
+  /// Button from plan detail to sign-up.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose this plan'**
+  String get planChoose;
+
+  /// Button when a plan is no longer available.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to plans'**
+  String get planBackToPlans;
+
+  /// Link in the empty services state to the plans.
+  ///
+  /// In en, this message translates to:
+  /// **'See plans'**
+  String get servicesSeePlans;
+
+  /// Title of the sign-up screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm sign-up'**
+  String get signupTitle;
+
+  /// Explains the prorated first invoice.
+  ///
+  /// In en, this message translates to:
+  /// **'Your first invoice covers the rest of this month, plus any setup fee. You see the exact amount before you pay.'**
+  String get signupFirstInvoiceNote;
+
+  /// Note for fixed wireless: no coverage check in the app.
+  ///
+  /// In en, this message translates to:
+  /// **'Your provider confirms availability at your address.'**
+  String get signupAvailabilityNote;
+
+  /// Fixed wireless install address field.
+  ///
+  /// In en, this message translates to:
+  /// **'Installation address'**
+  String get signupAddressLabel;
+
+  /// Install address missing.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the installation address.'**
+  String get signupAddressRequired;
+
+  /// Terms checkbox.
+  ///
+  /// In en, this message translates to:
+  /// **'I accept the terms and conditions'**
+  String get signupTermsLabel;
+
+  /// Terms not accepted.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept the terms to continue.'**
+  String get signupTermsRequired;
+
+  /// Sign-up button.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign up'**
+  String get signupSubmit;
+
+  /// Sign-up button while sending.
+  ///
+  /// In en, this message translates to:
+  /// **'Signing up…'**
+  String get signupSubmitting;
+
+  /// Success title.
+  ///
+  /// In en, this message translates to:
+  /// **'You are signed up'**
+  String get signupDoneTitle;
+
+  /// Initial invoice summary.
+  ///
+  /// In en, this message translates to:
+  /// **'First invoice {number}: {amount}, due {date}'**
+  String signupDoneInvoice(String number, String amount, String date);
+
+  /// Button to pay the first invoice.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay now'**
+  String get signupPayNow;
+
+  /// Button to leave the sign-up without paying.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay later'**
+  String get signupPayLater;
+
+  /// Next step for fixed wireless.
+  ///
+  /// In en, this message translates to:
+  /// **'After you pay, your provider arranges the installation with you.'**
+  String get signupInstallationNote;
+
+  /// Next step for plans that need an ID check.
+  ///
+  /// In en, this message translates to:
+  /// **'This plan needs an ID check before it can start.'**
+  String get signupIdCheckNote;
+
+  /// Customer error for problem code account_closed on sign-up.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account is closed. Contact your provider.'**
+  String get signupAccountClosed;
 }
 
 class _AppLocalizationsDelegate

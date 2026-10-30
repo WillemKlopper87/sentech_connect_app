@@ -2509,4 +2509,123 @@ class AppLocalizationsAf extends AppLocalizations {
 
   @override
   String get homeInvoicesViewAll => 'Sien alle fakture';
+
+  @override
+  String get plansTitle => 'Maandelikse pakkette';
+
+  @override
+  String get plansShopCardSubtitle =>
+      'Tuisinternet vir jou huishouding, maandeliks gefaktureer';
+
+  @override
+  String get plansEmpty => 'Geen pakkette is op die oomblik beskikbaar nie';
+
+  @override
+  String get planIdCheckChip => 'ID-kontrole nodig';
+
+  @override
+  String planSetupFee(String price) {
+    return 'Opstelfooi $price';
+  }
+
+  @override
+  String planDevices(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Tot $count toestelle',
+      one: '1 toestel',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String planFairUse(String amount) {
+    return 'Billike gebruik: $amount per maand';
+  }
+
+  @override
+  String planFairUseThrottle(String down, String up) {
+    return 'Daarna daal spoed na $down / $up Mbps';
+  }
+
+  @override
+  String get planFairUseReduced => 'Daarna word jou spoed verlaag';
+
+  @override
+  String planGigabytes(String amount) {
+    return '$amount GB';
+  }
+
+  @override
+  String planBurst(String down, String up, int seconds) {
+    return 'Kort uitbarstings tot $down / $up Mbps vir $seconds sekondes';
+  }
+
+  @override
+  String get planDetailTitle => 'Pakketbesonderhede';
+
+  @override
+  String get planChoose => 'Kies hierdie pakket';
+
+  @override
+  String get planBackToPlans => 'Terug na pakkette';
+
+  @override
+  String get servicesSeePlans => 'Sien pakkette';
+
+  @override
+  String get signupTitle => 'Bevestig inskrywing';
+
+  @override
+  String get signupFirstInvoiceNote =>
+      'Jou eerste faktuur dek die res van hierdie maand, plus enige opstelfooi. Jy sien die presiese bedrag voordat jy betaal.';
+
+  @override
+  String get signupAvailabilityNote =>
+      'Jou verskaffer bevestig beskikbaarheid by jou adres.';
+
+  @override
+  String get signupAddressLabel => 'Installasie-adres';
+
+  @override
+  String get signupAddressRequired => 'Voer die installasie-adres in.';
+
+  @override
+  String get signupTermsLabel => 'Ek aanvaar die bepalings en voorwaardes';
+
+  @override
+  String get signupTermsRequired => 'Aanvaar die bepalings om voort te gaan.';
+
+  @override
+  String get signupSubmit => 'Skryf in';
+
+  @override
+  String get signupSubmitting => 'Skryf tans in…';
+
+  @override
+  String get signupDoneTitle => 'Jy is ingeskryf';
+
+  @override
+  String signupDoneInvoice(String number, String amount, String date) {
+    return 'Eerste faktuur $number: $amount, betaalbaar $date';
+  }
+
+  @override
+  String get signupPayNow => 'Betaal nou';
+
+  @override
+  String get signupPayLater => 'Betaal later';
+
+  @override
+  String get signupInstallationNote =>
+      'Nadat jy betaal het, reël jou verskaffer die installasie met jou.';
+
+  @override
+  String get signupIdCheckNote =>
+      'Hierdie pakket benodig \'n ID-kontrole voordat dit kan begin.';
+
+  @override
+  String get signupAccountClosed =>
+      'Jou rekening is gesluit. Kontak jou verskaffer.';
 }

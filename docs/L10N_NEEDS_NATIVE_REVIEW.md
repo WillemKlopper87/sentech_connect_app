@@ -281,3 +281,39 @@ ID check (slice S4, 2026-10-30). Same rule: machine-quality drafts, native revie
 | `failureCancellationScheduled` | This service is already set to end. | Hierdie diens is reeds gestel om te eindig. | Le sevisi isivele ihlelelwe ukuphela. |
 | `failurePlanChangeBilled` | Your next period is already billed. Try again after it starts. | Jou volgende tydperk is reeds gefaktureer. Probeer weer nadat dit begin het. | Isikhathi sakho esilandelayo sesivele sitshajiwe. Zama futhi ngemva kokuthi siqale. |
 | `failurePendingCancel` | Contact support to cancel a service that has not started. | Kontak ondersteuning om 'n diens wat nog nie begin het nie te kanselleer. | Xhumana nosizo ukuze ukhansele isevisi engakaqali. |
+
+Plans and signup (slice S5, 2026-10-30). Machine-quality drafts, native review before release. Placeholders `{price}`, `{count}`, `{amount}`, `{down}`, `{up}`, `{seconds}`, `{number}`, `{date}` and the plural form of `planDevices` must stay.
+
+| Key | English | Afrikaans | isiZulu |
+|---|---|---|---|
+| `plansTitle` | Monthly plans | Maandelikse pakkette | Amaphakheji ngenyanga |
+| `plansShopCardSubtitle` | Home internet for your household, billed monthly | Tuisinternet vir jou huishouding, maandeliks gefaktureer | I-inthanethi yasekhaya yomuzi wakho, ikhokhelwa ngenyanga |
+| `plansEmpty` | No plans available right now | Geen pakkette is op die oomblik beskikbaar nie | Awekho amaphakheji atholakalayo okwamanje |
+| `planIdCheckChip` | ID check needed | ID-kontrole nodig | Kudingeka ukuhlolwa kwe-ID |
+| `planSetupFee` | Setup fee {price} | Opstelfooi {price} | Imali yokusetha {price} |
+| `planDevices` | {count, plural, =1{1 device} other{Up to {count} devices}} | {count, plural, =1{1 toestel} other{Tot {count} toestelle}} | {count, plural, =1{idivayisi eyi-1} other{Kufika kumadivayisi angu-{count}}} |
+| `planFairUse` | Fair use: {amount} a month | Billike gebruik: {amount} per maand | Ukusetshenziswa okufanele: {amount} ngenyanga |
+| `planFairUseThrottle` | After that, speeds drop to {down} / {up} Mbps | Daarna daal spoed na {down} / {up} Mbps | Ngemva kwalokho, isivinini sehla siye ku-{down} / {up} Mbps |
+| `planFairUseReduced` | After that, your speed is reduced | Daarna word jou spoed verlaag | Ngemva kwalokho, isivinini sakho siyehliswa |
+| `planGigabytes` | {amount} GB | {amount} GB | {amount} GB |
+| `planBurst` | Bursts up to {down} / {up} Mbps for {seconds} seconds | Kort uitbarstings tot {down} / {up} Mbps vir {seconds} sekondes | Ukuqhuma kuze kube ngu-{down} / {up} Mbps amasekhondi angu-{seconds} |
+| `planDetailTitle` | Plan details | Pakketbesonderhede | Imininingwane yephakheji |
+| `planChoose` | Choose this plan | Kies hierdie pakket | Khetha leli phakheji |
+| `planBackToPlans` | Back to plans | Terug na pakkette | Buyela emaphakhejini |
+| `servicesSeePlans` | See plans | Sien pakkette | Buka amaphakheji |
+| `signupTitle` | Confirm sign-up | Bevestig inskrywing | Qinisekisa ukubhalisa |
+| `signupFirstInvoiceNote` | Your first invoice covers the rest of this month, plus any setup fee. You see the exact amount before you pay. | Jou eerste faktuur dek die res van hierdie maand, plus enige opstelfooi. Jy sien die presiese bedrag voordat jy betaal. | Inxephezelo yakho yokuqala ihlanganisa inyanga esele, kanye nanoma iyiphi imali yokusetha. Uyabona inani eliphelele ngaphambi kokuba ukhokhe. |
+| `signupAvailabilityNote` | Your provider confirms availability at your address. | Jou verskaffer bevestig beskikbaarheid by jou adres. | Umhlinzeki wakho uqinisekisa ukutholakala ekhelini lakho. |
+| `signupAddressLabel` | Installation address | Installasie-adres | Ikheli lokufakwa |
+| `signupAddressRequired` | Enter the installation address. | Voer die installasie-adres in. | Faka ikheli lokufakwa. |
+| `signupTermsLabel` | I accept the terms and conditions | Ek aanvaar die bepalings en voorwaardes | Ngiyayamukela imigomo nezimo |
+| `signupTermsRequired` | Accept the terms to continue. | Aanvaar die bepalings om voort te gaan. | Yamukela imigomo ukuze uqhubeke. |
+| `signupSubmit` | Sign up | Skryf in | Bhalisa |
+| `signupSubmitting` | Signing up… | Skryf tans in… | Iyabhalisa… |
+| `signupDoneTitle` | You are signed up | Jy is ingeskryf | Usubhalisiwe |
+| `signupDoneInvoice` | First invoice {number}: {amount}, due {date} | Eerste faktuur {number}: {amount}, betaalbaar {date} | Inxephezelo yokuqala {number}: {amount}, kufanele ikhokhwe ngo-{date} |
+| `signupPayNow` | Pay now | Betaal nou | Khokha manje |
+| `signupPayLater` | Pay later | Betaal later | Khokha kamuva |
+| `signupInstallationNote` | After you pay, your provider arranges the installation with you. | Nadat jy betaal het, reël jou verskaffer die installasie met jou. | Ngemva kokuthi ukhokhe, umhlinzeki wakho uzohlela ukufakwa nawe. |
+| `signupIdCheckNote` | This plan needs an ID check before it can start. | Hierdie pakket benodig 'n ID-kontrole voordat dit kan begin. | Leli phakheji lidinga ukuhlolwa kwe-ID ngaphambi kokuthi liqale. |
+| `signupAccountClosed` | Your account is closed. Contact your provider. | Jou rekening is gesluit. Kontak jou verskaffer. | I-akhawunti yakho ivaliwe. Xhumana nomhlinzeki wakho. |
