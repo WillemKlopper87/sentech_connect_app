@@ -2690,4 +2690,8 @@ class AppLocalizationsAf extends AppLocalizations {
 
   @override
   String get signupUpdateContactDetails => 'Werk jou kontakbesonderhede op';
+
+  @override
+  String get serviceBannerKycChecking =>
+      'Ons kontroleer jou ID. Jou diens kan begin sodra die kontrole klaar is.';
 }

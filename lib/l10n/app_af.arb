@@ -2637,5 +2637,7 @@
   "subscriberProfileSaved": "Jou besonderhede is gestoor.",
   "@subscriberProfileSaved": {"description": "Confirmation after saving."},
   "signupUpdateContactDetails": "Werk jou kontakbesonderhede op",
-  "@signupUpdateContactDetails": {"description": "Button on the sign-up failure when the contact details are not complete."}
+  "@signupUpdateContactDetails": {"description": "Button on the sign-up failure when the contact details are not complete."},
+  "serviceBannerKycChecking": "Ons kontroleer jou ID. Jou diens kan begin sodra die kontrole klaar is.",
+  "@serviceBannerKycChecking": {"description": "Banner on a service that waits for an ID check the provider is already doing."}
 }

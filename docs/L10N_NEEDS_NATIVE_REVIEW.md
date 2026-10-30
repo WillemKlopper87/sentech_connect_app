@@ -335,3 +335,4 @@ Plans and signup (slice S5, 2026-10-30). Machine-quality drafts, native review b
 | `subscriberProfileSaving` | Saving… | Stoor tans… | Iyagcina… |
 | `subscriberProfileSaved` | Your details are saved. | Jou besonderhede is gestoor. | Imininingwane yakho igcinwe. |
 | `signupUpdateContactDetails` | Update your contact details | Werk jou kontakbesonderhede op | Buyekeza imininingwane yakho yokuxhumana |
+| `serviceBannerKycChecking` | We are checking your ID. Your service can start once the check is done. | Ons kontroleer jou ID. Jou diens kan begin sodra die kontrole klaar is. | Siyahlola i-ID yakho. Isevisi yakho ingaqala uma ukuhlolwa sekuqediwe. |

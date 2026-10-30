@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sentech_connect_app/app/router/app_router.dart';
+import 'package:sentech_connect_app/features/subscriber/domain/entities/kyc.dart';
 import 'package:sentech_connect_app/features/subscriber/domain/entities/subscriber_service.dart';
 import 'package:sentech_connect_app/features/subscriber/domain/service_banner.dart';
 import 'package:sentech_connect_app/features/subscriber/presentation/service_format.dart';
@@ -11,9 +12,12 @@ import 'package:sentech_connect_app/l10n/l10n.dart';
 /// activation or suspension banner, a scheduled cancellation and a scheduled
 /// plan change. Renders nothing for a plain active service.
 class ServiceBannerView extends StatelessWidget {
-  const ServiceBannerView(this.service, {super.key, this.showActions = true});
+  const ServiceBannerView(this.service, {super.key, this.showActions = true, this.kycStatus});
 
   final SubscriberService service;
+
+  /// The customer's ID check status when it is known (see [serviceBannerFor]).
+  final KycStatus? kycStatus;
 
   /// False inside a tappable card, where a nested button would fight the tap.
   final bool showActions;
@@ -21,7 +25,7 @@ class ServiceBannerView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final banner = serviceBannerFor(service);
+    final banner = serviceBannerFor(service, kyc: kycStatus);
     final blocks = <Widget>[];
     if (banner != null) {
       final route = switch (banner.action) {
@@ -80,6 +84,7 @@ class ServiceBannerView extends StatelessWidget {
     return switch (kind) {
       ServiceBannerKind.firstInvoiceUnpaid => l10n.serviceBannerFirstInvoiceUnpaid,
       ServiceBannerKind.kycRequired => l10n.serviceBannerKycRequired,
+      ServiceBannerKind.kycChecking => l10n.serviceBannerKycChecking,
       ServiceBannerKind.awaitingInstallation => l10n.serviceBannerAwaitingInstallation,
       ServiceBannerKind.customerLinkRequired => l10n.serviceBannerCustomerLinkRequired,
       ServiceBannerKind.serviceContractRequired => l10n.serviceBannerContractRequired,

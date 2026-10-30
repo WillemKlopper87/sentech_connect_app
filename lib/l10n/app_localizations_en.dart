@@ -2681,4 +2681,8 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get signupUpdateContactDetails => 'Update your contact details';
+
+  @override
+  String get serviceBannerKycChecking =>
+      'We are checking your ID. Your service can start once the check is done.';
 }

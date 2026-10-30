@@ -2620,5 +2620,6 @@
   "subscriberProfileSave": "Gcina izinguquko",
   "subscriberProfileSaving": "Iyagcina…",
   "subscriberProfileSaved": "Imininingwane yakho igcinwe.",
-  "signupUpdateContactDetails": "Buyekeza imininingwane yakho yokuxhumana"
+  "signupUpdateContactDetails": "Buyekeza imininingwane yakho yokuxhumana",
+  "serviceBannerKycChecking": "Siyahlola i-ID yakho. Isevisi yakho ingaqala uma ukuhlolwa sekuqediwe."
 }

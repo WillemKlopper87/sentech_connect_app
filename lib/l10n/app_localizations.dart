@@ -4599,6 +4599,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Update your contact details'**
   String get signupUpdateContactDetails;
+
+  /// Banner on a service that waits for an ID check the provider is already doing.
+  ///
+  /// In en, this message translates to:
+  /// **'We are checking your ID. Your service can start once the check is done.'**
+  String get serviceBannerKycChecking;
 }
 
 class _AppLocalizationsDelegate

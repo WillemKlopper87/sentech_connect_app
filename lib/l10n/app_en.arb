@@ -2670,5 +2670,7 @@
   "subscriberProfileSaved": "Your details are saved.",
   "@subscriberProfileSaved": {"description": "Confirmation after saving."},
   "signupUpdateContactDetails": "Update your contact details",
-  "@signupUpdateContactDetails": {"description": "Button on the sign-up failure when the contact details are not complete."}
+  "@signupUpdateContactDetails": {"description": "Button on the sign-up failure when the contact details are not complete."},
+  "serviceBannerKycChecking": "We are checking your ID. Your service can start once the check is done.",
+  "@serviceBannerKycChecking": {"description": "Banner on a service that waits for an ID check the provider is already doing."}
 }

@@ -2693,4 +2693,8 @@ class AppLocalizationsZu extends AppLocalizations {
   @override
   String get signupUpdateContactDetails =>
       'Buyekeza imininingwane yakho yokuxhumana';
+
+  @override
+  String get serviceBannerKycChecking =>
+      'Siyahlola i-ID yakho. Isevisi yakho ingaqala uma ukuhlolwa sekuqediwe.';
 }

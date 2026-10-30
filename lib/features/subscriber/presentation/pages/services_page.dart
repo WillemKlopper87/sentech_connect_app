@@ -59,7 +59,7 @@ class ServicesPage extends StatelessWidget {
                           ),
                         ),
                       for (final s in current) ...[
-                        ServiceCard(service: s, onTap: () => context.push(AppRoutes.serviceFor(s.id))),
+                        ServiceCard(service: s, kycStatus: state.kycStatus, onTap: () => context.push(AppRoutes.serviceFor(s.id))),
                         const SizedBox(height: 12),
                       ],
                       if (past.isNotEmpty) ...[
@@ -67,7 +67,7 @@ class ServicesPage extends StatelessWidget {
                         Text(l10n.servicesPastTitle, style: theme.textTheme.titleSmall),
                         const SizedBox(height: 8),
                         for (final s in past) ...[
-                          ServiceCard(service: s, onTap: () => context.push(AppRoutes.serviceFor(s.id))),
+                          ServiceCard(service: s, kycStatus: state.kycStatus, onTap: () => context.push(AppRoutes.serviceFor(s.id))),
                           const SizedBox(height: 12),
                         ],
                       ],

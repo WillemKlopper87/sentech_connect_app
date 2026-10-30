@@ -38,6 +38,7 @@ import 'package:sentech_connect_app/features/subscriber/domain/repositories/invo
 import 'package:sentech_connect_app/features/subscriber/domain/repositories/subscriber_repository.dart';
 import 'package:sentech_connect_app/features/subscriber/presentation/bloc/invoice_detail_cubit.dart';
 import 'package:sentech_connect_app/features/subscriber/presentation/bloc/invoice_payment_cubit.dart';
+import 'package:sentech_connect_app/features/subscriber/domain/repositories/kyc_repository.dart';
 import 'package:sentech_connect_app/features/subscriber/domain/repositories/subscriber_plans_repository.dart';
 import 'package:sentech_connect_app/features/subscriber/presentation/bloc/invoices_cubit.dart';
 import 'package:sentech_connect_app/features/subscriber/presentation/pages/invoice_detail_page.dart';
@@ -468,7 +469,7 @@ GoRouter _buildRouter(
         path: AppRoutes.services,
         redirect: (context, state) => _subscriberModuleOff(tenantCubit) ? AppRoutes.main : null,
         builder: (context, state) => BlocProvider(
-          create: (_) => ServicesCubit(locator()),
+          create: (_) => ServicesCubit(locator(), kyc: locator<KycRepository>()),
           child: const ServicesPage(),
         ),
       ),
@@ -476,7 +477,7 @@ GoRouter _buildRouter(
         path: AppRoutes.serviceDetail,
         redirect: (context, state) => _subscriberModuleOff(tenantCubit) ? AppRoutes.main : null,
         builder: (context, state) => BlocProvider(
-          create: (_) => ServiceDetailCubit(locator(), state.pathParameters['serviceId']!),
+          create: (_) => ServiceDetailCubit(locator(), state.pathParameters['serviceId']!, kyc: locator<KycRepository>()),
           child: ServiceDetailPage(plansRepository: locator<SubscriberPlansRepository>()),
         ),
       ),

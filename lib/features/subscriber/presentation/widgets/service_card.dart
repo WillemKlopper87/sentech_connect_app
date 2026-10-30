@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sentech_connect_app/core/money/money.dart';
+import 'package:sentech_connect_app/features/subscriber/domain/entities/kyc.dart';
 import 'package:sentech_connect_app/features/subscriber/domain/entities/subscriber_service.dart';
 import 'package:sentech_connect_app/features/subscriber/presentation/service_format.dart';
 import 'package:sentech_connect_app/features/subscriber/presentation/widgets/service_banner_view.dart';
@@ -9,9 +10,12 @@ import 'package:sentech_connect_app/l10n/l10n.dart';
 /// A service as a card: plan, status, price, how long it is paid for, and its
 /// banner. Used by the services list; reusable on Home.
 class ServiceCard extends StatelessWidget {
-  const ServiceCard({super.key, required this.service, this.onTap});
+  const ServiceCard({super.key, required this.service, this.onTap, this.kycStatus});
 
   final SubscriberService service;
+
+  /// The customer's ID check status when known (changes the banner text).
+  final KycStatus? kycStatus;
   final VoidCallback? onTap;
 
   @override
@@ -47,7 +51,7 @@ class ServiceCard extends StatelessWidget {
                 Text(l10n.serviceEndedOn(formatApiDay(context, endedOn)), style: muted)
               else if (paidThrough != null && service.status != ServiceStatus.pending)
                 Text(l10n.servicePaidUntil(formatApiDay(context, paidThrough)), style: muted),
-              ServiceBannerView(service, showActions: false),
+              ServiceBannerView(service, showActions: false, kycStatus: kycStatus),
             ],
           ),
         ),

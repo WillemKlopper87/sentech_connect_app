@@ -79,6 +79,7 @@ class _HomeSubscriberSectionState extends State<HomeSubscriberSection> {
                 children.add(
                   ServiceCard(
                     service: s,
+                    kycStatus: state.kyc.data?.status,
                     onTap: () => context.push(AppRoutes.serviceFor(s.id)),
                   ),
                 );

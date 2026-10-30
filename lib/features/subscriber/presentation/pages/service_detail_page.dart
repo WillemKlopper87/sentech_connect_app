@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sentech_connect_app/app/router/app_router.dart';
 import 'package:sentech_connect_app/core/money/money.dart';
+import 'package:sentech_connect_app/features/subscriber/domain/entities/kyc.dart';
 import 'package:sentech_connect_app/features/subscriber/domain/entities/subscriber_service.dart';
 import 'package:sentech_connect_app/features/subscriber/domain/repositories/subscriber_plans_repository.dart';
 import 'package:sentech_connect_app/features/subscriber/presentation/bloc/service_detail_cubit.dart';
@@ -43,7 +44,7 @@ class ServiceDetailPage extends StatelessWidget {
                 physics: const AlwaysScrollableScrollPhysics(),
                 padding: const EdgeInsets.all(20),
                 children: [
-                  _Header(service),
+                  _Header(service, kycStatus: state.kycStatus),
                   ServiceActionsSection(service: service, plansRepository: plansRepository),
                   ..._links(context),
                 ],
@@ -87,9 +88,10 @@ class ServiceDetailPage extends StatelessWidget {
 }
 
 class _Header extends StatelessWidget {
-  const _Header(this.service);
+  const _Header(this.service, {this.kycStatus});
 
   final SubscriberService service;
+  final KycStatus? kycStatus;
 
   @override
   Widget build(BuildContext context) {
@@ -107,7 +109,7 @@ class _Header extends StatelessWidget {
             ServiceStatusChip(service.status),
           ],
         ),
-        ServiceBannerView(service),
+        ServiceBannerView(service, kycStatus: kycStatus),
         const SizedBox(height: 16),
         _Fact(l10n.serviceFactType, serviceKindLabel(context, service.kind)),
         _Fact(l10n.serviceFactPrice, l10n.servicePricePerMonth(formatRands(service.priceCents))),
