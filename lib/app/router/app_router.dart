@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sentech_connect_app/app/locator.dart';
+import 'package:sentech_connect_app/app/mock_feature_guard.dart';
+import 'package:sentech_connect_app/features/tenant/domain/entities/app_config.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/data/dev_payment_simulator.dart';
 import 'package:sentech_connect_app/app/main_shell.dart';
 import 'package:sentech_connect_app/core/config/app_environment.dart';
@@ -342,6 +344,12 @@ GoRouter _buildRouter(
             cpe: tenantCubit?.state.featureFlags.cpe ?? false,
           ),
           showMockFeatures: locator<AppEnvironment>().isDemo,
+          showPromotions: promotionsVisible(locator<AppEnvironment>()),
+          showFreeWifi: freeWifiVisible(
+            locator<AppEnvironment>(),
+            creditsModuleOn:
+                tenantCubit?.state.isModuleOn(AppModuleKeys.credits) ?? false,
+          ),
           onChangeProvider: tenantCubit?.openPicker,
           providerName: tenantCubit?.state.config?.tenant.name,
           supportWhatsAppNumber:
@@ -366,7 +374,7 @@ GoRouter _buildRouter(
       GoRoute(
         path: AppRoutes.promotions,
         redirect: (context, state) =>
-            locator<AppEnvironment>().isDemo ? null : AppRoutes.main,
+            promotionsVisible(locator<AppEnvironment>()) ? null : AppRoutes.main,
         builder: (context, state) => BlocProvider(
           create: (_) => PromotionsCubit(
             locator(),
@@ -454,9 +462,7 @@ GoRouter _buildRouter(
             create: (_) => OrderCubit(locator(), orderId),
             child: ConfirmationPage(
               // App config has no verified SSID. Tenant name is only a brand.
-              onFindWifi: locator<AppEnvironment>().isDemo
-                  ? () => context.push(AppRoutes.wifiHotspots)
-                  : null,
+              onFindWifi: () => context.push(AppRoutes.wifiHotspots),
               onDone: () => context.go(AppRoutes.main),
               onResume: (order) => context.go(AppRoutes.forOrder(order)),
               onViewPasses: () => context.push(AppRoutes.passes),

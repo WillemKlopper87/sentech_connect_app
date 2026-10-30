@@ -36,6 +36,8 @@ class MainShell extends StatefulWidget {
     this.onOpenPasses,
     this.showRouterCard = true,
     this.showMockFeatures = true,
+    this.showPromotions,
+    this.showFreeWifi,
     this.onChangeProvider,
     this.providerName,
     this.supportWhatsAppNumber,
@@ -55,6 +57,11 @@ class MainShell extends StatefulWidget {
   /// Scan (voucher redemption) is real (`POST /v1/me/vouchers/redeem`) and
   /// shows in both flavors.
   final bool showMockFeatures;
+
+  /// Promotions banner and free Wi-Fi card, each from `mock_feature_guard.dart`;
+  /// they follow [showMockFeatures] when not given.
+  final bool? showPromotions;
+  final bool? showFreeWifi;
   final VoidCallback? onChangeProvider;
   final String? providerName;
   final String? supportWhatsAppNumber;
@@ -134,7 +141,7 @@ class _MainShellState extends State<MainShell> {
                     initialCategory: TicketCategory.technical,
                   )
                 : null,
-            onOpenPromotions: widget.showMockFeatures
+            onOpenPromotions: (widget.showPromotions ?? widget.showMockFeatures)
                 ? widget.onOpenPromotions
                 : null,
             onResumeOrder: widget.onResumeOrder,
@@ -156,9 +163,8 @@ class _MainShellState extends State<MainShell> {
           child: CatalogPage(
             onOpenCart: widget.onOpenCart,
             onOrderCreated: (order) => context.push(AppRoutes.forOrder(order)),
-            onFindHotspots: widget.showMockFeatures
-                ? widget.onFindHotspots
-                : null,
+            onFindHotspots: widget.onFindHotspots,
+            showFreeWifi: widget.showFreeWifi ?? widget.showMockFeatures,
           ),
         ),
         dest: NavigationDestination(

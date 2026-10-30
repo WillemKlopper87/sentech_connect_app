@@ -218,7 +218,7 @@ void main() {
   group('actual confirmation route', () {
     setUpAppTests();
     for (final demo in [true, false]) {
-      testWidgets('demo=$demo uses generic steps and gates hotspot finder', (
+      testWidgets('demo=$demo uses generic steps and offers the (real) hotspot finder', (
         tester,
       ) async {
         locator.registerSingleton<CheckoutRepository>(
@@ -274,11 +274,9 @@ void main() {
           find.text('R35.75 incl. VAT · Order #SEN-48213'),
           findsOneWidget,
         );
-        expect(
-          find.text('Find WiFi near me'),
-          demo ? findsOneWidget : findsNothing,
-        );
-        if (demo) {
+        // The hotspot list is real (GET /v1/hotspots), so prod offers it too.
+        expect(find.text('Find WiFi near me'), findsOneWidget);
+        {
           await tester.tap(find.text('Find WiFi near me'));
           await tester.pump(const Duration(seconds: 1));
           await tester.runAsync(

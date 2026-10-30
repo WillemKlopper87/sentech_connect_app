@@ -19,14 +19,19 @@ class CatalogPage extends StatelessWidget {
     super.key,
     required this.onOpenCart,
     this.onFindHotspots,
+    this.showFreeWifi = true,
     required this.onOrderCreated,
   });
 
   final VoidCallback onOpenCart;
   final void Function(Order) onOrderCreated;
 
-  /// Null hides the free Wi-Fi card (mock-backed in prod).
+  /// Opens the hotspot map (real). Null hides the entry.
   final VoidCallback? onFindHotspots;
+
+  /// The rewarded-ad free Wi-Fi card (mock-backed; see `mock_feature_guard.dart`).
+  /// When false the plain "Find hotspots" entry is shown instead.
+  final bool showFreeWifi;
 
   @override
   Widget build(BuildContext context) {
@@ -35,6 +40,7 @@ class CatalogPage extends StatelessWidget {
       child: _CatalogScaffold(
         onOpenCart: onOpenCart,
         onFindHotspots: onFindHotspots,
+        showFreeWifi: showFreeWifi,
         onOrderCreated: onOrderCreated,
       ),
     );
@@ -45,14 +51,19 @@ class _CatalogScaffold extends StatelessWidget {
   const _CatalogScaffold({
     required this.onOpenCart,
     this.onFindHotspots,
+    this.showFreeWifi = true,
     required this.onOrderCreated,
   });
 
   final VoidCallback onOpenCart;
   final void Function(Order) onOrderCreated;
 
-  /// Null hides the free Wi-Fi card (mock-backed in prod).
+  /// Opens the hotspot map (real). Null hides the entry.
   final VoidCallback? onFindHotspots;
+
+  /// The rewarded-ad free Wi-Fi card (mock-backed; see `mock_feature_guard.dart`).
+  /// When false the plain "Find hotspots" entry is shown instead.
+  final bool showFreeWifi;
 
   @override
   Widget build(BuildContext context) {
@@ -127,9 +138,20 @@ class _CatalogScaffold extends StatelessWidget {
                       context.read<CatalogCubit>().selectCategory(c),
                 ),
               const SizedBox(height: 16),
-              if (state.selectedCategory == ProductCategory.voucher &&
-                  onFindHotspots != null) ...[
-                FreeWifiCard(onFindHotspots: onFindHotspots!),
+              if (onFindHotspots != null &&
+                  (state.selectedCategory == ProductCategory.voucher ||
+                      (!showFreeWifi &&
+                          state.selectedCategory ==
+                              ProductCategory.hotspotPass))) ...[
+                if (showFreeWifi)
+                  FreeWifiCard(onFindHotspots: onFindHotspots!)
+                else
+                  OutlinedButton.icon(
+                    key: const ValueKey('find-hotspots'),
+                    onPressed: onFindHotspots,
+                    icon: const Icon(Icons.map_outlined, size: 18),
+                    label: Text(context.l10n.freeWifiFindHotspotsNearMe),
+                  ),
                 const SizedBox(height: 16),
               ],
               for (final plan in state.visibleProducts) ...[
