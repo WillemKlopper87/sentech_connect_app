@@ -113,6 +113,13 @@ class SignupCubit extends Cubit<SignupState> {
     emit(state.copyWith(address: value));
   }
 
+  /// Drops the shown refusal (after the customer fixed what it asked for);
+  /// the draft stays.
+  void clearFailure() {
+    if (state.busy || state.failure == null) return;
+    emit(state.copyWith());
+  }
+
   void setAcceptTerms(bool value) {
     if (state.busy) return;
     _key = null;

@@ -30,6 +30,9 @@ List<SubscriberAccountEntry> subscriberAccountEntries() => [
   // --- S5 (Plans and signup) adds its entry below this line ---
   SubscriberAccountEntry(route: AppRoutes.plans, icon: Icons.wifi_outlined, label: (l) => l.plansTitle),
 
+  // --- S8 (Contact details) adds its entry below this line ---
+  SubscriberAccountEntry(route: AppRoutes.subscriberProfile, icon: Icons.contact_mail_outlined, label: (l) => l.subscriberProfileTitle),
+
   // --- end of entries ---
 ];
 

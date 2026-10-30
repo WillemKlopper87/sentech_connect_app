@@ -57,6 +57,9 @@ import 'package:sentech_connect_app/features/subscriber/presentation/kyc/kyc_sta
 import 'package:sentech_connect_app/features/subscriber/presentation/pages/services_page.dart';
 import 'package:sentech_connect_app/features/subscriber/presentation/bloc/plans_cubit.dart';
 import 'package:sentech_connect_app/features/subscriber/presentation/bloc/signup_cubit.dart';
+import 'package:sentech_connect_app/features/subscriber/presentation/bloc/subscriber_profile_cubit.dart';
+import 'package:sentech_connect_app/features/subscriber/presentation/pages/subscriber_profile_page.dart';
+import 'package:sentech_connect_app/features/subscriber/domain/repositories/subscriber_profile_repository.dart';
 import 'package:sentech_connect_app/features/subscriber/presentation/plans/plan_detail_page.dart';
 import 'package:sentech_connect_app/features/subscriber/presentation/plans/plans_page.dart';
 import 'package:sentech_connect_app/features/subscriber/presentation/plans/signup_page.dart';
@@ -91,6 +94,7 @@ abstract class AppRoutes {
   static const invoiceDetail = '/invoices/:invoiceId';
   static const kyc = '/kyc';
   static const kycForm = '/kyc/new';
+  static const subscriberProfile = '/subscriber/profile';
 
   static String planFor(String planId) => '/plans/$planId';
   static String signupFor(String planId) => '/signup/$planId';
@@ -499,6 +503,15 @@ GoRouter _buildRouter(
           ),
         ],
       ),
+      // Billing contact details (S8). Hidden when the module is off.
+      GoRoute(
+        path: AppRoutes.subscriberProfile,
+        redirect: (context, state) => _subscriberModuleOff(tenantCubit) ? AppRoutes.main : null,
+        builder: (context, state) => BlocProvider(
+          create: (_) => SubscriberProfileCubit(locator<SubscriberProfileRepository>(), locator<SubscriberRepository>()),
+          child: SubscriberProfilePage(onDone: () => context.pop()),
+        ),
+      ),
       // Plans and signup (S5). Hidden when the module is off.
       GoRoute(
         path: AppRoutes.plans,
@@ -548,6 +561,9 @@ GoRouter _buildRouter(
                   }
                 : null,
             onBackToPlans: () => context.go(AppRoutes.plans),
+            onUpdateContactDetails: subscriberEntryRegistered(AppRoutes.subscriberProfile)
+                ? () => context.push<void>(AppRoutes.subscriberProfile)
+                : null,
           ),
         ),
       ),

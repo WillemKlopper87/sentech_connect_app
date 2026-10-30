@@ -4491,6 +4491,114 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your account is closed. Contact your provider.'**
   String get signupAccountClosed;
+
+  /// Customer error for problem code profile_invalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Some of your contact details are not valid. Check them and try again.'**
+  String get failureProfileInvalid;
+
+  /// Screen title and Account row for the billing contact details.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact details'**
+  String get subscriberProfileTitle;
+
+  /// Shows the home internet account number.
+  ///
+  /// In en, this message translates to:
+  /// **'Account number {number}'**
+  String subscriberProfileAccountNo(String number);
+
+  /// Field label.
+  ///
+  /// In en, this message translates to:
+  /// **'Name on your account'**
+  String get subscriberProfileNameLabel;
+
+  /// Field label.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get subscriberProfileEmailLabel;
+
+  /// Field label.
+  ///
+  /// In en, this message translates to:
+  /// **'Mobile number'**
+  String get subscriberProfilePhoneLabel;
+
+  /// Field label.
+  ///
+  /// In en, this message translates to:
+  /// **'Language for messages'**
+  String get subscriberProfileLanguageLabel;
+
+  /// Field error.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your name (up to 120 characters).'**
+  String get subscriberProfileNameInvalid;
+
+  /// Field error for the sign-in profile name.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your name (up to 80 characters).'**
+  String get subscriberProfileLoginNameInvalid;
+
+  /// Field error.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid email address.'**
+  String get subscriberProfileEmailInvalid;
+
+  /// Field error.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid South African mobile number.'**
+  String get subscriberProfilePhoneInvalid;
+
+  /// Error when both contact fields would be empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep at least a mobile number or an email.'**
+  String get subscriberProfileContactRequired;
+
+  /// Field error shown when the platform names a field.
+  ///
+  /// In en, this message translates to:
+  /// **'Check this field.'**
+  String get subscriberProfileFieldRejected;
+
+  /// Note when the customer has no home internet account yet.
+  ///
+  /// In en, this message translates to:
+  /// **'These are the details we use when you sign up. Your sign-in number cannot be changed here.'**
+  String get subscriberProfileLoginNote;
+
+  /// Button.
+  ///
+  /// In en, this message translates to:
+  /// **'Save changes'**
+  String get subscriberProfileSave;
+
+  /// Button while saving.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving…'**
+  String get subscriberProfileSaving;
+
+  /// Confirmation after saving.
+  ///
+  /// In en, this message translates to:
+  /// **'Your details are saved.'**
+  String get subscriberProfileSaved;
+
+  /// Button on the sign-up failure when the contact details are not complete.
+  ///
+  /// In en, this message translates to:
+  /// **'Update your contact details'**
+  String get signupUpdateContactDetails;
 }
 
 class _AppLocalizationsDelegate

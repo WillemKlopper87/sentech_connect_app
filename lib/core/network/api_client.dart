@@ -156,13 +156,14 @@ class ApiClient {
     required ResponseDecoder<T> decode,
     Object? body,
     bool authenticated = true,
+    String? idempotencyKey,
     Duration? timeout,
     ApiOperationScope? scope,
   }) => _send(
     () => _dio.patch<Object?>(
       path,
       data: body,
-      options: _options(authenticated, timeout, null, null, scope),
+      options: _options(authenticated, timeout, idempotencyKey, null, scope),
     ),
     decode,
     scope: scope,

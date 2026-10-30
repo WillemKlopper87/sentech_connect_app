@@ -7,6 +7,8 @@ import 'package:sentech_connect_app/features/subscriber/data/repositories/invoic
 import 'package:sentech_connect_app/features/subscriber/data/repositories/subscriber_json.dart';
 import 'package:sentech_connect_app/features/subscriber/domain/entities/subscriber_invoice.dart';
 import 'package:sentech_connect_app/features/subscriber/data/repositories/http_kyc_repository.dart';
+import 'package:sentech_connect_app/features/subscriber/data/repositories/http_subscriber_profile_repository.dart';
+import 'package:sentech_connect_app/features/subscriber/domain/entities/subscriber_profile_edit.dart';
 import 'package:sentech_connect_app/features/subscriber/data/repositories/http_subscriber_repository.dart';
 import 'package:sentech_connect_app/features/subscriber/domain/entities/kyc.dart';
 import 'package:sentech_connect_app/features/subscriber/domain/entities/subscriber_service.dart';
@@ -42,6 +44,8 @@ const fixtureSchemas = {
   'subscriber_invoice.json': 'SubscriberInvoiceOut',
   'subscriber_invoices_page.json': 'Page_SubscriberInvoiceOut_',
   'invoice_checkout.json': 'CheckoutOut',
+  // Contact details (S8): PATCH /v1/me/subscriber 200.
+  'subscriber_profile_patched.json': 'SubscriberAccountOut',
   // Plans and signup (S5): POST /v1/me/subscriber/signup 201.
   'subscriber_signup.json': 'SubscriberSignupOut',
   // ID check (S4): GET answers either schema; POST 201 answers SubscriberKycOut.
@@ -521,6 +525,51 @@ void main() {
       expect(signup.service.status.name, 'pending');
       expect(signup.invoice.kind, 'initial');
       expect(signup.invoice.lines, hasLength(2));
+    });
+  });
+
+  group('PATCH /v1/me/subscriber (S8)', () {
+    test('answers 200 SubscriberAccountOut and needs the Idempotency-Key', () {
+      final patch = api.path('/v1/me/subscriber', 'patch');
+      expect(api.responseSchemaName(patch, '200'), 'SubscriberAccountOut');
+      final headers = (patch['parameters']! as List).cast<Map>().where((p) => p['in'] == 'header');
+      expect(headers.single['name'], 'Idempotency-Key');
+    });
+
+    test('the bodies the app sends validate against AccountProfilePatchIn and use only its keys', () {
+      final patch = api.path('/v1/me/subscriber', 'patch');
+      final content = (patch['requestBody']! as Map)['content']! as Map;
+      final schema = Map<String, Object?>.from((content['application/json']! as Map)['schema']! as Map);
+      for (final body in [
+        const SubscriberProfilePatch(displayName: 'Thandi Mokoena').toBody(),
+        const SubscriberProfilePatch(email: 'thandi@example.test', phoneE164: '+27821234567', language: 'zu').toBody(),
+        const SubscriberProfilePatch(clearEmail: true, language: 'af').toBody(),
+      ]) {
+        expect(api.validate(body, schema), isEmpty, reason: '$body');
+        expect(body.keys.toSet().difference((schema['properties']! as Map).keys.cast<String>().toSet()), isEmpty);
+      }
+    });
+
+    test('the sign-in profile edit validates against ProfileUpdateIn', () {
+      final patch = api.path('/v1/me/profile', 'patch');
+      final content = (patch['requestBody']! as Map)['content']! as Map;
+      final schema = Map<String, Object?>.from((content['application/json']! as Map)['schema']! as Map);
+      for (final body in <Map<String, Object?>>[
+        {'display_name': 'Thandi'},
+        {'display_name': 'Thandi', 'email': 'thandi@example.test'},
+        {'email': null},
+      ]) {
+        expect(api.validate(body, schema), isEmpty, reason: '$body');
+      }
+    });
+
+    test('the decoders read the fixtures', () {
+      final account = subscriberAccountFromJson(fixtureMap('subscriber_profile_patched.json'));
+      expect(account.profile!.language, 'af');
+      expect(account.profile!.email, isNull);
+      final login = loginContactFromJson(fixtureMap('profile_complete.json'));
+      expect(login.displayName, 'Thandi Mokoena');
+      expect(login.phoneE164, '+27821234567');
     });
   });
 

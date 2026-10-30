@@ -2619,4 +2619,66 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get signupAccountClosed =>
       'Your account is closed. Contact your provider.';
+
+  @override
+  String get failureProfileInvalid =>
+      'Some of your contact details are not valid. Check them and try again.';
+
+  @override
+  String get subscriberProfileTitle => 'Contact details';
+
+  @override
+  String subscriberProfileAccountNo(String number) {
+    return 'Account number $number';
+  }
+
+  @override
+  String get subscriberProfileNameLabel => 'Name on your account';
+
+  @override
+  String get subscriberProfileEmailLabel => 'Email';
+
+  @override
+  String get subscriberProfilePhoneLabel => 'Mobile number';
+
+  @override
+  String get subscriberProfileLanguageLabel => 'Language for messages';
+
+  @override
+  String get subscriberProfileNameInvalid =>
+      'Enter your name (up to 120 characters).';
+
+  @override
+  String get subscriberProfileLoginNameInvalid =>
+      'Enter your name (up to 80 characters).';
+
+  @override
+  String get subscriberProfileEmailInvalid => 'Enter a valid email address.';
+
+  @override
+  String get subscriberProfilePhoneInvalid =>
+      'Enter a valid South African mobile number.';
+
+  @override
+  String get subscriberProfileContactRequired =>
+      'Keep at least a mobile number or an email.';
+
+  @override
+  String get subscriberProfileFieldRejected => 'Check this field.';
+
+  @override
+  String get subscriberProfileLoginNote =>
+      'These are the details we use when you sign up. Your sign-in number cannot be changed here.';
+
+  @override
+  String get subscriberProfileSave => 'Save changes';
+
+  @override
+  String get subscriberProfileSaving => 'Saving…';
+
+  @override
+  String get subscriberProfileSaved => 'Your details are saved.';
+
+  @override
+  String get signupUpdateContactDetails => 'Update your contact details';
 }

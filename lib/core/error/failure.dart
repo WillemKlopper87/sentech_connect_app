@@ -32,16 +32,20 @@ class NotCoveredFailure extends Failure {
 /// machine-readable problem code (e.g. `otp_invalid`), or a local code for
 /// checks done before calling the API (e.g. `invalid_phone`).
 class ValidationFailure extends Failure {
-  const ValidationFailure(super.message, [this.code, this.messageIsDetail = true]);
+  const ValidationFailure(super.message, [this.code, this.messageIsDetail = true, this.fields = const []]);
 
   final String? code;
+
+  /// Request fields the platform named in a `validation_error` (its `errors`
+  /// list), so a form can mark them. Empty for every other refusal.
+  final List<String> fields;
 
   /// False when [message] is only the problem's short `title` (e.g.
   /// "Conflict"), which is not fit to show a customer on its own.
   final bool messageIsDetail;
 
   @override
-  List<Object?> get props => [message, code, messageIsDetail];
+  List<Object?> get props => [message, code, messageIsDetail, fields];
 }
 
 /// The one-time code was accepted (and is spent) but the session could not be
@@ -291,6 +295,12 @@ class CustomerLinkRequiredFailure extends ValidationFailure {
 class SubscriberProfileInvalidFailure extends ValidationFailure {
   const SubscriberProfileInvalidFailure()
       : super('Update your contact details before signing up.', 'subscriber_profile_invalid', false);
+}
+
+/// 422 `profile_invalid`: the contact details, as they would be after the
+/// edit, are not valid (for example neither a phone nor an email is left).
+class ProfileInvalidFailure extends ValidationFailure {
+  const ProfileInvalidFailure() : super('Your contact details are not valid.', 'profile_invalid', false);
 }
 
 /// The plan a signup or plan change names cannot be used: `subscriber_plan_not_found`

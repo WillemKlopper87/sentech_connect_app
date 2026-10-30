@@ -2628,4 +2628,66 @@ class AppLocalizationsAf extends AppLocalizations {
   @override
   String get signupAccountClosed =>
       'Jou rekening is gesluit. Kontak jou verskaffer.';
+
+  @override
+  String get failureProfileInvalid =>
+      'Sommige van jou kontakbesonderhede is nie geldig nie. Gaan hulle na en probeer weer.';
+
+  @override
+  String get subscriberProfileTitle => 'Kontakbesonderhede';
+
+  @override
+  String subscriberProfileAccountNo(String number) {
+    return 'Rekeningnommer $number';
+  }
+
+  @override
+  String get subscriberProfileNameLabel => 'Naam op jou rekening';
+
+  @override
+  String get subscriberProfileEmailLabel => 'E-pos';
+
+  @override
+  String get subscriberProfilePhoneLabel => 'Selfoonnommer';
+
+  @override
+  String get subscriberProfileLanguageLabel => 'Taal vir boodskappe';
+
+  @override
+  String get subscriberProfileNameInvalid =>
+      'Voer jou naam in (tot 120 karakters).';
+
+  @override
+  String get subscriberProfileLoginNameInvalid =>
+      'Voer jou naam in (tot 80 karakters).';
+
+  @override
+  String get subscriberProfileEmailInvalid => 'Voer \'n geldige e-posadres in.';
+
+  @override
+  String get subscriberProfilePhoneInvalid =>
+      'Voer \'n geldige Suid-Afrikaanse selfoonnommer in.';
+
+  @override
+  String get subscriberProfileContactRequired =>
+      'Hou ten minste \'n selfoonnommer of e-pos.';
+
+  @override
+  String get subscriberProfileFieldRejected => 'Gaan hierdie veld na.';
+
+  @override
+  String get subscriberProfileLoginNote =>
+      'Dit is die besonderhede wat ons gebruik wanneer jy inteken. Jou aanmeldnommer kan nie hier verander word nie.';
+
+  @override
+  String get subscriberProfileSave => 'Stoor veranderinge';
+
+  @override
+  String get subscriberProfileSaving => 'Stoor tans…';
+
+  @override
+  String get subscriberProfileSaved => 'Jou besonderhede is gestoor.';
+
+  @override
+  String get signupUpdateContactDetails => 'Werk jou kontakbesonderhede op';
 }

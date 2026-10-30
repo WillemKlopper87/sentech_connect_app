@@ -1,0 +1,18 @@
+{
+  "id": "9a1b2c3d-2222-4a22-8a22-0000000000a1",
+  "account_no": "AC-000101",
+  "kind": "individual",
+  "status": "active",
+  "profile": {
+    "display_name": "Thandi Mokoena",
+    "email": null,
+    "phone_e164": "+27829998888",
+    "language": "af"
+  },
+  "service_counts": {
+    "pending": 1,
+    "active": 1,
+    "suspended": 1,
+    "cancelled": 1
+  }
+}

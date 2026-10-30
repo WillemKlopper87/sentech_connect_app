@@ -2629,4 +2629,68 @@ class AppLocalizationsZu extends AppLocalizations {
   @override
   String get signupAccountClosed =>
       'I-akhawunti yakho ivaliwe. Xhumana nomhlinzeki wakho.';
+
+  @override
+  String get failureProfileInvalid =>
+      'Eminye imininingwane yakho yokuxhumana ayivumelekile. Yihlole bese uyazama futhi.';
+
+  @override
+  String get subscriberProfileTitle => 'Imininingwane yokuxhumana';
+
+  @override
+  String subscriberProfileAccountNo(String number) {
+    return 'Inombolo ye-akhawunti $number';
+  }
+
+  @override
+  String get subscriberProfileNameLabel => 'Igama ku-akhawunti yakho';
+
+  @override
+  String get subscriberProfileEmailLabel => 'I-imeyili';
+
+  @override
+  String get subscriberProfilePhoneLabel => 'Inombolo yeselula';
+
+  @override
+  String get subscriberProfileLanguageLabel => 'Ulimi lwezimiso';
+
+  @override
+  String get subscriberProfileNameInvalid =>
+      'Faka igama lakho (kufika kuzinhlamvu ezingu-120).';
+
+  @override
+  String get subscriberProfileLoginNameInvalid =>
+      'Faka igama lakho (kufika kuzinhlamvu ezingu-80).';
+
+  @override
+  String get subscriberProfileEmailInvalid =>
+      'Faka ikheli le-imeyili elivumelekile.';
+
+  @override
+  String get subscriberProfilePhoneInvalid =>
+      'Faka inombolo yeselula yaseNingizimu Afrika evumelekile.';
+
+  @override
+  String get subscriberProfileContactRequired =>
+      'Gcina okungenani inombolo yeselula noma i-imeyili.';
+
+  @override
+  String get subscriberProfileFieldRejected => 'Hlola leli gama.';
+
+  @override
+  String get subscriberProfileLoginNote =>
+      'Lena yimininingwane esiyisebenzisayo uma ubhalisa. Inombolo yakho yokungena ayinakushintshwa lapha.';
+
+  @override
+  String get subscriberProfileSave => 'Gcina izinguquko';
+
+  @override
+  String get subscriberProfileSaving => 'Iyagcina…';
+
+  @override
+  String get subscriberProfileSaved => 'Imininingwane yakho igcinwe.';
+
+  @override
+  String get signupUpdateContactDetails =>
+      'Buyekeza imininingwane yakho yokuxhumana';
 }

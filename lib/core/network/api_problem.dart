@@ -8,8 +8,10 @@ import 'package:sentech_connect_app/core/error/failure.dart';
 /// A module key is lower-case letters and underscores only (1-40 chars).
 final _moduleKey = RegExp(r'^[a-z_]{1,40}$');
 
+final _fieldName = RegExp(r'^[a-z][a-z0-9_]{0,39}$');
+
 class ApiProblem {
-  const ApiProblem({required this.status, required this.code, required this.title, this.detail, this.requestId, this.module});
+  const ApiProblem({required this.status, required this.code, required this.title, this.detail, this.requestId, this.module, this.fields = const []});
 
   final int status;
   final String code;
@@ -19,6 +21,10 @@ class ApiProblem {
 
   /// The module a 403 `module_not_enabled` names; null unless it is a valid key.
   final String? module;
+
+  /// The request fields a `validation_error` names (last element of each
+  /// `errors[].loc`, at most 20, plain identifiers only).
+  final List<String> fields;
 
   static ApiProblem? tryParse(int status, Object? data) {
     Object? body = data;
@@ -36,6 +42,17 @@ class ApiProblem {
     final detail = body['detail'];
     final requestId = body['request_id'];
     final module = body['module'];
+    final fields = <String>[];
+    final errors = body['errors'];
+    if (errors is List) {
+      for (final e in errors) {
+        final loc = e is Map ? e['loc'] : null;
+        if (loc is List && loc.isNotEmpty && loc.last is String) {
+          final name = loc.last as String;
+          if (_fieldName.hasMatch(name) && !fields.contains(name) && fields.length < 20) fields.add(name);
+        }
+      }
+    }
     return ApiProblem(
       status: status,
       code: code,
@@ -43,6 +60,7 @@ class ApiProblem {
       detail: detail is String ? detail : null,
       requestId: requestId is String ? requestId : null,
       module: module is String && _moduleKey.hasMatch(module) ? module : null,
+      fields: fields,
     );
   }
 }
@@ -150,7 +168,7 @@ Failure failureFromStatus(int status, ApiProblem? problem, {String? requestId, D
   }
   if (status == 422 && problem.code == 'binding_required') return const BindingRequiredFailure();
   if (status == 422 && problem.code == 'consent_version_outdated') return const ConsentVersionOutdatedFailure();
-  return ValidationFailure(detail ?? _capped(problem.title), problem.code, detail != null);
+  return ValidationFailure(detail ?? _capped(problem.title), problem.code, detail != null, problem.fields);
 }
 
 /// Refusals (409 or 422) whose code alone says what happened. Looked up after
@@ -168,6 +186,8 @@ const _typedRefusals = <String, Failure>{
   'account_not_active': AccountProblemFailure('account_not_active'),
   'account_changed': AccountProblemFailure('account_changed'),
   'subscriber_profile_invalid': SubscriberProfileInvalidFailure(),
+  'profile_invalid': ProfileInvalidFailure(),
+  'profile_unavailable': AccountProblemFailure('profile_unavailable'),
   'subscriber_plan_inactive': PlanUnavailableFailure('subscriber_plan_inactive'),
   'subscriber_version_unavailable': PlanUnavailableFailure('subscriber_version_unavailable'),
   'plan_kind_mismatch': PlanUnavailableFailure('plan_kind_mismatch'),

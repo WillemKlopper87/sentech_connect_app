@@ -24,6 +24,7 @@ class SignupPage extends StatelessWidget {
     required this.onPayLater,
     required this.onStartIdCheck,
     required this.onBackToPlans,
+    this.onUpdateContactDetails,
   });
 
   /// Opens the first invoice to pay it (S2).
@@ -35,6 +36,11 @@ class SignupPage extends StatelessWidget {
   /// Opens the ID check (S4); null hides the button.
   final VoidCallback? onStartIdCheck;
   final VoidCallback onBackToPlans;
+
+  /// Opens the contact details screen (S8) and completes when it is closed;
+  /// null hides the button. Offered for `subscriber_profile_invalid`, and the
+  /// form (with its draft) is still here when the customer comes back.
+  final Future<void> Function()? onUpdateContactDetails;
 
   @override
   Widget build(BuildContext context) {
@@ -72,7 +78,7 @@ class SignupPage extends StatelessWidget {
                   onStartIdCheck: onStartIdCheck,
                 );
               case SignupPhase.ready || SignupPhase.submitting:
-                return _Form(state: state);
+                return _Form(state: state, onUpdateContactDetails: onUpdateContactDetails);
             }
           },
         ),
@@ -91,9 +97,10 @@ String signupFailureText(BuildContext context, Failure failure) {
 }
 
 class _Form extends StatefulWidget {
-  const _Form({required this.state});
+  const _Form({required this.state, this.onUpdateContactDetails});
 
   final SignupState state;
+  final Future<void> Function()? onUpdateContactDetails;
 
   @override
   State<_Form> createState() => _FormState();
@@ -173,6 +180,20 @@ class _FormState extends State<_Form> {
               Expanded(child: Text(signupFailureText(context, failure), key: const Key('signup-failure'), style: error)),
             ],
           ),
+          if (failure is SubscriberProfileInvalidFailure && widget.onUpdateContactDetails != null)
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: OutlinedButton(
+                key: const Key('signup-update-contact'),
+                onPressed: busy
+                    ? null
+                    : () async {
+                        await widget.onUpdateContactDetails!();
+                        if (context.mounted) cubit.clearFailure();
+                      },
+                child: Text(l10n.signupUpdateContactDetails),
+              ),
+            ),
         ],
         const SizedBox(height: 16),
         FilledButton(

@@ -317,3 +317,21 @@ Plans and signup (slice S5, 2026-10-30). Machine-quality drafts, native review b
 | `signupInstallationNote` | After you pay, your provider arranges the installation with you. | Nadat jy betaal het, reël jou verskaffer die installasie met jou. | Ngemva kokuthi ukhokhe, umhlinzeki wakho uzohlela ukufakwa nawe. |
 | `signupIdCheckNote` | This plan needs an ID check before it can start. | Hierdie pakket benodig 'n ID-kontrole voordat dit kan begin. | Leli phakheji lidinga ukuhlolwa kwe-ID ngaphambi kokuthi liqale. |
 | `signupAccountClosed` | Your account is closed. Contact your provider. | Jou rekening is gesluit. Kontak jou verskaffer. | I-akhawunti yakho ivaliwe. Xhumana nomhlinzeki wakho. |
+| `failureProfileInvalid` | Some of your contact details are not valid. Check them and try again. | Sommige van jou kontakbesonderhede is nie geldig nie. Gaan hulle na en probeer weer. | Eminye imininingwane yakho yokuxhumana ayivumelekile. Yihlole bese uyazama futhi. |
+| `subscriberProfileTitle` | Contact details | Kontakbesonderhede | Imininingwane yokuxhumana |
+| `subscriberProfileAccountNo` | Account number {number} | Rekeningnommer {number} | Inombolo ye-akhawunti {number} |
+| `subscriberProfileNameLabel` | Name on your account | Naam op jou rekening | Igama ku-akhawunti yakho |
+| `subscriberProfileEmailLabel` | Email | E-pos | I-imeyili |
+| `subscriberProfilePhoneLabel` | Mobile number | Selfoonnommer | Inombolo yeselula |
+| `subscriberProfileLanguageLabel` | Language for messages | Taal vir boodskappe | Ulimi lwezimiso |
+| `subscriberProfileNameInvalid` | Enter your name (up to 120 characters). | Voer jou naam in (tot 120 karakters). | Faka igama lakho (kufika kuzinhlamvu ezingu-120). |
+| `subscriberProfileLoginNameInvalid` | Enter your name (up to 80 characters). | Voer jou naam in (tot 80 karakters). | Faka igama lakho (kufika kuzinhlamvu ezingu-80). |
+| `subscriberProfileEmailInvalid` | Enter a valid email address. | Voer 'n geldige e-posadres in. | Faka ikheli le-imeyili elivumelekile. |
+| `subscriberProfilePhoneInvalid` | Enter a valid South African mobile number. | Voer 'n geldige Suid-Afrikaanse selfoonnommer in. | Faka inombolo yeselula yaseNingizimu Afrika evumelekile. |
+| `subscriberProfileContactRequired` | Keep at least a mobile number or an email. | Hou ten minste 'n selfoonnommer of e-pos. | Gcina okungenani inombolo yeselula noma i-imeyili. |
+| `subscriberProfileFieldRejected` | Check this field. | Gaan hierdie veld na. | Hlola leli gama. |
+| `subscriberProfileLoginNote` | These are the details we use when you sign up. Your sign-in number cannot be changed here. | Dit is die besonderhede wat ons gebruik wanneer jy inteken. Jou aanmeldnommer kan nie hier verander word nie. | Lena yimininingwane esiyisebenzisayo uma ubhalisa. Inombolo yakho yokungena ayinakushintshwa lapha. |
+| `subscriberProfileSave` | Save changes | Stoor veranderinge | Gcina izinguquko |
+| `subscriberProfileSaving` | Saving… | Stoor tans… | Iyagcina… |
+| `subscriberProfileSaved` | Your details are saved. | Jou besonderhede is gestoor. | Imininingwane yakho igcinwe. |
+| `signupUpdateContactDetails` | Update your contact details | Werk jou kontakbesonderhede op | Buyekeza imininingwane yakho yokuxhumana |

@@ -113,6 +113,7 @@ Map<String, String> typedFailureTexts(AppLocalizations l10n) => {
   const CustomerLinkRequiredFailure().message: l10n.failureCustomerLinkRequired,
   const AccountProblemFailure().message: l10n.failureAccountProblem,
   const SubscriberProfileInvalidFailure().message: l10n.failureSubscriberProfileInvalid,
+  const ProfileInvalidFailure().message: l10n.failureProfileInvalid,
   const PlanUnavailableFailure().message: l10n.failurePlanUnavailable,
   const ServiceStateFailure().message: l10n.failureServiceState,
   const CancellationScheduledFailure().message: l10n.failureCancellationScheduled,
@@ -187,6 +188,8 @@ String? typedFailureText(AppLocalizations l10n, Failure? failure) {
       return l10n.failureAccountProblem;
     case SubscriberProfileInvalidFailure():
       return l10n.failureSubscriberProfileInvalid;
+    case ProfileInvalidFailure():
+      return l10n.failureProfileInvalid;
     case PlanUnavailableFailure():
       return l10n.failurePlanUnavailable;
     case ServiceStateFailure():
