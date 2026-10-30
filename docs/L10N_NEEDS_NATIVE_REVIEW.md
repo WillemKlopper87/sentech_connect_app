@@ -238,3 +238,7 @@ ID check (slice S4, 2026-10-30). Same rule: machine-quality drafts, native revie
 | `failureKycDocumentRejected` | Use a clear JPEG or PNG photo under 5 MB. | Gebruik 'n duidelike JPEG- of PNG-foto onder 5 MB. | Sebenzisa isithombe esicacile se-JPEG noma se-PNG esingaphansi kuka-5 MB. |
 | `failureKycUploadFailed` | We could not upload your document. Try again. | Ons kon nie jou dokument oplaai nie. Probeer weer. | Asikwazanga ukulayisha idokhumenti yakho. Zama futhi. |
 | `failureKycRequired` | You need an ID check first. | Jy moet eers 'n ID-kontrole hê. | Kudingeka ukuthi uqale ngokuhlolwa kwe-ID. |
+| `homeSubscriberHeading` | Your home internet | Jou tuisinternet | I-inthanethi yakho yasekhaya |
+| `homeInvoiceDue` | {amount} due {date} | {amount} verskuldig op {date} | {amount} kufanele kukhokhwe ngo-{date} |
+| `homeInvoicePay` | Pay | Betaal | Khokha |
+| `homeInvoicesViewAll` | View all invoices | Sien alle fakture | Buka bonke odinga |

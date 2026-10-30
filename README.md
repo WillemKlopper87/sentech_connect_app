@@ -15,7 +15,7 @@ The app has two flavors (`--dart-define=APP_FLAVOR=demo|prod`):
 - **`demo`** (default in debug/profile): every repository is a mock; works fully offline. All tests run in this flavor.
 - **`prod`**: tenants, sign-in (SMS one-time code), catalogue (hotspot passes), orders, payment hand-off, "My passes", profile, consents, data export and account deletion use the Sentech Connect platform API. It **requires** `--dart-define=API_BASE_URL=https://...` (an origin only; https, except cleartext to local dev hosts in debug builds). **Release builds must set `APP_FLAVOR` explicitly** (`demo` or `prod`); a release build without it stops at startup.
 
-Still mock in **both** flavors because the platform has no API for them yet (listed in `stillMockInProd`, `lib/app/locator.dart`): coverage, free Wi-Fi, account usage/router summary, promotions, the support FAQ list and RICA liveness. Sending a support message is real in both flavors (`HttpSupportMessageRepository`, `POST /v1/support/messages`; the demo flavor uses a labelled mock). Voucher redemption is real in prod (`HttpVoucherRepository`, `POST /v1/me/vouchers/redeem`), so the Scan tab shows in both flavors. The hotspot map is real in prod (`GET /v1/hotspots`). In a prod build the Help tab shows only the contact actions (WhatsApp, message support), not the mock FAQ list, and the mock-backed free Wi-Fi and Promotions entry points and the router/usage card are hidden (shown in demo only), so customers never see fabricated account data.
+Still mock in **both** flavors because the platform has no API for them yet (listed in `stillMockInProd`, `lib/app/locator.dart`): coverage, free Wi-Fi, promotions, the support FAQ list and RICA liveness. Sending a support message is real in both flavors (`HttpSupportMessageRepository`, `POST /v1/support/messages`; the demo flavor uses a labelled mock). Voucher redemption is real in prod (`HttpVoucherRepository`, `POST /v1/me/vouchers/redeem`), so the Scan tab shows in both flavors. The hotspot map is real in prod (`GET /v1/hotspots`). In a prod build the Help tab shows only the contact actions (WhatsApp, message support), not the mock FAQ list, and the mock-backed free Wi-Fi and Promotions entry points entry points are hidden (shown in demo only). The Home dashboard has no invented router or usage card any more: it shows the customer's passes plus, with the `subscriber_billing` module on, their services, open invoices and ID check status (real data, S9).
 
 ## Quick start
 
@@ -109,7 +109,7 @@ These repositories are listed in `stillMockInProd` (`lib/app/locator.dart`) and 
 | Coverage | `coverage/data/repositories/mock_coverage_repository.dart` | `GET /v1/coverage/check?lat&lon&tenant`, `GET /v1/coverage/meta`, `GET /v1/tiles/{layer}/{z}/{x}/{y}.mvt`, `GET /v1/geocode/search` | WP-26 |
 | Free WiFi | `wifi_voucher/data/repositories/mock_free_wifi_repository.dart` | none yet (free time) | WP-23 |
 | Hotspots | real: `wifi_voucher/data/repositories/http_wifi_hotspots_repository.dart` (mock for demo) | `GET /v1/hotspots?tenant&bbox&cursor&limit` | done |
-| Usage and router | `account_dashboard/data/repositories/mock_account_repository.dart` | none yet (network) | WP-17 |
+| Router/CPE status and fixed-wireless usage | none: the invented mock was removed in S9 and the card is hidden | none for customers (platform task P10) | not built |
 | Promotions | `promotions/data/repositories/mock_promotions_repository.dart` | none yet (listings) | WP-24 |
 | Subscriber account (signup, services, invoices, KYC) | not built yet (M3) | `GET/PATCH /v1/me/subscriber`, `POST /v1/me/subscriber/signup`, `.../services`, `.../invoices`, `.../kyc`, `GET /v1/subscriber-plans` | M3 |
 | Support FAQ | `support/data/repositories/mock_support_repository.dart` | no FAQ API on the platform | none planned |
@@ -161,7 +161,7 @@ Full diagram: [`docs/architecture.md`](docs/architecture.md).
 | `catalog_checkout` | Product catalog (Home 5G / MiFi / Vouchers), checkout, payment method selection, RICA hand-off, order confirmation | `CatalogCubit`, `CheckoutCubit` |
 | `cart` | Multi-item cart, shared across the whole app session | `CartCubit` (app-root) |
 | `rica` | Liveness capture screen (camera + POPIA consent) that verifies identity before payment | `RicaCubit` |
-| `account_dashboard` | Usage meter, CPE/router status, quick actions (top up / upgrade / report issue) | `AccountCubit` |
+| `account_dashboard` | Home: current pass, open order banner, subscriber sections (services, open invoices, ID check) when the module is on, shortcuts (buy a pass / report issue) | `PassesCubit`, `HomeOverviewCubit` (in `subscriber/presentation/home`) |
 | `voucher_scanner` | Real camera QR/barcode scanning (`mobile_scanner`) with manual-entry fallback; redemption goes through `VoucherRepository` (typed results, idempotent), raw payloads are never shown | `VoucherCubit` |
 | `privacy` | POPIA consent records, data export / account deletion requests | `PrivacyActionsCubit` |
 | `wifi_voucher` | Ad-gated free WiFi (3/day cap, simulated ad, live countdown) + nearby-hotspot map sorted by distance | `FreeWifiCubit`, `WifiHotspotsCubit` |
