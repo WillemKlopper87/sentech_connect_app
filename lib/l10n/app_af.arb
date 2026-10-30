@@ -2477,5 +2477,13 @@
   "failureLoginUrlInvalid": "Hierdie warmkol-aanmelding kon nie oopgemaak word nie. Koppel eerder vanaf die Wi-Fi-aanmeldbladsy.",
   "@failureLoginUrlInvalid": {"description": "Customer app copy: failureLoginUrlInvalid."},
   "failureControllerNotSupported": "Eenklik-aanmelding word nie by hierdie warmkol ondersteun nie. Koppel eerder vanaf die Wi-Fi-aanmeldbladsy.",
-  "@failureControllerNotSupported": {"description": "Customer app copy: failureControllerNotSupported."}
+  "@failureControllerNotSupported": {"description": "Customer app copy: failureControllerNotSupported."},
+  "homeSubscriberHeading": "Jou tuisinternet",
+  "@homeSubscriberHeading": {"description": "Heading above the service cards on Home."},
+  "homeInvoiceDue": "{amount} verskuldig op {date}",
+  "@homeInvoiceDue": {"description": "Open invoice strip on Home: amount still to pay and due date.", "placeholders": {"amount": {"type": "String", "example": "R 299,00"}, "date": {"type": "String", "example": "30 Nov 2026"}}},
+  "homeInvoicePay": "Betaal",
+  "@homeInvoicePay": {"description": "Pay action on the open invoice strip on Home."},
+  "homeInvoicesViewAll": "Sien alle fakture",
+  "@homeInvoicesViewAll": {"description": "Link under the open invoice strips when there are more than three."}
 }

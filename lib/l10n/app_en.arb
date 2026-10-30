@@ -2486,5 +2486,13 @@
   "failureLoginUrlInvalid": "This hotspot login could not be opened. Connect from the Wi-Fi login page instead.",
   "@failureLoginUrlInvalid": {"description": "Customer error for problem code login_url_invalid."},
   "failureControllerNotSupported": "One-tap login is not supported at this hotspot. Connect from the Wi-Fi login page instead.",
-  "@failureControllerNotSupported": {"description": "Customer error for problem code controller_not_supported."}
+  "@failureControllerNotSupported": {"description": "Customer error for problem code controller_not_supported."},
+  "homeSubscriberHeading": "Your home internet",
+  "@homeSubscriberHeading": {"description": "Heading above the service cards on Home."},
+  "homeInvoiceDue": "{amount} due {date}",
+  "@homeInvoiceDue": {"description": "Open invoice strip on Home: amount still to pay and due date.", "placeholders": {"amount": {"type": "String", "example": "R 299,00"}, "date": {"type": "String", "example": "30 Nov 2026"}}},
+  "homeInvoicePay": "Pay",
+  "@homeInvoicePay": {"description": "Pay action on the open invoice strip on Home."},
+  "homeInvoicesViewAll": "View all invoices",
+  "@homeInvoicesViewAll": {"description": "Link under the open invoice strips when there are more than three."}
 }

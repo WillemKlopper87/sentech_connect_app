@@ -4,8 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentech_connect_app/core/storage/secure_store.dart';
-import 'package:sentech_connect_app/features/account_dashboard/data/repositories/mock_account_repository.dart';
-import 'package:sentech_connect_app/features/account_dashboard/presentation/bloc/account_cubit.dart';
 import 'package:sentech_connect_app/features/account_dashboard/presentation/pages/dashboard_page.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/data/repositories/http_checkout_repository.dart'
     show orderFromJson;
@@ -24,17 +22,14 @@ import 'helpers/fixtures.dart';
 
 Future<void> _pumpDashboard(
   WidgetTester tester, {
-  required bool showRouterCard,
   VoidCallback? onBuyPass,
   VoidCallback? onOpenPasses,
 }) async {
-  final account = AccountCubit(MockAccountRepository());
   final passes = PassesCubit(MockPassesRepository());
   final open = OpenOrderCubit(
     MockCheckoutRepository(InMemorySecureStore(), latency: Duration.zero),
   );
   addTearDown(() {
-    account.close();
     passes.close();
     open.close();
   });
@@ -44,19 +39,16 @@ Future<void> _pumpDashboard(
       supportedLocales: AppLocalizations.supportedLocales,
       home: MultiBlocProvider(
         providers: [
-          BlocProvider.value(value: account),
           BlocProvider.value(value: passes),
           BlocProvider.value(value: open),
         ],
         child: DashboardPage(
           onTopUp: () {},
-          onUpgrade: () {},
           onBuyPass: onBuyPass ?? () {},
           onOpenPasses: onOpenPasses ?? () {},
           onReportIssue: () {},
           onOpenPromotions: () {},
           onResumeOrder: (_) {},
-          showRouterCard: showRouterCard,
         ),
       ),
     ),
@@ -67,12 +59,11 @@ Future<void> _pumpDashboard(
 void main() {
   group('dashboard leads with hotspot passes', () {
     testWidgets(
-      'cpe off: the current pass, time and data left, Buy a pass; no router or fixed-plan content',
+      'the current pass, time and data left, Buy a pass; no router or fixed-plan content',
       (tester) async {
         var bought = 0;
         await _pumpDashboard(
           tester,
-          showRouterCard: false,
           onBuyPass: () => bought++,
         );
         expect(find.text('Day Pass'), findsOneWidget);
@@ -91,21 +82,10 @@ void main() {
       },
     );
 
-    testWidgets(
-      'cpe on: the router card and fixed-plan usage appear below the pass',
-      (tester) async {
-        await _pumpDashboard(tester, showRouterCard: true);
-        expect(find.text('Day Pass'), findsOneWidget);
-        expect(find.text('Living room router'), findsOneWidget);
-        expect(find.text('Upgrade'), findsOneWidget);
-      },
-    );
-
     testWidgets('My passes opens the passes screen', (tester) async {
       var opened = 0;
       await _pumpDashboard(
         tester,
-        showRouterCard: false,
         onOpenPasses: () => opened++,
       );
       await tester.tap(find.text('My passes'));

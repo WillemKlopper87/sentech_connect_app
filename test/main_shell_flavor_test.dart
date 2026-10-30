@@ -8,12 +8,29 @@ import 'package:sentech_connect_app/core/biometrics/biometric_authenticator.dart
 import 'package:sentech_connect_app/features/auth/presentation/bloc/auth_cubit.dart';
 import 'package:sentech_connect_app/features/cart/presentation/bloc/cart_cubit.dart';
 import 'package:sentech_connect_app/app/main_shell.dart';
-import 'package:sentech_connect_app/app/router/app_router.dart';
+import 'package:sentech_connect_app/core/local/tenant_preferences.dart';
+import 'package:sentech_connect_app/core/network/tenant_context.dart';
+import 'package:fpdart/fpdart.dart';
+import 'package:sentech_connect_app/core/error/failure.dart';
+import 'package:sentech_connect_app/features/tenant/domain/entities/app_config.dart';
+import 'package:sentech_connect_app/features/tenant/domain/entities/tenant_directory.dart';
+import 'package:sentech_connect_app/features/tenant/domain/repositories/tenant_repository.dart';
+import 'package:sentech_connect_app/features/tenant/presentation/bloc/tenant_cubit.dart';
 import 'package:sentech_connect_app/l10n/app_localizations.dart';
 
+import 'helpers/fixtures.dart';
 import 'helpers/test_setup.dart';
 
-Future<void> _pump(WidgetTester tester, {required bool mock}) async {
+class _ConfigRepo implements TenantRepository {
+  _ConfigRepo(this.config);
+  final AppConfig config;
+  @override
+  Future<Either<Failure, AppConfig>> getAppConfig(String slug) async => Right(config);
+  @override
+  Future<Either<Failure, TenantDirectory>> listTenants() async => Right(TenantDirectory([config.tenant]));
+}
+
+Future<void> _pump(WidgetTester tester, {required bool mock, TenantCubit? tenant}) async {
   final auth = AuthCubit(
     locator(),
     sessionStore: locator(),
@@ -25,6 +42,7 @@ Future<void> _pump(WidgetTester tester, {required bool mock}) async {
     MultiBlocProvider(
       providers: [
         BlocProvider.value(value: auth),
+        if (tenant != null) BlocProvider.value(value: tenant),
         BlocProvider(create: (_) => CartCubit()),
         BlocProvider(create: (_) => ThemeCubit()),
         BlocProvider(create: (_) => LocaleCubit()),
@@ -38,7 +56,6 @@ Future<void> _pump(WidgetTester tester, {required bool mock}) async {
           onOpenPromotions: () {},
           onFindHotspots: () {},
           showMockFeatures: mock,
-          showRouterCard: false,
         ),
       ),
     ),
@@ -48,13 +65,6 @@ Future<void> _pump(WidgetTester tester, {required bool mock}) async {
 
 void main() {
   setUpAppTests();
-
-  test('the router card needs the demo flavor AND the cpe flag', () {
-    expect(showRouterCardFor(isDemo: true, cpe: true), isTrue);
-    expect(showRouterCardFor(isDemo: true, cpe: false), isFalse);
-    expect(showRouterCardFor(isDemo: false, cpe: true), isFalse);
-    expect(showRouterCardFor(isDemo: false, cpe: false), isFalse);
-  });
 
   testWidgets(
     'demo: Scan and Support tabs and the report-issue shortcut show',
@@ -96,4 +106,35 @@ void main() {
       );
     },
   );
+
+  group('Home subscriber sections are wired from the locator', () {
+    Future<TenantCubit> tenantWith({required bool billing}) async {
+      final config = AppConfig.fromJson({
+        ...fixtureMap('app_config.json'),
+        'modules': {'subscriber_billing': billing},
+      });
+      final cubit = TenantCubit(
+        repository: _ConfigRepo(config),
+        context: TenantContext(),
+        preferences: InMemoryTenantPreferences(slug: 'acme-wifi'),
+      );
+      addTearDown(cubit.close);
+      await cubit.bootstrap();
+      return cubit;
+    }
+
+    testWidgets('module on: the demo service and open invoice show on Home', (tester) async {
+      await _pump(tester, mock: true, tenant: await tenantWith(billing: true));
+      await tester.pump(const Duration(seconds: 1));
+      expect(find.text('Your home internet'), findsOneWidget);
+      expect(find.text('Home Hotspot 10'), findsOneWidget);
+    });
+
+    testWidgets('module off: Home is the pass-only one', (tester) async {
+      await _pump(tester, mock: true, tenant: await tenantWith(billing: false));
+      await tester.pump(const Duration(seconds: 1));
+      expect(find.text('Your home internet'), findsNothing);
+      expect(find.text('Home Hotspot 10'), findsNothing);
+    });
+  });
 }

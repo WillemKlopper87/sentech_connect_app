@@ -4047,6 +4047,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'One-tap login is not supported at this hotspot. Connect from the Wi-Fi login page instead.'**
   String get failureControllerNotSupported;
+
+  /// Heading above the service cards on Home.
+  ///
+  /// In en, this message translates to:
+  /// **'Your home internet'**
+  String get homeSubscriberHeading;
+
+  /// Open invoice strip on Home: amount still to pay and due date.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} due {date}'**
+  String homeInvoiceDue(String amount, String date);
+
+  /// Pay action on the open invoice strip on Home.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay'**
+  String get homeInvoicePay;
+
+  /// Link under the open invoice strips when there are more than three.
+  ///
+  /// In en, this message translates to:
+  /// **'View all invoices'**
+  String get homeInvoicesViewAll;
 }
 
 class _AppLocalizationsDelegate

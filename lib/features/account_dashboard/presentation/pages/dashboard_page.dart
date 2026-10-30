@@ -3,14 +3,14 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:sentech_connect_app/app/theme/app_colors.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:sentech_connect_app/features/account_dashboard/domain/entities/account_summary.dart';
-import 'package:sentech_connect_app/features/account_dashboard/presentation/bloc/account_cubit.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/domain/entities/order.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/presentation/bloc/order_cubit.dart';
 import 'package:sentech_connect_app/features/passes/domain/entities/pass.dart';
 import 'package:sentech_connect_app/features/passes/presentation/bloc/passes_cubit.dart';
 import 'package:sentech_connect_app/features/passes/presentation/pass_format.dart';
 import 'package:sentech_connect_app/features/passes/presentation/pass_summary.dart';
+import 'package:sentech_connect_app/features/subscriber/presentation/home/home_overview_cubit.dart';
+import 'package:sentech_connect_app/features/subscriber/presentation/home/home_subscriber_section.dart';
 import 'package:sentech_connect_app/l10n/l10n.dart';
 import 'package:sentech_connect_app/shared/widgets/failure_view.dart';
 import 'package:sentech_connect_app/shared/widgets/sentech_logo.dart';
@@ -24,10 +24,8 @@ class DashboardPage extends StatelessWidget {
   const DashboardPage({
     super.key,
     required this.onTopUp,
-    required this.onUpgrade,
     this.onBuyPass,
     this.onOpenPasses,
-    this.showRouterCard = true,
     this.onReportIssue,
     this.onOpenPromotions,
     required this.onResumeOrder,
@@ -35,16 +33,11 @@ class DashboardPage extends StatelessWidget {
   });
 
   final VoidCallback onTopUp;
-  final VoidCallback onUpgrade;
 
   /// Opens the Shop on hotspot passes. When set, the dashboard leads with the
   /// customer's current pass (it needs a [PassesCubit] above it).
   final VoidCallback? onBuyPass;
   final VoidCallback? onOpenPasses;
-
-  /// The tenant's `cpe` flag. Off: no router card, no fixed-plan usage, no
-  /// Upgrade shortcut; the dashboard is about hotspot passes only.
-  final bool showRouterCard;
 
   /// Null hides the shortcut (support tickets are mock-backed in prod).
   final VoidCallback? onReportIssue;
@@ -75,34 +68,20 @@ class DashboardPage extends StatelessWidget {
           ),
         ],
       ),
-      body: showRouterCard ? _withAccount(context) : _content(context, null),
+      body: _content(context),
     );
   }
 
-  /// Fixed-plan content needs the account summary; hotspot-only does not.
-  Widget _withAccount(BuildContext context) {
-    return BlocBuilder<AccountCubit, AccountState>(
-      builder: (context, state) {
-        if (state.status == AccountStatus.failure) {
-          return FailureView(
-            failure: state.failure,
-            onRetry: () => context.read<AccountCubit>().load(),
-          );
-        }
-        if (state.status != AccountStatus.loaded || state.summary == null) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        return _content(context, state.summary!);
-      },
-    );
-  }
-
-  Widget _content(BuildContext context, AccountSummary? summary) {
+  Widget _content(BuildContext context) {
+    // Subscriber sections exist only with the `subscriber_billing` module on.
+    // Router/CPE status and fixed-wireless usage have no customer route yet
+    // (platform task P10), so nothing is shown for them.
+    final subscriberOn = homeSubscriberOn(context);
     return RefreshIndicator(
       onRefresh: () async {
         if (onOpenPasses != null) await context.read<PassesCubit>().load();
-        if (showRouterCard && context.mounted) {
-          await context.read<AccountCubit>().load();
+        if (subscriberOn && context.mounted) {
+          await context.read<HomeOverviewCubit>().load();
         }
       },
       child: ListView(
@@ -129,17 +108,9 @@ class DashboardPage extends StatelessWidget {
             ),
             const SizedBox(height: 16),
           ],
-          if (summary != null) ...[
-            _UsageCard(summary: summary),
-            const SizedBox(height: 16),
-          ],
+          if (subscriberOn) const HomeSubscriberSection(),
           if (onOpenPromotions case final openPromotions?) ...[
             _PromoBanner(onTap: openPromotions),
-            const SizedBox(height: 16),
-          ],
-          // Router telemetry needs the CPE/ACS integration (flag `cpe`, off at launch).
-          if (showRouterCard && summary != null) ...[
-            _CpeCard(summary: summary),
             const SizedBox(height: 16),
           ],
           Row(
@@ -153,15 +124,6 @@ class DashboardPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              if (showRouterCard) ...[
-                Expanded(
-                  child: _QuickAction(
-                    label: context.l10n.dashboardUpgrade,
-                    onTap: onUpgrade,
-                  ),
-                ),
-                const SizedBox(width: 8),
-              ],
               if (onReportIssue case final reportIssue?)
                 Expanded(
                   child: _QuickAction(
@@ -234,145 +196,6 @@ class _ResumeOrderBanner extends StatelessWidget {
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _UsageCard extends StatelessWidget {
-  const _UsageCard({required this.summary});
-
-  final AccountSummary summary;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final ringSize = MediaQuery.textScalerOf(context).scale(84);
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        border: Border.all(color: theme.colorScheme.outlineVariant),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        children: [
-          SizedBox(
-            width: ringSize,
-            height: ringSize,
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                SizedBox(
-                  width: ringSize,
-                  height: ringSize,
-                  child: CircularProgressIndicator(
-                    value: summary.usageFraction,
-                    strokeWidth: 8,
-                    backgroundColor: theme.colorScheme.outlineVariant
-                        .withValues(alpha: 0.4),
-                    color: theme.colorScheme.primary,
-                  ),
-                ),
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      '${(summary.usageFraction * 100).round()}%',
-                      style: theme.textTheme.titleMedium,
-                    ),
-                    Text(
-                      context.l10n.homeUsed,
-                      style: theme.textTheme.bodyMedium?.copyWith(fontSize: 15),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  context.l10n.homeDataUsed(
-                    summary.usedGB.toStringAsFixed(0),
-                    summary.totalGB.toStringAsFixed(0),
-                  ),
-                  style: theme.textTheme.titleMedium,
-                ),
-                Text(
-                  context.l10n.homePlanRenews(
-                    summary.planName,
-                    summary.renewsOn,
-                  ),
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _CpeCard extends StatelessWidget {
-  const _CpeCard({required this.summary});
-
-  final AccountSummary summary;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        border: Border.all(color: theme.colorScheme.outlineVariant),
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            Icons.router_outlined,
-            color: theme.colorScheme.primary,
-            size: 28,
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(summary.routerName, style: theme.textTheme.titleMedium),
-                Text(
-                  context.l10n.homeRouterAddress(summary.macAddressSuffix),
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: List.generate(4, (i) {
-              final active = i < summary.signalBars;
-              return Container(
-                width: 3,
-                height: 6.0 + i * 3,
-                margin: const EdgeInsets.only(left: 2),
-                decoration: BoxDecoration(
-                  color: active
-                      ? theme.colorScheme.primary
-                      : theme.colorScheme.outlineVariant,
-                  borderRadius: BorderRadius.circular(1),
-                ),
-              );
-            }),
-          ),
-        ],
       ),
     );
   }

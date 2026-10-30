@@ -67,7 +67,6 @@ Future<TenantCubit> pumpShell(WidgetTester tester, {required Map<String, bool> m
           onResumeOrder: (_) {},
           onOpenPromotions: () {},
           onFindHotspots: () {},
-          showRouterCard: false,
         ),
       ),
     ),

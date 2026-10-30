@@ -9,8 +9,6 @@ import 'package:sentech_connect_app/core/biometrics/biometric_authenticator.dart
 import 'package:sentech_connect_app/core/error/failure.dart';
 import 'package:sentech_connect_app/core/storage/secure_store.dart';
 import 'package:sentech_connect_app/features/account/presentation/pages/account_page.dart';
-import 'package:sentech_connect_app/features/account_dashboard/data/repositories/mock_account_repository.dart';
-import 'package:sentech_connect_app/features/account_dashboard/presentation/bloc/account_cubit.dart';
 import 'package:sentech_connect_app/features/account_dashboard/presentation/pages/dashboard_page.dart';
 import 'package:sentech_connect_app/features/auth/presentation/bloc/auth_cubit.dart';
 import 'package:sentech_connect_app/features/auth/domain/entities/user.dart';
@@ -120,7 +118,6 @@ Widget buildScreenForTest(String screen, AppLocalizations l10n) {
     ),
     'home' => MultiBlocProvider(
       providers: [
-        BlocProvider(create: (_) => AccountCubit(MockAccountRepository())),
         BlocProvider(create: (_) => PassesCubit(_Passes(l10n))),
         BlocProvider(
           create: (_) => OpenOrderCubit(
@@ -133,7 +130,6 @@ Widget buildScreenForTest(String screen, AppLocalizations l10n) {
       ],
       child: DashboardPage(
         onTopUp: () {},
-        onUpgrade: () {},
         onBuyPass: () {},
         onOpenPasses: () {},
         onReportIssue: () {},

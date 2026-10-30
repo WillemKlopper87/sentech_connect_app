@@ -1,5 +1,6 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
+
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -2345,4 +2346,18 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get failureControllerNotSupported =>
       'One-tap login is not supported at this hotspot. Connect from the Wi-Fi login page instead.';
+
+  @override
+  String get homeSubscriberHeading => 'Your home internet';
+
+  @override
+  String homeInvoiceDue(String amount, String date) {
+    return '$amount due $date';
+  }
+
+  @override
+  String get homeInvoicePay => 'Pay';
+
+  @override
+  String get homeInvoicesViewAll => 'View all invoices';
 }

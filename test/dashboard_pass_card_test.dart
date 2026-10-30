@@ -85,13 +85,11 @@ Future<PassesCubit> _pump(
       ],
       child: DashboardPage(
         onTopUp: () {},
-        onUpgrade: () {},
         onBuyPass: onBuy ?? () {},
         onOpenPasses: () {},
         onReportIssue: () {},
         onOpenPromotions: () {},
         onResumeOrder: (_) {},
-        showRouterCard: false,
         now: () => _now,
       ),
     ),

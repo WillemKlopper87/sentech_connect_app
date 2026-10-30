@@ -1,5 +1,6 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
+
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -2353,4 +2354,18 @@ class AppLocalizationsZu extends AppLocalizations {
   @override
   String get failureControllerNotSupported =>
       'Ukungena ngokuthinta kanye akuxhaswa kule hotspot. Xhuma ngekhasi lokungena le-Wi-Fi esikhundleni.';
+
+  @override
+  String get homeSubscriberHeading => 'I-inthanethi yakho yasekhaya';
+
+  @override
+  String homeInvoiceDue(String amount, String date) {
+    return '$amount kufanele kukhokhwe ngo-$date';
+  }
+
+  @override
+  String get homeInvoicePay => 'Khokha';
+
+  @override
+  String get homeInvoicesViewAll => 'Buka bonke odinga';
 }

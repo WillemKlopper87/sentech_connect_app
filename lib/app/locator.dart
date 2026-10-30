@@ -28,8 +28,6 @@ import 'package:sentech_connect_app/core/storage/secure_store.dart';
 import 'package:sentech_connect_app/core/time/platform_clock.dart';
 import 'package:sentech_connect_app/features/auth/data/repositories/secure_session_store.dart';
 import 'package:sentech_connect_app/features/auth/domain/repositories/session_store.dart';
-import 'package:sentech_connect_app/features/account_dashboard/data/repositories/mock_account_repository.dart';
-import 'package:sentech_connect_app/features/account_dashboard/domain/repositories/account_repository.dart';
 import 'package:sentech_connect_app/features/auth/data/repositories/http_registration_repository.dart';
 import 'package:sentech_connect_app/features/auth/data/repositories/local_registration_repository.dart';
 import 'package:sentech_connect_app/features/auth/data/repositories/http_auth_repository.dart';
@@ -98,7 +96,6 @@ final locator = GetIt.instance;
 const stillMockInProd = <Type>[
   CoverageRepository,
   FreeWifiRepository,
-  AccountRepository,
   PromotionsRepository,
   SupportRepository,
   LivenessRepository,
@@ -178,9 +175,6 @@ void _registerStillMockRepositories() {
   );
   locator.registerLazySingleton<LivenessRepository>(
     () => MockLivenessRepository(),
-  );
-  locator.registerLazySingleton<AccountRepository>(
-    () => MockAccountRepository(locator()),
   );
   locator.registerLazySingleton<SupportRepository>(
     () => MockSupportRepository(),

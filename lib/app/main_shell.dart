@@ -6,7 +6,6 @@ import 'package:sentech_connect_app/app/locator.dart';
 import 'package:sentech_connect_app/app/router/app_router.dart';
 import 'package:sentech_connect_app/core/time/platform_clock.dart';
 import 'package:sentech_connect_app/features/account/presentation/pages/account_page.dart';
-import 'package:sentech_connect_app/features/account_dashboard/presentation/bloc/account_cubit.dart';
 import 'package:sentech_connect_app/features/account_dashboard/presentation/pages/dashboard_page.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/domain/entities/order.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/domain/entities/plan.dart';
@@ -15,6 +14,11 @@ import 'package:sentech_connect_app/features/catalog_checkout/presentation/bloc/
 import 'package:sentech_connect_app/features/catalog_checkout/presentation/pages/catalog_page.dart';
 import 'package:sentech_connect_app/features/passes/presentation/bloc/passes_cubit.dart';
 import 'package:sentech_connect_app/features/passes/domain/usage_alert_scheduler.dart';
+import 'package:sentech_connect_app/features/subscriber/domain/repositories/invoice_repository.dart';
+import 'package:sentech_connect_app/features/subscriber/domain/repositories/kyc_repository.dart';
+import 'package:sentech_connect_app/features/subscriber/domain/repositories/subscriber_repository.dart';
+import 'package:sentech_connect_app/features/subscriber/presentation/home/home_overview_cubit.dart';
+import 'package:sentech_connect_app/features/subscriber/subscriber_gate.dart';
 import 'package:sentech_connect_app/features/support/domain/entities/support_message.dart';
 import 'package:sentech_connect_app/features/support/presentation/bloc/support_cubit.dart';
 import 'package:sentech_connect_app/features/support/presentation/pages/support_page.dart';
@@ -35,7 +39,6 @@ class MainShell extends StatefulWidget {
     required this.onOpenPromotions,
     required this.onFindHotspots,
     this.onOpenPasses,
-    this.showRouterCard = true,
     this.showMockFeatures = true,
     this.showPromotions,
     this.showFreeWifi,
@@ -49,9 +52,6 @@ class MainShell extends StatefulWidget {
   final VoidCallback onOpenPromotions;
   final VoidCallback onFindHotspots;
   final VoidCallback? onOpenPasses;
-
-  /// The tenant's `cpe` flag: router and fixed-plan content is hidden when off.
-  final bool showRouterCard;
 
   /// Support tickets and free Wi-Fi (and the hotspot finder) are backed by
   /// mock repositories until real APIs exist: shown in demo only, never prod.
@@ -78,7 +78,7 @@ class _MainShellState extends State<MainShell> {
   _Tab _selected = _Tab.home;
 
   // Held as a stable instance (rather than created inline in `pages`) so
-  // the dashboard's "Top up"/"Upgrade" quick actions can drive the Shop
+  // the dashboard's "Top up" quick action can drive the Shop
   // tab's category filter directly, not just switch to it blindly.
   late final CatalogCubit _catalogCubit = CatalogCubit(locator());
 
@@ -91,6 +91,27 @@ class _MainShellState extends State<MainShell> {
     alerts: locator.isRegistered<UsageAlertCoordinator>() ? locator() : null,
   );
 
+  /// Services, open invoices and ID check status for the dashboard. Created
+  /// only once the `subscriber_billing` module is on, so with it off nothing
+  /// subscriber-related is built or requested.
+  HomeOverviewCubit? _homeOverviewCubit;
+
+  HomeOverviewCubit get _homeOverview => _homeOverviewCubit ??= HomeOverviewCubit(
+    locator<SubscriberRepository>(),
+    locator<InvoiceRepository>(),
+    locator<KycRepository>(),
+  );
+
+  bool _subscriberOn() {
+    final tenant = context.read<TenantCubit?>();
+    return tenant != null && subscriberBillingOn(tenant.state);
+  }
+
+  /// Reloads the subscriber sections when they exist (returning to Home).
+  void _refreshHomeOverview() {
+    if (_subscriberOn()) _homeOverview.load();
+  }
+
   @override
   void didUpdateWidget(MainShell oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -98,10 +119,12 @@ class _MainShellState extends State<MainShell> {
     // pick up an order that was just completed (or created) in the meantime.
     _openOrderCubit.refresh();
     _passesCubit.load();
+    _refreshHomeOverview();
   }
 
   @override
   void dispose() {
+    _homeOverviewCubit?.close();
     _passesCubit.close();
     _catalogCubit.close();
     _openOrderCubit.close();
@@ -120,22 +143,22 @@ class _MainShellState extends State<MainShell> {
     final showScan = context.select<TenantCubit?, bool>(
       (c) => c?.state.isModuleOn(AppModuleKeys.vouchers) ?? true,
     );
+    final subscriberOn = context.select<TenantCubit?, bool>(
+      (c) => c != null && subscriberBillingOn(c.state),
+    );
     // One list drives both the pages and the destinations, so they never disagree.
     final tabs = <({_Tab id, Widget page, NavigationDestination dest})>[
       (
         id: _Tab.home,
         page: MultiBlocProvider(
           providers: [
-            // Fixed-plan account data is only loaded when the cpe flag is on.
-            if (widget.showRouterCard)
-              BlocProvider(create: (_) => AccountCubit(locator())),
+            if (subscriberOn) BlocProvider.value(value: _homeOverview),
             BlocProvider.value(value: _openOrderCubit),
             BlocProvider.value(value: _passesCubit),
           ],
           child: DashboardPage(
             onBuyPass: () => _goToShop(ProductCategory.hotspotPass),
             onTopUp: () => _goToShop(ProductCategory.voucher),
-            onUpgrade: () => _goToShop(ProductCategory.home5g),
             // A real message to the provider's support (POST /v1/support/messages).
             onReportIssue: () =>
                 submitSupportTicket(context, topic: SupportTopic.connecting),
@@ -144,7 +167,6 @@ class _MainShellState extends State<MainShell> {
                 : null,
             onResumeOrder: widget.onResumeOrder,
             onOpenPasses: widget.onOpenPasses,
-            showRouterCard: widget.showRouterCard,
             now: locator<PlatformClock>().wallNow,
           ),
         ),
@@ -189,7 +211,6 @@ class _MainShellState extends State<MainShell> {
           create: (_) => SupportCubit(locator()),
           child: SupportPage(
             showFaqs: widget.showMockFeatures,
-            cpe: widget.showRouterCard,
             whatsAppNumber: widget.supportWhatsAppNumber,
           ),
         ),
@@ -233,6 +254,7 @@ class _MainShellState extends State<MainShell> {
           if (tabs[i].id == _Tab.home) {
             _openOrderCubit.refresh();
             _passesCubit.load();
+            _refreshHomeOverview();
           }
           setState(() => _selected = tabs[i].id);
         },

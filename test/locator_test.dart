@@ -11,6 +11,10 @@ import 'package:sentech_connect_app/core/network/api_client.dart';
 import 'package:sentech_connect_app/core/network/auth_tokens.dart';
 import 'package:sentech_connect_app/features/auth/data/repositories/http_auth_repository.dart';
 import 'package:sentech_connect_app/features/auth/domain/repositories/auth_repository.dart';
+import 'package:sentech_connect_app/features/subscriber/data/repositories/mock_invoice_repository.dart';
+import 'package:sentech_connect_app/features/subscriber/data/repositories/mock_kyc_repository.dart';
+import 'package:sentech_connect_app/features/subscriber/domain/repositories/invoice_repository.dart';
+import 'package:sentech_connect_app/features/subscriber/domain/repositories/kyc_repository.dart';
 import 'package:sentech_connect_app/features/subscriber/data/repositories/http_subscriber_plans_repository.dart';
 import 'package:sentech_connect_app/features/subscriber/data/repositories/http_subscriber_repository.dart';
 import 'package:sentech_connect_app/features/subscriber/data/repositories/mock_subscriber_plans_repository.dart';
@@ -109,6 +113,14 @@ void main() {
     expect(locator<SubscriberRepository>(), isA<MockSubscriberRepository>());
     expect(stillMockInProd, isNot(contains(SubscriberPlansRepository)));
     expect(stillMockInProd, isNot(contains(SubscriberRepository)));
+    expect(locator<InvoiceRepository>(), isA<MockInvoiceRepository>());
+    expect(locator<KycRepository>(), isA<MockKycRepository>());
+  });
+
+  test('the invented account/router mock is gone: no AccountRepository anywhere', () {
+    final names = stillMockInProd.map((t) => t.toString());
+    expect(names, isNot(contains('AccountRepository')));
+    expect(File('lib/app/locator.dart').readAsStringSync(), isNot(contains('AccountRepository')));
   });
 
   test('demo keeps the mock voucher service', () {

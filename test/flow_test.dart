@@ -88,9 +88,9 @@ void main() {
 
       // 3. Catalog — MainShell lands on Home/Dashboard by default, switch to Shop
       expect(find.text('Home'), findsNWidgets(2));
-      // Home includes the router for this physical-product tenant.
+      // Home has no invented router card any more (S9).
       expect(find.text('Buy a pass'), findsWidgets);
-      expect(find.text('Living room router'), findsOneWidget);
+      expect(find.text('Living room router'), findsNothing);
       await tester.tap(find.text('Shop'));
       await tester.pump();
       await tester.pump(

@@ -91,7 +91,6 @@ void main() {
               showMockFeatures: false,
               showPromotions: promotions,
               showFreeWifi: freeWifi,
-              showRouterCard: false,
             ),
           ),
         ),

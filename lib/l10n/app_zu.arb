@@ -2477,5 +2477,13 @@
   "failureLoginUrlInvalid": "Ukungena kwale hotspot akukwazanga ukuvulwa. Xhuma ngekhasi lokungena le-Wi-Fi esikhundleni.",
   "@failureLoginUrlInvalid": {"description": "Customer app copy: failureLoginUrlInvalid."},
   "failureControllerNotSupported": "Ukungena ngokuthinta kanye akuxhaswa kule hotspot. Xhuma ngekhasi lokungena le-Wi-Fi esikhundleni.",
-  "@failureControllerNotSupported": {"description": "Customer app copy: failureControllerNotSupported."}
+  "@failureControllerNotSupported": {"description": "Customer app copy: failureControllerNotSupported."},
+  "homeSubscriberHeading": "I-inthanethi yakho yasekhaya",
+  "@homeSubscriberHeading": {"description": "Heading above the service cards on Home."},
+  "homeInvoiceDue": "{amount} kufanele kukhokhwe ngo-{date}",
+  "@homeInvoiceDue": {"description": "Open invoice strip on Home: amount still to pay and due date.", "placeholders": {"amount": {"type": "String", "example": "R 299,00"}, "date": {"type": "String", "example": "30 Nov 2026"}}},
+  "homeInvoicePay": "Khokha",
+  "@homeInvoicePay": {"description": "Pay action on the open invoice strip on Home."},
+  "homeInvoicesViewAll": "Buka bonke odinga",
+  "@homeInvoicesViewAll": {"description": "Link under the open invoice strips when there are more than three."}
 }

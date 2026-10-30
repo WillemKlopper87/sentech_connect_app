@@ -1,5 +1,6 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
+
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -2353,4 +2354,18 @@ class AppLocalizationsAf extends AppLocalizations {
   @override
   String get failureControllerNotSupported =>
       'Eenklik-aanmelding word nie by hierdie warmkol ondersteun nie. Koppel eerder vanaf die Wi-Fi-aanmeldbladsy.';
+
+  @override
+  String get homeSubscriberHeading => 'Jou tuisinternet';
+
+  @override
+  String homeInvoiceDue(String amount, String date) {
+    return '$amount verskuldig op $date';
+  }
+
+  @override
+  String get homeInvoicePay => 'Betaal';
+
+  @override
+  String get homeInvoicesViewAll => 'Sien alle fakture';
 }
