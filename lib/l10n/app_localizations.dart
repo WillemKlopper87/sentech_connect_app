@@ -4605,6 +4605,102 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'We are checking your ID. Your service can start once the check is done.'**
   String get serviceBannerKycChecking;
+
+  /// Title of the one-tap Wi-Fi login screen and the button that opens it.
+  ///
+  /// In en, this message translates to:
+  /// **'Get online now'**
+  String get hotspotLoginTitle;
+
+  /// Explains what to do before asking for login details.
+  ///
+  /// In en, this message translates to:
+  /// **'First connect to your provider\'s Wi-Fi network. Then get your login details here and enter them on the Wi-Fi login page.'**
+  String get hotspotLoginIntro;
+
+  /// Button that asks for Wi-Fi login details.
+  ///
+  /// In en, this message translates to:
+  /// **'Get login details'**
+  String get hotspotLoginGetDetails;
+
+  /// Label of the Wi-Fi username.
+  ///
+  /// In en, this message translates to:
+  /// **'Username'**
+  String get hotspotLoginUsername;
+
+  /// Label of the Wi-Fi password.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get hotspotLoginPassword;
+
+  /// Tooltip: reveal the password.
+  ///
+  /// In en, this message translates to:
+  /// **'Show password'**
+  String get hotspotLoginShowPassword;
+
+  /// Tooltip: hide the password.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide password'**
+  String get hotspotLoginHidePassword;
+
+  /// Tooltip: copy the username.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy username'**
+  String get hotspotLoginCopyUsername;
+
+  /// Tooltip: copy the password.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy password'**
+  String get hotspotLoginCopyPassword;
+
+  /// Message after copying a login detail.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied. We clear it from your clipboard after a minute.'**
+  String get hotspotLoginCopied;
+
+  /// Countdown until the login details stop working.
+  ///
+  /// In en, this message translates to:
+  /// **'Valid for {time}'**
+  String hotspotLoginValidFor(String time);
+
+  /// Shown when the login details ran out.
+  ///
+  /// In en, this message translates to:
+  /// **'These login details have expired.'**
+  String get hotspotLoginExpired;
+
+  /// Button that asks for fresh login details.
+  ///
+  /// In en, this message translates to:
+  /// **'Get new login details'**
+  String get hotspotLoginGetNew;
+
+  /// Button that opens the browser so the hotspot shows its login page.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Wi-Fi login page'**
+  String get hotspotLoginOpenPortal;
+
+  /// Shown when the browser could not be opened.
+  ///
+  /// In en, this message translates to:
+  /// **'We could not open your browser.'**
+  String get hotspotLoginOpenPortalFailed;
+
+  /// Hint under the login details.
+  ///
+  /// In en, this message translates to:
+  /// **'Use these details on this phone only. They work once.'**
+  String get hotspotLoginUseOnce;
 }
 
 class _AppLocalizationsDelegate

@@ -15,6 +15,7 @@ import 'package:sentech_connect_app/features/subscriber/domain/entities/subscrib
 import 'package:sentech_connect_app/features/subscriber/domain/service_actions.dart';
 import 'package:sentech_connect_app/features/wifi_voucher/domain/entities/wifi_hotspot.dart';
 
+import 'package:sentech_connect_app/features/hotspot_login/data/http_hotspot_login_repository.dart';
 import '../helpers/fixtures.dart';
 import 'openapi_schema.dart';
 
@@ -52,6 +53,8 @@ const fixtureSchemas = {
   'subscriber_kyc_none.json': 'KycNoneOut',
   'subscriber_kyc_pending.json': 'SubscriberKycOut',
   'voucher_redeem_ok.json': 'RedeemOut',
+  // One-tap hotspot login (S10): POST /v1/me/hotspot/login-token 201, with the optional hand-off present (the app ignores it).
+  'login_token.json': 'LoginTokenOut',
   'otp_request.json': 'OtpRequestOut',
   'delete_challenge.json': 'OtpRequestOut', // POST /v1/me/delete-challenge answers the same shape
   'token_pair.json': 'TokenPairOut',
@@ -644,6 +647,35 @@ void main() {
       expect({'tenant', 'topic', 'reply', 'message', 'order_ref', 'turnstile_token'}.difference(props), isEmpty);
       final topics = (((bodySchema()['properties']! as Map)['topic']! as Map)['enum']! as List).cast<String>();
       expect(topics, ['connecting', 'payment', 'pass', 'account', 'other']);
+    });
+  });
+
+  group('POST /v1/me/hotspot/login-token (S10)', () {
+    test('answers 201 LoginTokenOut, needs no Idempotency-Key, and mac is optional in the body', () {
+      final post = api.path('/v1/me/hotspot/login-token', 'post');
+      expect(api.responseSchemaName(post, '201'), 'LoginTokenOut');
+      final headers = ((post['parameters'] as List?) ?? const []).cast<Map>().where((p) => p['in'] == 'header');
+      expect(headers, isEmpty);
+      final content = (post['requestBody']! as Map)['content']! as Map;
+      final schema = Map<String, Object?>.from((content['application/json']! as Map)['schema']! as Map);
+      expect(schema['required'] ?? const <Object>[], isNot(contains('mac')));
+      expect(schema['additionalProperties'], isFalse);
+    });
+
+    test('the body the app sends validates against LoginTokenIn and carries no mac key', () {
+      final post = api.path('/v1/me/hotspot/login-token', 'post');
+      final content = (post['requestBody']! as Map)['content']! as Map;
+      final schema = Map<String, Object?>.from((content['application/json']! as Map)['schema']! as Map);
+      const body = HttpHotspotLoginRepository.requestBody;
+      expect(api.validate(body, schema), isEmpty);
+      expect(body.containsKey('mac'), isFalse);
+      expect(body.keys.toSet().difference((schema['properties']! as Map).keys.cast<String>().toSet()), isEmpty);
+    });
+
+    test('the decoder reads the fixture and ignores the hand-off', () {
+      final token = loginTokenFromJson(fixtureMap('login_token.json'));
+      expect(token.username, 'c.9f3a1b2c4d5e');
+      expect(token.expiresAt, DateTime.utc(2026, 10, 30, 12, 5));
     });
   });
 }

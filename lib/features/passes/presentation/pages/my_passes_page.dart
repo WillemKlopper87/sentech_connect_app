@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sentech_connect_app/features/hotspot_login/presentation/widgets/get_online_entry.dart';
 import 'package:sentech_connect_app/features/passes/domain/entities/pass.dart';
 import 'package:sentech_connect_app/features/passes/presentation/bloc/passes_cubit.dart';
 import 'package:sentech_connect_app/features/passes/presentation/pass_format.dart';
@@ -76,6 +77,7 @@ class _MyPassesPageState extends State<MyPassesPage> {
                   value: state.includeExpired,
                   onChanged: cubit.setIncludeExpired,
                 ),
+                GetOnlineEntry(passes: state.passes, now: now),
                 if (state.passes.isEmpty) ...[
                   const SizedBox(height: 24),
                   Text(l10n.passesEmpty, textAlign: TextAlign.center),

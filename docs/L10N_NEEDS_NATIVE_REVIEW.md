@@ -336,3 +336,19 @@ Plans and signup (slice S5, 2026-10-30). Machine-quality drafts, native review b
 | `subscriberProfileSaved` | Your details are saved. | Jou besonderhede is gestoor. | Imininingwane yakho igcinwe. |
 | `signupUpdateContactDetails` | Update your contact details | Werk jou kontakbesonderhede op | Buyekeza imininingwane yakho yokuxhumana |
 | `serviceBannerKycChecking` | We are checking your ID. Your service can start once the check is done. | Ons kontroleer jou ID. Jou diens kan begin sodra die kontrole klaar is. | Siyahlola i-ID yakho. Isevisi yakho ingaqala uma ukuhlolwa sekuqediwe. |
+| `hotspotLoginTitle` | Get online now | Kry nou aanlyn | Xhumeka manje |
+| `hotspotLoginIntro` | First connect to your provider's Wi-Fi network. Then get your login details here and enter them on the Wi-Fi login page. | Koppel eers aan jou verskaffer se Wi-Fi-netwerk. Kry dan jou aanmeldbesonderhede hier en voer dit op die Wi-Fi-aanmeldbladsy in. | Qala uxhume kunethiwekhi ye-Wi-Fi yomhlinzeki wakho. Bese uthola imininingwane yakho yokungena lapha uyifake ekhasini lokungena le-Wi-Fi. |
+| `hotspotLoginGetDetails` | Get login details | Kry aanmeldbesonderhede | Thola imininingwane yokungena |
+| `hotspotLoginUsername` | Username | Gebruikersnaam | Igama lomsebenzisi |
+| `hotspotLoginPassword` | Password | Wagwoord | Iphasiwedi |
+| `hotspotLoginShowPassword` | Show password | Wys wagwoord | Bonisa iphasiwedi |
+| `hotspotLoginHidePassword` | Hide password | Versteek wagwoord | Fihla iphasiwedi |
+| `hotspotLoginCopyUsername` | Copy username | Kopieer gebruikersnaam | Kopisha igama lomsebenzisi |
+| `hotspotLoginCopyPassword` | Copy password | Kopieer wagwoord | Kopisha iphasiwedi |
+| `hotspotLoginCopied` | Copied. We clear it from your clipboard after a minute. | Gekopieer. Ons vee dit na 'n minuut van jou knipbord af. | Kukopishiwe. Siyikhipha ku-clipboard yakho ngemuva komzuzu. |
+| `hotspotLoginValidFor` | Valid for {time} | Geldig vir {time} | Isikhathi esisele: {time} |
+| `hotspotLoginExpired` | These login details have expired. | Hierdie aanmeldbesonderhede het verval. | Le mininingwane yokungena iphelelwe isikhathi. |
+| `hotspotLoginGetNew` | Get new login details | Kry nuwe aanmeldbesonderhede | Thola imininingwane emisha yokungena |
+| `hotspotLoginOpenPortal` | Open Wi-Fi login page | Maak Wi-Fi-aanmeldbladsy oop | Vula ikhasi lokungena le-Wi-Fi |
+| `hotspotLoginOpenPortalFailed` | We could not open your browser. | Ons kon nie jou blaaier oopmaak nie. | Asikwazanga ukuvula isiphequluli sakho. |
+| `hotspotLoginUseOnce` | Use these details on this phone only. They work once. | Gebruik hierdie besonderhede net op hierdie foon. Dit werk een keer. | Sebenzisa le mininingwane kule foni kuphela. Isebenza kanye. |

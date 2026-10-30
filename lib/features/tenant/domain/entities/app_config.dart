@@ -14,7 +14,7 @@ class FeatureFlags extends Equatable {
 
   /// Demo flavor: hotspot passes lead; router/CPE content stays off, as at
   /// launch (RICA stays on for the physical-product demo flow).
-  static const demo = FeatureFlags(hotspotPasses: true, rica: true, cpe: false, vouchers: true);
+  static const demo = FeatureFlags(hotspotPasses: true, rica: true, cpe: false, vouchers: true, hotspotRadius: true);
 
   final bool hotspotPasses;
   final bool rica;

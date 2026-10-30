@@ -2694,4 +2694,58 @@ class AppLocalizationsAf extends AppLocalizations {
   @override
   String get serviceBannerKycChecking =>
       'Ons kontroleer jou ID. Jou diens kan begin sodra die kontrole klaar is.';
+
+  @override
+  String get hotspotLoginTitle => 'Kry nou aanlyn';
+
+  @override
+  String get hotspotLoginIntro =>
+      'Koppel eers aan jou verskaffer se Wi-Fi-netwerk. Kry dan jou aanmeldbesonderhede hier en voer dit op die Wi-Fi-aanmeldbladsy in.';
+
+  @override
+  String get hotspotLoginGetDetails => 'Kry aanmeldbesonderhede';
+
+  @override
+  String get hotspotLoginUsername => 'Gebruikersnaam';
+
+  @override
+  String get hotspotLoginPassword => 'Wagwoord';
+
+  @override
+  String get hotspotLoginShowPassword => 'Wys wagwoord';
+
+  @override
+  String get hotspotLoginHidePassword => 'Versteek wagwoord';
+
+  @override
+  String get hotspotLoginCopyUsername => 'Kopieer gebruikersnaam';
+
+  @override
+  String get hotspotLoginCopyPassword => 'Kopieer wagwoord';
+
+  @override
+  String get hotspotLoginCopied =>
+      'Gekopieer. Ons vee dit na \'n minuut van jou knipbord af.';
+
+  @override
+  String hotspotLoginValidFor(String time) {
+    return 'Geldig vir $time';
+  }
+
+  @override
+  String get hotspotLoginExpired => 'Hierdie aanmeldbesonderhede het verval.';
+
+  @override
+  String get hotspotLoginGetNew => 'Kry nuwe aanmeldbesonderhede';
+
+  @override
+  String get hotspotLoginOpenPortal => 'Maak Wi-Fi-aanmeldbladsy oop';
+
+  @override
+  String get hotspotLoginOpenPortalFailed =>
+      'Ons kon nie jou blaaier oopmaak nie.';
+
+  @override
+  String get hotspotLoginUseOnce =>
+      'Gebruik hierdie besonderhede net op hierdie foon. Dit werk een keer.';
 }

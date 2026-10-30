@@ -2621,5 +2621,22 @@
   "subscriberProfileSaving": "Iyagcina…",
   "subscriberProfileSaved": "Imininingwane yakho igcinwe.",
   "signupUpdateContactDetails": "Buyekeza imininingwane yakho yokuxhumana",
-  "serviceBannerKycChecking": "Siyahlola i-ID yakho. Isevisi yakho ingaqala uma ukuhlolwa sekuqediwe."
+  "serviceBannerKycChecking": "Siyahlola i-ID yakho. Isevisi yakho ingaqala uma ukuhlolwa sekuqediwe.",
+  "hotspotLoginTitle": "Xhumeka manje",
+  "hotspotLoginIntro": "Qala uxhume kunethiwekhi ye-Wi-Fi yomhlinzeki wakho. Bese uthola imininingwane yakho yokungena lapha uyifake ekhasini lokungena le-Wi-Fi.",
+  "hotspotLoginGetDetails": "Thola imininingwane yokungena",
+  "hotspotLoginUsername": "Igama lomsebenzisi",
+  "hotspotLoginPassword": "Iphasiwedi",
+  "hotspotLoginShowPassword": "Bonisa iphasiwedi",
+  "hotspotLoginHidePassword": "Fihla iphasiwedi",
+  "hotspotLoginCopyUsername": "Kopisha igama lomsebenzisi",
+  "hotspotLoginCopyPassword": "Kopisha iphasiwedi",
+  "hotspotLoginCopied": "Kukopishiwe. Siyikhipha ku-clipboard yakho ngemuva komzuzu.",
+  "hotspotLoginValidFor": "Isikhathi esisele: {time}",
+  "@hotspotLoginValidFor": {"description": "Customer app copy: hotspotLoginValidFor.", "placeholders": {"time": {"type": "String", "example": "04:32"}}},
+  "hotspotLoginExpired": "Le mininingwane yokungena iphelelwe isikhathi.",
+  "hotspotLoginGetNew": "Thola imininingwane emisha yokungena",
+  "hotspotLoginOpenPortal": "Vula ikhasi lokungena le-Wi-Fi",
+  "hotspotLoginOpenPortalFailed": "Asikwazanga ukuvula isiphequluli sakho.",
+  "hotspotLoginUseOnce": "Sebenzisa le mininingwane kule foni kuphela. Isebenza kanye."
 }

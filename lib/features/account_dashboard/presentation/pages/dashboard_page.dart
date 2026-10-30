@@ -5,6 +5,7 @@ import 'package:sentech_connect_app/app/theme/app_colors.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/domain/entities/order.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/presentation/bloc/order_cubit.dart';
+import 'package:sentech_connect_app/features/hotspot_login/presentation/widgets/get_online_entry.dart';
 import 'package:sentech_connect_app/features/passes/domain/entities/pass.dart';
 import 'package:sentech_connect_app/features/passes/presentation/bloc/passes_cubit.dart';
 import 'package:sentech_connect_app/features/passes/presentation/pass_format.dart';
@@ -364,6 +365,7 @@ class _CurrentPassCardState extends State<_CurrentPassCard> {
               ] else
                 ..._passDetails(context, current, state),
               if (!failed) ...[
+                GetOnlineEntry(passes: state.passes, now: widget.now()),
                 const SizedBox(height: 12),
                 Row(
                   children: [

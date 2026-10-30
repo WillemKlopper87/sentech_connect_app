@@ -2685,4 +2685,57 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get serviceBannerKycChecking =>
       'We are checking your ID. Your service can start once the check is done.';
+
+  @override
+  String get hotspotLoginTitle => 'Get online now';
+
+  @override
+  String get hotspotLoginIntro =>
+      'First connect to your provider\'s Wi-Fi network. Then get your login details here and enter them on the Wi-Fi login page.';
+
+  @override
+  String get hotspotLoginGetDetails => 'Get login details';
+
+  @override
+  String get hotspotLoginUsername => 'Username';
+
+  @override
+  String get hotspotLoginPassword => 'Password';
+
+  @override
+  String get hotspotLoginShowPassword => 'Show password';
+
+  @override
+  String get hotspotLoginHidePassword => 'Hide password';
+
+  @override
+  String get hotspotLoginCopyUsername => 'Copy username';
+
+  @override
+  String get hotspotLoginCopyPassword => 'Copy password';
+
+  @override
+  String get hotspotLoginCopied =>
+      'Copied. We clear it from your clipboard after a minute.';
+
+  @override
+  String hotspotLoginValidFor(String time) {
+    return 'Valid for $time';
+  }
+
+  @override
+  String get hotspotLoginExpired => 'These login details have expired.';
+
+  @override
+  String get hotspotLoginGetNew => 'Get new login details';
+
+  @override
+  String get hotspotLoginOpenPortal => 'Open Wi-Fi login page';
+
+  @override
+  String get hotspotLoginOpenPortalFailed => 'We could not open your browser.';
+
+  @override
+  String get hotspotLoginUseOnce =>
+      'Use these details on this phone only. They work once.';
 }

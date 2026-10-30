@@ -28,6 +28,9 @@ import 'package:sentech_connect_app/features/catalog_checkout/presentation/pages
 import 'package:sentech_connect_app/features/catalog_checkout/presentation/pages/payment_page.dart';
 import 'package:sentech_connect_app/features/coverage/presentation/bloc/coverage_cubit.dart';
 import 'package:sentech_connect_app/features/coverage/presentation/pages/coverage_page.dart';
+import 'package:sentech_connect_app/features/hotspot_login/domain/repositories/hotspot_login_repository.dart';
+import 'package:sentech_connect_app/features/hotspot_login/presentation/bloc/hotspot_login_cubit.dart';
+import 'package:sentech_connect_app/features/hotspot_login/presentation/pages/get_online_page.dart';
 import 'package:sentech_connect_app/features/passes/presentation/bloc/passes_cubit.dart';
 import 'package:sentech_connect_app/features/passes/domain/usage_alert_scheduler.dart';
 import 'package:sentech_connect_app/features/passes/presentation/pages/my_passes_page.dart';
@@ -81,6 +84,7 @@ abstract class AppRoutes {
   static const passes = '/passes';
   static const promotions = '/promotions';
   static const wifiHotspots = '/wifi-hotspots';
+  static const getOnline = '/get-online';
   static const tenantPicker = '/tenant';
   static const updateRequired = '/update-required';
 
@@ -291,6 +295,9 @@ class AppRouter {
 bool _subscriberModuleOff(TenantCubit? tenant) =>
     tenant != null && tenant.state.status == TenantStatus.ready && !subscriberBillingOn(tenant.state);
 
+bool _hotspotLoginOff(TenantCubit? tenant) =>
+    tenant != null && tenant.state.status == TenantStatus.ready && !tenant.state.featureFlags.hotspotRadius;
+
 GoRouter _buildRouter(
   AuthCubit authCubit,
   TenantCubit? tenantCubit,
@@ -455,6 +462,15 @@ GoRouter _buildRouter(
             now: locator<PlatformClock>().wallNow,
           ),
           child: const PromotionsPage(),
+        ),
+      ),
+      // One-tap hotspot login ("Get online now"). Hidden when the tenant's hotspot_radius flag is off.
+      GoRoute(
+        path: AppRoutes.getOnline,
+        redirect: (context, state) => _hotspotLoginOff(tenantCubit) ? AppRoutes.main : null,
+        builder: (context, state) => BlocProvider(
+          create: (_) => HotspotLoginCubit(locator<HotspotLoginRepository>(), now: locator<PlatformClock>().wallNow),
+          child: const GetOnlinePage(),
         ),
       ),
       GoRoute(

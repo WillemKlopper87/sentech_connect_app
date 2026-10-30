@@ -1,0 +1,9 @@
+{
+  "username": "c.9f3a1b2c4d5e",
+  "password": "Zk7-demo-only-Qx2",
+  "expires_at": "2026-10-30T12:05:00+00:00",
+  "handoff": {
+    "action_url": "http://hotspot.example.test/login",
+    "fields": {"username": "c.9f3a1b2c4d5e", "password": "Zk7-demo-only-Qx2", "dst": "http://neverssl.com"}
+  }
+}

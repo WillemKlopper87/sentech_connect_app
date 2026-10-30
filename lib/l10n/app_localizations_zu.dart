@@ -2697,4 +2697,59 @@ class AppLocalizationsZu extends AppLocalizations {
   @override
   String get serviceBannerKycChecking =>
       'Siyahlola i-ID yakho. Isevisi yakho ingaqala uma ukuhlolwa sekuqediwe.';
+
+  @override
+  String get hotspotLoginTitle => 'Xhumeka manje';
+
+  @override
+  String get hotspotLoginIntro =>
+      'Qala uxhume kunethiwekhi ye-Wi-Fi yomhlinzeki wakho. Bese uthola imininingwane yakho yokungena lapha uyifake ekhasini lokungena le-Wi-Fi.';
+
+  @override
+  String get hotspotLoginGetDetails => 'Thola imininingwane yokungena';
+
+  @override
+  String get hotspotLoginUsername => 'Igama lomsebenzisi';
+
+  @override
+  String get hotspotLoginPassword => 'Iphasiwedi';
+
+  @override
+  String get hotspotLoginShowPassword => 'Bonisa iphasiwedi';
+
+  @override
+  String get hotspotLoginHidePassword => 'Fihla iphasiwedi';
+
+  @override
+  String get hotspotLoginCopyUsername => 'Kopisha igama lomsebenzisi';
+
+  @override
+  String get hotspotLoginCopyPassword => 'Kopisha iphasiwedi';
+
+  @override
+  String get hotspotLoginCopied =>
+      'Kukopishiwe. Siyikhipha ku-clipboard yakho ngemuva komzuzu.';
+
+  @override
+  String hotspotLoginValidFor(String time) {
+    return 'Isikhathi esisele: $time';
+  }
+
+  @override
+  String get hotspotLoginExpired =>
+      'Le mininingwane yokungena iphelelwe isikhathi.';
+
+  @override
+  String get hotspotLoginGetNew => 'Thola imininingwane emisha yokungena';
+
+  @override
+  String get hotspotLoginOpenPortal => 'Vula ikhasi lokungena le-Wi-Fi';
+
+  @override
+  String get hotspotLoginOpenPortalFailed =>
+      'Asikwazanga ukuvula isiphequluli sakho.';
+
+  @override
+  String get hotspotLoginUseOnce =>
+      'Sebenzisa le mininingwane kule foni kuphela. Isebenza kanye.';
 }

@@ -45567,7 +45567,7 @@
     },
     "/v1/me/hotspot/login-token": {
       "post": {
-        "description": "Issues a one-time hotspot login (username and password, shown once) bound to the device MAC, for a customer with a usable entitlement. With `nas_id` and `login_url` the answer also carries the form hand-off for that controller (the URL must belong to the registered controller). The body is limited to 4096 bytes.",
+        "description": "Issues a hotspot login (username and password, shown once) for a customer with a usable entitlement. With `mac` the login is bound to that device up front. Without `mac` (the mobile app cannot read its own) it is short-lived, and binds to the first device that signs in with it at the controller; a second device is refused. With `nas_id` and `login_url` the answer also carries the form hand-off for that controller (the URL must belong to the registered controller). The body is limited to 4096 bytes.",
         "operationId": "create_login_token_v1_me_hotspot_login_token_post",
         "requestBody": {
           "content": {
@@ -45600,10 +45600,17 @@
                     "title": "Login Url"
                   },
                   "mac": {
-                    "maxLength": 32,
-                    "minLength": 12,
-                    "title": "Mac",
-                    "type": "string"
+                    "anyOf": [
+                      {
+                        "maxLength": 32,
+                        "minLength": 12,
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "title": "Mac"
                   },
                   "nas_id": {
                     "anyOf": [
@@ -45618,9 +45625,6 @@
                     "title": "Nas Id"
                   }
                 },
-                "required": [
-                  "mac"
-                ],
                 "title": "LoginTokenIn",
                 "type": "object"
               }

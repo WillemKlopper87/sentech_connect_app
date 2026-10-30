@@ -67,6 +67,9 @@ import 'package:sentech_connect_app/features/promotions/data/repositories/mock_p
 import 'package:sentech_connect_app/features/promotions/domain/repositories/promotions_repository.dart';
 import 'package:sentech_connect_app/features/rica/data/repositories/mock_liveness_repository.dart';
 import 'package:sentech_connect_app/features/rica/domain/repositories/liveness_repository.dart';
+import 'package:sentech_connect_app/features/hotspot_login/data/http_hotspot_login_repository.dart';
+import 'package:sentech_connect_app/features/hotspot_login/data/mock_hotspot_login_repository.dart';
+import 'package:sentech_connect_app/features/hotspot_login/domain/repositories/hotspot_login_repository.dart';
 import 'package:sentech_connect_app/features/passes/data/repositories/http_passes_repository.dart';
 import 'package:sentech_connect_app/features/passes/data/repositories/pass_local_store.dart';
 import 'package:sentech_connect_app/features/passes/data/repositories/mock_passes_repository.dart';
@@ -210,6 +213,7 @@ void _registerDemoRepositories() {
     () => MockInvoiceRepository(),
   );
   locator.registerLazySingleton<KycRepository>(() => MockKycRepository());
+  locator.registerLazySingleton<HotspotLoginRepository>(() => MockHotspotLoginRepository());
   locator.registerLazySingleton<SubscriberProfileRepository>(() => MockSubscriberProfileRepository());
   locator.registerLazySingleton<PrivacyRepository>(
     () => MockPrivacyRepository(locator()),
@@ -307,6 +311,7 @@ void _registerProdRepositories(Uri baseUrl, TurnstileConfig? turnstile) {
     () => HttpInvoiceRepository(locator()),
   );
   locator.registerLazySingleton<KycRepository>(() => HttpKycRepository(locator()));
+  locator.registerLazySingleton<HotspotLoginRepository>(() => HttpHotspotLoginRepository(locator()));
   locator.registerLazySingleton<SubscriberProfileRepository>(() => HttpSubscriberProfileRepository(locator()));
   locator.registerLazySingleton<CheckoutRepository>(
     () => HttpCheckoutRepository(locator()),

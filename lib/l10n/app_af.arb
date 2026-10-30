@@ -2639,5 +2639,22 @@
   "signupUpdateContactDetails": "Werk jou kontakbesonderhede op",
   "@signupUpdateContactDetails": {"description": "Button on the sign-up failure when the contact details are not complete."},
   "serviceBannerKycChecking": "Ons kontroleer jou ID. Jou diens kan begin sodra die kontrole klaar is.",
-  "@serviceBannerKycChecking": {"description": "Banner on a service that waits for an ID check the provider is already doing."}
+  "@serviceBannerKycChecking": {"description": "Banner on a service that waits for an ID check the provider is already doing."},
+  "hotspotLoginTitle": "Kry nou aanlyn",
+  "hotspotLoginIntro": "Koppel eers aan jou verskaffer se Wi-Fi-netwerk. Kry dan jou aanmeldbesonderhede hier en voer dit op die Wi-Fi-aanmeldbladsy in.",
+  "hotspotLoginGetDetails": "Kry aanmeldbesonderhede",
+  "hotspotLoginUsername": "Gebruikersnaam",
+  "hotspotLoginPassword": "Wagwoord",
+  "hotspotLoginShowPassword": "Wys wagwoord",
+  "hotspotLoginHidePassword": "Versteek wagwoord",
+  "hotspotLoginCopyUsername": "Kopieer gebruikersnaam",
+  "hotspotLoginCopyPassword": "Kopieer wagwoord",
+  "hotspotLoginCopied": "Gekopieer. Ons vee dit na 'n minuut van jou knipbord af.",
+  "hotspotLoginValidFor": "Geldig vir {time}",
+  "@hotspotLoginValidFor": {"description": "Customer app copy: hotspotLoginValidFor.", "placeholders": {"time": {"type": "String", "example": "04:32"}}},
+  "hotspotLoginExpired": "Hierdie aanmeldbesonderhede het verval.",
+  "hotspotLoginGetNew": "Kry nuwe aanmeldbesonderhede",
+  "hotspotLoginOpenPortal": "Maak Wi-Fi-aanmeldbladsy oop",
+  "hotspotLoginOpenPortalFailed": "Ons kon nie jou blaaier oopmaak nie.",
+  "hotspotLoginUseOnce": "Gebruik hierdie besonderhede net op hierdie foon. Dit werk een keer."
 }
