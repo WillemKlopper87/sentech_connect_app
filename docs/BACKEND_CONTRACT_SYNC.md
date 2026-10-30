@@ -2,7 +2,7 @@
 
 Where the app stands against the platform API, route by route. The contract is `test/contract/openapi.json`, a pretty-printed copy of the platform's `apps/api/openapi.json`.
 
-- **Snapshot source:** platform repo `codex/naas-implementation` at `d4be7ce` (2026-10-29), synced with `dart run tool/sync_openapi.dart <file>` (the file was `git show origin/codex/naas-implementation:apps/api/openapi.json`). SHA-256 of the snapshot (LF line endings) starts `6784a439aeaa`. 340 operations: 51 public or customer, 167 `/v1/admin/*`, 122 `/v1/platform/*`. Earlier snapshot: `feat/product-gaps` at `39f5a44`. No customer or public route changed between the two; only admin and platform schemas did.
+- **Snapshot source:** platform repo `codex/naas-implementation` at `ae401a0` (2026-10-30), synced with `dart run tool/sync_openapi.dart <file>` (the file was `git show origin/codex/naas-implementation:apps/api/openapi.json`). SHA-256 of the snapshot (LF line endings) starts `4aa2f5ce6826`. 341 operations. New since `d4be7ce`: `GET /v1/auth/human-check/config` (public). Earlier snapshots: `d4be7ce`, `feat/product-gaps` at `39f5a44`.
 - **Contract tests:** `test/contract/openapi_contract_test.dart` checks every fixture in `test/fixtures/api/` against its response schema, every key a decoder reads, the request bodies the app sends (`OtpRequestIn`, `OtpVerifyIn`, `DeleteAccountIn`, `DeleteChallengeIn`), the `status=current` fixture with a suspended pass past `expires_at` (`entitlements_current_suspended.json`), and that every entitlement status, source, origin and scope kind the API can send is typed.
 - **Rule:** change the snapshot, the fixtures and the decoders in the same commit.
 

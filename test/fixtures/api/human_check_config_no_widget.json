@@ -1,0 +1,1 @@
+{"turnstile": {"site_key": null, "base_url": null, "required": {"otp_request": false, "delete_challenge": false, "support_message": true, "lead": false}}}

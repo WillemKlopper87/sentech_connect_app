@@ -1,0 +1,1 @@
+{"turnstile": {"site_key": "0x4AAAAAAAbcdEFGH", "base_url": "https://www.example.co.za", "required": {"otp_request": true, "delete_challenge": true, "support_message": true, "lead": true}}}

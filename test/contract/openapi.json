@@ -4337,6 +4337,46 @@
         "title": "HotspotPublicOut",
         "type": "object"
       },
+      "HumanCheckConfig": {
+        "properties": {
+          "turnstile": {
+            "$ref": "#/components/schemas/TurnstileConfig"
+          }
+        },
+        "required": [
+          "turnstile"
+        ],
+        "title": "HumanCheckConfig",
+        "type": "object"
+      },
+      "HumanCheckRequired": {
+        "properties": {
+          "delete_challenge": {
+            "title": "Delete Challenge",
+            "type": "boolean"
+          },
+          "lead": {
+            "title": "Lead",
+            "type": "boolean"
+          },
+          "otp_request": {
+            "title": "Otp Request",
+            "type": "boolean"
+          },
+          "support_message": {
+            "title": "Support Message",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "otp_request",
+          "delete_challenge",
+          "support_message",
+          "lead"
+        ],
+        "title": "HumanCheckRequired",
+        "type": "object"
+      },
       "IdentityOut": {
         "properties": {
           "email_from_address": {
@@ -15479,6 +15519,42 @@
           "created_at"
         ],
         "title": "TransitionOut",
+        "type": "object"
+      },
+      "TurnstileConfig": {
+        "properties": {
+          "base_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Base Url"
+          },
+          "required": {
+            "$ref": "#/components/schemas/HumanCheckRequired"
+          },
+          "site_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Site Key"
+          }
+        },
+        "required": [
+          "site_key",
+          "base_url",
+          "required"
+        ],
+        "title": "TurnstileConfig",
         "type": "object"
       },
       "UnbookedReceiptOut": {
@@ -43228,6 +43304,70 @@
         "summary": "App Config",
         "tags": [
           "app-config"
+        ]
+      }
+    },
+    "/v1/auth/human-check/config": {
+      "get": {
+        "operationId": "human_check_config_v1_auth_human_check_config_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "tenant",
+            "required": false,
+            "schema": {
+              "default": "sentech",
+              "pattern": "^[a-z0-9-]{2,40}$",
+              "title": "Tenant",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HumanCheckConfig"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "summary": "Human Check Config",
+        "tags": [
+          "auth"
         ]
       }
     },

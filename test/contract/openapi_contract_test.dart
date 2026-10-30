@@ -31,6 +31,10 @@ const fixtureSchemas = {
   'consents.json': 'ConsentState',
   'consent_out.json': 'ConsentOut',
   'export.json': 'CustomerExport',
+  // GET /v1/auth/human-check/config (platform ae401a0); the second has no widget (fake verifier).
+  'human_check_config.json': 'HumanCheckConfig',
+  'human_check_config_no_widget.json': 'HumanCheckConfig',
+  'support_accepted.json': 'SupportAcceptedOut', // POST /v1/support/messages 202
 };
 
 /// Keys each hand-written decoder reads. Change it in the same commit as the decoder.
@@ -110,6 +114,10 @@ const decoderReads = <String, Set<String>>{
   'OtpRequestIn': {'tenant', 'phone', 'binding'},
   'OtpVerifyIn': {'tenant', 'challenge_id', 'code', 'binding'},
   'DeleteAccountIn': {'challenge_id', 'code'},
+  'HumanCheckConfig': {'turnstile'},
+  'TurnstileConfig': {'site_key', 'base_url', 'required'},
+  'HumanCheckRequired': {'otp_request', 'delete_challenge', 'support_message', 'lead'},
+  'SupportAcceptedOut': {'reference'},
   'ProblemDetail': {'code', 'title', 'detail', 'request_id'},
 };
 
@@ -270,5 +278,48 @@ void main() {
     );
     final del = api.path('/v1/me', 'delete');
     expect(api.requestBodySchemaName(del), 'DeleteAccountIn');
+  });
+
+  test('the human-check config route is public and answers HumanCheckConfig', () {
+    final route = api.path('/v1/auth/human-check/config', 'get');
+    expect(api.responseSchemaName(route, '200'), 'HumanCheckConfig');
+    expect(route.containsKey('security'), isFalse);
+    final params = (route['parameters']! as List).cast<Map>();
+    expect(params.map((p) => p['name']), ['tenant']);
+  });
+
+  group('POST /v1/support/messages', () {
+    Map<String, Object?> bodySchema() {
+      final route = api.path('/v1/support/messages', 'post');
+      final content = (route['requestBody']! as Map)['content']! as Map;
+      return Map<String, Object?>.from(((content['application/json']! as Map)['schema']!) as Map);
+    }
+
+    test('answers 202 SupportAcceptedOut and requires the Idempotency-Key header', () {
+      final route = api.path('/v1/support/messages', 'post');
+      expect(api.responseSchemaName(route, '202'), 'SupportAcceptedOut');
+      final headers = (route['parameters']! as List).cast<Map>().where((p) => p['in'] == 'header');
+      expect(headers.single['name'], 'Idempotency-Key');
+      expect(headers.single['required'], isTrue);
+    });
+
+    test('the body the app sends validates against the request schema', () {
+      final body = {
+        'tenant': 'sentech',
+        'topic': 'connecting',
+        'reply': {'type': 'email', 'value': 'thandi@example.co.za'},
+        'message': 'My hotspot pass shows active but I cannot connect.',
+        'order_ref': 'AB12-CD34',
+        'turnstile_token': 'tok',
+      };
+      expect(api.validate(body, bodySchema()), isEmpty);
+    });
+
+    test('every key and topic the app can send exists in the schema', () {
+      final props = (bodySchema()['properties']! as Map).keys.toSet();
+      expect({'tenant', 'topic', 'reply', 'message', 'order_ref', 'turnstile_token'}.difference(props), isEmpty);
+      final topics = (((bodySchema()['properties']! as Map)['topic']! as Map)['enum']! as List).cast<String>();
+      expect(topics, ['connecting', 'payment', 'pass', 'account', 'other']);
+    });
   });
 }
