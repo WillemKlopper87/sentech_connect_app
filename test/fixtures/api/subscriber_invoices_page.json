@@ -1,0 +1,69 @@
+{
+  "items": [
+    {
+      "id": "9a1b2c3d-5555-4a55-8a55-0000000000c2",
+      "service_id": "9a1b2c3d-3333-4a33-8a33-0000000000b1",
+      "invoice_no": "INV-000102",
+      "kind": "recurring",
+      "status": "open",
+      "period_start": "2026-12-01",
+      "period_end": "2026-12-31",
+      "issue_date": "2026-11-25",
+      "due_date": "2026-12-01",
+      "amount": {"amount_cents": 19900, "currency": "ZAR"},
+      "vat_cents": 2596,
+      "amount_paid_cents": 0,
+      "paid_at": null,
+      "lines": []
+    },
+    {
+      "id": "9a1b2c3d-5555-4a55-8a55-0000000000c1",
+      "service_id": "9a1b2c3d-3333-4a33-8a33-0000000000b1",
+      "invoice_no": "INV-000101",
+      "kind": "initial",
+      "status": "paid",
+      "period_start": "2026-11-01",
+      "period_end": "2026-11-30",
+      "issue_date": "2026-10-25",
+      "due_date": "2026-11-01",
+      "amount": {"amount_cents": 119800, "currency": "ZAR"},
+      "vat_cents": 15626,
+      "amount_paid_cents": 119800,
+      "paid_at": "2026-10-26T08:30:00Z",
+      "lines": []
+    },
+    {
+      "id": "9a1b2c3d-5555-4a55-8a55-0000000000c3",
+      "service_id": "9a1b2c3d-3333-4a33-8a33-0000000000b1",
+      "invoice_no": "INV-000090",
+      "kind": "adjustment",
+      "status": "void",
+      "period_start": "2026-09-01",
+      "period_end": "2026-09-30",
+      "issue_date": "2026-09-02",
+      "due_date": "2026-09-05",
+      "amount": {"amount_cents": 5000, "currency": "ZAR"},
+      "vat_cents": 652,
+      "amount_paid_cents": 0,
+      "paid_at": null,
+      "lines": []
+    },
+    {
+      "id": "9a1b2c3d-5555-4a55-8a55-0000000000c4",
+      "service_id": "9a1b2c3d-3333-4a33-8a33-0000000000b1",
+      "invoice_no": "INV-000080",
+      "kind": "recurring",
+      "status": "written_off",
+      "period_start": "2026-08-01",
+      "period_end": "2026-08-31",
+      "issue_date": "2026-07-25",
+      "due_date": "2026-08-01",
+      "amount": {"amount_cents": 19900, "currency": "ZAR"},
+      "vat_cents": 2596,
+      "amount_paid_cents": 0,
+      "paid_at": null,
+      "lines": []
+    }
+  ],
+  "next_cursor": null
+}

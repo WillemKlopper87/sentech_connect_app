@@ -1,6 +1,5 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
-
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -1674,6 +1673,155 @@ class AppLocalizationsAf extends AppLocalizations {
   String get orderCancelKeep => 'Hou bestelling';
 
   @override
+  String get invoicesTitle => 'Fakture';
+
+  @override
+  String get invoicesEmptyTitle => 'Nog geen fakture nie';
+
+  @override
+  String get invoicesEmptyBody =>
+      'Fakture vir jou tuisinternetdiens sal hier verskyn.';
+
+  @override
+  String get invoicesOpenSection => 'Om te betaal';
+
+  @override
+  String get invoicesEarlierSection => 'Vroeëre fakture';
+
+  @override
+  String get invoiceStatusOpen => 'Verskuldig';
+
+  @override
+  String get invoiceStatusPaid => 'Betaal';
+
+  @override
+  String get invoiceStatusVoid => 'Gekanselleer';
+
+  @override
+  String get invoiceStatusWrittenOff => 'Afgeskryf';
+
+  @override
+  String get invoiceKindInitial => 'Eerste faktuur';
+
+  @override
+  String get invoiceKindRecurring => 'Maandelikse faktuur';
+
+  @override
+  String get invoiceKindProration => 'Planverandering';
+
+  @override
+  String get invoiceKindReactivation => 'Heraktivering';
+
+  @override
+  String get invoiceKindAdjustment => 'Aanpassing';
+
+  @override
+  String get invoiceKindOther => 'Faktuur';
+
+  @override
+  String invoiceDueOn(String date) {
+    return 'Verskuldig $date';
+  }
+
+  @override
+  String invoiceIssuedOn(String date) {
+    return 'Uitgereik $date';
+  }
+
+  @override
+  String invoicePaidOn(String date) {
+    return 'Betaal $date';
+  }
+
+  @override
+  String get invoiceDetailTitle => 'Faktuur';
+
+  @override
+  String invoicePeriod(String start, String end) {
+    return 'Tydperk: $start tot $end';
+  }
+
+  @override
+  String get invoiceLinesHeading => 'Waarvoor jy betaal';
+
+  @override
+  String invoiceLineQuantity(String quantity, String price) {
+    return '$quantity x $price';
+  }
+
+  @override
+  String get invoiceTotal => 'Totaal';
+
+  @override
+  String invoiceIncludesVat(String amount) {
+    return 'Sluit BTW van $amount in';
+  }
+
+  @override
+  String get invoiceAmountPaid => 'Tot dusver betaal';
+
+  @override
+  String get invoicePartPaid =>
+      'Deel van hierdie faktuur is reeds betaal. Kontak ondersteuning om die res te vereffen.';
+
+  @override
+  String get invoiceVoidNote =>
+      'Hierdie faktuur is gekanselleer. Niks is verskuldig nie.';
+
+  @override
+  String get invoiceWrittenOffNote =>
+      'Hierdie faktuur is afgeskryf. Niks is verskuldig nie.';
+
+  @override
+  String invoicePayNow(String amount) {
+    return 'Betaal $amount';
+  }
+
+  @override
+  String get invoicePayOnSecurePage =>
+      'Jy betaal op jou betalingsverskaffer se veilige bladsy.';
+
+  @override
+  String get invoiceConfirming =>
+      'Bevestig tans jou betaling. Dit kan \'n oomblik neem.';
+
+  @override
+  String get invoiceStillPending =>
+      'Ons het nog nie van die betalingsverskaffer gehoor nie. As jy betaal het, sal hierdie faktuur binnekort opdateer.';
+
+  @override
+  String get invoicePaidTitle => 'Betaling ontvang';
+
+  @override
+  String get invoicePaidThanks => 'Dankie. Hierdie faktuur is betaal.';
+
+  @override
+  String get invoicePaidKyc =>
+      'Ons moet jou ID nagaan voordat jou diens begin.';
+
+  @override
+  String get invoicePaidInstallation =>
+      'Wag vir installasie deur jou verskaffer.';
+
+  @override
+  String get invoicePaidContactProvider =>
+      'Jou diens kan nog nie begin nie. Kontak jou verskaffer.';
+
+  @override
+  String get invoicePaidActivating =>
+      'Jou diens begin tans. Dit kan \'n paar minute neem. Trek om te herlaai.';
+
+  @override
+  String get invoicePaidSettingUp => 'Jou verskaffer rig jou diens op.';
+
+  @override
+  String get invoiceCollectionExternal =>
+      'Jou verskaffer vorder betaling vir hierdie faktuur self in.';
+
+  @override
+  String get invoiceBackToInvoices => 'Terug na fakture';
+
+  @override
   String get loginTitleNew => 'Hello!';
 
   @override
@@ -1985,6 +2133,10 @@ class AppLocalizationsAf extends AppLocalizations {
   @override
   String get failureCustomerLinkRequired =>
       'Jou rekening is nog nie aan jou verskaffer gekoppel nie. Kontak jou verskaffer.';
+
+  @override
+  String get failureAccountProblem =>
+      'Daar is \'n probleem met jou rekening. Kontak jou verskaffer.';
 
   @override
   String get failureSubscriberProfileInvalid =>

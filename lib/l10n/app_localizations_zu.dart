@@ -1,6 +1,5 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
-
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -1675,6 +1674,155 @@ class AppLocalizationsZu extends AppLocalizations {
   String get orderCancelKeep => 'Gcina i-oda';
 
   @override
+  String get invoicesTitle => 'Odinga';
+
+  @override
+  String get invoicesEmptyTitle => 'Awukabi nama-invoyisi';
+
+  @override
+  String get invoicesEmptyBody =>
+      'Odinga bensizakalo yakho ye-inthanethi yasekhaya buzovela lapha.';
+
+  @override
+  String get invoicesOpenSection => 'Okufanele kukhokhwe';
+
+  @override
+  String get invoicesEarlierSection => 'Odinga bangaphambilini';
+
+  @override
+  String get invoiceStatusOpen => 'Kufanele kukhokhwe';
+
+  @override
+  String get invoiceStatusPaid => 'Kukhokhiwe';
+
+  @override
+  String get invoiceStatusVoid => 'Kukhanselwe';
+
+  @override
+  String get invoiceStatusWrittenOff => 'Kushiyiwe';
+
+  @override
+  String get invoiceKindInitial => 'I-invoyisi yokuqala';
+
+  @override
+  String get invoiceKindRecurring => 'I-invoyisi yenyanga';
+
+  @override
+  String get invoiceKindProration => 'Ushintsho lohlelo';
+
+  @override
+  String get invoiceKindReactivation => 'Ukuvuselelwa';
+
+  @override
+  String get invoiceKindAdjustment => 'Ukulungiswa';
+
+  @override
+  String get invoiceKindOther => 'I-invoyisi';
+
+  @override
+  String invoiceDueOn(String date) {
+    return 'Kufanele kukhokhwe ngo-$date';
+  }
+
+  @override
+  String invoiceIssuedOn(String date) {
+    return 'Kukhishwe ngo-$date';
+  }
+
+  @override
+  String invoicePaidOn(String date) {
+    return 'Kukhokhwe ngo-$date';
+  }
+
+  @override
+  String get invoiceDetailTitle => 'I-invoyisi';
+
+  @override
+  String invoicePeriod(String start, String end) {
+    return 'Isikhathi: $start kuya ku-$end';
+  }
+
+  @override
+  String get invoiceLinesHeading => 'Okukhokhelayo';
+
+  @override
+  String invoiceLineQuantity(String quantity, String price) {
+    return '$quantity x $price';
+  }
+
+  @override
+  String get invoiceTotal => 'Isamba';
+
+  @override
+  String invoiceIncludesVat(String amount) {
+    return 'Kubandakanya i-VAT ye-$amount';
+  }
+
+  @override
+  String get invoiceAmountPaid => 'Okukhokhiwe kuze kube manje';
+
+  @override
+  String get invoicePartPaid =>
+      'Ingxenye yale invoyisi isikhokhiwe. Xhumana nosizo ukuze uphothule okusele.';
+
+  @override
+  String get invoiceVoidNote =>
+      'Le nvoyisi ikhanseliwe. Akukho okufanele kukhokhwe.';
+
+  @override
+  String get invoiceWrittenOffNote =>
+      'Le nvoyisi ishiyiwe. Akukho okufanele kukhokhwe.';
+
+  @override
+  String invoicePayNow(String amount) {
+    return 'Khokha $amount';
+  }
+
+  @override
+  String get invoicePayOnSecurePage =>
+      'Ukhokha ekhasini eligcinekile lomhlinzeki wenkokhelo yakho.';
+
+  @override
+  String get invoiceConfirming =>
+      'Siqinisekisa inkokhelo yakho. Lokhu kungathatha isikhashana.';
+
+  @override
+  String get invoiceStillPending =>
+      'Asikezwa lutho kumhlinzeki wenkokhelo. Uma usukhokhile, le nvoyisi izobuyekezwa maduze.';
+
+  @override
+  String get invoicePaidTitle => 'Inkokhelo emukelwe';
+
+  @override
+  String get invoicePaidThanks => 'Siyabonga. Le nvoyisi ikhokhiwe.';
+
+  @override
+  String get invoicePaidKyc =>
+      'Kudingeka sihlole i-ID yakho ngaphambi kokuthi isevisi yakho iqale.';
+
+  @override
+  String get invoicePaidInstallation =>
+      'Silindele ukufakwa ngumhlinzeki wakho.';
+
+  @override
+  String get invoicePaidContactProvider =>
+      'Isevisi yakho ayikwazi ukuqala okwamanje. Xhumana nomhlinzeki wakho.';
+
+  @override
+  String get invoicePaidActivating =>
+      'Isevisi yakho iyaqala. Lokhu kungathatha amaminithi ambalwa. Donsa ukuze uvuselele.';
+
+  @override
+  String get invoicePaidSettingUp => 'Umhlinzeki wakho ulungisa isevisi yakho.';
+
+  @override
+  String get invoiceCollectionExternal =>
+      'Umhlinzeki wakho uqoqa inkokhelo yale nvoyisi ngokwakhe.';
+
+  @override
+  String get invoiceBackToInvoices => 'Buyela kuma-invoyisi';
+
+  @override
   String get loginTitleNew => 'Hello!';
 
   @override
@@ -1983,6 +2131,10 @@ class AppLocalizationsZu extends AppLocalizations {
   @override
   String get failureCustomerLinkRequired =>
       'I-akhawunti yakho ayikaxhunyaniswa nomuntu onikezayo. Xhumana nomuntu onikezayo.';
+
+  @override
+  String get failureAccountProblem =>
+      'Kunenkinga ne-akhawunti yakho. Xhumana nomhlinzeki wakho.';
 
   @override
   String get failureSubscriberProfileInvalid =>

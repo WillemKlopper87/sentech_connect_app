@@ -48,10 +48,13 @@ import 'package:sentech_connect_app/features/privacy/data/repositories/local_con
 import 'package:sentech_connect_app/features/privacy/data/repositories/mock_privacy_repository.dart';
 import 'package:sentech_connect_app/features/privacy/domain/repositories/consent_repository.dart';
 import 'package:sentech_connect_app/features/privacy/domain/repositories/privacy_repository.dart';
+import 'package:sentech_connect_app/features/subscriber/data/repositories/http_invoice_repository.dart';
 import 'package:sentech_connect_app/features/subscriber/data/repositories/http_subscriber_plans_repository.dart';
 import 'package:sentech_connect_app/features/subscriber/data/repositories/http_subscriber_repository.dart';
+import 'package:sentech_connect_app/features/subscriber/data/repositories/mock_invoice_repository.dart';
 import 'package:sentech_connect_app/features/subscriber/data/repositories/mock_subscriber_plans_repository.dart';
 import 'package:sentech_connect_app/features/subscriber/data/repositories/mock_subscriber_repository.dart';
+import 'package:sentech_connect_app/features/subscriber/domain/repositories/invoice_repository.dart';
 import 'package:sentech_connect_app/features/subscriber/domain/repositories/subscriber_plans_repository.dart';
 import 'package:sentech_connect_app/features/subscriber/domain/repositories/subscriber_repository.dart';
 import 'package:sentech_connect_app/features/promotions/data/repositories/mock_promotions_repository.dart';
@@ -200,6 +203,9 @@ void _registerDemoRepositories() {
   locator.registerLazySingleton<SubscriberRepository>(
     () => MockSubscriberRepository(),
   );
+  locator.registerLazySingleton<InvoiceRepository>(
+    () => MockInvoiceRepository(),
+  );
   locator.registerLazySingleton<PrivacyRepository>(
     () => MockPrivacyRepository(locator()),
   );
@@ -291,6 +297,9 @@ void _registerProdRepositories(Uri baseUrl, TurnstileConfig? turnstile) {
   );
   locator.registerLazySingleton<SubscriberRepository>(
     () => HttpSubscriberRepository(locator()),
+  );
+  locator.registerLazySingleton<InvoiceRepository>(
+    () => HttpInvoiceRepository(locator()),
   );
   locator.registerLazySingleton<CheckoutRepository>(
     () => HttpCheckoutRepository(locator()),

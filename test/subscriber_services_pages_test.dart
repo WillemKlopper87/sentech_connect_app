@@ -250,16 +250,16 @@ void main() {
       await pumpSection(tester, await _tenant(tester, billing: true));
       expect(find.text('Home internet'), findsOneWidget);
       expect(find.text('My services'), findsOneWidget);
-      // Invoices and ID check rows arrive with their slices.
-      expect(find.text('Invoices'), findsNothing);
+      // The Invoices row arrived with S2; the ID check row arrives with S4.
+      expect(find.text('Invoices'), findsOneWidget);
       await tester.tap(find.text('My services'));
       await tester.pumpAndSettle();
       expect(find.text('SERVICES SCREEN'), findsOneWidget);
     });
 
-    test('registry: services registered, invoices and kyc not yet', () {
+    test('registry: services and invoices registered, kyc not yet', () {
       expect(subscriberEntryRegistered('/services'), isTrue);
-      expect(subscriberEntryRegistered('/invoices'), isFalse);
+      expect(subscriberEntryRegistered('/invoices'), isTrue);
       expect(subscriberEntryRegistered('/kyc'), isFalse);
     });
   });

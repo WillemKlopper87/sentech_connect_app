@@ -22,6 +22,7 @@ class SubscriberAccountEntry {
 List<SubscriberAccountEntry> subscriberAccountEntries() => [
   SubscriberAccountEntry(route: AppRoutes.services, icon: Icons.router_outlined, label: (l) => l.servicesTitle),
   // --- S2 (Invoices) adds its entry below this line ---
+  SubscriberAccountEntry(route: AppRoutes.invoices, icon: Icons.receipt_long_outlined, label: (l) => l.invoicesTitle),
 
   // --- S4 (ID check) adds its entry below this line ---
 

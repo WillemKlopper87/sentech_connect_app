@@ -34,6 +34,14 @@ import 'package:sentech_connect_app/features/passes/presentation/pages/my_passes
 import 'package:sentech_connect_app/features/privacy/presentation/pages/legal_gate_page.dart';
 import 'package:sentech_connect_app/features/promotions/presentation/bloc/promotions_cubit.dart';
 import 'package:sentech_connect_app/features/promotions/presentation/pages/promotions_page.dart';
+import 'package:sentech_connect_app/features/subscriber/domain/repositories/invoice_repository.dart';
+import 'package:sentech_connect_app/features/subscriber/domain/repositories/subscriber_repository.dart';
+import 'package:sentech_connect_app/features/subscriber/presentation/bloc/invoice_detail_cubit.dart';
+import 'package:sentech_connect_app/features/subscriber/presentation/bloc/invoice_payment_cubit.dart';
+import 'package:sentech_connect_app/features/subscriber/presentation/bloc/invoices_cubit.dart';
+import 'package:sentech_connect_app/features/subscriber/presentation/pages/invoice_detail_page.dart';
+import 'package:sentech_connect_app/features/subscriber/presentation/pages/invoices_page.dart';
+import 'package:sentech_connect_app/features/subscriber/subscriber_gate.dart';
 import 'package:sentech_connect_app/features/rica/presentation/bloc/rica_cubit.dart';
 import 'package:sentech_connect_app/features/rica/presentation/pages/rica_page.dart';
 import 'package:sentech_connect_app/features/tenant/presentation/bloc/tenant_cubit.dart';
@@ -41,7 +49,6 @@ import 'package:sentech_connect_app/features/subscriber/presentation/bloc/servic
 import 'package:sentech_connect_app/features/subscriber/presentation/bloc/services_cubit.dart';
 import 'package:sentech_connect_app/features/subscriber/presentation/pages/service_detail_page.dart';
 import 'package:sentech_connect_app/features/subscriber/presentation/pages/services_page.dart';
-import 'package:sentech_connect_app/features/subscriber/subscriber_gate.dart';
 import 'package:sentech_connect_app/features/tenant/presentation/pages/tenant_picker_page.dart';
 import 'package:sentech_connect_app/features/tenant/presentation/pages/update_required_page.dart';
 import 'package:sentech_connect_app/features/wifi_voucher/presentation/bloc/wifi_hotspots_cubit.dart';
@@ -397,6 +404,40 @@ GoRouter _buildRouter(
             now: locator<PlatformClock>().wallNow,
           ),
         ),
+      ),
+      GoRoute(
+        path: AppRoutes.invoices,
+        redirect: (context, state) => _subscriberModuleOff(tenantCubit) ? AppRoutes.main : null,
+        builder: (context, state) => BlocProvider(
+          create: (_) => InvoicesCubit(locator<InvoiceRepository>()),
+          child: InvoicesPage(
+            onOpenInvoice: (invoice) => context.push(AppRoutes.invoiceFor(invoice.id)),
+          ),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.invoiceDetail,
+        redirect: (context, state) => _subscriberModuleOff(tenantCubit) ? AppRoutes.main : null,
+        builder: (context, state) {
+          final invoiceId = state.pathParameters['invoiceId']!;
+          return MultiBlocProvider(
+            providers: [
+              BlocProvider(create: (_) => InvoiceDetailCubit(locator<InvoiceRepository>(), invoiceId)),
+              BlocProvider(
+                create: (_) => InvoicePaymentCubit(
+                  locator<InvoiceRepository>(),
+                  locator<SubscriberRepository>(),
+                  invoiceId,
+                ),
+              ),
+            ],
+            child: InvoiceDetailPage(
+              devSimulator: kDebugMode && locator.isRegistered<DevPaymentSimulator>()
+                  ? locator<DevPaymentSimulator>()
+                  : null,
+            ),
+          );
+        },
       ),
       GoRoute(
         path: AppRoutes.promotions,

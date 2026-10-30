@@ -47,8 +47,8 @@ Status words: **done** (real repository, tested), **mock** (a `Mock*Repository` 
 | `POST /v1/me/subscriber/signup` | not started | M3; `409 active_service_exists` is typed already |
 | `GET /v1/me/subscriber/services`, `GET /v1/me/subscriber/services/{service_id}` | data layer done | `SubscriberRepository.listServices()` (all pages, at most 5 of 50, `after` = `next_cursor`, API order kept: newest first) and `getService(id)`; `CustomerServiceOut` carries the plan facts, `activation_blocker` and the scheduled plan change; no account is an empty list; fixture `subscriber_services_page.json` (`Page_CustomerServiceOut_`). Unknown `status`, `kind`, `suspend_reason` fail loudly (`ServerFailure`); an unknown `activation_blocker` reads as `ActivationBlocker.unknown`. Screens done (S3): `/services` and `/services/:serviceId` (module-gated, bounce home when `subscriber_billing` is off), banners from `activation_blocker` / `suspend_reason` (pure `serviceBannerFor`), scheduled cancel and plan-change notes; Account tab "Home internet" section (`subscriberAccountEntries()` registry in `presentation/subscriber_entries.dart`) |
 | `POST /v1/me/subscriber/services/{service_id}/cancel`, `.../change-plan` | not started | M3 |
-| `GET /v1/me/subscriber/invoices`, `.../{invoice_id}` | not started | M3 |
-| `POST /v1/me/subscriber/invoices/{invoice_id}/checkout` | not started | M3 |
+| `GET /v1/me/subscriber/invoices`, `.../{invoice_id}` | done (S2) | `InvoiceRepository.list({openOnly})` (all pages, API order = newest first, no client sort, `status=open`) and `get(id)`; `SubscriberInvoiceOut`; fixtures `subscriber_invoice.json`, `subscriber_invoices_page.json`. Screens `InvoicesPage`, `InvoiceDetailPage`; routes `/invoices`, `/invoices/:invoiceId` gated by `subscriber_billing`; entry in the Account Home internet section |
+| `POST /v1/me/subscriber/invoices/{invoice_id}/checkout` | done (S2) | answers the order `CheckoutOut` (200); `InvoicePaymentCubit` reuses the web view and URL checks and polls the invoice; `Idempotency-Key` per attempt; fixture `invoice_checkout.json`. Dev simulate for invoice payments not verified (P12) |
 | `GET /v1/me/subscriber/kyc`, `POST /v1/me/subscriber/kyc` | not started | M3 |
 | `GET /v1/pay/{tenant_slug}/{invoice_id}/{token}`, `POST` same | not for the app | public invoice pay page (web) |
 | `GET /v1/public/records/evidence` | not for the app | public statement evidence |
@@ -82,6 +82,8 @@ All 289 `/v1/admin/*` and `/v1/platform/*` operations belong to the web consoles
 | 409 `support_contact_not_configured` | `SupportContactNotConfiguredFailure` | provider has not set up support messages |
 | 422 `invalid_message`, `invalid_contact` | `InvalidMessageFailure`, `InvalidContactFailure` | check your message / contact details |
 | 409 `invoice_not_payable` | `InvoiceNotPayableFailure` | this invoice can no longer be paid |
+| 409 `collection_mode_not_supported` | `CollectionExternalFailure` (same as `collection_external`) | pay your provider directly |
+| 409 `customer_not_active`, `account_not_active`, `account_changed` | `AccountProblemFailure` (a `ValidationFailure`, code kept) | problem with your account, contact your provider |
 | 409 `customer_link_required` | `CustomerLinkRequiredFailure` | account not linked to your provider, contact them |
 | 422 `subscriber_profile_invalid` | `SubscriberProfileInvalidFailure` | update your contact details before signing up |
 | 404 `subscriber_plan_not_found`, 409 `subscriber_plan_inactive`, `subscriber_version_unavailable`, `plan_kind_mismatch` | `PlanUnavailableFailure` (a `ValidationFailure`, code kept) | this plan is no longer available |

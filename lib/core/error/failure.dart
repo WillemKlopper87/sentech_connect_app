@@ -241,6 +241,14 @@ class InvoiceNotPayableFailure extends ValidationFailure {
   const InvoiceNotPayableFailure() : super('This invoice can no longer be paid.', 'invoice_not_payable', false);
 }
 
+/// 409 `customer_not_active`, `account_not_active` or `account_changed`: the
+/// customer record or subscriber account cannot take a payment. Only the
+/// provider can sort it out.
+class AccountProblemFailure extends ValidationFailure {
+  const AccountProblemFailure([String code = 'account_not_active'])
+      : super('There is a problem with your account. Contact your provider.', code, false);
+}
+
 /// 409 `customer_link_required`: the account is not linked to a customer
 /// record yet.
 class CustomerLinkRequiredFailure extends ValidationFailure {

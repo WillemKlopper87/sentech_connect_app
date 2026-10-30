@@ -106,6 +106,7 @@ Map<String, String> typedFailureTexts(AppLocalizations l10n) => {
   const InvalidContactFailure().message: l10n.failureInvalidContact,
   const InvoiceNotPayableFailure().message: l10n.failureInvoiceNotPayable,
   const CustomerLinkRequiredFailure().message: l10n.failureCustomerLinkRequired,
+  const AccountProblemFailure().message: l10n.failureAccountProblem,
   const SubscriberProfileInvalidFailure().message: l10n.failureSubscriberProfileInvalid,
   const PlanUnavailableFailure().message: l10n.failurePlanUnavailable,
   const ServiceStateFailure().message: l10n.failureServiceState,
@@ -164,6 +165,8 @@ String? typedFailureText(AppLocalizations l10n, Failure? failure) {
       return l10n.failureInvoiceNotPayable;
     case CustomerLinkRequiredFailure():
       return l10n.failureCustomerLinkRequired;
+    case AccountProblemFailure():
+      return l10n.failureAccountProblem;
     case SubscriberProfileInvalidFailure():
       return l10n.failureSubscriberProfileInvalid;
     case PlanUnavailableFailure():

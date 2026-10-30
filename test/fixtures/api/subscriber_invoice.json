@@ -1,0 +1,27 @@
+{
+  "id": "9a1b2c3d-5555-4a55-8a55-0000000000c2",
+  "service_id": "9a1b2c3d-3333-4a33-8a33-0000000000b1",
+  "invoice_no": "INV-000102",
+  "kind": "recurring",
+  "status": "open",
+  "period_start": "2026-12-01",
+  "period_end": "2026-12-31",
+  "issue_date": "2026-11-25",
+  "due_date": "2026-12-01",
+  "amount": {"amount_cents": 19900, "currency": "ZAR"},
+  "vat_cents": 2596,
+  "amount_paid_cents": 0,
+  "paid_at": null,
+  "lines": [
+    {
+      "position": 1,
+      "kind": "plan",
+      "description": "Home Hotspot 10, December 2026",
+      "quantity": 1,
+      "unit_price_cents": 19900,
+      "line_total_cents": 19900,
+      "vat_rate_bp": 1500,
+      "vat_cents": 2596
+    }
+  ]
+}

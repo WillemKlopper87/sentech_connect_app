@@ -133,3 +133,50 @@ Subscriber services (S3, 2026-10-30). Machine-quality drafts, native review befo
 | `serviceBannerSuspendedProvider` | Paused by your provider. Contact support. | Deur jou verskaffer onderbreek. Kontak ondersteuning. | Imiswe umhlinzeki wakho. Xhumana nosizo. |
 | `serviceActionViewInvoices` | View invoices | Sien fakture | Buka ama-invoyisi |
 | `serviceActionIdCheck` | Start ID check | Begin ID-kontrole | Qala ukuhlola i-ID |
+
+Subscriber invoices (S2, 2026-10-30). Machine-quality drafts, native review before release.
+
+| Key | English | Afrikaans | isiZulu |
+|---|---|---|---|
+| `invoicesTitle` | Invoices | Fakture | Odinga |
+| `invoicesEmptyTitle` | No invoices yet | Nog geen fakture nie | Awukabi nama-invoyisi |
+| `invoicesEmptyBody` | Invoices for your home internet service will show here. | Fakture vir jou tuisinternetdiens sal hier verskyn. | Odinga bensizakalo yakho ye-inthanethi yasekhaya buzovela lapha. |
+| `invoicesOpenSection` | To pay | Om te betaal | Okufanele kukhokhwe |
+| `invoicesEarlierSection` | Earlier invoices | Vroeëre fakture | Odinga bangaphambilini |
+| `invoiceStatusOpen` | Due | Verskuldig | Kufanele kukhokhwe |
+| `invoiceStatusPaid` | Paid | Betaal | Kukhokhiwe |
+| `invoiceStatusVoid` | Cancelled | Gekanselleer | Kukhanselwe |
+| `invoiceStatusWrittenOff` | Written off | Afgeskryf | Kushiyiwe |
+| `invoiceKindInitial` | First invoice | Eerste faktuur | I-invoyisi yokuqala |
+| `invoiceKindRecurring` | Monthly invoice | Maandelikse faktuur | I-invoyisi yenyanga |
+| `invoiceKindProration` | Plan change | Planverandering | Ushintsho lohlelo |
+| `invoiceKindReactivation` | Reactivation | Heraktivering | Ukuvuselelwa |
+| `invoiceKindAdjustment` | Adjustment | Aanpassing | Ukulungiswa |
+| `invoiceKindOther` | Invoice | Faktuur | I-invoyisi |
+| `invoiceDueOn` | Due {date} | Verskuldig {date} | Kufanele kukhokhwe ngo-{date} |
+| `invoiceIssuedOn` | Issued {date} | Uitgereik {date} | Kukhishwe ngo-{date} |
+| `invoicePaidOn` | Paid {date} | Betaal {date} | Kukhokhwe ngo-{date} |
+| `invoiceDetailTitle` | Invoice | Faktuur | I-invoyisi |
+| `invoicePeriod` | Period: {start} to {end} | Tydperk: {start} tot {end} | Isikhathi: {start} kuya ku-{end} |
+| `invoiceLinesHeading` | What you are paying for | Waarvoor jy betaal | Okukhokhelayo |
+| `invoiceLineQuantity` | {quantity} x {price} | {quantity} x {price} | {quantity} x {price} |
+| `invoiceTotal` | Total | Totaal | Isamba |
+| `invoiceIncludesVat` | Includes VAT of {amount} | Sluit BTW van {amount} in | Kubandakanya i-VAT ye-{amount} |
+| `invoiceAmountPaid` | Paid so far | Tot dusver betaal | Okukhokhiwe kuze kube manje |
+| `invoicePartPaid` | Part of this invoice is already paid. Contact support to settle the rest. | Deel van hierdie faktuur is reeds betaal. Kontak ondersteuning om die res te vereffen. | Ingxenye yale invoyisi isikhokhiwe. Xhumana nosizo ukuze uphothule okusele. |
+| `invoiceVoidNote` | This invoice was cancelled. Nothing is due. | Hierdie faktuur is gekanselleer. Niks is verskuldig nie. | Le nvoyisi ikhanseliwe. Akukho okufanele kukhokhwe. |
+| `invoiceWrittenOffNote` | This invoice was written off. Nothing is due. | Hierdie faktuur is afgeskryf. Niks is verskuldig nie. | Le nvoyisi ishiyiwe. Akukho okufanele kukhokhwe. |
+| `invoicePayNow` | Pay {amount} | Betaal {amount} | Khokha {amount} |
+| `invoicePayOnSecurePage` | You pay on your payment provider's secure page. | Jy betaal op jou betalingsverskaffer se veilige bladsy. | Ukhokha ekhasini eligcinekile lomhlinzeki wenkokhelo yakho. |
+| `invoiceConfirming` | Confirming your payment. This can take a moment. | Bevestig tans jou betaling. Dit kan 'n oomblik neem. | Siqinisekisa inkokhelo yakho. Lokhu kungathatha isikhashana. |
+| `invoiceStillPending` | We have not heard back from the payment provider yet. If you paid, this invoice will update soon. | Ons het nog nie van die betalingsverskaffer gehoor nie. As jy betaal het, sal hierdie faktuur binnekort opdateer. | Asikezwa lutho kumhlinzeki wenkokhelo. Uma usukhokhile, le nvoyisi izobuyekezwa maduze. |
+| `invoicePaidTitle` | Payment received | Betaling ontvang | Inkokhelo emukelwe |
+| `invoicePaidThanks` | Thank you. This invoice is paid. | Dankie. Hierdie faktuur is betaal. | Siyabonga. Le nvoyisi ikhokhiwe. |
+| `invoicePaidKyc` | We need to check your ID before your service starts. | Ons moet jou ID nagaan voordat jou diens begin. | Kudingeka sihlole i-ID yakho ngaphambi kokuthi isevisi yakho iqale. |
+| `invoicePaidInstallation` | Waiting for installation by your provider. | Wag vir installasie deur jou verskaffer. | Silindele ukufakwa ngumhlinzeki wakho. |
+| `invoicePaidContactProvider` | Your service cannot start yet. Contact your provider. | Jou diens kan nog nie begin nie. Kontak jou verskaffer. | Isevisi yakho ayikwazi ukuqala okwamanje. Xhumana nomhlinzeki wakho. |
+| `invoicePaidActivating` | Your service is starting. This can take a few minutes. Pull to refresh. | Jou diens begin tans. Dit kan 'n paar minute neem. Trek om te herlaai. | Isevisi yakho iyaqala. Lokhu kungathatha amaminithi ambalwa. Donsa ukuze uvuselele. |
+| `invoicePaidSettingUp` | Your provider is setting up your service. | Jou verskaffer rig jou diens op. | Umhlinzeki wakho ulungisa isevisi yakho. |
+| `invoiceCollectionExternal` | Your provider collects payment for this invoice directly. | Jou verskaffer vorder betaling vir hierdie faktuur self in. | Umhlinzeki wakho uqoqa inkokhelo yale nvoyisi ngokwakhe. |
+| `invoiceBackToInvoices` | Back to invoices | Terug na fakture | Buyela kuma-invoyisi |
+| `failureAccountProblem` | There is a problem with your account. Contact your provider. | Daar is 'n probleem met jou rekening. Kontak jou verskaffer. | Kunenkinga ne-akhawunti yakho. Xhumana nomhlinzeki wakho. |

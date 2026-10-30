@@ -2908,6 +2908,252 @@ abstract class AppLocalizations {
   /// **'Keep order'**
   String get orderCancelKeep;
 
+  /// Title of the invoices list and the Account row that opens it.
+  ///
+  /// In en, this message translates to:
+  /// **'Invoices'**
+  String get invoicesTitle;
+
+  /// Empty state of the invoices list.
+  ///
+  /// In en, this message translates to:
+  /// **'No invoices yet'**
+  String get invoicesEmptyTitle;
+
+  /// Hint under the empty invoices state.
+  ///
+  /// In en, this message translates to:
+  /// **'Invoices for your home internet service will show here.'**
+  String get invoicesEmptyBody;
+
+  /// Heading above unpaid invoices.
+  ///
+  /// In en, this message translates to:
+  /// **'To pay'**
+  String get invoicesOpenSection;
+
+  /// Heading above paid, cancelled and written-off invoices.
+  ///
+  /// In en, this message translates to:
+  /// **'Earlier invoices'**
+  String get invoicesEarlierSection;
+
+  /// Invoice status chip: issued and not yet paid.
+  ///
+  /// In en, this message translates to:
+  /// **'Due'**
+  String get invoiceStatusOpen;
+
+  /// Invoice status chip: paid.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get invoiceStatusPaid;
+
+  /// Invoice status chip: void.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get invoiceStatusVoid;
+
+  /// Invoice status chip: written off by the provider.
+  ///
+  /// In en, this message translates to:
+  /// **'Written off'**
+  String get invoiceStatusWrittenOff;
+
+  /// Invoice kind label.
+  ///
+  /// In en, this message translates to:
+  /// **'First invoice'**
+  String get invoiceKindInitial;
+
+  /// Invoice kind label.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly invoice'**
+  String get invoiceKindRecurring;
+
+  /// Invoice kind label for the difference charged when a plan changes.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan change'**
+  String get invoiceKindProration;
+
+  /// Invoice kind label.
+  ///
+  /// In en, this message translates to:
+  /// **'Reactivation'**
+  String get invoiceKindReactivation;
+
+  /// Invoice kind label.
+  ///
+  /// In en, this message translates to:
+  /// **'Adjustment'**
+  String get invoiceKindAdjustment;
+
+  /// Invoice kind label for a kind this app version does not know.
+  ///
+  /// In en, this message translates to:
+  /// **'Invoice'**
+  String get invoiceKindOther;
+
+  /// Invoice due date line.
+  ///
+  /// In en, this message translates to:
+  /// **'Due {date}'**
+  String invoiceDueOn(String date);
+
+  /// Invoice issue date line.
+  ///
+  /// In en, this message translates to:
+  /// **'Issued {date}'**
+  String invoiceIssuedOn(String date);
+
+  /// Invoice paid date line.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid {date}'**
+  String invoicePaidOn(String date);
+
+  /// Title of the invoice detail screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Invoice'**
+  String get invoiceDetailTitle;
+
+  /// Billing period of an invoice.
+  ///
+  /// In en, this message translates to:
+  /// **'Period: {start} to {end}'**
+  String invoicePeriod(String start, String end);
+
+  /// Heading above the invoice lines.
+  ///
+  /// In en, this message translates to:
+  /// **'What you are paying for'**
+  String get invoiceLinesHeading;
+
+  /// Quantity times unit price under an invoice line.
+  ///
+  /// In en, this message translates to:
+  /// **'{quantity} x {price}'**
+  String invoiceLineQuantity(String quantity, String price);
+
+  /// Invoice total label.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get invoiceTotal;
+
+  /// Invoice VAT line; the total is VAT-inclusive.
+  ///
+  /// In en, this message translates to:
+  /// **'Includes VAT of {amount}'**
+  String invoiceIncludesVat(String amount);
+
+  /// Amount already paid on an invoice.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid so far'**
+  String get invoiceAmountPaid;
+
+  /// Shown instead of the Pay button on a part-paid invoice.
+  ///
+  /// In en, this message translates to:
+  /// **'Part of this invoice is already paid. Contact support to settle the rest.'**
+  String get invoicePartPaid;
+
+  /// Note on a void invoice.
+  ///
+  /// In en, this message translates to:
+  /// **'This invoice was cancelled. Nothing is due.'**
+  String get invoiceVoidNote;
+
+  /// Note on a written-off invoice.
+  ///
+  /// In en, this message translates to:
+  /// **'This invoice was written off. Nothing is due.'**
+  String get invoiceWrittenOffNote;
+
+  /// Pay button on an open invoice.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay {amount}'**
+  String invoicePayNow(String amount);
+
+  /// Reassurance under the invoice Pay button.
+  ///
+  /// In en, this message translates to:
+  /// **'You pay on your payment provider\'s secure page.'**
+  String get invoicePayOnSecurePage;
+
+  /// Shown while the app waits for the server to confirm an invoice payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirming your payment. This can take a moment.'**
+  String get invoiceConfirming;
+
+  /// Shown when no confirmation arrived within the waiting window.
+  ///
+  /// In en, this message translates to:
+  /// **'We have not heard back from the payment provider yet. If you paid, this invoice will update soon.'**
+  String get invoiceStillPending;
+
+  /// Heading after an invoice payment was confirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment received'**
+  String get invoicePaidTitle;
+
+  /// Outcome line after payment when the service needs nothing more.
+  ///
+  /// In en, this message translates to:
+  /// **'Thank you. This invoice is paid.'**
+  String get invoicePaidThanks;
+
+  /// Outcome line after payment: ID check needed.
+  ///
+  /// In en, this message translates to:
+  /// **'We need to check your ID before your service starts.'**
+  String get invoicePaidKyc;
+
+  /// Outcome line after payment: installation pending.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for installation by your provider.'**
+  String get invoicePaidInstallation;
+
+  /// Outcome line after payment: the provider must act.
+  ///
+  /// In en, this message translates to:
+  /// **'Your service cannot start yet. Contact your provider.'**
+  String get invoicePaidContactProvider;
+
+  /// Outcome line after payment for a hotspot service still activating.
+  ///
+  /// In en, this message translates to:
+  /// **'Your service is starting. This can take a few minutes. Pull to refresh.'**
+  String get invoicePaidActivating;
+
+  /// Outcome line after payment for a fixed wireless service.
+  ///
+  /// In en, this message translates to:
+  /// **'Your provider is setting up your service.'**
+  String get invoicePaidSettingUp;
+
+  /// Shown instead of Pay when the provider collects its own money.
+  ///
+  /// In en, this message translates to:
+  /// **'Your provider collects payment for this invoice directly.'**
+  String get invoiceCollectionExternal;
+
+  /// Button back to the invoices list.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to invoices'**
+  String get invoiceBackToInvoices;
+
   /// Greeting for an unknown or signed-out customer.
   ///
   /// In en, this message translates to:
@@ -3423,6 +3669,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your account is not linked to your provider yet. Contact your provider.'**
   String get failureCustomerLinkRequired;
+
+  /// Customer error for problem codes customer_not_active, account_not_active and account_changed.
+  ///
+  /// In en, this message translates to:
+  /// **'There is a problem with your account. Contact your provider.'**
+  String get failureAccountProblem;
 
   /// Customer error for problem code subscriber_profile_invalid.
   ///

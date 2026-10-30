@@ -27,6 +27,7 @@ void main() {
     const SubscriberProfileInvalidFailure(),
     const PlanUnavailableFailure(),
     const ServiceStateFailure(),
+    const AccountProblemFailure(),
     const NoActiveEntitlementFailure(),
     const MacInvalidFailure(),
     const NasUnavailableFailure(),

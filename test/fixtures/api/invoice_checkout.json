@@ -1,0 +1,1 @@
+{"payment_id": "9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c70", "reference": "SC7A1B2C3D", "gateway": "netcash", "amount": {"amount_cents": 19900, "currency": "ZAR"}, "method": "POST", "url": "https://paynow.netcash.co.za/site/paynow.aspx", "fields": {"m1": "test-service-key", "p2": "SC7A1B2C3D", "p4": "199.00"}, "return_url": "https://app.sentech.example/sentech/checkout/return"}

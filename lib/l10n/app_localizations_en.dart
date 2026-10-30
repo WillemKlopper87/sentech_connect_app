@@ -1,6 +1,5 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
-
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -1673,6 +1672,155 @@ class AppLocalizationsEn extends AppLocalizations {
   String get orderCancelKeep => 'Keep order';
 
   @override
+  String get invoicesTitle => 'Invoices';
+
+  @override
+  String get invoicesEmptyTitle => 'No invoices yet';
+
+  @override
+  String get invoicesEmptyBody =>
+      'Invoices for your home internet service will show here.';
+
+  @override
+  String get invoicesOpenSection => 'To pay';
+
+  @override
+  String get invoicesEarlierSection => 'Earlier invoices';
+
+  @override
+  String get invoiceStatusOpen => 'Due';
+
+  @override
+  String get invoiceStatusPaid => 'Paid';
+
+  @override
+  String get invoiceStatusVoid => 'Cancelled';
+
+  @override
+  String get invoiceStatusWrittenOff => 'Written off';
+
+  @override
+  String get invoiceKindInitial => 'First invoice';
+
+  @override
+  String get invoiceKindRecurring => 'Monthly invoice';
+
+  @override
+  String get invoiceKindProration => 'Plan change';
+
+  @override
+  String get invoiceKindReactivation => 'Reactivation';
+
+  @override
+  String get invoiceKindAdjustment => 'Adjustment';
+
+  @override
+  String get invoiceKindOther => 'Invoice';
+
+  @override
+  String invoiceDueOn(String date) {
+    return 'Due $date';
+  }
+
+  @override
+  String invoiceIssuedOn(String date) {
+    return 'Issued $date';
+  }
+
+  @override
+  String invoicePaidOn(String date) {
+    return 'Paid $date';
+  }
+
+  @override
+  String get invoiceDetailTitle => 'Invoice';
+
+  @override
+  String invoicePeriod(String start, String end) {
+    return 'Period: $start to $end';
+  }
+
+  @override
+  String get invoiceLinesHeading => 'What you are paying for';
+
+  @override
+  String invoiceLineQuantity(String quantity, String price) {
+    return '$quantity x $price';
+  }
+
+  @override
+  String get invoiceTotal => 'Total';
+
+  @override
+  String invoiceIncludesVat(String amount) {
+    return 'Includes VAT of $amount';
+  }
+
+  @override
+  String get invoiceAmountPaid => 'Paid so far';
+
+  @override
+  String get invoicePartPaid =>
+      'Part of this invoice is already paid. Contact support to settle the rest.';
+
+  @override
+  String get invoiceVoidNote => 'This invoice was cancelled. Nothing is due.';
+
+  @override
+  String get invoiceWrittenOffNote =>
+      'This invoice was written off. Nothing is due.';
+
+  @override
+  String invoicePayNow(String amount) {
+    return 'Pay $amount';
+  }
+
+  @override
+  String get invoicePayOnSecurePage =>
+      'You pay on your payment provider\'s secure page.';
+
+  @override
+  String get invoiceConfirming =>
+      'Confirming your payment. This can take a moment.';
+
+  @override
+  String get invoiceStillPending =>
+      'We have not heard back from the payment provider yet. If you paid, this invoice will update soon.';
+
+  @override
+  String get invoicePaidTitle => 'Payment received';
+
+  @override
+  String get invoicePaidThanks => 'Thank you. This invoice is paid.';
+
+  @override
+  String get invoicePaidKyc =>
+      'We need to check your ID before your service starts.';
+
+  @override
+  String get invoicePaidInstallation =>
+      'Waiting for installation by your provider.';
+
+  @override
+  String get invoicePaidContactProvider =>
+      'Your service cannot start yet. Contact your provider.';
+
+  @override
+  String get invoicePaidActivating =>
+      'Your service is starting. This can take a few minutes. Pull to refresh.';
+
+  @override
+  String get invoicePaidSettingUp =>
+      'Your provider is setting up your service.';
+
+  @override
+  String get invoiceCollectionExternal =>
+      'Your provider collects payment for this invoice directly.';
+
+  @override
+  String get invoiceBackToInvoices => 'Back to invoices';
+
+  @override
   String get loginTitleNew => 'Hello!';
 
   @override
@@ -1981,6 +2129,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get failureCustomerLinkRequired =>
       'Your account is not linked to your provider yet. Contact your provider.';
+
+  @override
+  String get failureAccountProblem =>
+      'There is a problem with your account. Contact your provider.';
 
   @override
   String get failureSubscriberProfileInvalid =>

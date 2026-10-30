@@ -133,7 +133,11 @@ Failure failureFromStatus(int status, ApiProblem? problem, {String? requestId, D
   if (status == 403 && problem.code == 'human_verification_failed') return const HumanVerificationFailedFailure();
   if (status == 403 && problem.code == 'reauth_required') return const ReauthRequiredFailure();
   if (status == 403) return ServerFailure(detail ?? 'You are not allowed to do that.', requestId);
-  if (status == 409 && problem.code == 'collection_external') return const CollectionExternalFailure();
+  // `collection_external` (orders) and `collection_mode_not_supported` (invoices):
+  // the provider collects its own money.
+  if (status == 409 && (problem.code == 'collection_external' || problem.code == 'collection_mode_not_supported')) {
+    return const CollectionExternalFailure();
+  }
   if (status == 409 && problem.code == 'active_service_exists') return const ActiveServiceExistsFailure();
   if (status == 409 && problem.code == 'order_not_payable') {
     return detail == null ? const OrderNotPayableFailure() : OrderNotPayableFailure(detail, true);
@@ -158,6 +162,9 @@ const _typedRefusals = <String, Failure>{
   'invalid_contact': InvalidContactFailure(),
   'invoice_not_payable': InvoiceNotPayableFailure(),
   'customer_link_required': CustomerLinkRequiredFailure(),
+  'customer_not_active': AccountProblemFailure('customer_not_active'),
+  'account_not_active': AccountProblemFailure('account_not_active'),
+  'account_changed': AccountProblemFailure('account_changed'),
   'subscriber_profile_invalid': SubscriberProfileInvalidFailure(),
   'subscriber_plan_inactive': PlanUnavailableFailure('subscriber_plan_inactive'),
   'subscriber_version_unavailable': PlanUnavailableFailure('subscriber_version_unavailable'),

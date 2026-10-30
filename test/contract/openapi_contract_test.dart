@@ -3,7 +3,9 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/data/repositories/http_checkout_repository.dart';
 import 'package:sentech_connect_app/features/passes/domain/entities/pass.dart';
+import 'package:sentech_connect_app/features/subscriber/data/repositories/invoice_json.dart';
 import 'package:sentech_connect_app/features/subscriber/data/repositories/subscriber_json.dart';
+import 'package:sentech_connect_app/features/subscriber/domain/entities/subscriber_invoice.dart';
 import 'package:sentech_connect_app/features/subscriber/domain/entities/subscriber_service.dart';
 import 'package:sentech_connect_app/features/wifi_voucher/domain/entities/wifi_hotspot.dart';
 
@@ -28,6 +30,10 @@ const fixtureSchemas = {
   'subscriber_plans_page.json': 'Page_PublicPlanOut_',
   'subscriber_account.json': 'SubscriberAccountOut',
   'subscriber_services_page.json': 'Page_CustomerServiceOut_',
+  // Subscriber invoices (S2); checkout answers the same CheckoutOut as orders.
+  'subscriber_invoice.json': 'SubscriberInvoiceOut',
+  'subscriber_invoices_page.json': 'Page_SubscriberInvoiceOut_',
+  'invoice_checkout.json': 'CheckoutOut',
   'voucher_redeem_ok.json': 'RedeemOut',
   'otp_request.json': 'OtpRequestOut',
   'delete_challenge.json': 'OtpRequestOut', // POST /v1/me/delete-challenge answers the same shape
@@ -130,6 +136,13 @@ const decoderReads = <String, Set<String>>{
     'cancel_effective_on', 'pending_plan_id', 'pending_plan_name', 'plan_change_on',
   },
   'PriceOut': {'amount_cents', 'currency'},
+  'SubscriberInvoiceOut': {
+    'id', 'service_id', 'invoice_no', 'kind', 'status', 'period_start', 'period_end', 'issue_date',
+    'due_date', 'amount', 'vat_cents', 'amount_paid_cents', 'paid_at', 'lines',
+  },
+  'SubscriberInvoiceLineOut': {
+    'position', 'kind', 'description', 'quantity', 'unit_price_cents', 'line_total_cents', 'vat_rate_bp', 'vat_cents',
+  },
   'OtpRequestOut': {'challenge_id', 'expires_in_seconds', 'reference'},
   // Request bodies the app sends (every key must exist in the API schema).
   'OtpRequestIn': {'tenant', 'phone', 'binding'},
@@ -343,6 +356,44 @@ void main() {
       expect(items.any((s) => s.cancelEffectiveOn != null), isTrue);
       expect(items.any((s) => s.hasPlanChangePending), isTrue);
       expect(items.any((s) => s.activationBlocker != null), isTrue);
+    });
+  });
+
+  group('subscriber invoices (S2)', () {
+    test('the invoice routes answer SubscriberInvoiceOut and check out as CheckoutOut', () {
+      expect(
+        api.responseSchemaName(api.path('/v1/me/subscriber/invoices', 'get'), '200'),
+        'Page_SubscriberInvoiceOut_',
+      );
+      expect(
+        api.responseSchemaName(api.path('/v1/me/subscriber/invoices/{invoice_id}', 'get'), '200'),
+        'SubscriberInvoiceOut',
+      );
+      expect(
+        api.responseSchemaName(api.path('/v1/me/subscriber/invoices/{invoice_id}/checkout', 'post'), '200'),
+        'CheckoutOut',
+      );
+    });
+
+    test('the invoice list pages with limit and after and filters with status', () {
+      final params = [
+        for (final p in api.path('/v1/me/subscriber/invoices', 'get')['parameters']! as List) (p as Map)['name']! as String,
+      ];
+      expect(params, containsAll(['limit', 'after', 'status']));
+    });
+
+    test('every invoice status the API can send is mapped', () {
+      final node = (api.schema('SubscriberInvoiceOut')['properties']! as Map)['status'] as Map;
+      for (final v in (node['enum']! as List).cast<String>()) {
+        expect(() => invoiceStatusFromApi(v), returnsNormally, reason: v);
+      }
+    });
+
+    test('the invoices fixture covers every status', () {
+      final items = (fixtureMap('subscriber_invoices_page.json')['items']! as List)
+          .map((i) => subscriberInvoiceFromJson(Map<String, Object?>.from(i as Map)))
+          .toList();
+      expect(items.map((i) => i.status).toSet(), InvoiceStatus.values.toSet());
     });
   });
 
