@@ -4,9 +4,11 @@ import 'package:go_router/go_router.dart';
 import 'package:sentech_connect_app/app/router/app_router.dart';
 import 'package:sentech_connect_app/core/money/money.dart';
 import 'package:sentech_connect_app/features/subscriber/domain/entities/subscriber_service.dart';
+import 'package:sentech_connect_app/features/subscriber/domain/repositories/subscriber_plans_repository.dart';
 import 'package:sentech_connect_app/features/subscriber/presentation/bloc/service_detail_cubit.dart';
 import 'package:sentech_connect_app/features/subscriber/presentation/service_format.dart';
 import 'package:sentech_connect_app/features/subscriber/presentation/subscriber_entries.dart';
+import 'package:sentech_connect_app/features/subscriber/presentation/widgets/service_actions_section.dart';
 import 'package:sentech_connect_app/features/subscriber/presentation/widgets/service_banner_view.dart';
 import 'package:sentech_connect_app/features/subscriber/presentation/widgets/service_card.dart';
 import 'package:sentech_connect_app/features/subscriber/presentation/widgets/service_status_chip.dart';
@@ -15,9 +17,12 @@ import 'package:sentech_connect_app/shared/widgets/failure_view.dart';
 
 /// One service: plan facts, status, banners, and links to the other
 /// subscriber screens that exist. Needs a [ServiceDetailCubit] above it.
-/// Change plan and cancel arrive with their own slices.
+/// Change plan (S6) and cancel at period end (S7) are in the actions area.
 class ServiceDetailPage extends StatelessWidget {
-  const ServiceDetailPage({super.key});
+  const ServiceDetailPage({super.key, this.plansRepository});
+
+  /// Plans for the change plan picker; without it that action is not offered.
+  final SubscriberPlansRepository? plansRepository;
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +42,11 @@ class ServiceDetailPage extends StatelessWidget {
               child: ListView(
                 physics: const AlwaysScrollableScrollPhysics(),
                 padding: const EdgeInsets.all(20),
-                children: [_Header(service), ..._links(context)],
+                children: [
+                  _Header(service),
+                  ServiceActionsSection(service: service, plansRepository: plansRepository),
+                  ..._links(context),
+                ],
               ),
             );
           },

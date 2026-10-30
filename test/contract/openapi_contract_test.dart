@@ -9,6 +9,7 @@ import 'package:sentech_connect_app/features/subscriber/domain/entities/subscrib
 import 'package:sentech_connect_app/features/subscriber/data/repositories/http_kyc_repository.dart';
 import 'package:sentech_connect_app/features/subscriber/domain/entities/kyc.dart';
 import 'package:sentech_connect_app/features/subscriber/domain/entities/subscriber_service.dart';
+import 'package:sentech_connect_app/features/subscriber/domain/service_actions.dart';
 import 'package:sentech_connect_app/features/wifi_voucher/domain/entities/wifi_hotspot.dart';
 
 import '../helpers/fixtures.dart';
@@ -32,6 +33,10 @@ const fixtureSchemas = {
   'subscriber_plans_page.json': 'Page_PublicPlanOut_',
   'subscriber_account.json': 'SubscriberAccountOut',
   'subscriber_services_page.json': 'Page_CustomerServiceOut_',
+  // Change plan and cancel at period end (S6, S7): ChangeOut, and CustomerServiceOut with cancel_effective_on.
+  'subscriber_change_applied.json': 'ChangeOut',
+  'subscriber_change_scheduled.json': 'ChangeOut',
+  'subscriber_service_cancel_scheduled.json': 'CustomerServiceOut',
   // Subscriber invoices (S2); checkout answers the same CheckoutOut as orders.
   'subscriber_invoice.json': 'SubscriberInvoiceOut',
   'subscriber_invoices_page.json': 'Page_SubscriberInvoiceOut_',
@@ -134,6 +139,7 @@ const decoderReads = <String, Set<String>>{
   },
   'SubscriberAccountOut': {'id', 'account_no', 'kind', 'status', 'profile', 'service_counts'},
   'AccountProfileOut': {'display_name', 'email', 'phone_e164', 'language'},
+  'ChangeOut': {'applied', 'effective_on', 'proration_invoice_id'},
   'CustomerServiceOut': {
     'id', 'account_id', 'service_no', 'status', 'suspend_reason', 'activation_blocker',
     'plan_id', 'plan_name', 'kind', 'price', 'down_kbps', 'up_kbps', 'billed_through',
@@ -364,6 +370,60 @@ void main() {
       expect(items.any((s) => s.cancelEffectiveOn != null), isTrue);
       expect(items.any((s) => s.hasPlanChangePending), isTrue);
       expect(items.any((s) => s.activationBlocker != null), isTrue);
+    });
+  });
+
+  group('change plan and cancel at period end (S6, S7)', () {
+    Map<String, Object?> bodySchema(String path) {
+      final route = api.path(path, 'post');
+      final content = (route['requestBody']! as Map)['content']! as Map;
+      return Map<String, Object?>.from(((content['application/json']! as Map)['schema']!) as Map);
+    }
+
+    test('change-plan answers ChangeOut, cancel answers CustomerServiceOut, both need the Idempotency-Key header', () {
+      final change = api.path('/v1/me/subscriber/services/{service_id}/change-plan', 'post');
+      final cancel = api.path('/v1/me/subscriber/services/{service_id}/cancel', 'post');
+      expect(api.responseSchemaName(change, '200'), 'ChangeOut');
+      expect(api.responseSchemaName(cancel, '200'), 'CustomerServiceOut');
+      for (final route in [change, cancel]) {
+        final headers = (route['parameters']! as List).cast<Map>().where((p) => p['in'] == 'header');
+        expect(headers.single['name'], 'Idempotency-Key');
+        expect(headers.single['required'], isTrue);
+      }
+    });
+
+    test('the change-plan body the app sends is ServicePlanChangeIn (new_plan_id only)', () {
+      final schema = bodySchema('/v1/me/subscriber/services/{service_id}/change-plan');
+      expect(schema['title'], 'ServicePlanChangeIn');
+      expect(schema['additionalProperties'], isFalse);
+      final body = {'new_plan_id': '3c0d5f7a-1111-4a11-8a11-000000000003'};
+      expect(api.validate(body, schema), isEmpty);
+      expect(body.keys.toSet(), (schema['properties']! as Map).keys.toSet());
+    });
+
+    test('the cancel body the app sends is SubscriberCancelIn (reason 1 to 200 characters)', () {
+      final schema = bodySchema('/v1/me/subscriber/services/{service_id}/cancel');
+      expect(schema['title'], 'SubscriberCancelIn');
+      expect(schema['additionalProperties'], isFalse);
+      final props = schema['properties']! as Map;
+      expect((props['reason']! as Map)['minLength'], 1);
+      expect((props['reason']! as Map)['maxLength'], maxCancelReasonLength);
+      expect(api.validate({'reason': cancelReasonText(CancelReason.other, 'x' * 500)}, schema), isEmpty);
+      expect(api.validate({'reason': cancelReasonText(CancelReason.moving)}, schema), isEmpty);
+    });
+
+    test('the change fixtures decode, one applied with an invoice and one scheduled without', () {
+      final applied = planChangeFromJson(Map<String, Object?>.from(fixture('subscriber_change_applied.json') as Map));
+      final scheduled = planChangeFromJson(Map<String, Object?>.from(fixture('subscriber_change_scheduled.json') as Map));
+      expect(applied.applied, isTrue);
+      expect(applied.prorationInvoiceId, isNotNull);
+      expect(scheduled.applied, isFalse);
+      expect(scheduled.prorationInvoiceId, isNull);
+    });
+
+    test('there is no route to withdraw a cancellation (nothing under .../uncancel or .../undo)', () {
+      final paths = api.pathKeys.where((p) => p.startsWith('/v1/me/subscriber/services/'));
+      expect(paths.any((p) => p.contains('uncancel') || p.contains('undo') || p.contains('reinstate')), isFalse);
     });
   });
 

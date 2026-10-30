@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:sentech_connect_app/core/error/failure.dart';
+import 'package:sentech_connect_app/features/subscriber/domain/entities/plan_change.dart';
 import 'package:sentech_connect_app/features/subscriber/domain/entities/subscriber_account.dart';
 import 'package:sentech_connect_app/features/subscriber/domain/entities/subscriber_service.dart';
 import 'package:sentech_connect_app/features/subscriber/domain/repositories/subscriber_repository.dart';
@@ -34,6 +35,24 @@ class FakeSubscriberRepository implements SubscriberRepository {
     if (failure != null) return Left(failure!);
     final match = services.where((s) => s.id == id);
     return match.isEmpty ? const Left(NotFoundFailure()) : Right(match.first);
+  }
+
+  /// What `changePlan` and `cancel` answer; every call is recorded.
+  Either<Failure, PlanChange> changeResult = Right(PlanChange(applied: true, effectiveOn: DateTime.utc(2026, 11, 2)));
+  Either<Failure, SubscriberService>? cancelResult;
+  final changeCalls = <({String serviceId, String planId, String key})>[];
+  final cancelCalls = <({String serviceId, String reason, String key})>[];
+
+  @override
+  Future<Either<Failure, PlanChange>> changePlan(String serviceId, String newPlanId, {required String idempotencyKey}) async {
+    changeCalls.add((serviceId: serviceId, planId: newPlanId, key: idempotencyKey));
+    return changeResult;
+  }
+
+  @override
+  Future<Either<Failure, SubscriberService>> cancel(String serviceId, String reason, {required String idempotencyKey}) async {
+    cancelCalls.add((serviceId: serviceId, reason: reason, key: idempotencyKey));
+    return cancelResult ?? Right(testService(id: serviceId, cancelEffectiveOn: DateTime.utc(2026, 11, 30)));
   }
 }
 

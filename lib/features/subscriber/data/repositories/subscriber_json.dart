@@ -3,6 +3,7 @@ import 'package:sentech_connect_app/core/error/failure.dart';
 import 'package:sentech_connect_app/core/network/api_client.dart';
 import 'package:sentech_connect_app/core/network/api_operation_scope.dart';
 import 'package:sentech_connect_app/core/time/api_date.dart';
+import 'package:sentech_connect_app/features/subscriber/domain/entities/plan_change.dart';
 import 'package:sentech_connect_app/features/subscriber/domain/entities/subscriber_account.dart';
 import 'package:sentech_connect_app/features/subscriber/domain/entities/subscriber_plan.dart';
 import 'package:sentech_connect_app/features/subscriber/domain/entities/subscriber_service.dart';
@@ -188,3 +189,10 @@ Future<Either<Failure, List<T>>> fetchAllPages<T>(
   }
   return const Left(incomplete);
 }
+
+/// `ChangeOut` -> [PlanChange].
+PlanChange planChangeFromJson(Map<String, Object?> json) => PlanChange(
+  applied: json['applied']! as bool,
+  effectiveOn: parseApiDate(json['effective_on']! as String),
+  prorationInvoiceId: json['proration_invoice_id'] as String?,
+);

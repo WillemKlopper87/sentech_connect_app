@@ -17,6 +17,9 @@ class OpenApiSnapshot {
     (jsonDecode(File('test/contract/openapi.json').readAsStringSync()) as Map)['paths'] as Map,
   );
 
+  /// Every path in the snapshot.
+  Iterable<String> get pathKeys => _paths.keys;
+
   /// The operation object of [method] on [path].
   Map<String, Object?> path(String path, String method) {
     final item = _paths[path];

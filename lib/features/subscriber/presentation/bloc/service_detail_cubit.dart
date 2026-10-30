@@ -25,6 +25,15 @@ class ServiceDetailCubit extends Cubit<ServiceDetailState> {
   final SubscriberRepository _repository;
   final String serviceId;
 
+  /// For the actions (change plan, cancel) opened from the detail page.
+  SubscriberRepository get repository => _repository;
+
+  /// Shows [service] (a platform answer to an action) before the refresh lands.
+  void applyService(SubscriberService service) {
+    if (isClosed) return;
+    emit(ServiceDetailState(status: ServiceDetailStatus.loaded, service: service));
+  }
+
   Future<void> load({bool keepVisible = false}) async {
     if (!keepVisible || state.service == null) emit(const ServiceDetailState());
     final result = await _repository.getService(serviceId);

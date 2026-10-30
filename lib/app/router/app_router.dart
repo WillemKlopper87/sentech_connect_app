@@ -38,6 +38,7 @@ import 'package:sentech_connect_app/features/subscriber/domain/repositories/invo
 import 'package:sentech_connect_app/features/subscriber/domain/repositories/subscriber_repository.dart';
 import 'package:sentech_connect_app/features/subscriber/presentation/bloc/invoice_detail_cubit.dart';
 import 'package:sentech_connect_app/features/subscriber/presentation/bloc/invoice_payment_cubit.dart';
+import 'package:sentech_connect_app/features/subscriber/domain/repositories/subscriber_plans_repository.dart';
 import 'package:sentech_connect_app/features/subscriber/presentation/bloc/invoices_cubit.dart';
 import 'package:sentech_connect_app/features/subscriber/presentation/pages/invoice_detail_page.dart';
 import 'package:sentech_connect_app/features/subscriber/presentation/pages/invoices_page.dart';
@@ -466,7 +467,7 @@ GoRouter _buildRouter(
         redirect: (context, state) => _subscriberModuleOff(tenantCubit) ? AppRoutes.main : null,
         builder: (context, state) => BlocProvider(
           create: (_) => ServiceDetailCubit(locator(), state.pathParameters['serviceId']!),
-          child: const ServiceDetailPage(),
+          child: ServiceDetailPage(plansRepository: locator<SubscriberPlansRepository>()),
         ),
       ),
       // ID check (S4). Hidden when the module is off.

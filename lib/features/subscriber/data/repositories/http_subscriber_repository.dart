@@ -2,6 +2,7 @@ import 'package:fpdart/fpdart.dart';
 import 'package:sentech_connect_app/core/error/failure.dart';
 import 'package:sentech_connect_app/core/network/api_client.dart';
 import 'package:sentech_connect_app/features/subscriber/data/repositories/subscriber_json.dart';
+import 'package:sentech_connect_app/features/subscriber/domain/entities/plan_change.dart';
 import 'package:sentech_connect_app/features/subscriber/domain/entities/subscriber_account.dart';
 import 'package:sentech_connect_app/features/subscriber/domain/entities/subscriber_service.dart';
 import 'package:sentech_connect_app/features/subscriber/domain/repositories/subscriber_repository.dart';
@@ -54,4 +55,24 @@ class HttpSubscriberRepository implements SubscriberRepository {
     scope: await _api.captureScope(),
     decode: (data) => subscriberServiceFromJson(Map<String, Object?>.from(data! as Map)),
   );
+
+  @override
+  Future<Either<Failure, PlanChange>> changePlan(String serviceId, String newPlanId, {required String idempotencyKey}) async =>
+      _api.post<PlanChange>(
+        '/v1/me/subscriber/services/${Uri.encodeComponent(serviceId)}/change-plan',
+        scope: await _api.captureScope(),
+        idempotencyKey: idempotencyKey,
+        body: {'new_plan_id': newPlanId},
+        decode: (data) => planChangeFromJson(Map<String, Object?>.from(data! as Map)),
+      );
+
+  @override
+  Future<Either<Failure, SubscriberService>> cancel(String serviceId, String reason, {required String idempotencyKey}) async =>
+      _api.post<SubscriberService>(
+        '/v1/me/subscriber/services/${Uri.encodeComponent(serviceId)}/cancel',
+        scope: await _api.captureScope(),
+        idempotencyKey: idempotencyKey,
+        body: {'reason': reason},
+        decode: (data) => subscriberServiceFromJson(Map<String, Object?>.from(data! as Map)),
+      );
 }

@@ -34,6 +34,20 @@ class MockSubscriberPlansRepository implements SubscriberPlansRepository {
       maxDevices: 20,
       fupAction: 'none',
     ),
+    SubscriberPlan(
+      id: '3c0d5f7a-0000-4000-8000-000000000003',
+      code: 'HOME-HOTSPOT-5',
+      name: 'Home Hotspot 5',
+      description: 'A smaller monthly Wi-Fi allowance for your household.',
+      kind: SubscriberPlanKind.recurringHotspot,
+      kycRequired: false,
+      priceCents: 12900,
+      setupFeeCents: 0,
+      downKbps: 5000,
+      upKbps: 2500,
+      maxDevices: 3,
+      fupAction: 'throttle',
+    ),
   ];
 
   @override
