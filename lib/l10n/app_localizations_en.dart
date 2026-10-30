@@ -1,5 +1,6 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
+
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -554,6 +555,145 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get accountSwitchProvider => 'Switch WiFi provider';
+
+  @override
+  String get servicesHomeInternetHeading => 'Home internet';
+
+  @override
+  String get servicesTitle => 'My services';
+
+  @override
+  String get servicesEmpty => 'You have no home internet service yet';
+
+  @override
+  String get servicesPastTitle => 'Past services';
+
+  @override
+  String get serviceDetailTitle => 'Service details';
+
+  @override
+  String get serviceStatusPending => 'Starting';
+
+  @override
+  String get serviceStatusActive => 'Active';
+
+  @override
+  String get serviceStatusSuspended => 'Suspended';
+
+  @override
+  String get serviceStatusCancelled => 'Ended';
+
+  @override
+  String get serviceKindHotspot => 'Home hotspot';
+
+  @override
+  String get serviceKindFixedWireless => 'Fixed wireless';
+
+  @override
+  String servicePricePerMonth(String price) {
+    return '$price a month';
+  }
+
+  @override
+  String serviceSpeeds(String down, String up) {
+    return 'Down $down Mbps, up $up Mbps';
+  }
+
+  @override
+  String serviceNumber(String number) {
+    return 'Service $number';
+  }
+
+  @override
+  String servicePaidUntil(String date) {
+    return 'Paid until $date';
+  }
+
+  @override
+  String serviceEndsOn(String date) {
+    return 'Ends on $date';
+  }
+
+  @override
+  String serviceEndedOn(String date) {
+    return 'Ended on $date';
+  }
+
+  @override
+  String get serviceCancelScheduledTitle => 'Cancellation scheduled';
+
+  @override
+  String servicePlanChangeOn(String plan, String date) {
+    return 'Plan change to $plan on $date';
+  }
+
+  @override
+  String servicePlanChangeScheduled(String date) {
+    return 'A plan change is scheduled for $date';
+  }
+
+  @override
+  String get serviceFactPlan => 'Plan';
+
+  @override
+  String get serviceFactType => 'Type';
+
+  @override
+  String get serviceFactPrice => 'Price';
+
+  @override
+  String get serviceFactSpeed => 'Speed';
+
+  @override
+  String get serviceFactNumber => 'Service number';
+
+  @override
+  String get serviceFactPaidThrough => 'Paid until';
+
+  @override
+  String get serviceBannerFirstInvoiceUnpaid =>
+      'Pay your first invoice to start';
+
+  @override
+  String get serviceBannerKycRequired => 'We need to check your ID';
+
+  @override
+  String get serviceBannerAwaitingInstallation =>
+      'Waiting for installation by your provider';
+
+  @override
+  String get serviceBannerCustomerLinkRequired =>
+      'Your account is not linked to your provider yet. Contact your provider.';
+
+  @override
+  String get serviceBannerContractRequired =>
+      'Your service contract is not signed yet. Contact your provider.';
+
+  @override
+  String get serviceBannerActivating =>
+      'Activating, this can take a few minutes. Pull to refresh.';
+
+  @override
+  String get serviceBannerProviderSettingUp =>
+      'Your provider is setting this up';
+
+  @override
+  String get serviceBannerSuspendedNonPayment =>
+      'Pay your open invoice to restore service';
+
+  @override
+  String get serviceBannerSuspendedKyc =>
+      'We need to check your ID before service can resume';
+
+  @override
+  String get serviceBannerSuspendedProvider =>
+      'Paused by your provider. Contact support.';
+
+  @override
+  String get serviceActionViewInvoices => 'View invoices';
+
+  @override
+  String get serviceActionIdCheck => 'Start ID check';
 
   @override
   String accountContactProvider(String provider) {

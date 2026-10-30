@@ -90,3 +90,46 @@ Support message form (2026-10-30, `POST /v1/support/messages`). Machine-quality 
 | `supportIssueMessageTooLong` | Keep your message under 2000 characters. | Hou jou boodskap onder 2000 karakters. | Gcina umlayezo wakho ungaphansi kwezinhlamvu ezi-2000. |
 | `supportIssueOrderRef` | An order reference has letters, numbers and dashes only (4 to 40). | 'n Bestellingverwysing het net letters, syfers en koppeltekens (4 tot 40). | Inkomba ye-oda inamagama, izinombolo namadashi kuphela (4 kuya ku-40). |
 | `supportEmailInstead` | Email us instead | Stuur eerder vir ons 'n e-pos | Sithumelele i-imeyili esikhundleni |
+
+Subscriber services (S3, 2026-10-30). Machine-quality drafts, native review before release.
+
+| Key | English | Afrikaans | isiZulu |
+|---|---|---|---|
+| `servicesHomeInternetHeading` | Home internet | Internet yasekhaya | Iintanethi yasekhaya |
+| `servicesTitle` | My services | My dienste | Amasevisi ami |
+| `servicesEmpty` | You have no home internet service yet | Jy het nog nie 'n tuisinternetdiens nie | Awunayo isevisi yeintanethi yasekhaya okwamanje |
+| `servicesPastTitle` | Past services | Vorige dienste | Amasevisi adlule |
+| `serviceDetailTitle` | Service details | Diensbesonderhede | Imininingwane yesevisi |
+| `serviceStatusPending` | Starting | Begin tans | Iyaqala |
+| `serviceStatusActive` | Active | Aktief | Iyasebenza |
+| `serviceStatusSuspended` | Suspended | Opgeskort | Imisiwe |
+| `serviceStatusCancelled` | Ended | Beëindig | Iphelile |
+| `serviceKindHotspot` | Home hotspot | Tuis-warmkol | I-hotspot yasekhaya |
+| `serviceKindFixedWireless` | Fixed wireless | Vaste draadloos | I-fixed wireless |
+| `servicePricePerMonth` | {price} a month | {price} per maand | {price} ngenyanga |
+| `serviceSpeeds` | Down {down} Mbps, up {up} Mbps | Af {down} Mbps, op {up} Mbps | Phansi {down} Mbps, phezulu {up} Mbps |
+| `serviceNumber` | Service {number} | Diens {number} | Isevisi {number} |
+| `servicePaidUntil` | Paid until {date} | Betaal tot {date} | Ikhokhelwe kuze kube yilo {date} |
+| `serviceEndsOn` | Ends on {date} | Eindig op {date} | Iphela ngo-{date} |
+| `serviceEndedOn` | Ended on {date} | Beëindig op {date} | Iphele ngo-{date} |
+| `serviceCancelScheduledTitle` | Cancellation scheduled | Kansellasie geskeduleer | Ukukhansela kuhlelwe |
+| `servicePlanChangeOn` | Plan change to {plan} on {date} | Planverandering na {plan} op {date} | Ukushintsha uhlelo kuye ku-{plan} ngo-{date} |
+| `servicePlanChangeScheduled` | A plan change is scheduled for {date} | 'n Planverandering is geskeduleer vir {date} | Ukushintsha uhlelo kuhlelwe ngo-{date} |
+| `serviceFactPlan` | Plan | Plan | Uhlelo |
+| `serviceFactType` | Type | Tipe | Uhlobo |
+| `serviceFactPrice` | Price | Prys | Intengo |
+| `serviceFactSpeed` | Speed | Spoed | Isivinini |
+| `serviceFactNumber` | Service number | Dienstnommer | Inombolo yesevisi |
+| `serviceFactPaidThrough` | Paid until | Betaal tot | Ikhokhelwe kuze kube |
+| `serviceBannerFirstInvoiceUnpaid` | Pay your first invoice to start | Betaal jou eerste faktuur om te begin | Khokha i-invoyisi yakho yokuqala ukuze uqale |
+| `serviceBannerKycRequired` | We need to check your ID | Ons moet jou ID nagaan | Sidinga ukuhlola i-ID yakho |
+| `serviceBannerAwaitingInstallation` | Waiting for installation by your provider | Wag vir installasie deur jou verskaffer | Kulindwe ukufakwa umhlinzeki wakho |
+| `serviceBannerCustomerLinkRequired` | Your account is not linked to your provider yet. Contact your provider. | Jou rekening is nog nie aan jou verskaffer gekoppel nie. Kontak jou verskaffer. | I-akhawunti yakho ayixhunyiwe nomhlinzeki wakho. Xhumana nomhlinzeki wakho. |
+| `serviceBannerContractRequired` | Your service contract is not signed yet. Contact your provider. | Jou dienskontrak is nog nie geteken nie. Kontak jou verskaffer. | Inkontileka yakho yesevisi ayisayinwanga. Xhumana nomhlinzeki wakho. |
+| `serviceBannerActivating` | Activating, this can take a few minutes. Pull to refresh. | Aktiveer tans, dit kan 'n paar minute neem. Trek om te herlaai. | Iyasebenza, lokhu kungathatha amaminithi ambalwa. Donsa ukuvuselela. |
+| `serviceBannerProviderSettingUp` | Your provider is setting this up | Jou verskaffer rig dit tans op | Umhlinzeki wakho uyakumisa |
+| `serviceBannerSuspendedNonPayment` | Pay your open invoice to restore service | Betaal jou oop faktuur om diens te herstel | Khokha i-invoyisi yakho evuliwe ukuze isevisi ibuyiselwe |
+| `serviceBannerSuspendedKyc` | We need to check your ID before service can resume | Ons moet jou ID nagaan voor diens kan hervat | Sidinga ukuhlola i-ID yakho ngaphambi kokuthi isevisi iqhubeke |
+| `serviceBannerSuspendedProvider` | Paused by your provider. Contact support. | Deur jou verskaffer onderbreek. Kontak ondersteuning. | Imiswe umhlinzeki wakho. Xhumana nosizo. |
+| `serviceActionViewInvoices` | View invoices | Sien fakture | Buka ama-invoyisi |
+| `serviceActionIdCheck` | Start ID check | Begin ID-kontrole | Qala ukuhlola i-ID |

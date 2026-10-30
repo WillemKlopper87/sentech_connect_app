@@ -37,6 +37,11 @@ import 'package:sentech_connect_app/features/promotions/presentation/pages/promo
 import 'package:sentech_connect_app/features/rica/presentation/bloc/rica_cubit.dart';
 import 'package:sentech_connect_app/features/rica/presentation/pages/rica_page.dart';
 import 'package:sentech_connect_app/features/tenant/presentation/bloc/tenant_cubit.dart';
+import 'package:sentech_connect_app/features/subscriber/presentation/bloc/service_detail_cubit.dart';
+import 'package:sentech_connect_app/features/subscriber/presentation/bloc/services_cubit.dart';
+import 'package:sentech_connect_app/features/subscriber/presentation/pages/service_detail_page.dart';
+import 'package:sentech_connect_app/features/subscriber/presentation/pages/services_page.dart';
+import 'package:sentech_connect_app/features/subscriber/subscriber_gate.dart';
 import 'package:sentech_connect_app/features/tenant/presentation/pages/tenant_picker_page.dart';
 import 'package:sentech_connect_app/features/tenant/presentation/pages/update_required_page.dart';
 import 'package:sentech_connect_app/features/wifi_voucher/presentation/bloc/wifi_hotspots_cubit.dart';
@@ -262,6 +267,12 @@ class AppRouter {
   }
 }
 
+/// True once the provider's config is loaded and `subscriber_billing` is off:
+/// the subscriber routes then bounce home. (Before the config loads they stay,
+/// so a deep link at launch is not lost.)
+bool _subscriberModuleOff(TenantCubit? tenant) =>
+    tenant != null && tenant.state.status == TenantStatus.ready && !subscriberBillingOn(tenant.state);
+
 GoRouter _buildRouter(
   AuthCubit authCubit,
   TenantCubit? tenantCubit,
@@ -405,6 +416,23 @@ GoRouter _buildRouter(
         builder: (context, state) => BlocProvider(
           create: (_) => WifiHotspotsCubit(locator()),
           child: const WifiHotspotsPage(),
+        ),
+      ),
+      // Subscriber services (S3). Hidden when the module is off.
+      GoRoute(
+        path: AppRoutes.services,
+        redirect: (context, state) => _subscriberModuleOff(tenantCubit) ? AppRoutes.main : null,
+        builder: (context, state) => BlocProvider(
+          create: (_) => ServicesCubit(locator()),
+          child: const ServicesPage(),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.serviceDetail,
+        redirect: (context, state) => _subscriberModuleOff(tenantCubit) ? AppRoutes.main : null,
+        builder: (context, state) => BlocProvider(
+          create: (_) => ServiceDetailCubit(locator(), state.pathParameters['serviceId']!),
+          child: const ServiceDetailPage(),
         ),
       ),
       GoRoute(

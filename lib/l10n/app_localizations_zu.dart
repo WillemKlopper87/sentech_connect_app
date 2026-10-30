@@ -1,5 +1,6 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
+
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -556,6 +557,144 @@ class AppLocalizationsZu extends AppLocalizations {
 
   @override
   String get accountSwitchProvider => 'Switch WiFi provider';
+
+  @override
+  String get servicesHomeInternetHeading => 'Iintanethi yasekhaya';
+
+  @override
+  String get servicesTitle => 'Amasevisi ami';
+
+  @override
+  String get servicesEmpty => 'Awunayo isevisi yeintanethi yasekhaya okwamanje';
+
+  @override
+  String get servicesPastTitle => 'Amasevisi adlule';
+
+  @override
+  String get serviceDetailTitle => 'Imininingwane yesevisi';
+
+  @override
+  String get serviceStatusPending => 'Iyaqala';
+
+  @override
+  String get serviceStatusActive => 'Iyasebenza';
+
+  @override
+  String get serviceStatusSuspended => 'Imisiwe';
+
+  @override
+  String get serviceStatusCancelled => 'Iphelile';
+
+  @override
+  String get serviceKindHotspot => 'I-hotspot yasekhaya';
+
+  @override
+  String get serviceKindFixedWireless => 'I-fixed wireless';
+
+  @override
+  String servicePricePerMonth(String price) {
+    return '$price ngenyanga';
+  }
+
+  @override
+  String serviceSpeeds(String down, String up) {
+    return 'Phansi $down Mbps, phezulu $up Mbps';
+  }
+
+  @override
+  String serviceNumber(String number) {
+    return 'Isevisi $number';
+  }
+
+  @override
+  String servicePaidUntil(String date) {
+    return 'Ikhokhelwe kuze kube yilo $date';
+  }
+
+  @override
+  String serviceEndsOn(String date) {
+    return 'Iphela ngo-$date';
+  }
+
+  @override
+  String serviceEndedOn(String date) {
+    return 'Iphele ngo-$date';
+  }
+
+  @override
+  String get serviceCancelScheduledTitle => 'Ukukhansela kuhlelwe';
+
+  @override
+  String servicePlanChangeOn(String plan, String date) {
+    return 'Ukushintsha uhlelo kuye ku-$plan ngo-$date';
+  }
+
+  @override
+  String servicePlanChangeScheduled(String date) {
+    return 'Ukushintsha uhlelo kuhlelwe ngo-$date';
+  }
+
+  @override
+  String get serviceFactPlan => 'Uhlelo';
+
+  @override
+  String get serviceFactType => 'Uhlobo';
+
+  @override
+  String get serviceFactPrice => 'Intengo';
+
+  @override
+  String get serviceFactSpeed => 'Isivinini';
+
+  @override
+  String get serviceFactNumber => 'Inombolo yesevisi';
+
+  @override
+  String get serviceFactPaidThrough => 'Ikhokhelwe kuze kube';
+
+  @override
+  String get serviceBannerFirstInvoiceUnpaid =>
+      'Khokha i-invoyisi yakho yokuqala ukuze uqale';
+
+  @override
+  String get serviceBannerKycRequired => 'Sidinga ukuhlola i-ID yakho';
+
+  @override
+  String get serviceBannerAwaitingInstallation =>
+      'Kulindwe ukufakwa umhlinzeki wakho';
+
+  @override
+  String get serviceBannerCustomerLinkRequired =>
+      'I-akhawunti yakho ayixhunyiwe nomhlinzeki wakho. Xhumana nomhlinzeki wakho.';
+
+  @override
+  String get serviceBannerContractRequired =>
+      'Inkontileka yakho yesevisi ayisayinwanga. Xhumana nomhlinzeki wakho.';
+
+  @override
+  String get serviceBannerActivating =>
+      'Iyasebenza, lokhu kungathatha amaminithi ambalwa. Donsa ukuvuselela.';
+
+  @override
+  String get serviceBannerProviderSettingUp => 'Umhlinzeki wakho uyakumisa';
+
+  @override
+  String get serviceBannerSuspendedNonPayment =>
+      'Khokha i-invoyisi yakho evuliwe ukuze isevisi ibuyiselwe';
+
+  @override
+  String get serviceBannerSuspendedKyc =>
+      'Sidinga ukuhlola i-ID yakho ngaphambi kokuthi isevisi iqhubeke';
+
+  @override
+  String get serviceBannerSuspendedProvider =>
+      'Imiswe umhlinzeki wakho. Xhumana nosizo.';
+
+  @override
+  String get serviceActionViewInvoices => 'Buka ama-invoyisi';
+
+  @override
+  String get serviceActionIdCheck => 'Qala ukuhlola i-ID';
 
   @override
   String accountContactProvider(String provider) {

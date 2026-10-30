@@ -1,5 +1,6 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
+
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -555,6 +556,144 @@ class AppLocalizationsAf extends AppLocalizations {
 
   @override
   String get accountSwitchProvider => 'Switch WiFi provider';
+
+  @override
+  String get servicesHomeInternetHeading => 'Internet yasekhaya';
+
+  @override
+  String get servicesTitle => 'My dienste';
+
+  @override
+  String get servicesEmpty => 'Jy het nog nie \'n tuisinternetdiens nie';
+
+  @override
+  String get servicesPastTitle => 'Vorige dienste';
+
+  @override
+  String get serviceDetailTitle => 'Diensbesonderhede';
+
+  @override
+  String get serviceStatusPending => 'Begin tans';
+
+  @override
+  String get serviceStatusActive => 'Aktief';
+
+  @override
+  String get serviceStatusSuspended => 'Opgeskort';
+
+  @override
+  String get serviceStatusCancelled => 'Beëindig';
+
+  @override
+  String get serviceKindHotspot => 'Tuis-warmkol';
+
+  @override
+  String get serviceKindFixedWireless => 'Vaste draadloos';
+
+  @override
+  String servicePricePerMonth(String price) {
+    return '$price per maand';
+  }
+
+  @override
+  String serviceSpeeds(String down, String up) {
+    return 'Af $down Mbps, op $up Mbps';
+  }
+
+  @override
+  String serviceNumber(String number) {
+    return 'Diens $number';
+  }
+
+  @override
+  String servicePaidUntil(String date) {
+    return 'Betaal tot $date';
+  }
+
+  @override
+  String serviceEndsOn(String date) {
+    return 'Eindig op $date';
+  }
+
+  @override
+  String serviceEndedOn(String date) {
+    return 'Beëindig op $date';
+  }
+
+  @override
+  String get serviceCancelScheduledTitle => 'Kansellasie geskeduleer';
+
+  @override
+  String servicePlanChangeOn(String plan, String date) {
+    return 'Planverandering na $plan op $date';
+  }
+
+  @override
+  String servicePlanChangeScheduled(String date) {
+    return '\'n Planverandering is geskeduleer vir $date';
+  }
+
+  @override
+  String get serviceFactPlan => 'Plan';
+
+  @override
+  String get serviceFactType => 'Tipe';
+
+  @override
+  String get serviceFactPrice => 'Prys';
+
+  @override
+  String get serviceFactSpeed => 'Spoed';
+
+  @override
+  String get serviceFactNumber => 'Dienstnommer';
+
+  @override
+  String get serviceFactPaidThrough => 'Betaal tot';
+
+  @override
+  String get serviceBannerFirstInvoiceUnpaid =>
+      'Betaal jou eerste faktuur om te begin';
+
+  @override
+  String get serviceBannerKycRequired => 'Ons moet jou ID nagaan';
+
+  @override
+  String get serviceBannerAwaitingInstallation =>
+      'Wag vir installasie deur jou verskaffer';
+
+  @override
+  String get serviceBannerCustomerLinkRequired =>
+      'Jou rekening is nog nie aan jou verskaffer gekoppel nie. Kontak jou verskaffer.';
+
+  @override
+  String get serviceBannerContractRequired =>
+      'Jou dienskontrak is nog nie geteken nie. Kontak jou verskaffer.';
+
+  @override
+  String get serviceBannerActivating =>
+      'Aktiveer tans, dit kan \'n paar minute neem. Trek om te herlaai.';
+
+  @override
+  String get serviceBannerProviderSettingUp => 'Jou verskaffer rig dit tans op';
+
+  @override
+  String get serviceBannerSuspendedNonPayment =>
+      'Betaal jou oop faktuur om diens te herstel';
+
+  @override
+  String get serviceBannerSuspendedKyc =>
+      'Ons moet jou ID nagaan voor diens kan hervat';
+
+  @override
+  String get serviceBannerSuspendedProvider =>
+      'Deur jou verskaffer onderbreek. Kontak ondersteuning.';
+
+  @override
+  String get serviceActionViewInvoices => 'Sien fakture';
+
+  @override
+  String get serviceActionIdCheck => 'Begin ID-kontrole';
 
   @override
   String accountContactProvider(String provider) {

@@ -13,6 +13,7 @@ import 'package:sentech_connect_app/features/privacy/presentation/bloc/privacy_a
 import 'package:sentech_connect_app/features/privacy/presentation/pages/data_export_page.dart';
 import 'package:sentech_connect_app/features/privacy/presentation/privacy_failure_message.dart';
 import 'package:sentech_connect_app/features/privacy/presentation/widgets/legal_reading_links.dart';
+import 'package:sentech_connect_app/features/subscriber/presentation/widgets/home_internet_section.dart';
 import 'package:sentech_connect_app/features/tenant/presentation/bloc/tenant_cubit.dart';
 import 'package:sentech_connect_app/l10n/l10n.dart';
 import 'package:sentech_connect_app/shared/actions/support_actions.dart';
@@ -174,6 +175,7 @@ class _AccountView extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 28),
+              const HomeInternetSection(),
               _Bordered(
                 child: Column(
                   children: [

@@ -1078,6 +1078,234 @@ abstract class AppLocalizations {
   /// **'Switch WiFi provider'**
   String get accountSwitchProvider;
 
+  /// Account tab section heading for the subscriber's home internet rows.
+  ///
+  /// In en, this message translates to:
+  /// **'Home internet'**
+  String get servicesHomeInternetHeading;
+
+  /// Title of the list of the customer's home internet services; also the Account row.
+  ///
+  /// In en, this message translates to:
+  /// **'My services'**
+  String get servicesTitle;
+
+  /// Empty state of the services list.
+  ///
+  /// In en, this message translates to:
+  /// **'You have no home internet service yet'**
+  String get servicesEmpty;
+
+  /// Heading above cancelled services.
+  ///
+  /// In en, this message translates to:
+  /// **'Past services'**
+  String get servicesPastTitle;
+
+  /// Title of the service detail screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Service details'**
+  String get serviceDetailTitle;
+
+  /// Status chip for a service not yet started.
+  ///
+  /// In en, this message translates to:
+  /// **'Starting'**
+  String get serviceStatusPending;
+
+  /// Status chip for an active service.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get serviceStatusActive;
+
+  /// Status chip for a suspended service.
+  ///
+  /// In en, this message translates to:
+  /// **'Suspended'**
+  String get serviceStatusSuspended;
+
+  /// Status chip for a cancelled service.
+  ///
+  /// In en, this message translates to:
+  /// **'Ended'**
+  String get serviceStatusCancelled;
+
+  /// Plan type: recurring hotspot.
+  ///
+  /// In en, this message translates to:
+  /// **'Home hotspot'**
+  String get serviceKindHotspot;
+
+  /// Plan type: fixed wireless.
+  ///
+  /// In en, this message translates to:
+  /// **'Fixed wireless'**
+  String get serviceKindFixedWireless;
+
+  /// Monthly price of a service plan.
+  ///
+  /// In en, this message translates to:
+  /// **'{price} a month'**
+  String servicePricePerMonth(String price);
+
+  /// Plan speeds in megabits per second.
+  ///
+  /// In en, this message translates to:
+  /// **'Down {down} Mbps, up {up} Mbps'**
+  String serviceSpeeds(String down, String up);
+
+  /// Service number label.
+  ///
+  /// In en, this message translates to:
+  /// **'Service {number}'**
+  String serviceNumber(String number);
+
+  /// Date the service is funded through.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid until {date}'**
+  String servicePaidUntil(String date);
+
+  /// Scheduled cancellation date.
+  ///
+  /// In en, this message translates to:
+  /// **'Ends on {date}'**
+  String serviceEndsOn(String date);
+
+  /// Date a cancelled service ended.
+  ///
+  /// In en, this message translates to:
+  /// **'Ended on {date}'**
+  String serviceEndedOn(String date);
+
+  /// Heading of the banner for a service set to end.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancellation scheduled'**
+  String get serviceCancelScheduledTitle;
+
+  /// Banner for a scheduled plan change with the new plan name.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan change to {plan} on {date}'**
+  String servicePlanChangeOn(String plan, String date);
+
+  /// Banner for a scheduled plan change when the new plan name is unknown.
+  ///
+  /// In en, this message translates to:
+  /// **'A plan change is scheduled for {date}'**
+  String servicePlanChangeScheduled(String date);
+
+  /// Detail row label.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan'**
+  String get serviceFactPlan;
+
+  /// Detail row label.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get serviceFactType;
+
+  /// Detail row label.
+  ///
+  /// In en, this message translates to:
+  /// **'Price'**
+  String get serviceFactPrice;
+
+  /// Detail row label.
+  ///
+  /// In en, this message translates to:
+  /// **'Speed'**
+  String get serviceFactSpeed;
+
+  /// Detail row label.
+  ///
+  /// In en, this message translates to:
+  /// **'Service number'**
+  String get serviceFactNumber;
+
+  /// Detail row label.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid until'**
+  String get serviceFactPaidThrough;
+
+  /// Pending banner: first invoice unpaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay your first invoice to start'**
+  String get serviceBannerFirstInvoiceUnpaid;
+
+  /// Pending banner: identity check needed.
+  ///
+  /// In en, this message translates to:
+  /// **'We need to check your ID'**
+  String get serviceBannerKycRequired;
+
+  /// Pending banner: fixed wireless installation.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for installation by your provider'**
+  String get serviceBannerAwaitingInstallation;
+
+  /// Pending banner: customer link missing.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account is not linked to your provider yet. Contact your provider.'**
+  String get serviceBannerCustomerLinkRequired;
+
+  /// Pending banner: contract unsigned.
+  ///
+  /// In en, this message translates to:
+  /// **'Your service contract is not signed yet. Contact your provider.'**
+  String get serviceBannerContractRequired;
+
+  /// Pending banner: hotspot activating.
+  ///
+  /// In en, this message translates to:
+  /// **'Activating, this can take a few minutes. Pull to refresh.'**
+  String get serviceBannerActivating;
+
+  /// Pending banner: fixed wireless being set up.
+  ///
+  /// In en, this message translates to:
+  /// **'Your provider is setting this up'**
+  String get serviceBannerProviderSettingUp;
+
+  /// Suspended banner: non-payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay your open invoice to restore service'**
+  String get serviceBannerSuspendedNonPayment;
+
+  /// Suspended banner: identity check.
+  ///
+  /// In en, this message translates to:
+  /// **'We need to check your ID before service can resume'**
+  String get serviceBannerSuspendedKyc;
+
+  /// Suspended banner: provider or customer request.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused by your provider. Contact support.'**
+  String get serviceBannerSuspendedProvider;
+
+  /// Banner button to the invoices list.
+  ///
+  /// In en, this message translates to:
+  /// **'View invoices'**
+  String get serviceActionViewInvoices;
+
+  /// Banner button to the ID check.
+  ///
+  /// In en, this message translates to:
+  /// **'Start ID check'**
+  String get serviceActionIdCheck;
+
   /// Account row that opens the provider's support channels.
   ///
   /// In en, this message translates to:
