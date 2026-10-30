@@ -22,6 +22,7 @@ import 'package:sentech_connect_app/features/subscriber/domain/entities/kyc.dart
 import 'package:sentech_connect_app/features/subscriber/domain/entities/subscriber_account.dart';
 import 'package:sentech_connect_app/features/subscriber/domain/entities/subscriber_invoice.dart';
 import 'package:sentech_connect_app/features/subscriber/domain/entities/subscriber_plan.dart';
+import 'package:sentech_connect_app/features/subscriber/domain/entities/plan_change.dart';
 import 'package:sentech_connect_app/features/subscriber/domain/entities/subscriber_service.dart';
 import 'package:sentech_connect_app/features/subscriber/domain/repositories/invoice_repository.dart';
 import 'package:sentech_connect_app/features/subscriber/domain/repositories/kyc_repository.dart';
@@ -50,6 +51,15 @@ class _Subs implements SubscriberRepository {
 
   @override
   Future<Either<Failure, SubscriberService>> getService(String id) async => Right(services.first);
+
+  // The dashboard never changes or cancels a plan.
+  @override
+  Future<Either<Failure, PlanChange>> changePlan(String serviceId, String newPlanId, {required String idempotencyKey}) =>
+      throw UnimplementedError();
+
+  @override
+  Future<Either<Failure, SubscriberService>> cancel(String serviceId, String reason, {required String idempotencyKey}) =>
+      throw UnimplementedError();
 }
 
 class _SlowSubs extends _Subs {
