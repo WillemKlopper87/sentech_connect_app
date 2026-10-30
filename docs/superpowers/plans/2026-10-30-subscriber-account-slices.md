@@ -2,6 +2,7 @@
 
 > Docs only. Written for Sonnet builders; the planner verifies each slice before it is pushed to `origin/codex/naas-implementation`.
 > Basis: app `origin/main` at `688274a`; platform checkout `C:\tmp\integ` at `ae401a0` (the same snapshot as `test/contract/openapi.json`, 341 operations). Everything under "API facts" was read from platform source (`modules/subscribers/*`, `modules/hotspot/router.py`, `modules/plan_modules/catalog.py`, `modules/appconfig/router.py`) and the OpenAPI file. Items marked **assumption** are recommended defaults the owner can overrule. Items marked **not verified** were not run (no Flutter toolchain, no API stack).
+> **Update 2026-10-30 (platform `ab5247a`, snapshot re-synced in S1):** platform tasks P1 to P4 and P5a are DONE. The customer service view is `CustomerServiceOut` (plan_name, kind, price, down/up kbps, `activation_blocker`, `pending_plan_id`/`pending_plan_name`), lists are newest first with the `after` cursor (400 `invalid_cursor`), invoices accept `status=open`, and `LoginTokenIn` is in the OpenAPI file. Where a passage below says the app must infer, join to the plans list, sort client side or work around a missing field, that is superseded by this note and the S1/S3/S9 notes.
 > Audit this plan serves: `docs/PARITY_AUDIT_2026-10-29.md`. Contract and typed codes: `docs/BACKEND_CONTRACT_SYNC.md`.
 
 ## 0. Summary
@@ -10,10 +11,10 @@
 - **Findings that change the audit** (details in section 1 and 5):
   1. The platform has **no liveness or selfie check**. KYC is a JSON capture (ID type and number, address text, consent version, optional single document image) that **staff verify by hand** (four-eyes). The mock `LivenessRepository` (SIM order RICA) is a different flow and is not reused.
   2. `active_service_exists` is **never emitted** by the platform. An account may hold several services; signup after the first just adds one.
-  3. `ServiceOut` has **no plan name, kind or price** (only `plan_id`). The app must join to `GET /v1/subscriber-plans`, which lists active plans only. A service on a retired plan cannot be named. Platform task P1.
-  4. `POST /v1/me/hotspot/login-token` **requires `mac`** (12 to 32 characters) and the OpenAPI file does **not describe the request body**. The controller hand-off does not remove the MAC. Neither Android nor iOS gives an app the MAC. Section 4 has the options and the owner questions.
+  3. ~~`ServiceOut` has no plan name, kind or price.~~ **Fixed (P1, platform `ab5247a`):** the customer service view carries `plan_name`, `kind`, `price`, `down_kbps`, `up_kbps` of the plan version the service is on, also for retired plans. No join to the plans list.
+  4. `POST /v1/me/hotspot/login-token` **requires `mac`** (12 to 32 characters) (the request body `LoginTokenIn` is now described in the OpenAPI file, P5a done). The controller hand-off does not remove the MAC. Neither Android nor iOS gives an app the MAC. Section 4 has the options and the owner questions.
   5. A customer **cannot cancel a pending service** (`409 pending_requires_immediate_cancellation`) and there is no "undo cancel" route.
-  6. Invoice and service lists are ordered by random UUID (`ORDER BY id`), not by date.
+  6. ~~Invoice and service lists are ordered by random UUID.~~ **Fixed (P4):** newest first (invoices by `issue_date`, services by `created_at`), `after` = previous `next_cursor`, `status=open` on invoices, `400 invalid_cursor` for an unknown cursor. The app keeps the API order and does not sort.
 - Invoice payment reuses the order payment hand-off almost unchanged: `CheckoutOut` is the same class on both routes (platform imports it from `payments.router`).
 
 ## 1. API facts (read from source)
@@ -64,7 +65,7 @@ Transitions (`state.py`): `pending -> active | cancelled`; `active -> suspended 
 
 `paid_through` = last day the service is funded; set to the invoice `period_end` when an initial, recurring or reactivation invoice is paid (adjustment and proration invoices do not extend it). `billed_through` = last day an invoice has been issued for.
 
-**What the app can infer for a `pending` service** (the API gives no reason field, P2):
+**Pending services (superseded: P2 is done).** The API now sends `activation_blocker` on a pending service, evaluated with the platform's own activation predicates, so the app maps it directly and infers nothing. Mapping: `first_invoice_unpaid` -> "Pay your first invoice to start" (CTA pay); `kyc_required` -> "We need to check your ID" (CTA ID check; with KYC `pending`: "We are checking your ID"); `awaiting_installation` -> "Waiting for installation by your provider"; `customer_link_required` -> "Your account is not linked to your provider yet" (CTA contact provider); `service_contract_required` -> "Your service contract is not signed yet, contact your provider"; `null` (or an unknown future value, `ActivationBlocker.unknown`) -> generic "Activating, this can take a few minutes. Pull to refresh." (hotspot) or "Your provider is setting this up" (fixed wireless). The old inference table below is kept for history only:
 
 | Condition (app side) | Copy intent |
 |---|---|
@@ -77,7 +78,7 @@ Suspended copy by `suspend_reason`: `non_payment` -> "Pay your open invoice to r
 
 ### 1.6 `GET /v1/me/subscriber/services[?limit&after]`, `GET .../services/{id}`
 
-Page of `ServiceOut`; `after` is a service UUID; **ordered by `id`** (random), so the app sorts what it loaded (status rank, then `created_at` desc) and loads all pages (an account has few services; cap at 5 pages). `404 service_not_found` for another account's service. `404 subscriber_not_found` when no account.
+Page of `CustomerServiceOut`, **newest first** (`created_at`, then `id`); `after` is the previous page's `next_cursor`; the app loads all pages in API order (an account has few services; cap at 5 pages of 50) and does not sort. `400 invalid_cursor` for an unknown cursor. `404 service_not_found` for another account's service. `404 subscriber_not_found` when no account.
 
 ### 1.7 `POST .../services/{id}/change-plan`
 
@@ -155,7 +156,7 @@ Feature folder: `lib/features/subscriber/` (one feature, sub-areas `plans`, `ser
 
 ### S1. Data foundation: gate, entities, plans, account, services reads (M)
 
-- **Add:** domain entities `SubscriberPlan`, `PlanKind`, `SubscriberAccount` (+ `ServiceCounts`), `SubscriberService` (+ `ServiceStatus`, `SuspendReason`), `ApiDate` helper (D10); repositories `SubscriberPlansRepository.list()` (all pages), `SubscriberRepository.getAccount()` returning `Right(null)` for `subscriber_not_found`, `listServices()`, `getService(id)`; `Http*` with decoders; `Mock*` for demo (one recurring plan, one fixed-wireless plan, one active service); `SubscriberGate` (pure function `subscriberBillingOn(TenantState)`); locator wiring; `AppRoutes` constants (no screens yet).
+- **Built (2026-10-30, branch `feat/subscriber-s1-foundation`):** entities `SubscriberPlan` (+ `SubscriberPlanKind`), `SubscriberAccount` (+ `ServiceCounts`, `SubscriberProfile`), `SubscriberService` (+ `ServiceStatus`, `SuspendReason`, `ActivationBlocker`) read from `CustomerServiceOut` (so the service carries plan name, kind, price, speeds, blocker and scheduled plan name; no join, no client sort), `lib/core/time/api_date.dart` (`parseApiDate`), `SubscriberGate`, routes constants, `PlanUnavailableFailure` and `ServiceStateFailure` (see section 3.1), HTTP and mock repositories, locator wiring (not in `stillMockInProd`), contract fixtures and tests. Original scope text follows. **Add:** domain entities `SubscriberPlan`, `PlanKind`, `SubscriberAccount` (+ `ServiceCounts`), `SubscriberService` (+ `ServiceStatus`, `SuspendReason`), `ApiDate` helper (D10); repositories `SubscriberPlansRepository.list()` (all pages), `SubscriberRepository.getAccount()` returning `Right(null)` for `subscriber_not_found`, `listServices()`, `getService(id)`; `Http*` with decoders; `Mock*` for demo (one recurring plan, one fixed-wireless plan, one active service); `SubscriberGate` (pure function `subscriberBillingOn(TenantState)`); locator wiring; `AppRoutes` constants (no screens yet).
 - **Typed failures (new, in `failure.dart`, `_typedRefusals`, `typedFailureText(s)`, ARB `failure*`):** see table in section 3.1; the ones S1 needs: `service_not_found` (generic `NotFoundFailure` is enough, no new class), `subscriber_plan_not_found`/`subscriber_plan_inactive`/`subscriber_version_unavailable` -> `PlanUnavailableFailure`, `account_closed`/`illegal_transition` -> `ServiceStateFailure`. Add `403 module_not_enabled` and `409 feature_disabled` already exist.
 - **Screens:** none.
 - **Tests:** contract fixtures `subscriber_plans_page.json` (`Page_PublicPlanOut_`), `subscriber_account.json` (`SubscriberAccountOut`), `subscriber_services_page.json` (`Page_ServiceOut_`, one per status incl. `cancel_effective_on` and `pending_plan_version_id`), each registered in `fixtureSchemas` and the keys in `decoderReads` (`test/contract/openapi_contract_test.dart`); repository tests with the fake Dio adapter pattern in `http_checkout_repository_test.dart` (404 -> `Right(null)`, pagination across two pages, unknown status string tolerated or rejected? **reject** unknown `status` with `FormatException` -> `ServerFailure`, the API enum is closed); `ApiDate` unit test; gate test.
@@ -164,7 +165,7 @@ Feature folder: `lib/features/subscriber/` (one feature, sub-areas `plans`, `ser
 
 ### S2. Invoices: list, detail, pay (M)
 
-- **Add:** `SubscriberInvoice`, `InvoiceLine`, `InvoiceStatus`; `InvoiceRepository` `list()` (all pages, sorted), `get(id)`, `startCheckout(id)` (idempotency key per tap, reused for a retry of the same attempt; reuse `lib/core/network/idempotency.dart`); `InvoicesCubit`, `InvoiceDetailCubit`, `InvoicePaymentCubit` (D3); pages `InvoicesPage` (open first, then by date), `InvoiceDetailPage` (lines, VAT, status, due date, "Pay now" for `open` and amount > 0), reuse `PaymentWebViewPage`.
+- **Add:** `SubscriberInvoice`, `InvoiceLine`, `InvoiceStatus`; `InvoiceRepository` `list({bool openOnly})` (all pages in API order, newest first; `openOnly` sends `status=open`; no client sort), `get(id)`, `startCheckout(id)` (idempotency key per tap, reused for a retry of the same attempt; reuse `lib/core/network/idempotency.dart`); `InvoicesCubit`, `InvoiceDetailCubit`, `InvoicePaymentCubit` (D3); pages `InvoicesPage` (open first, then by date), `InvoiceDetailPage` (lines, VAT, status, due date, "Pay now" for `open` and amount > 0), reuse `PaymentWebViewPage`.
 - **States:** loading, empty ("No invoices yet"), error + retry (`FailureView`), offline (`NetworkFailure` -> existing offline wording), refresh. Detail: open, paid (with `paid_at`), void/written off (no Pay), `amount_paid_cents > 0` and open -> "Part paid, contact support" (server refuses partial).
 - **Failure copy:** `invoice_not_payable` (typed), `collection_mode_not_supported` -> map to `CollectionExternalFailure` ("pay your provider directly"), `customer_not_active`/`account_not_active`/`account_changed` -> `AccountProblemFailure` (new, "contact your provider"), `invoice_not_found` (NotFound), `tenant_suspended` (existing).
 - **After payment:** on `paid`, re-read the invoice and its service and show the outcome line from section 1.5 (kyc needed / installation / activating).
@@ -174,11 +175,11 @@ Feature folder: `lib/features/subscriber/` (one feature, sub-areas `plans`, `ser
 
 ### S3. Services: list, detail, status banners, Account entry (M)
 
-- **Add:** `ServicesCubit` (loads account + services + plans + KYC status + open invoices count), `ServiceDetailCubit`; `ServiceViewModel` joining service -> plan by `plan_id` (name, kind, price, speeds; fallback "Your plan" when not in the active list) and computing the pending/suspended banner (section 1.5, pure function with table tests); pages `ServicesPage` (cards), `ServiceDetailPage` (plan facts, status chip, service number, paid through, scheduled change, scheduled cancellation, actions area for S6/S7 shown only once those slices land, links to invoices and ID check).
+- **Add:** `ServicesCubit` (loads account + services + KYC status + open invoices via `status=open`; no plans list needed for the service cards), `ServiceDetailCubit`; `ServiceViewModel` reading plan name, kind, price and speeds straight from `SubscriberService` and mapping `activation_blocker` (plus `suspend_reason` for suspended) to the banner (section 1.5, pure function with table tests; no inference from invoices or KYC; null or `ActivationBlocker.unknown` gives the generic pending copy); pages `ServicesPage` (cards), `ServiceDetailPage` (plan facts, status chip, service number, paid through, scheduled change, scheduled cancellation, actions area for S6/S7 shown only once those slices land, links to invoices and ID check).
 - **Entry:** Account tab section "Home internet" (D1b): tiles My services, Invoices (from S2), ID check (S4, hidden until S4 exists); shown when module on.
 - **States:** loading; **no account / zero services** -> empty state "You have no home internet service yet" with "See plans" (-> S5 route, hidden until S5; until then plain text); error/offline with retry; per-service banner states; cancelled services collapsed under "Past services".
-- **Copy keys:** `serviceStatus{Pending,Active,Suspended,Cancelled}`, banner keys per row of section 1.5, `serviceEndsOn`, `servicePaidUntil`, `servicePlanChangeOn` ("Plan change on <date>"; no plan name, P3).
-- **Tests:** table test for banner logic (every status/reason/invoice/KYC combination), cubit tests (no-account, two services, one failing invoice call degrades to "no banner" not full error), widget tests for each state, golden-free; module gating test (tile hidden when off).
+- **Copy keys:** `serviceStatus{Pending,Active,Suspended,Cancelled}`, banner keys per row of section 1.5, `serviceEndsOn`, `servicePaidUntil`, `servicePlanChangeOn` ("Plan change to <pending_plan_name> on <date>", the name now comes from `pending_plan_name`).
+- **Tests:** table test for banner logic (every status, suspend reason and blocker value incl. null and unknown), cubit tests (no-account, two services, one failing invoice call degrades to "no banner" not full error), widget tests for each state, golden-free; module gating test (tile hidden when off).
 - **Stays mock:** nothing.
 
 ### S4. KYC / ID check (M)
@@ -222,7 +223,7 @@ Feature folder: `lib/features/subscriber/` (one feature, sub-areas `plans`, `ser
 
 ### S9. Account dashboard from real data (M) (row 10)
 
-- **Add:** `HomeOverviewCubit` combining `PassesCubit` (existing), services, open invoices; service cards and invoice strip per D6; remove mock account code per D7; update `MainShell`, `DashboardPage`, `app_router.dart` (`showRouterCardFor` removed), `locator.dart` (`AccountRepository` out of `stillMockInProd` and out of `_registerStillMockRepositories`, `mock_account_repository` deleted), README table row, `BACKEND_CONTRACT_SYNC.md`, audit row 10 marked done.
+- **Add:** `HomeOverviewCubit` combining `PassesCubit` (existing), services (plan name, price and blocker are on the service already), open invoices (`GET .../invoices?status=open&limit=..`, no paging through every invoice); service cards and invoice strip per D6; remove mock account code per D7; update `MainShell`, `DashboardPage`, `app_router.dart` (`showRouterCardFor` removed), `locator.dart` (`AccountRepository` out of `stillMockInProd` and out of `_registerStillMockRepositories`, `mock_account_repository` deleted), README table row, `BACKEND_CONTRACT_SYNC.md`, audit row 10 marked done.
 - **States:** module off or no account -> Home exactly as today (pass-only); account with services -> cards; partial failure (services ok, invoices fail) shows cards and a small "could not load invoices" retry; offline shows last loaded state with an offline chip if cached (cache not required in v1: show `FailureView`); pull to refresh reloads all three sources.
 - **Tests:** widget tests for the four combinations (no module, no account, hotspot subscriber with pass, fixed wireless without usage), `locator_test` updated, `main_shell_flavor_test` updated, removal does not leave `cpe` references that fail `flutter analyze`.
 - **Dependency:** S1 to S3 (S5 for the empty-state CTA).
@@ -302,11 +303,11 @@ See Q1, Q2, Q5 in section 6.
 
 | # | Task | Why the app needs it | Blocks |
 |---|---|---|---|
-| P1 | Add `plan_name`, `kind`, `price` (and optionally speeds) to the customer `ServiceOut` (the export schema `SubscriberServiceExport` already has `plan_name` and `kind`) | service cards cannot be named when the plan is retired or beyond the first page; extra requests otherwise | S3 quality, S9 |
-| P2 | Add a pending/blocked reason to `ServiceOut` (e.g. `activation_blocker`: `first_invoice_unpaid`, `kyc_required`, `awaiting_installation`, `service_contract_required`, `customer_link_required`) | the app infers it from three sources today (section 1.5) and can be wrong | S3 accuracy |
-| P3 | Replace `pending_plan_version_id` with `pending_plan_id` + `pending_plan_name` for customers | cannot show which plan a scheduled change targets | S6 polish |
-| P4 | Order invoice and service lists by `issue_date desc` (keyset cursor) and add `status=open` filter | `ORDER BY id` on random UUIDs: no stable newest-first, "show open invoices" needs every page | S2, S9 |
-| P5a | Describe `LoginTokenIn` in OpenAPI (`openapi_extra`, like the other `/me` routes) | the contract test cannot check the body today | S10 |
+| P1 | **DONE (platform ab5247a).** Add `plan_name`, `kind`, `price` (and optionally speeds) to the customer `ServiceOut` (the export schema `SubscriberServiceExport` already has `plan_name` and `kind`) | service cards cannot be named when the plan is retired or beyond the first page; extra requests otherwise | S3 quality, S9 |
+| P2 | **DONE (platform ab5247a).** Add a pending/blocked reason to `ServiceOut` (e.g. `activation_blocker`: `first_invoice_unpaid`, `kyc_required`, `awaiting_installation`, `service_contract_required`, `customer_link_required`) | the app infers it from three sources today (section 1.5) and can be wrong | S3 accuracy |
+| P3 | **DONE (platform ab5247a).** Replace `pending_plan_version_id` with `pending_plan_id` + `pending_plan_name` for customers | cannot show which plan a scheduled change targets | S6 polish |
+| P4 | **DONE (platform ab5247a).** Order invoice and service lists by `issue_date desc` (keyset cursor) and add `status=open` filter | `ORDER BY id` on random UUIDs: no stable newest-first, "show open invoices" needs every page | S2, S9 |
+| P5a | **DONE (platform ab5247a).** Describe `LoginTokenIn` in OpenAPI (`openapi_extra`, like the other `/me` routes) | the contract test cannot check the body today | S10 |
 | P5b | (Option C) make `mac` optional and bind on first use, or document the MAC source for each controller kind | one-tap without a portal deep link | S10 |
 | P6 | Let the customer cancel a pending service (void the unpaid initial invoice) and add an "undo scheduled cancellation" route | abandoned signups and changed minds | S7 |
 | P7 | Expose `rejected_reason` (code) in `SubscriberKycOut`; for a future vendor: a vendor-reference field and a system verify path | the customer cannot tell why a check failed | S4 polish, later vendor |

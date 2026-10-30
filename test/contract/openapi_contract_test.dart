@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/data/repositories/http_checkout_repository.dart';
 import 'package:sentech_connect_app/features/passes/domain/entities/pass.dart';
+import 'package:sentech_connect_app/features/subscriber/data/repositories/subscriber_json.dart';
+import 'package:sentech_connect_app/features/subscriber/domain/entities/subscriber_service.dart';
 import 'package:sentech_connect_app/features/wifi_voucher/domain/entities/wifi_hotspot.dart';
 
 import '../helpers/fixtures.dart';
@@ -22,6 +24,10 @@ const fixtureSchemas = {
   'entitlements_page.json': 'Page_EntitlementOut_',
   // GET /v1/me/entitlements?status=current: a suspended pass past expires_at is listed (platform d4be7ce).
   'entitlements_current_suspended.json': 'Page_EntitlementOut_',
+  // Subscriber foundation (platform ab5247a): the /me routes answer CustomerServiceOut, not the admin ServiceOut.
+  'subscriber_plans_page.json': 'Page_PublicPlanOut_',
+  'subscriber_account.json': 'SubscriberAccountOut',
+  'subscriber_services_page.json': 'Page_CustomerServiceOut_',
   'voucher_redeem_ok.json': 'RedeemOut',
   'otp_request.json': 'OtpRequestOut',
   'delete_challenge.json': 'OtpRequestOut', // POST /v1/me/delete-challenge answers the same shape
@@ -109,6 +115,21 @@ const decoderReads = <String, Set<String>>{
     'home_serving_differs',
   },
   'EntitlementScopeOut': {'kind'},
+  'PublicPlanOut': {
+    'id', 'code', 'name', 'description', 'kind', 'kyc_required', 'price',
+    'setup_fee_cents', 'down_kbps', 'up_kbps', 'burst_down_kbps', 'burst_up_kbps',
+    'burst_seconds', 'fup_bytes', 'fup_action', 'fup_down_kbps', 'fup_up_kbps',
+    'max_devices',
+  },
+  'SubscriberAccountOut': {'id', 'account_no', 'kind', 'status', 'profile', 'service_counts'},
+  'AccountProfileOut': {'display_name', 'email', 'phone_e164', 'language'},
+  'CustomerServiceOut': {
+    'id', 'account_id', 'service_no', 'status', 'suspend_reason', 'activation_blocker',
+    'plan_id', 'plan_name', 'kind', 'price', 'down_kbps', 'up_kbps', 'billed_through',
+    'paid_through', 'created_at', 'activated_at', 'suspended_at', 'cancelled_at',
+    'cancel_effective_on', 'pending_plan_id', 'pending_plan_name', 'plan_change_on',
+  },
+  'PriceOut': {'amount_cents', 'currency'},
   'OtpRequestOut': {'challenge_id', 'expires_in_seconds', 'reference'},
   // Request bodies the app sends (every key must exist in the API schema).
   'OtpRequestIn': {'tenant', 'phone', 'binding'},
@@ -262,6 +283,67 @@ void main() {
       () => passFromJson({...base, 'status': 'frozen'}),
       throwsFormatException,
     );
+  });
+
+  group('subscriber foundation (platform ab5247a)', () {
+    List<String> enumOf(String schema, String property) {
+      var node = (api.schema(schema)['properties']! as Map)[property] as Map;
+      if (node['enum'] == null) {
+        node = (node['anyOf']! as List).cast<Map>().firstWhere((o) => o['enum'] != null);
+      }
+      return (node['enum']! as List).cast<String>();
+    }
+
+    test('the /me routes answer CustomerServiceOut, the public list answers PublicPlanOut', () {
+      expect(
+        api.responseSchemaName(api.path('/v1/me/subscriber/services', 'get'), '200'),
+        'Page_CustomerServiceOut_',
+      );
+      expect(
+        api.responseSchemaName(api.path('/v1/me/subscriber/services/{service_id}', 'get'), '200'),
+        'CustomerServiceOut',
+      );
+      expect(api.responseSchemaName(api.path('/v1/me/subscriber', 'get'), '200'), 'SubscriberAccountOut');
+      expect(api.responseSchemaName(api.path('/v1/subscriber-plans', 'get'), '200'), 'Page_PublicPlanOut_');
+    });
+
+    test('the service list pages with limit and after, the plans list with tenant, limit and cursor', () {
+      List<String> params(String path) => [
+        for (final p in api.path(path, 'get')['parameters']! as List) (p as Map)['name']! as String,
+      ];
+      expect(params('/v1/me/subscriber/services'), containsAll(['limit', 'after']));
+      expect(params('/v1/subscriber-plans'), containsAll(['tenant', 'limit', 'cursor']));
+    });
+
+    test('every plan kind, service status, suspend reason and blocker the API can send is mapped', () {
+      for (final v in enumOf('PublicPlanOut', 'kind')) {
+        expect(() => planKindFromApi(v), returnsNormally, reason: v);
+      }
+      for (final v in enumOf('CustomerServiceOut', 'kind')) {
+        expect(() => planKindFromApi(v), returnsNormally, reason: v);
+      }
+      for (final v in enumOf('CustomerServiceOut', 'status')) {
+        expect(() => serviceStatusFromApi(v), returnsNormally, reason: v);
+      }
+      for (final v in enumOf('CustomerServiceOut', 'suspend_reason')) {
+        expect(suspendReasonFromApi(v), isNotNull, reason: v);
+      }
+      final blockers = enumOf('CustomerServiceOut', 'activation_blocker');
+      expect(blockers, isNotEmpty);
+      for (final v in blockers) {
+        expect(activationBlockerFromApi(v), isNot(ActivationBlocker.unknown), reason: v);
+      }
+    });
+
+    test('the service fixture covers every status, a scheduled cancel, a scheduled plan change and a blocker', () {
+      final items = (fixtureMap('subscriber_services_page.json')['items']! as List)
+          .map((i) => subscriberServiceFromJson(Map<String, Object?>.from(i as Map)))
+          .toList();
+      expect(items.map((s) => s.status).toSet(), ServiceStatus.values.toSet());
+      expect(items.any((s) => s.cancelEffectiveOn != null), isTrue);
+      expect(items.any((s) => s.hasPlanChangePending), isTrue);
+      expect(items.any((s) => s.activationBlocker != null), isTrue);
+    });
   });
 
   test('the order cancel route answers OrderOut', () {

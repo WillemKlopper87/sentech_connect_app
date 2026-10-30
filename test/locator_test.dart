@@ -11,6 +11,12 @@ import 'package:sentech_connect_app/core/network/api_client.dart';
 import 'package:sentech_connect_app/core/network/auth_tokens.dart';
 import 'package:sentech_connect_app/features/auth/data/repositories/http_auth_repository.dart';
 import 'package:sentech_connect_app/features/auth/domain/repositories/auth_repository.dart';
+import 'package:sentech_connect_app/features/subscriber/data/repositories/http_subscriber_plans_repository.dart';
+import 'package:sentech_connect_app/features/subscriber/data/repositories/http_subscriber_repository.dart';
+import 'package:sentech_connect_app/features/subscriber/data/repositories/mock_subscriber_plans_repository.dart';
+import 'package:sentech_connect_app/features/subscriber/data/repositories/mock_subscriber_repository.dart';
+import 'package:sentech_connect_app/features/subscriber/domain/repositories/subscriber_plans_repository.dart';
+import 'package:sentech_connect_app/features/subscriber/domain/repositories/subscriber_repository.dart';
 import 'package:sentech_connect_app/features/support/data/repositories/http_support_message_repository.dart';
 import 'package:sentech_connect_app/features/support/data/repositories/mock_support_message_repository.dart';
 import 'package:sentech_connect_app/features/support/domain/repositories/support_message_repository.dart';
@@ -87,6 +93,22 @@ void main() {
     setupLocator();
     registerTestFakes();
     expect(locator<SupportMessageRepository>(), isA<MockSupportMessageRepository>());
+  });
+
+  test('prod reads real subscriber plans, account and services', () {
+    setupLocator(environment: prod);
+    registerTestFakes();
+    expect(locator<SubscriberPlansRepository>(), isA<HttpSubscriberPlansRepository>());
+    expect(locator<SubscriberRepository>(), isA<HttpSubscriberRepository>());
+  });
+
+  test('demo serves mock subscriber data and they are not in stillMockInProd', () {
+    setupLocator();
+    registerTestFakes();
+    expect(locator<SubscriberPlansRepository>(), isA<MockSubscriberPlansRepository>());
+    expect(locator<SubscriberRepository>(), isA<MockSubscriberRepository>());
+    expect(stillMockInProd, isNot(contains(SubscriberPlansRepository)));
+    expect(stillMockInProd, isNot(contains(SubscriberRepository)));
   });
 
   test('demo keeps the mock voucher service', () {

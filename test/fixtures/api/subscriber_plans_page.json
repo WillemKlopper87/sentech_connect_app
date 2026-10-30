@@ -1,0 +1,45 @@
+{
+  "items": [
+    {
+      "id": "3c0d5f7a-1111-4a11-8a11-000000000001",
+      "code": "HOME-HOTSPOT-10",
+      "name": "Home Hotspot 10",
+      "description": "Monthly Wi-Fi allowance for your household.",
+      "kind": "recurring_hotspot",
+      "kyc_required": false,
+      "price": {"amount_cents": 19900, "currency": "ZAR"},
+      "setup_fee_cents": 0,
+      "down_kbps": 10000,
+      "up_kbps": 5000,
+      "burst_down_kbps": null,
+      "burst_up_kbps": null,
+      "burst_seconds": null,
+      "fup_bytes": 214748364800,
+      "fup_action": "throttle",
+      "fup_down_kbps": 2000,
+      "fup_up_kbps": 1000,
+      "max_devices": 5
+    },
+    {
+      "id": "3c0d5f7a-1111-4a11-8a11-000000000002",
+      "code": "AIR-50",
+      "name": "Home Air 50",
+      "description": "Fixed wireless internet installed at your address.",
+      "kind": "fixed_wireless",
+      "kyc_required": true,
+      "price": {"amount_cents": 59900, "currency": "ZAR"},
+      "setup_fee_cents": 99900,
+      "down_kbps": 50000,
+      "up_kbps": 20000,
+      "burst_down_kbps": 100000,
+      "burst_up_kbps": 40000,
+      "burst_seconds": 30,
+      "fup_bytes": null,
+      "fup_action": "none",
+      "fup_down_kbps": null,
+      "fup_up_kbps": null,
+      "max_devices": 20
+    }
+  ],
+  "next_cursor": null
+}

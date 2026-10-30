@@ -25,6 +25,8 @@ void main() {
     const InvoiceNotPayableFailure(),
     const CustomerLinkRequiredFailure(),
     const SubscriberProfileInvalidFailure(),
+    const PlanUnavailableFailure(),
+    const ServiceStateFailure(),
     const NoActiveEntitlementFailure(),
     const MacInvalidFailure(),
     const NasUnavailableFailure(),

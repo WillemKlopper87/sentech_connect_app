@@ -1850,6 +1850,13 @@ class AppLocalizationsZu extends AppLocalizations {
       'Buyekeza imininingwane yakho yokuxhumana ngaphambi kokubhalisa.';
 
   @override
+  String get failurePlanUnavailable => 'Lolu hlelo alisatholakali.';
+
+  @override
+  String get failureServiceState =>
+      'Le sevisi ayikwazi ukushintshwa okwamanje.';
+
+  @override
   String get failureNoActiveEntitlement =>
       'Udinga ipasi elisebenzayo ukuze uxhume ku-inthanethi.';
 

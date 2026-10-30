@@ -55,6 +55,8 @@ Typed problem codes added 2026-10-29 (contract re-sync, audit row 15). Same revi
 | `failureNasUnavailable` | This hotspot is not available right now. Try another one. | Hierdie warmkol is nou nie beskikbaar nie. Probeer 'n ander een. | Le hotspot ayitholakali okwamanje. Zama enye. |
 | `failureLoginUrlInvalid` | This hotspot login could not be opened. Connect from the Wi-Fi login page instead. | Hierdie warmkol-aanmelding kon nie oopgemaak word nie. Koppel eerder vanaf die Wi-Fi-aanmeldbladsy. | Ukungena kwale hotspot akukwazanga ukuvulwa. Xhuma ngekhasi lokungena le-Wi-Fi esikhundleni. |
 | `failureControllerNotSupported` | One-tap login is not supported at this hotspot. Connect from the Wi-Fi login page instead. | Eenklik-aanmelding word nie by hierdie warmkol ondersteun nie. Koppel eerder vanaf die Wi-Fi-aanmeldbladsy. | Ukungena ngokuthinta kanye akuxhaswa kule hotspot. Xhuma ngekhasi lokungena le-Wi-Fi esikhundleni. |
+| `failurePlanUnavailable` | This plan is no longer available. | Hierdie pakket is nie meer beskikbaar nie. | Lolu hlelo alisatholakali. |
+| `failureServiceState` | This service can't be changed right now. | Hierdie diens kan nou nie verander word nie. | Le sevisi ayikwazi ukushintshwa okwamanje. |
 | `hotspotsStatusMaintenance` | Under maintenance | Onder instandhouding | Ilungiswa |
 | `hotspotsEmpty` | No hotspots are listed yet. Check back soon. | Daar is nog geen warmkolle gelys nie. Kyk gou weer. | Awekho ama-hotspot abhaliwe okwamanje. Buyela maduze. |
 | `orderCancelAction` | Cancel order | Kanselleer bestelling | Khansela i-oda |

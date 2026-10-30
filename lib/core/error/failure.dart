@@ -255,6 +255,22 @@ class SubscriberProfileInvalidFailure extends ValidationFailure {
       : super('Update your contact details before signing up.', 'subscriber_profile_invalid', false);
 }
 
+/// The plan a signup or plan change names cannot be used: `subscriber_plan_not_found`
+/// (404), `subscriber_plan_inactive`, `subscriber_version_unavailable` or
+/// `plan_kind_mismatch` (409). The code says which; the customer copy is one
+/// sentence for all of them (reload the plans and choose again).
+class PlanUnavailableFailure extends ValidationFailure {
+  const PlanUnavailableFailure([String code = 'subscriber_plan_inactive'])
+      : super('This plan is no longer available.', code, false);
+}
+
+/// 409 `account_closed` or `illegal_transition`: the service (or its account)
+/// is in a state that does not allow the change. Reload before offering it again.
+class ServiceStateFailure extends ValidationFailure {
+  const ServiceStateFailure([String code = 'illegal_transition'])
+      : super("This service can't be changed right now.", code, false);
+}
+
 /// 409 `no_active_entitlement`: one-tap login needs a pass that is running.
 class NoActiveEntitlementFailure extends ValidationFailure {
   const NoActiveEntitlementFailure()

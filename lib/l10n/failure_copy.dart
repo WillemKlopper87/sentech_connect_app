@@ -107,6 +107,8 @@ Map<String, String> typedFailureTexts(AppLocalizations l10n) => {
   const InvoiceNotPayableFailure().message: l10n.failureInvoiceNotPayable,
   const CustomerLinkRequiredFailure().message: l10n.failureCustomerLinkRequired,
   const SubscriberProfileInvalidFailure().message: l10n.failureSubscriberProfileInvalid,
+  const PlanUnavailableFailure().message: l10n.failurePlanUnavailable,
+  const ServiceStateFailure().message: l10n.failureServiceState,
   const NoActiveEntitlementFailure().message: l10n.failureNoActiveEntitlement,
   const MacInvalidFailure().message: l10n.failureMacInvalid,
   const NasUnavailableFailure().message: l10n.failureNasUnavailable,
@@ -164,6 +166,10 @@ String? typedFailureText(AppLocalizations l10n, Failure? failure) {
       return l10n.failureCustomerLinkRequired;
     case SubscriberProfileInvalidFailure():
       return l10n.failureSubscriberProfileInvalid;
+    case PlanUnavailableFailure():
+      return l10n.failurePlanUnavailable;
+    case ServiceStateFailure():
+      return l10n.failureServiceState;
     case NoActiveEntitlementFailure():
       return l10n.failureNoActiveEntitlement;
     case MacInvalidFailure():

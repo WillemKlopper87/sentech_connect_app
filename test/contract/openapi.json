@@ -3070,6 +3070,267 @@
         "title": "CustomerExport",
         "type": "object"
       },
+      "CustomerServiceOut": {
+        "description": "ServiceOut plus the plan facts and pending reason a signed-in customer needs.",
+        "properties": {
+          "account_id": {
+            "format": "uuid",
+            "title": "Account Id",
+            "type": "string"
+          },
+          "activated_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Activated At"
+          },
+          "activation_blocker": {
+            "anyOf": [
+              {
+                "enum": [
+                  "first_invoice_unpaid",
+                  "kyc_required",
+                  "awaiting_installation",
+                  "service_contract_required",
+                  "customer_link_required"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Only for pending services; null otherwise. The first activation gate that still refuses activation, evaluated with the same predicates and order the platform uses to activate: first_invoice_unpaid (initial invoice not paid), customer_link_required (hotspot service without a linked active login), service_contract_required (no active contract), kyc_required (plan needs a verified ID check), awaiting_installation (fixed wireless, everything else satisfied; staff activate after installation). Null on a pending service means no customer-actionable gate remains: activation is automatic after payment (hotspot) or waits on the provider's staff.",
+            "title": "Activation Blocker"
+          },
+          "billed_through": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Billed Through"
+          },
+          "cancel_effective_on": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cancel Effective On"
+          },
+          "cancelled_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cancelled At"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "down_kbps": {
+            "title": "Down Kbps",
+            "type": "integer"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "recurring_hotspot",
+              "fixed_wireless"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "paid_through": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Paid Through"
+          },
+          "pending_plan_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Plan a scheduled downgrade moves the service to on plan_change_on.",
+            "title": "Pending Plan Id"
+          },
+          "pending_plan_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pending Plan Name"
+          },
+          "pending_plan_version_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "deprecated": true,
+            "description": "Deprecated: use pending_plan_id and pending_plan_name.",
+            "title": "Pending Plan Version Id"
+          },
+          "plan_change_on": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Plan Change On"
+          },
+          "plan_id": {
+            "format": "uuid",
+            "title": "Plan Id",
+            "type": "string"
+          },
+          "plan_name": {
+            "description": "Name of the service's plan. Resolved even when the plan is retired.",
+            "title": "Plan Name",
+            "type": "string"
+          },
+          "plan_version_id": {
+            "format": "uuid",
+            "title": "Plan Version Id",
+            "type": "string"
+          },
+          "price": {
+            "$ref": "#/components/schemas/PriceOut",
+            "description": "Monthly price of the plan version the service is on (not the plan's current version)."
+          },
+          "service_no": {
+            "title": "Service No",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "pending",
+              "active",
+              "suspended",
+              "cancelled"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "suspend_reason": {
+            "anyOf": [
+              {
+                "enum": [
+                  "non_payment",
+                  "customer_request",
+                  "admin",
+                  "kyc"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Suspend Reason"
+          },
+          "suspended_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Suspended At"
+          },
+          "up_kbps": {
+            "title": "Up Kbps",
+            "type": "integer"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "account_id",
+          "plan_id",
+          "plan_version_id",
+          "service_no",
+          "status",
+          "suspend_reason",
+          "billed_through",
+          "paid_through",
+          "activated_at",
+          "suspended_at",
+          "cancelled_at",
+          "cancel_effective_on",
+          "pending_plan_version_id",
+          "plan_change_on",
+          "created_at",
+          "updated_at",
+          "plan_name",
+          "kind",
+          "price",
+          "down_kbps",
+          "up_kbps",
+          "activation_blocker",
+          "pending_plan_id",
+          "pending_plan_name"
+        ],
+        "title": "CustomerServiceOut",
+        "type": "object"
+      },
       "CustomerSummary": {
         "properties": {
           "active": {
@@ -7862,6 +8123,33 @@
           "items"
         ],
         "title": "Page[CredentialOut]",
+        "type": "object"
+      },
+      "Page_CustomerServiceOut_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/CustomerServiceOut"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "title": "Page[CustomerServiceOut]",
         "type": "object"
       },
       "Page_DatasetOut_": {
@@ -14573,7 +14861,7 @@
             "$ref": "#/components/schemas/SubscriberInvoiceOut"
           },
           "service": {
-            "$ref": "#/components/schemas/ServiceOut"
+            "$ref": "#/components/schemas/CustomerServiceOut"
           }
         },
         "required": [
@@ -45281,6 +45569,65 @@
       "post": {
         "description": "Issues a one-time hotspot login (username and password, shown once) bound to the device MAC, for a customer with a usable entitlement. With `nas_id` and `login_url` the answer also carries the form hand-off for that controller (the URL must belong to the registered controller). The body is limited to 4096 bytes.",
         "operationId": "create_login_token_v1_me_hotspot_login_token_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "properties": {
+                  "dst": {
+                    "anyOf": [
+                      {
+                        "maxLength": 2000,
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "title": "Dst"
+                  },
+                  "login_url": {
+                    "anyOf": [
+                      {
+                        "maxLength": 500,
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "title": "Login Url"
+                  },
+                  "mac": {
+                    "maxLength": 32,
+                    "minLength": 12,
+                    "title": "Mac",
+                    "type": "string"
+                  },
+                  "nas_id": {
+                    "anyOf": [
+                      {
+                        "format": "uuid",
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "title": "Nas Id"
+                  }
+                },
+                "required": [
+                  "mac"
+                ],
+                "title": "LoginTokenIn",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
         "responses": {
           "201": {
             "content": {
@@ -45957,6 +46304,7 @@
     },
     "/v1/me/subscriber/invoices": {
       "get": {
+        "description": "Newest first (issue_date, then id); `after` is the previous page's next_cursor.",
         "operationId": "list_invoices_v1_me_subscriber_invoices_get",
         "parameters": [
           {
@@ -45986,6 +46334,25 @@
                 }
               ],
               "title": "After"
+            }
+          },
+          {
+            "description": "open = issued and not yet paid (the platform's status 'open').",
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "const": "open",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "open = issued and not yet paid (the platform's status 'open').",
+              "title": "Status"
             }
           }
         ],
@@ -46824,6 +47191,7 @@
     },
     "/v1/me/subscriber/services": {
       "get": {
+        "description": "Newest first (created_at, then id); `after` is the previous page's next_cursor.",
         "operationId": "list_services_v1_me_subscriber_services_get",
         "parameters": [
           {
@@ -46861,7 +47229,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Page_ServiceOut_"
+                  "$ref": "#/components/schemas/Page_CustomerServiceOut_"
                 }
               }
             },
@@ -47014,7 +47382,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ServiceOut"
+                  "$ref": "#/components/schemas/CustomerServiceOut"
                 }
               }
             },
@@ -47206,7 +47574,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ServiceOut"
+                  "$ref": "#/components/schemas/CustomerServiceOut"
                 }
               }
             },

@@ -63,6 +63,22 @@ abstract class AppRoutes {
   static const tenantPicker = '/tenant';
   static const updateRequired = '/update-required';
 
+  // Subscriber account (module `subscriber_billing`); screens arrive in later
+  // slices. Ids are always loaded from the repository, never passed via `extra`.
+  static const plans = '/plans';
+  static const planDetail = '/plans/:planId';
+  static const signup = '/signup/:planId';
+  static const services = '/services';
+  static const serviceDetail = '/services/:serviceId';
+  static const invoices = '/invoices';
+  static const invoiceDetail = '/invoices/:invoiceId';
+  static const kyc = '/kyc';
+
+  static String planFor(String planId) => '/plans/$planId';
+  static String signupFor(String planId) => '/signup/$planId';
+  static String serviceFor(String serviceId) => '/services/$serviceId';
+  static String invoiceFor(String invoiceId) => '/invoices/$invoiceId';
+
   // Order-scoped routes carry the order id as a path parameter; the order
   // itself is always loaded from the repository (never via `extra`), so the
   // screens survive process death and deep links.

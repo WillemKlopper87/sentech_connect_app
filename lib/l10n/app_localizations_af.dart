@@ -1852,6 +1852,14 @@ class AppLocalizationsAf extends AppLocalizations {
       'Werk jou kontakbesonderhede op voordat jy inteken.';
 
   @override
+  String get failurePlanUnavailable =>
+      'Hierdie pakket is nie meer beskikbaar nie.';
+
+  @override
+  String get failureServiceState =>
+      'Hierdie diens kan nou nie verander word nie.';
+
+  @override
   String get failureNoActiveEntitlement =>
       'Jy het \'n aktiewe pas nodig om aanlyn te kom.';
 

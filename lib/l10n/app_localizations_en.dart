@@ -1847,6 +1847,12 @@ class AppLocalizationsEn extends AppLocalizations {
       'Update your contact details before signing up.';
 
   @override
+  String get failurePlanUnavailable => 'This plan is no longer available.';
+
+  @override
+  String get failureServiceState => 'This service can\'t be changed right now.';
+
+  @override
   String get failureNoActiveEntitlement =>
       'You need an active pass to get online.';
 

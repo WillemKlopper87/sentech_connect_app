@@ -2,7 +2,7 @@
 
 Where the app stands against the platform API, route by route. The contract is `test/contract/openapi.json`, a pretty-printed copy of the platform's `apps/api/openapi.json`.
 
-- **Snapshot source:** platform repo `codex/naas-implementation` at `ae401a0` (2026-10-30), synced with `dart run tool/sync_openapi.dart <file>` (the file was `git show origin/codex/naas-implementation:apps/api/openapi.json`). SHA-256 of the snapshot (LF line endings) starts `4aa2f5ce6826`. 341 operations. New since `d4be7ce`: `GET /v1/auth/human-check/config` (public). Earlier snapshots: `d4be7ce`, `feat/product-gaps` at `39f5a44`.
+- **Snapshot source:** platform repo `codex/naas-implementation` at `ab5247a` (2026-10-30), synced with `dart run tool/sync_openapi.dart <file>` (the file was `git show origin/codex/naas-implementation:apps/api/openapi.json`). SHA-256 of the snapshot (LF line endings) starts `51749922306a`. 341 operations. New since `ae401a0`: the customer routes `GET /v1/me/subscriber/services` and `.../services/{service_id}` answer `CustomerServiceOut` (plan_name, kind, price, down_kbps, up_kbps, activation_blocker, pending_plan_id, pending_plan_name; `pending_plan_version_id` is deprecated and not read), service and invoice lists are newest first with the `after` cursor (400 `invalid_cursor` for an unknown one), invoices take `status=open`, and `LoginTokenIn` is in the schema. Earlier snapshots: `ae401a0`, `d4be7ce`, `feat/product-gaps` at `39f5a44`.
 - **Contract tests:** `test/contract/openapi_contract_test.dart` checks every fixture in `test/fixtures/api/` against its response schema, every key a decoder reads, the request bodies the app sends (`OtpRequestIn`, `OtpVerifyIn`, `DeleteAccountIn`, `DeleteChallengeIn`), the `status=current` fixture with a suspended pass past `expires_at` (`entitlements_current_suspended.json`), and that every entitlement status, source, origin and scope kind the API can send is typed.
 - **Rule:** change the snapshot, the fixtures and the decoders in the same commit.
 
@@ -30,7 +30,7 @@ Status words: **done** (real repository, tested), **mock** (a `Mock*Repository` 
 | `POST /v1/me/vouchers/redeem` | done | |
 | `POST /v1/support/messages` | done | 202 `{reference}`, shown to the customer to quote. Body `tenant, topic (connecting, payment, pass, account, other), reply {type email or phone, value}, message (10 to 2000 after trimming), order_ref (optional), turnstile_token`; required `Idempotency-Key` header, one key per submission and reused for a retry of the same draft (a changed draft gets a new key, otherwise 422 `idempotency_key_reused`). Public: no session sent. Human check action `support`. Failures typed: `support_unavailable` (Retry-After), `support_contact_not_configured` (the form offers a mailto fallback to the app-config support email), `invalid_message`, `invalid_contact`, 429, 403/503 human check. `HttpSupportMessageRepository`; demo flavor uses `MockSupportMessageRepository` (reference `DEMO-0001`) |
 | `GET /v1/auth/human-check/config` | done | `HttpHumanCheckConfigRepository` + `HumanCheckGate`, see Human check (M2d) |
-| `POST /v1/me/hotspot/login-token` | not started | one-tap hotspot login |
+| `POST /v1/me/hotspot/login-token` | not started | one-tap hotspot login (S10); the request body `LoginTokenIn` is now described in the contract (P5a), so a request-body contract test can be added there |
 | `GET /v1/products` | done | |
 | `GET /v1/orders`, `POST /v1/orders`, `GET /v1/orders/{order_id}` | done | |
 | `POST /v1/orders/{order_id}/cancel` | not started | the app abandons an order, it does not cancel it |
@@ -41,10 +41,11 @@ Status words: **done** (real repository, tested), **mock** (a `Mock*Repository` 
 | `GET /v1/hotspots` | mock | WP-11 |
 | `POST /v1/support/messages` | mock | WP-11 |
 | `POST /v1/leads` | not for the app | website form |
-| `GET /v1/subscriber-plans` | not started | M3 (subscriber screens) |
-| `GET /v1/me/subscriber`, `PATCH /v1/me/subscriber` | not started | M3; `404 subscriber_not_found` is typed already |
+| `GET /v1/subscriber-plans` | data layer done | `SubscriberPlansRepository` (`HttpSubscriberPlansRepository`, demo `MockSubscriberPlansRepository`), all pages, tenant slug always sent, no session; fixture `subscriber_plans_page.json` (`Page_PublicPlanOut_`). No screen yet (S5). Gate: `subscriberBillingOn` (`modules.subscriber_billing`) |
+| `GET /v1/me/subscriber` | data layer done | `SubscriberRepository.getAccount()`; `404 subscriber_not_found` is `Right(null)` (never signed up), not an error; fixture `subscriber_account.json` (`SubscriberAccountOut`) |
+| `PATCH /v1/me/subscriber` | not started | S8 (billing contact) |
 | `POST /v1/me/subscriber/signup` | not started | M3; `409 active_service_exists` is typed already |
-| `GET /v1/me/subscriber/services`, `GET /v1/me/subscriber/services/{service_id}` | not started | M3 |
+| `GET /v1/me/subscriber/services`, `GET /v1/me/subscriber/services/{service_id}` | data layer done | `SubscriberRepository.listServices()` (all pages, at most 5 of 50, `after` = `next_cursor`, API order kept: newest first) and `getService(id)`; `CustomerServiceOut` carries the plan facts, `activation_blocker` and the scheduled plan change; no account is an empty list; fixture `subscriber_services_page.json` (`Page_CustomerServiceOut_`). Unknown `status`, `kind`, `suspend_reason` fail loudly (`ServerFailure`); an unknown `activation_blocker` reads as `ActivationBlocker.unknown`. No screen yet (S3) |
 | `POST /v1/me/subscriber/services/{service_id}/cancel`, `.../change-plan` | not started | M3 |
 | `GET /v1/me/subscriber/invoices`, `.../{invoice_id}` | not started | M3 |
 | `POST /v1/me/subscriber/invoices/{invoice_id}/checkout` | not started | M3 |
@@ -83,6 +84,10 @@ All 289 `/v1/admin/*` and `/v1/platform/*` operations belong to the web consoles
 | 409 `invoice_not_payable` | `InvoiceNotPayableFailure` | this invoice can no longer be paid |
 | 409 `customer_link_required` | `CustomerLinkRequiredFailure` | account not linked to your provider, contact them |
 | 422 `subscriber_profile_invalid` | `SubscriberProfileInvalidFailure` | update your contact details before signing up |
+| 404 `subscriber_plan_not_found`, 409 `subscriber_plan_inactive`, `subscriber_version_unavailable`, `plan_kind_mismatch` | `PlanUnavailableFailure` (a `ValidationFailure`, code kept) | this plan is no longer available |
+| 409 `account_closed`, `illegal_transition` | `ServiceStateFailure` (a `ValidationFailure`, code kept) | this service can't be changed right now |
+| 404 `service_not_found` | existing `NotFoundFailure` | we could not find that |
+| 400 `invalid_cursor` | generic `ValidationFailure` (code kept) | not shown: the app only sends cursors the API gave it |
 | 409 `no_active_entitlement` | `NoActiveEntitlementFailure` | you need an active pass to get online |
 | 422 `mac_invalid`, `nas_unavailable`, `login_url_invalid`, `controller_not_supported` | `MacInvalidFailure`, `NasUnavailableFailure`, `LoginUrlInvalidFailure`, `ControllerNotSupportedFailure` | one-tap login fallbacks: use the Wi-Fi login page / try another hotspot |
 | 401 on `delete-challenge` | `DeleteCodeUnavailableFailure` | contact support to delete the account |

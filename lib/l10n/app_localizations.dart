@@ -3202,6 +3202,18 @@ abstract class AppLocalizations {
   /// **'Update your contact details before signing up.'**
   String get failureSubscriberProfileInvalid;
 
+  /// Customer error for problem codes subscriber_plan_not_found, subscriber_plan_inactive, subscriber_version_unavailable and plan_kind_mismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'This plan is no longer available.'**
+  String get failurePlanUnavailable;
+
+  /// Customer error for problem codes account_closed and illegal_transition.
+  ///
+  /// In en, this message translates to:
+  /// **'This service can\'t be changed right now.'**
+  String get failureServiceState;
+
   /// Customer error for problem code no_active_entitlement.
   ///
   /// In en, this message translates to:

@@ -119,6 +119,7 @@ Failure failureFromStatus(int status, ApiProblem? problem, {String? requestId, D
   if (status == 401) return const UnauthorizedFailure();
   if (status == 404 && problem?.code == 'subscriber_not_found') return const SubscriberNotFoundFailure();
   if (status == 404 && problem?.code == 'order_not_found') return const OrderNotFoundFailure();
+  if (status == 404 && problem?.code == 'subscriber_plan_not_found') return const PlanUnavailableFailure('subscriber_plan_not_found');
   if (status == 404) return NotFoundFailure(detail ?? 'We could not find that.');
   if (status == 429) return RateLimitedFailure(detail ?? 'Too many attempts. Please wait and try again.', retryAfter);
   if (status == 503 && problem?.code == 'human_verification_unavailable') return HumanVerificationUnavailableFailure(retryAfter);
@@ -158,6 +159,11 @@ const _typedRefusals = <String, Failure>{
   'invoice_not_payable': InvoiceNotPayableFailure(),
   'customer_link_required': CustomerLinkRequiredFailure(),
   'subscriber_profile_invalid': SubscriberProfileInvalidFailure(),
+  'subscriber_plan_inactive': PlanUnavailableFailure('subscriber_plan_inactive'),
+  'subscriber_version_unavailable': PlanUnavailableFailure('subscriber_version_unavailable'),
+  'plan_kind_mismatch': PlanUnavailableFailure('plan_kind_mismatch'),
+  'account_closed': ServiceStateFailure('account_closed'),
+  'illegal_transition': ServiceStateFailure('illegal_transition'),
   'no_active_entitlement': NoActiveEntitlementFailure(),
   'mac_invalid': MacInvalidFailure(),
   'nas_unavailable': NasUnavailableFailure(),
