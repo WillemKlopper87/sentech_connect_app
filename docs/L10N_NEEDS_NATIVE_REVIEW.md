@@ -352,3 +352,55 @@ Plans and signup (slice S5, 2026-10-30). Machine-quality drafts, native review b
 | `hotspotLoginOpenPortal` | Open Wi-Fi login page | Maak Wi-Fi-aanmeldbladsy oop | Vula ikhasi lokungena le-Wi-Fi |
 | `hotspotLoginOpenPortalFailed` | We could not open your browser. | Ons kon nie jou blaaier oopmaak nie. | Asikwazanga ukuvula isiphequluli sakho. |
 | `hotspotLoginUseOnce` | Use these details on this phone only. They work once. | Gebruik hierdie besonderhede net op hierdie foon. Dit werk een keer. | Sebenzisa le mininingwane kule foni kuphela. Isebenza kanye. |
+
+5G data usage and paid unlock (fiveg_service, 2026-11-10). Same review rule: machine-quality drafts, native review before release. `{placeholders}` must stay. The speeds `5/2 Mbit/s` in the slow-lane line are part of the copy.
+
+| Key | English | Afrikaans (draft) | isiZulu (draft) |
+|---|---|---|---|
+| `fivegTitle` | 5G data | 5G-data | Idatha ye-5G |
+| `fivegEntryUsed` | {percent}% of this month's data used | {percent}% van hierdie maand se data gebruik | {percent}% wedatha yale nyanga isetshenzisiwe |
+| `fivegEntryFairUse` | Fair use plan: no monthly limit | Billike gebruik-plan: geen maandelikse limiet nie | Uhlelo lokusetshenziswa ngokulinganayo: akukho mkhawulo wenyanga |
+| `fivegUnavailable` | 5G data details are not available for this service right now. | 5G-databesonderhede is nie nou vir hierdie diens beskikbaar nie. | Imininingwane yedatha ye-5G ayitholakali kule sevisi manje. |
+| `fivegAllowanceHeading` | This month's data | Hierdie maand se data | Idatha yale nyanga |
+| `fivegFairUseHeading` | Fair use plan | Billike gebruik-plan | Uhlelo lokusetshenziswa ngokulinganayo |
+| `fivegMeterUsed` | {used} of {cap} used | {used} van {cap} gebruik | {used} kwangu-{cap} kusetshenzisiwe |
+| `fivegMeterSemantics` | {percent} percent used: {used} of {cap}. | {percent} persent gebruik: {used} van {cap}. | {percent} amaphesenti asetshenzisiwe: {used} kwangu-{cap}. |
+| `fivegPercentLabel` | {percent}% | {percent}% | {percent}% |
+| `fivegStateNormal` | Full speed. You can use your data as normal. | Volle spoed. Jy kan jou data normaal gebruik. | Isivinini esigcwele. Ungasebenzisa idatha yakho njengokujwayelekile. |
+| `fivegStateSlowLane` | Slow lane: your speed is reduced to 5/2 Mbit/s until your data resets or you buy an unlock. | Stadige baan: jou spoed is verminder tot 5/2 Mbit/s tot jou data herstel of jy 'n ontsluiting koop. | Uhla oluhamba kancane: isivinini sakho sincishisiwe saba ku-5/2 Mbit/s kuze kuvuselelwe idatha yakho noma uthenge ukuvulwa. |
+| `fivegStateCutOff` | Your service is cut off because you have used this month's data. Buy an unlock to get back online. | Jou diens is afgesluit omdat jy hierdie maand se data gebruik het. Koop 'n ontsluiting om weer aanlyn te kom. | Isevisi yakho ivaliwe ngoba usebenzise idatha yale nyanga. Thenga ukuvulwa ukuze ubuyele ku-inthanethi. |
+| `fivegStateOutOfBundle` | You have used this month's data. Buy an unlock to keep your full speed. | Jy het hierdie maand se data gebruik. Koop 'n ontsluiting om jou volle spoed te behou. | Usebenzise idatha yale nyanga. Thenga ukuvulwa ukuze ugcine isivinini sakho esigcwele. |
+| `fivegStateFup` | Fair use: your speed is reduced for the rest of this month. It returns to full speed on the 1st. | Billike gebruik: jou spoed is verminder vir die res van hierdie maand. Dit keer op die 1ste terug na volle spoed. | Ukusetshenziswa okulinganayo: isivinini sakho sincishisiwe kuze kuphele le nyanga. Sibuyela esivinini esigcwele ngomhla woku-1. |
+| `fivegStateRestoring` | Unlock applied. Restoring your service. | Ontsluiting toegepas. Ons herstel jou diens. | Ukuvulwa kusebenze. Sibuyisela isevisi yakho. |
+| `fivegRestoringHint` | This usually takes a few minutes. | Dit neem gewoonlik 'n paar minute. | Lokhu kuvamise ukuthatha imizuzu embalwa. |
+| `fivegRestoringTimedOut` | This is taking longer than usual. Pull down to refresh. | Dit neem langer as gewoonlik. Trek af om te verfris. | Lokhu kuthatha isikhathi eside kunokujwayelekile. Hudula phansi ukuvuselela. |
+| `fivegWarn50` | You have used half of this month's data. | Jy het die helfte van hierdie maand se data gebruik. | Usebenzise uhhafu wedatha yale nyanga. |
+| `fivegWarn80` | You have used 80% of this month's data. | Jy het 80% van hierdie maand se data gebruik. | Usebenzise u-80% wedatha yale nyanga. |
+| `fivegWarn100` | You have used all of this month's data. | Jy het al hierdie maand se data gebruik. | Usebenzise yonke idatha yale nyanga. |
+| `fivegResetsOn` | Resets on {date} | Herstel op {date} | Iyavuselelwa ngo-{date} |
+| `fivegDaysLeftOne` | 1 day left | 1 dag oor | Usuku olu-1 olusele |
+| `fivegDaysLeftMany` | {count} days left | {count} dae oor | Izinsuku ezingu-{count} ezisele |
+| `fivegRollover` | {size} rolled over from last month | {size} oorgedra van verlede maand | {size} ziphethwe kusuka enyangeni edlule |
+| `fivegUnlockHeading` | Buy more data | Koop meer data | Thenga idatha engeziwe |
+| `fivegUnlockIntro` | An unlock adds data for this month only. You pay on the secure payment page. | 'n Ontsluiting voeg data net vir hierdie maand by. Betaal op die veilige betaalbladsy. | Ukuvulwa kwengeza idatha yale nyanga kuphela. Ukukhokha kwenziwa ekhasini lokukhokha elivikelekile. |
+| `fivegOfferAdds` | +{size} | +{size} | +{size} |
+| `fivegPriceInclVat` | {price} incl. VAT | {price} insluitend BTW | {price} kuhlanganise ne-VAT |
+| `fivegValidUntil` | Valid until {date} | Geldig tot {date} | Isebenza kuze kube ngu-{date} |
+| `fivegBuy` | Buy | Koop | Thenga |
+| `fivegBuyLabel` | Buy {size} of data for {price} | Koop {size} data vir {price} | Thenga idatha engu-{size} ngo-{price} |
+| `fivegNoOffers` | No unlocks are available right now. | Daar is nou geen ontsluitings beskikbaar nie. | Akukho ukuvulwa okutholakalayo manje. |
+| `fivegPendingTitle` | An unlock is waiting for payment | 'n Ontsluiting wag op betaling | Ukuvulwa kulinde ukukhokha |
+| `fivegPendingBody` | Finish paying to add this data to your month. | Betaal om hierdie data by jou maand te voeg. | Khokha ukuze lolu datha lungezwe enyangeni yakho. |
+| `fivegContinuePayment` | Continue payment | Gaan voort met betaling | Qhubeka nokukhokha |
+| `fivegSheetTitle` | Confirm your data unlock | Bevestig jou dataontsluiting | Qinisekisa ukuvulwa kwedatha yakho |
+| `fivegSheetContinue` | Continue to payment | Gaan voort na betaling | Qhubeka ukuya ekukhokheni |
+| `fivegSheetBusy` | Preparing your unlock… | Ons berei jou ontsluiting voor… | Silungiselela ukuvulwa kwakho… |
+| `fivegDataUnlockLabel` | Data unlock | Dataontsluiting | Ukuvulwa kwedatha |
+| `fivegUnlockPaidTitle` | Data unlock paid | Dataontsluiting betaal | Ukuvulwa kwedatha kukhokhiwe |
+| `fivegUnlockPaidBody` | Your data is being added. Your service is restored a few minutes after payment. | Jou data word bygevoeg. Jou diens word 'n paar minute ná betaling herstel. | Idatha yakho iyengezwa. Isevisi yakho ibuyiswa imizuzu embalwa ngemva kokukhokha. |
+| `fivegBackToData` | Back to 5G data | Terug na 5G-data | Buyela kudatha ye-5G |
+| `failureFiveGNotAvailable` | 5G data is not available for this service. | 5G-data is nie vir hierdie diens beskikbaar nie. | Idatha ye-5G ayitholakali kule sevisi. |
+| `failureUnlockNotAvailable` | This data unlock is not available right now. | Hierdie dataontsluiting is nie nou beskikbaar nie. | Ukuvulwa kwedatha akutholakali manje. |
+| `failureUnlockLimitReached` | You have reached the data unlock limit for this month. | Jy het die dataontsluitingslimiet vir hierdie maand bereik. | Ufinyelele umkhawulo wokuvulwa kwedatha wale nyanga. |
+| `failureUnlockOrderOpen` | You already have a data unlock waiting for payment. | Jy het reeds 'n dataontsluiting wat op betaling wag. | Useyinayo ukuvulwa kwedatha okulinde ukukhokha. |
+| `failureUnlockServiceInactive` | This service is not active, so data cannot be unlocked right now. | Hierdie diens is nie aktief nie, so data kan nou nie ontsluit word nie. | Le sevisi ayisebenzi, ngakho idatha ayikwazi ukuvulwa manje. |

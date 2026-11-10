@@ -1,0 +1,17 @@
+{
+  "plan_kind": "capped",
+  "state": "slow_lane",
+  "period_start": "2026-11-01",
+  "cycle_end": "2026-11-30",
+  "effective_cap_mb": 150000,
+  "counted_usage_mb": 95000,
+  "used_percent": 63,
+  "rollover_mb": null,
+  "warn_levels": [
+    50
+  ],
+  "next_warn_level": 80,
+  "offers": [],
+  "pending_unlock": null,
+  "restoring": true
+}

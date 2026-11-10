@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/data/repositories/http_checkout_repository.dart';
+import 'package:sentech_connect_app/features/catalog_checkout/domain/entities/order.dart';
 import 'package:sentech_connect_app/features/passes/domain/entities/pass.dart';
 import 'package:sentech_connect_app/features/subscriber/data/repositories/invoice_json.dart';
 import 'package:sentech_connect_app/features/subscriber/data/repositories/subscriber_json.dart';
@@ -16,6 +17,9 @@ import 'package:sentech_connect_app/features/subscriber/domain/service_actions.d
 import 'package:sentech_connect_app/features/wifi_voucher/domain/entities/wifi_hotspot.dart';
 
 import 'package:sentech_connect_app/features/hotspot_login/data/http_hotspot_login_repository.dart';
+import 'package:sentech_connect_app/features/fiveg_service/data/fiveg_json.dart';
+import 'package:sentech_connect_app/features/fiveg_service/domain/entities/fiveg_usage.dart';
+import 'package:sentech_connect_app/features/fiveg_service/domain/usage_levels.dart';
 import '../helpers/fixtures.dart';
 import 'openapi_schema.dart';
 
@@ -180,6 +184,19 @@ const decoderReads = <String, Set<String>>{
   'ProblemDetail': {'code', 'title', 'detail', 'request_id'},
 };
 
+/// 5G data usage and paid unlock fixtures (platform slice C5c-1). The backend
+/// change is not merged, so the openapi snapshot cannot answer for them yet:
+/// they are checked by the decoders in the 5G group at the end of this file.
+/// TODO(5G backend): once the snapshot is re-synced, move these into
+/// [fixtureSchemas] (see docs/BACKEND_CONTRACT_SYNC.md).
+const pendingFixtureFiles = {
+  'fiveg_usage_normal.json',
+  'fiveg_usage_cut_off.json',
+  'fiveg_usage_slow_lane_restoring.json',
+  'fiveg_usage_fup.json',
+  'fiveg_unlock_order.json',
+};
+
 /// Keys read before the API serves them (absent = default value).
 const aheadOfApi = <String, Set<String>>{
   'Branding': {'app_display_name'},
@@ -195,7 +212,7 @@ void main() {
         .map((f) => f.uri.pathSegments.last)
         .where((n) => n.endsWith('.json'))
         .toSet();
-    expect(files, fixtureSchemas.keys.toSet());
+    expect(files, {...fixtureSchemas.keys, ...pendingFixtureFiles});
   });
 
   for (final MapEntry(key: file, value: name) in fixtureSchemas.entries) {
@@ -676,6 +693,81 @@ void main() {
       final token = loginTokenFromJson(fixtureMap('login_token.json'));
       expect(token.username, 'c.9f3a1b2c4d5e');
       expect(token.expiresAt, DateTime.utc(2026, 10, 30, 12, 5));
+    });
+  });
+
+  group('5G data usage and paid unlock (pending the backend sync)', () {
+    test('the usage fixtures decode into the plan kind and state they describe', () {
+      final normal = fiveGUsageFromJson(fixtureMap('fiveg_usage_normal.json'));
+      expect(normal.planKind, FiveGPlanKind.capped);
+      expect(normal.state, UsageState.normal);
+      expect(normal.effectiveCapMb, 100000);
+      expect(normal.rolloverMb, 5000);
+      expect(normal.offers.single.addedMb, 50000);
+      expect(normal.offers.single.priceCents, 19900);
+      expect(normal.offers.single.vatCents, 2596);
+      expect(normal.offers.single.validUntil, DateTime.utc(2026, 11, 30));
+      expect(normal.cycleEnd, DateTime.utc(2026, 11, 30));
+
+      final cutOff = fiveGUsageFromJson(fixtureMap('fiveg_usage_cut_off.json'));
+      expect(cutOff.state, UsageState.cutOff);
+      expect(cutOff.usedPercent, 100);
+      expect(cutOff.offers, hasLength(2));
+
+      final slow = fiveGUsageFromJson(fixtureMap('fiveg_usage_slow_lane_restoring.json'));
+      expect(slow.state, UsageState.slowLane);
+      expect(slow.restoring, isTrue);
+      expect(slow.pendingUnlock, isNull);
+
+      final fup = fiveGUsageFromJson(fixtureMap('fiveg_usage_fup.json'));
+      expect(fup.planKind, FiveGPlanKind.fup);
+      expect(fup.state, UsageState.fup);
+      expect(fup.effectiveCapMb, isNull);
+      expect(fup.usedPercent, isNull);
+      expect(fup.offers, isEmpty);
+    });
+
+    test('every usage state and plan kind the API can send is mapped, not guessed', () {
+      for (final s in ['normal', 'slow_lane', 'cut_off', 'out_of_bundle', 'fup']) {
+        expect(() => usageStateFromApi(s), returnsNormally, reason: s);
+      }
+      for (final k in ['capped', 'fup']) {
+        expect(() => fiveGPlanKindFromApi(k), returnsNormally, reason: k);
+      }
+      expect(() => usageStateFromApi('throttled'), throwsA(isA<FormatException>()));
+      expect(() => fiveGPlanKindFromApi('unlimited'), throwsA(isA<FormatException>()));
+    });
+
+    test('a pending unlock is read with its order id and status', () {
+      final base = fixtureMap('fiveg_usage_normal.json');
+      final usage = fiveGUsageFromJson({
+        ...base,
+        'pending_unlock': {'order_id': 'o-1', 'status': 'awaiting_payment'},
+      });
+      expect(usage.pendingUnlock?.orderId, 'o-1');
+      expect(usage.pendingUnlock?.status, 'awaiting_payment');
+    });
+
+    test('the usage percentage bands match the thresholds the app shows (50, 80, 100)', () {
+      expect(warningFor(49), UsageWarning.none);
+      expect(warningFor(50), UsageWarning.p50);
+      expect(warningFor(80), UsageWarning.p80);
+      expect(warningFor(100), UsageWarning.p100);
+    });
+
+    test('the unlock order fixture is a data unlock, not a Wi-Fi pass', () {
+      final order = orderFromJson(fixtureMap('fiveg_unlock_order.json'));
+      expect(order.kind, OrderKind.dataUnlock);
+      expect(order.isHotspotPass, isFalse);
+      expect(order.totalCents, 19900);
+      expect(order.status, OrderStatus.awaitingPayment);
+    });
+
+    test('an order without a kind (older server) is a pass; an unknown kind fails loudly', () {
+      final pass = orderFromJson(fixtureMap('order_draft.json'));
+      expect(pass.kind, OrderKind.pass);
+      expect(pass.isHotspotPass, isTrue);
+      expect(() => orderKindFromApi('coupon'), throwsA(isA<FormatException>()));
     });
   });
 }

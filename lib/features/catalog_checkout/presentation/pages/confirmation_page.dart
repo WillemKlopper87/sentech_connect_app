@@ -17,6 +17,7 @@ class ConfirmationPage extends StatelessWidget {
     this.onViewPasses,
     this.networkName,
     this.onFindWifi,
+    this.onBackToFiveG,
   });
 
   final VoidCallback onDone;
@@ -24,6 +25,10 @@ class ConfirmationPage extends StatelessWidget {
   final VoidCallback? onViewPasses;
   final String? networkName;
   final VoidCallback? onFindWifi;
+
+  /// Returns to the 5G data screen of the service the unlock was bought for
+  /// (null when the order is not tied to a service).
+  final VoidCallback? onBackToFiveG;
 
   @override
   Widget build(BuildContext context) {
@@ -86,6 +91,9 @@ class ConfirmationPage extends StatelessWidget {
             ),
           );
         }
+        if (order.kind == OrderKind.dataUnlock) {
+          return _DataUnlockDone(order: order, onDone: onDone, onBackToFiveG: onBackToFiveG);
+        }
         if (order.isHotspotPass) {
           return Scaffold(
             body: PassReadyView(
@@ -107,6 +115,70 @@ class ConfirmationPage extends StatelessWidget {
           onViewPasses: onViewPasses,
         );
       },
+    );
+  }
+}
+
+/// A paid data unlock: the data is being added and the service restored a few
+/// minutes later, so the screen says so and returns to the 5G data screen.
+class _DataUnlockDone extends StatelessWidget {
+  const _DataUnlockDone({required this.order, required this.onDone, this.onBackToFiveG});
+
+  final Order order;
+  final VoidCallback onDone;
+  final VoidCallback? onBackToFiveG;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final theme = Theme.of(context);
+    final back = onBackToFiveG;
+    return Scaffold(
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const SizedBox(height: 20),
+              Center(
+                child: Container(
+                  width: 64,
+                  height: 64,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: const Color(0xFF8EAF3F).withValues(alpha: 0.16),
+                  ),
+                  child: const Icon(Icons.check, color: Color(0xFF6F9126), size: 32),
+                ),
+              ),
+              const SizedBox(height: 14),
+              Text(
+                l10n.fivegUnlockPaidTitle,
+                textAlign: TextAlign.center,
+                style: theme.textTheme.headlineMedium,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                l10n.orderNumberLabel(order.orderNumber),
+                textAlign: TextAlign.center,
+                style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+              ),
+              const SizedBox(height: 24),
+              Text(l10n.fivegUnlockPaidBody, textAlign: TextAlign.center),
+              const Spacer(),
+              ElevatedButton(
+                onPressed: back ?? onDone,
+                child: Text(back == null ? l10n.confirmationBackToHome : l10n.fivegBackToData),
+              ),
+              if (back != null) ...[
+                const SizedBox(height: 8),
+                TextButton(onPressed: onDone, child: Text(l10n.confirmationBackToHome)),
+              ],
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

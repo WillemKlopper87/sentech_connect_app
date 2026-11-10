@@ -367,3 +367,35 @@ class ControllerNotSupportedFailure extends ValidationFailure {
   const ControllerNotSupportedFailure()
       : super('One-tap login is not supported at this hotspot. Connect from the Wi-Fi login page instead.', 'controller_not_supported', false);
 }
+
+/// 404 on the data-usage routes: the 5G data feature is switched off for the
+/// provider, or this service is not eligible. The screens hide the feature
+/// quietly instead of showing this text.
+class FiveGNotAvailableFailure extends Failure {
+  const FiveGNotAvailableFailure([super.message = '5G data is not available for this service.']);
+}
+
+/// 409 `unlock_not_available`: no data unlock can be bought on this service right now.
+class UnlockNotAvailableFailure extends ValidationFailure {
+  const UnlockNotAvailableFailure()
+      : super('This data unlock is not available right now.', 'unlock_not_available', false);
+}
+
+/// 409 `unlock_limit_reached`: the customer has bought the unlocks allowed this month.
+class UnlockLimitReachedFailure extends ValidationFailure {
+  const UnlockLimitReachedFailure()
+      : super('You have reached the data unlock limit for this month.', 'unlock_limit_reached', false);
+}
+
+/// 409 `unlock_order_open`: an unlock order is already waiting for payment. The
+/// app resumes that order instead of creating a second one.
+class UnlockOrderOpenFailure extends ValidationFailure {
+  const UnlockOrderOpenFailure()
+      : super('You already have a data unlock waiting for payment.', 'unlock_order_open', false);
+}
+
+/// 409 `unlock_service_inactive`: the service is not active, so data cannot be unlocked.
+class UnlockServiceInactiveFailure extends ValidationFailure {
+  const UnlockServiceInactiveFailure()
+      : super('This service is not active, so data cannot be unlocked right now.', 'unlock_service_inactive', false);
+}

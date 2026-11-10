@@ -183,3 +183,23 @@ Snapshot re-synced to platform `d4be7ce` (see the top of this file); suspended-i
 - **Hand-off ignored:** the app never sends `nas_id` or `login_url`, so `handoff` is absent; if a future platform sends it anyway it is not read and nothing is posted to the controller from the app. The customer signs in on the Wi-Fi login page, opened by "Open Wi-Fi login page" (`http://neverssl.com`, plain HTTP that never redirects to HTTPS, so the captive portal can intercept it; the Android `generate_204` probe is unsuitable).
 - **Gates in the app:** the entry shows only with flag `hotspot_radius` on (app-config `feature_flags`) and an entitlement that is `active` and not past `expires_at`; the route `/get-online` redirects to Home when the flag is off. The login is held in memory only, the screen is capture-protected, copies leave the clipboard after 60 seconds (or when the screen closes) if it still holds the copied text.
 - **Countdown** uses the device clock against `expires_at`; a large clock error shows the wrong time left (the platform decides validity).
+
+## 5G data usage and paid unlock (fiveg_service, 2026-11-10): PENDING BACKEND SYNC
+
+**TODO (5G backend, slice C5c-1; re-sync in ONE commit once it is merged):** the app side is built against the contract the owner approved, not against a merged platform snapshot. Until then:
+
+- `test/contract/openapi.json` does NOT describe `GET /v1/me/subscriber/services/{id}/data` or `POST .../data/unlock-orders`. Do not hand-edit it and do not run `tool/sync_openapi.dart` for this change alone.
+- The fixtures `test/fixtures/api/fiveg_usage_*.json` and `fiveg_unlock_order.json` are hand-written from the contract. They are listed in `pendingFixtureFiles` (`test/contract/openapi_contract_test.dart`) and are checked by the decoder group at the end of that file.
+- Re-sync checklist: (1) sync the snapshot; (2) check each fixture against its schema and move it from `pendingFixtureFiles` into `fixtureSchemas`; (3) confirm the decoders in `lib/features/fiveg_service/data/fiveg_json.dart` and `orderKindFromApi` (`http_checkout_repository.dart`, `OrderOut.kind`) against the schema, including the enum values; (4) fill `decoderReads` for the new schemas.
+
+Assumptions the app makes and the platform must confirm (each is one line to change):
+
+- `cycle_end` is the LAST day of the cycle (inclusive, a plain SAST date); the allowance resets the day after (`resetDayFor`, `lib/features/fiveg_service/domain/usage_levels.dart`). If the platform sends the reset day instead, change that one function.
+- `offers[].bytes_mb` is megabytes (the field name is the platform's; the app reads it as MB).
+- `state` values `slow_lane`, `cut_off`, `out_of_bundle`, `fup`: the app shows `out_of_bundle` as "allowance used up, not cut off, buy an unlock to keep full speed"; the cut-off copy is only for `cut_off`. The slow-lane copy hard-codes the speeds 5/2 Mbit/s (copy, not data).
+- The 404 `not_found` on the data routes means "feature off or not eligible" and is mapped to `FiveGNotAvailableFailure` (hidden, no error). Any other 404 there is treated the same way.
+- Restore polling: every 10 s for 18 checks (3 minutes) after a paid unlock while `restoring` is true, then a "Pull to refresh" hint. Tunable in `defaultRestoringPollDelays`.
+- Unlock typed refusals (409 except as noted): `unlock_not_available`, `unlock_limit_reached`, `unlock_order_open` (the app resumes the open order from `pending_unlock` instead of creating a second one), `unlock_service_inactive`.
+- The usage read and the unlock order use the existing `Idempotency-Key` rules (one key per offer and attempt, reused on retry).
+
+Not verified against a running backend: nothing in this section was run against the real platform.

@@ -2748,4 +2748,184 @@ class AppLocalizationsAf extends AppLocalizations {
   @override
   String get hotspotLoginUseOnce =>
       'Gebruik hierdie besonderhede net op hierdie foon. Dit werk een keer.';
+
+  @override
+  String get fivegTitle => '5G-data';
+
+  @override
+  String fivegEntryUsed(String percent) {
+    return '$percent% van hierdie maand se data gebruik';
+  }
+
+  @override
+  String get fivegEntryFairUse =>
+      'Billike gebruik-plan: geen maandelikse limiet nie';
+
+  @override
+  String get fivegUnavailable =>
+      '5G-databesonderhede is nie nou vir hierdie diens beskikbaar nie.';
+
+  @override
+  String get fivegAllowanceHeading => 'Hierdie maand se data';
+
+  @override
+  String get fivegFairUseHeading => 'Billike gebruik-plan';
+
+  @override
+  String fivegMeterUsed(String used, String cap) {
+    return '$used van $cap gebruik';
+  }
+
+  @override
+  String fivegMeterSemantics(String percent, String used, String cap) {
+    return '$percent persent gebruik: $used van $cap.';
+  }
+
+  @override
+  String fivegPercentLabel(String percent) {
+    return '$percent%';
+  }
+
+  @override
+  String get fivegStateNormal =>
+      'Volle spoed. Jy kan jou data normaal gebruik.';
+
+  @override
+  String get fivegStateSlowLane =>
+      'Stadige baan: jou spoed is verminder tot 5/2 Mbit/s tot jou data herstel of jy \'n ontsluiting koop.';
+
+  @override
+  String get fivegStateCutOff =>
+      'Jou diens is afgesluit omdat jy hierdie maand se data gebruik het. Koop \'n ontsluiting om weer aanlyn te kom.';
+
+  @override
+  String get fivegStateOutOfBundle =>
+      'Jy het hierdie maand se data gebruik. Koop \'n ontsluiting om jou volle spoed te behou.';
+
+  @override
+  String get fivegStateFup =>
+      'Billike gebruik: jou spoed is verminder vir die res van hierdie maand. Dit keer op die 1ste terug na volle spoed.';
+
+  @override
+  String get fivegStateRestoring =>
+      'Ontsluiting toegepas. Ons herstel jou diens.';
+
+  @override
+  String get fivegRestoringHint => 'Dit neem gewoonlik \'n paar minute.';
+
+  @override
+  String get fivegRestoringTimedOut =>
+      'Dit neem langer as gewoonlik. Trek af om te verfris.';
+
+  @override
+  String get fivegWarn50 =>
+      'Jy het die helfte van hierdie maand se data gebruik.';
+
+  @override
+  String get fivegWarn80 => 'Jy het 80% van hierdie maand se data gebruik.';
+
+  @override
+  String get fivegWarn100 => 'Jy het al hierdie maand se data gebruik.';
+
+  @override
+  String fivegResetsOn(String date) {
+    return 'Herstel op $date';
+  }
+
+  @override
+  String get fivegDaysLeftOne => '1 dag oor';
+
+  @override
+  String fivegDaysLeftMany(int count) {
+    return '$count dae oor';
+  }
+
+  @override
+  String fivegRollover(String size) {
+    return '$size oorgedra van verlede maand';
+  }
+
+  @override
+  String get fivegUnlockHeading => 'Koop meer data';
+
+  @override
+  String get fivegUnlockIntro =>
+      '\'n Ontsluiting voeg data net vir hierdie maand by. Betaal op die veilige betaalbladsy.';
+
+  @override
+  String fivegOfferAdds(String size) {
+    return '+$size';
+  }
+
+  @override
+  String fivegPriceInclVat(String price) {
+    return '$price insluitend BTW';
+  }
+
+  @override
+  String fivegValidUntil(String date) {
+    return 'Geldig tot $date';
+  }
+
+  @override
+  String get fivegBuy => 'Koop';
+
+  @override
+  String fivegBuyLabel(String size, String price) {
+    return 'Koop $size data vir $price';
+  }
+
+  @override
+  String get fivegNoOffers => 'Daar is nou geen ontsluitings beskikbaar nie.';
+
+  @override
+  String get fivegPendingTitle => '\'n Ontsluiting wag op betaling';
+
+  @override
+  String get fivegPendingBody => 'Betaal om hierdie data by jou maand te voeg.';
+
+  @override
+  String get fivegContinuePayment => 'Gaan voort met betaling';
+
+  @override
+  String get fivegSheetTitle => 'Bevestig jou dataontsluiting';
+
+  @override
+  String get fivegSheetContinue => 'Gaan voort na betaling';
+
+  @override
+  String get fivegSheetBusy => 'Ons berei jou ontsluiting voor…';
+
+  @override
+  String get fivegDataUnlockLabel => 'Dataontsluiting';
+
+  @override
+  String get fivegUnlockPaidTitle => 'Dataontsluiting betaal';
+
+  @override
+  String get fivegUnlockPaidBody =>
+      'Jou data word bygevoeg. Jou diens word \'n paar minute ná betaling herstel.';
+
+  @override
+  String get fivegBackToData => 'Terug na 5G-data';
+
+  @override
+  String get failureFiveGNotAvailable =>
+      '5G-data is nie vir hierdie diens beskikbaar nie.';
+
+  @override
+  String get failureUnlockNotAvailable =>
+      'Hierdie dataontsluiting is nie nou beskikbaar nie.';
+
+  @override
+  String get failureUnlockLimitReached =>
+      'Jy het die dataontsluitingslimiet vir hierdie maand bereik.';
+
+  @override
+  String get failureUnlockOrderOpen =>
+      'Jy het reeds \'n dataontsluiting wat op betaling wag.';
+
+  @override
+  String get failureUnlockServiceInactive =>
+      'Hierdie diens is nie aktief nie, so data kan nou nie ontsluit word nie.';
 }

@@ -28,6 +28,9 @@ import 'package:sentech_connect_app/features/catalog_checkout/presentation/pages
 import 'package:sentech_connect_app/features/catalog_checkout/presentation/pages/payment_page.dart';
 import 'package:sentech_connect_app/features/coverage/presentation/bloc/coverage_cubit.dart';
 import 'package:sentech_connect_app/features/coverage/presentation/pages/coverage_page.dart';
+import 'package:sentech_connect_app/features/fiveg_service/domain/repositories/fiveg_repository.dart';
+import 'package:sentech_connect_app/features/fiveg_service/presentation/bloc/fiveg_usage_cubit.dart';
+import 'package:sentech_connect_app/features/fiveg_service/presentation/pages/fiveg_usage_page.dart';
 import 'package:sentech_connect_app/features/hotspot_login/domain/repositories/hotspot_login_repository.dart';
 import 'package:sentech_connect_app/features/hotspot_login/presentation/bloc/hotspot_login_cubit.dart';
 import 'package:sentech_connect_app/features/hotspot_login/presentation/pages/get_online_page.dart';
@@ -101,6 +104,11 @@ abstract class AppRoutes {
   static const kycForm = '/kyc/new';
   static const subscriberProfile = '/subscriber/profile';
 
+  // 5G data usage and paid unlocks for one fixed-wireless service (module `subscriber_billing`).
+  static const fiveg = '/fiveg/:serviceId';
+
+  static String fivegFor(String serviceId) => '/fiveg/$serviceId';
+
   static String planFor(String planId) => '/plans/$planId';
   static String signupFor(String planId) => '/signup/$planId';
   static String serviceFor(String serviceId) => '/services/$serviceId';
@@ -114,8 +122,12 @@ abstract class AppRoutes {
   static const confirmation = '/confirmation/:orderId';
 
   static String ricaFor(String orderId) => '/rica/$orderId';
-  static String paymentFor(String orderId) => '/payment/$orderId';
-  static String confirmationFor(String orderId) => '/confirmation/$orderId';
+  /// [service] (the 5G service a data unlock was bought for) travels as a
+  /// query parameter, so the confirmation can return to that service's data screen.
+  static String paymentFor(String orderId, {String? service}) =>
+      Uri(path: '/payment/$orderId', queryParameters: service == null ? null : {'service': service}).toString();
+  static String confirmationFor(String orderId, {String? service}) =>
+      Uri(path: '/confirmation/$orderId', queryParameters: service == null ? null : {'service': service}).toString();
 
   /// Where an order should be picked up, given how far it got.
   static String forOrder(Order order) => switch (order.status) {
@@ -494,8 +506,30 @@ GoRouter _buildRouter(
         redirect: (context, state) => _subscriberModuleOff(tenantCubit) ? AppRoutes.main : null,
         builder: (context, state) => BlocProvider(
           create: (_) => ServiceDetailCubit(locator(), state.pathParameters['serviceId']!, kyc: locator<KycRepository>()),
-          child: ServiceDetailPage(plansRepository: locator<SubscriberPlansRepository>()),
+          child: ServiceDetailPage(
+            plansRepository: locator<SubscriberPlansRepository>(),
+            fiveGRepository: locator<FiveGRepository>(),
+            onOpenFiveG: (serviceId) => context.push(AppRoutes.fivegFor(serviceId)),
+          ),
         ),
+      ),
+      // 5G data usage and paid unlocks (fixed wireless). Hidden when the module is off.
+      GoRoute(
+        path: AppRoutes.fiveg,
+        redirect: (context, state) => _subscriberModuleOff(tenantCubit) ? AppRoutes.main : null,
+        builder: (context, state) {
+          final serviceId = state.pathParameters['serviceId']!;
+          final repository = locator<FiveGRepository>();
+          return BlocProvider(
+            create: (_) => FiveGUsageCubit(repository, serviceId),
+            child: FiveGUsagePage(
+              serviceId: serviceId,
+              repository: repository,
+              now: locator<PlatformClock>().wallNow,
+              onOpenPayment: (orderId) => context.push(AppRoutes.paymentFor(orderId, service: serviceId)),
+            ),
+          );
+        },
       ),
       // ID check (S4). Hidden when the module is off.
       GoRoute(
@@ -639,8 +673,9 @@ GoRouter _buildRouter(
                   kDebugMode && locator.isRegistered<DevPaymentSimulator>()
                   ? locator<DevPaymentSimulator>()
                   : null,
-              onPaid: (order) =>
-                  context.go(AppRoutes.confirmationFor(order.id)),
+              onPaid: (order) => context.go(
+                AppRoutes.confirmationFor(order.id, service: state.uri.queryParameters['service']),
+              ),
               onNeedsVerification: (order) =>
                   context.push(AppRoutes.ricaFor(order.id)),
               onClosed: () => context.go(AppRoutes.main),
@@ -660,6 +695,10 @@ GoRouter _buildRouter(
               onDone: () => context.go(AppRoutes.main),
               onResume: (order) => context.go(AppRoutes.forOrder(order)),
               onViewPasses: () => context.push(AppRoutes.passes),
+              onBackToFiveG: switch (state.uri.queryParameters['service']) {
+                final service? => () => context.go(AppRoutes.fivegFor(service)),
+                null => null,
+              },
             ),
           );
         },

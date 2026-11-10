@@ -5,6 +5,9 @@ import 'package:sentech_connect_app/app/router/app_router.dart';
 import 'package:sentech_connect_app/core/money/money.dart';
 import 'package:sentech_connect_app/features/subscriber/domain/entities/kyc.dart';
 import 'package:sentech_connect_app/features/subscriber/domain/entities/subscriber_service.dart';
+import 'package:sentech_connect_app/features/fiveg_service/domain/repositories/fiveg_repository.dart';
+import 'package:sentech_connect_app/features/fiveg_service/presentation/widgets/fiveg_service_entry.dart';
+import 'package:sentech_connect_app/features/subscriber/domain/entities/subscriber_plan.dart';
 import 'package:sentech_connect_app/features/subscriber/domain/repositories/subscriber_plans_repository.dart';
 import 'package:sentech_connect_app/features/subscriber/presentation/bloc/service_detail_cubit.dart';
 import 'package:sentech_connect_app/features/subscriber/presentation/service_format.dart';
@@ -20,10 +23,16 @@ import 'package:sentech_connect_app/shared/widgets/failure_view.dart';
 /// subscriber screens that exist. Needs a [ServiceDetailCubit] above it.
 /// Change plan (S6) and cancel at period end (S7) are in the actions area.
 class ServiceDetailPage extends StatelessWidget {
-  const ServiceDetailPage({super.key, this.plansRepository});
+  const ServiceDetailPage({super.key, this.plansRepository, this.fiveGRepository, this.onOpenFiveG});
 
   /// Plans for the change plan picker; without it that action is not offered.
   final SubscriberPlansRepository? plansRepository;
+
+  /// Reads the 5G data row of a fixed-wireless service; without it there is no row.
+  final FiveGRepository? fiveGRepository;
+
+  /// Opens the 5G data screen of a service.
+  final void Function(String serviceId)? onOpenFiveG;
 
   @override
   Widget build(BuildContext context) {
@@ -46,6 +55,14 @@ class ServiceDetailPage extends StatelessWidget {
                 children: [
                   _Header(service, kycStatus: state.kycStatus),
                   ServiceActionsSection(service: service, plansRepository: plansRepository),
+                  if (service.kind == SubscriberPlanKind.fixedWireless &&
+                      fiveGRepository != null &&
+                      onOpenFiveG != null)
+                    FiveGServiceEntry(
+                      serviceId: service.id,
+                      repository: fiveGRepository!,
+                      onOpen: () => onOpenFiveG!(service.id),
+                    ),
                   ..._links(context),
                 ],
               ),

@@ -4701,6 +4701,288 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Use these details on this phone only. They work once.'**
   String get hotspotLoginUseOnce;
+
+  /// Title of the 5G data usage screen, and of the service row that opens it.
+  ///
+  /// In en, this message translates to:
+  /// **'5G data'**
+  String get fivegTitle;
+
+  /// Row on a fixed-wireless service: share of this month's allowance already used.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% of this month\'s data used'**
+  String fivegEntryUsed(String percent);
+
+  /// Row on a fair-use (uncapped) 5G service.
+  ///
+  /// In en, this message translates to:
+  /// **'Fair use plan: no monthly limit'**
+  String get fivegEntryFairUse;
+
+  /// Shown when the 5G data screen opens for a service where the feature is off.
+  ///
+  /// In en, this message translates to:
+  /// **'5G data details are not available for this service right now.'**
+  String get fivegUnavailable;
+
+  /// Heading above the usage meter for a capped 5G plan.
+  ///
+  /// In en, this message translates to:
+  /// **'This month\'s data'**
+  String get fivegAllowanceHeading;
+
+  /// Heading for a fair-use (uncapped) 5G plan.
+  ///
+  /// In en, this message translates to:
+  /// **'Fair use plan'**
+  String get fivegFairUseHeading;
+
+  /// Caption under the usage meter: data used against the monthly allowance. Sizes are already formatted.
+  ///
+  /// In en, this message translates to:
+  /// **'{used} of {cap} used'**
+  String fivegMeterUsed(String used, String cap);
+
+  /// Screen-reader label for the usage meter.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent} percent used: {used} of {cap}.'**
+  String fivegMeterSemantics(String percent, String used, String cap);
+
+  /// Tick label on the usage meter (50, 80 or 100 percent).
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}%'**
+  String fivegPercentLabel(String percent);
+
+  /// Headline when the service runs at full speed.
+  ///
+  /// In en, this message translates to:
+  /// **'Full speed. You can use your data as normal.'**
+  String get fivegStateNormal;
+
+  /// Headline in the slow lane. The speeds 5/2 Mbit/s (down/up) are part of the copy, not data.
+  ///
+  /// In en, this message translates to:
+  /// **'Slow lane: your speed is reduced to 5/2 Mbit/s until your data resets or you buy an unlock.'**
+  String get fivegStateSlowLane;
+
+  /// Headline when the service is cut off at the allowance.
+  ///
+  /// In en, this message translates to:
+  /// **'Your service is cut off because you have used this month\'s data. Buy an unlock to get back online.'**
+  String get fivegStateCutOff;
+
+  /// Headline when the allowance is used up and the service is not cut off.
+  ///
+  /// In en, this message translates to:
+  /// **'You have used this month\'s data. Buy an unlock to keep your full speed.'**
+  String get fivegStateOutOfBundle;
+
+  /// Headline when a fair-use plan is throttled for the rest of the month.
+  ///
+  /// In en, this message translates to:
+  /// **'Fair use: your speed is reduced for the rest of this month. It returns to full speed on the 1st.'**
+  String get fivegStateFup;
+
+  /// Calm headline after a paid unlock, while the background job restores the service.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock applied. Restoring your service.'**
+  String get fivegStateRestoring;
+
+  /// Hint under the restoring headline.
+  ///
+  /// In en, this message translates to:
+  /// **'This usually takes a few minutes.'**
+  String get fivegRestoringHint;
+
+  /// Shown when the restore polling stopped without a result; asks for a manual refresh.
+  ///
+  /// In en, this message translates to:
+  /// **'This is taking longer than usual. Pull down to refresh.'**
+  String get fivegRestoringTimedOut;
+
+  /// Warning banner at 50 percent of the allowance.
+  ///
+  /// In en, this message translates to:
+  /// **'You have used half of this month\'s data.'**
+  String get fivegWarn50;
+
+  /// Warning banner at 80 percent of the allowance.
+  ///
+  /// In en, this message translates to:
+  /// **'You have used 80% of this month\'s data.'**
+  String get fivegWarn80;
+
+  /// Warning banner at 100 percent of the allowance.
+  ///
+  /// In en, this message translates to:
+  /// **'You have used all of this month\'s data.'**
+  String get fivegWarn100;
+
+  /// When the monthly allowance resets. The date is already formatted.
+  ///
+  /// In en, this message translates to:
+  /// **'Resets on {date}'**
+  String fivegResetsOn(String date);
+
+  /// Days until the allowance resets, when it is exactly one.
+  ///
+  /// In en, this message translates to:
+  /// **'1 day left'**
+  String get fivegDaysLeftOne;
+
+  /// Days until the allowance resets, for any count other than one.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} days left'**
+  String fivegDaysLeftMany(int count);
+
+  /// Unused data carried over from last month. The size is already formatted.
+  ///
+  /// In en, this message translates to:
+  /// **'{size} rolled over from last month'**
+  String fivegRollover(String size);
+
+  /// Heading above the list of paid data unlocks.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy more data'**
+  String get fivegUnlockHeading;
+
+  /// Explains that an unlock lasts for the current month.
+  ///
+  /// In en, this message translates to:
+  /// **'An unlock adds data for this month only. You pay on the secure payment page.'**
+  String get fivegUnlockIntro;
+
+  /// The data an unlock adds, for example +50 GB.
+  ///
+  /// In en, this message translates to:
+  /// **'+{size}'**
+  String fivegOfferAdds(String size);
+
+  /// Price of an unlock, with VAT included. The price is already formatted.
+  ///
+  /// In en, this message translates to:
+  /// **'{price} incl. VAT'**
+  String fivegPriceInclVat(String price);
+
+  /// Last day an unlock counts. The date is already formatted.
+  ///
+  /// In en, this message translates to:
+  /// **'Valid until {date}'**
+  String fivegValidUntil(String date);
+
+  /// Button that starts buying an unlock.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy'**
+  String get fivegBuy;
+
+  /// Screen-reader label for the Buy button of one unlock.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy {size} of data for {price}'**
+  String fivegBuyLabel(String size, String price);
+
+  /// Shown when the allowance has no unlock offers.
+  ///
+  /// In en, this message translates to:
+  /// **'No unlocks are available right now.'**
+  String get fivegNoOffers;
+
+  /// Heading of the card for an unlock order that was not paid yet.
+  ///
+  /// In en, this message translates to:
+  /// **'An unlock is waiting for payment'**
+  String get fivegPendingTitle;
+
+  /// Body of the pending-unlock card.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish paying to add this data to your month.'**
+  String get fivegPendingBody;
+
+  /// Button that opens the payment for an unpaid unlock.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue payment'**
+  String get fivegContinuePayment;
+
+  /// Title of the sheet that confirms a data unlock before payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm your data unlock'**
+  String get fivegSheetTitle;
+
+  /// The single button in the unlock confirmation sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue to payment'**
+  String get fivegSheetContinue;
+
+  /// Shown while the unlock order is being created.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing your unlock…'**
+  String get fivegSheetBusy;
+
+  /// Label for a data-unlock order on the payment and confirmation screens.
+  ///
+  /// In en, this message translates to:
+  /// **'Data unlock'**
+  String get fivegDataUnlockLabel;
+
+  /// Headline on the confirmation screen after a data unlock is paid.
+  ///
+  /// In en, this message translates to:
+  /// **'Data unlock paid'**
+  String get fivegUnlockPaidTitle;
+
+  /// Body on the confirmation screen after a data unlock is paid.
+  ///
+  /// In en, this message translates to:
+  /// **'Your data is being added. Your service is restored a few minutes after payment.'**
+  String get fivegUnlockPaidBody;
+
+  /// Button that returns from the confirmation screen to the 5G data screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to 5G data'**
+  String get fivegBackToData;
+
+  /// Customer error when the 5G data feature is off for a service.
+  ///
+  /// In en, this message translates to:
+  /// **'5G data is not available for this service.'**
+  String get failureFiveGNotAvailable;
+
+  /// Customer error for problem code unlock_not_available.
+  ///
+  /// In en, this message translates to:
+  /// **'This data unlock is not available right now.'**
+  String get failureUnlockNotAvailable;
+
+  /// Customer error for problem code unlock_limit_reached.
+  ///
+  /// In en, this message translates to:
+  /// **'You have reached the data unlock limit for this month.'**
+  String get failureUnlockLimitReached;
+
+  /// Customer error for problem code unlock_order_open.
+  ///
+  /// In en, this message translates to:
+  /// **'You already have a data unlock waiting for payment.'**
+  String get failureUnlockOrderOpen;
+
+  /// Customer error for problem code unlock_service_inactive.
+  ///
+  /// In en, this message translates to:
+  /// **'This service is not active, so data cannot be unlocked right now.'**
+  String get failureUnlockServiceInactive;
 }
 
 class _AppLocalizationsDelegate

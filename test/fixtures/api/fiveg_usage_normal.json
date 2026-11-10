@@ -1,0 +1,24 @@
+{
+  "plan_kind": "capped",
+  "state": "normal",
+  "period_start": "2026-11-01",
+  "cycle_end": "2026-11-30",
+  "effective_cap_mb": 100000,
+  "counted_usage_mb": 20000,
+  "used_percent": 20,
+  "rollover_mb": 5000,
+  "warn_levels": [],
+  "next_warn_level": 50,
+  "offers": [
+    {
+      "code": "data_unlock_50gb",
+      "name": "50 GB data unlock",
+      "bytes_mb": 50000,
+      "price_cents": 19900,
+      "vat_cents": 2596,
+      "valid_until": "2026-11-30"
+    }
+  ],
+  "pending_unlock": null,
+  "restoring": false
+}

@@ -124,6 +124,11 @@ Map<String, String> typedFailureTexts(AppLocalizations l10n) => {
   const NasUnavailableFailure().message: l10n.failureNasUnavailable,
   const LoginUrlInvalidFailure().message: l10n.failureLoginUrlInvalid,
   const ControllerNotSupportedFailure().message: l10n.failureControllerNotSupported,
+  const FiveGNotAvailableFailure().message: l10n.failureFiveGNotAvailable,
+  const UnlockNotAvailableFailure().message: l10n.failureUnlockNotAvailable,
+  const UnlockLimitReachedFailure().message: l10n.failureUnlockLimitReached,
+  const UnlockOrderOpenFailure().message: l10n.failureUnlockOrderOpen,
+  const UnlockServiceInactiveFailure().message: l10n.failureUnlockServiceInactive,
 };
 
 /// Customer text for a typed refusal, or null when [failure] is not one (the
@@ -210,6 +215,16 @@ String? typedFailureText(AppLocalizations l10n, Failure? failure) {
       return l10n.failureLoginUrlInvalid;
     case ControllerNotSupportedFailure():
       return l10n.failureControllerNotSupported;
+    case FiveGNotAvailableFailure():
+      return l10n.failureFiveGNotAvailable;
+    case UnlockNotAvailableFailure():
+      return l10n.failureUnlockNotAvailable;
+    case UnlockLimitReachedFailure():
+      return l10n.failureUnlockLimitReached;
+    case UnlockOrderOpenFailure():
+      return l10n.failureUnlockOrderOpen;
+    case UnlockServiceInactiveFailure():
+      return l10n.failureUnlockServiceInactive;
     default:
       return null;
   }

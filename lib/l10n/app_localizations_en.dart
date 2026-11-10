@@ -2738,4 +2738,181 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get hotspotLoginUseOnce =>
       'Use these details on this phone only. They work once.';
+
+  @override
+  String get fivegTitle => '5G data';
+
+  @override
+  String fivegEntryUsed(String percent) {
+    return '$percent% of this month\'s data used';
+  }
+
+  @override
+  String get fivegEntryFairUse => 'Fair use plan: no monthly limit';
+
+  @override
+  String get fivegUnavailable =>
+      '5G data details are not available for this service right now.';
+
+  @override
+  String get fivegAllowanceHeading => 'This month\'s data';
+
+  @override
+  String get fivegFairUseHeading => 'Fair use plan';
+
+  @override
+  String fivegMeterUsed(String used, String cap) {
+    return '$used of $cap used';
+  }
+
+  @override
+  String fivegMeterSemantics(String percent, String used, String cap) {
+    return '$percent percent used: $used of $cap.';
+  }
+
+  @override
+  String fivegPercentLabel(String percent) {
+    return '$percent%';
+  }
+
+  @override
+  String get fivegStateNormal => 'Full speed. You can use your data as normal.';
+
+  @override
+  String get fivegStateSlowLane =>
+      'Slow lane: your speed is reduced to 5/2 Mbit/s until your data resets or you buy an unlock.';
+
+  @override
+  String get fivegStateCutOff =>
+      'Your service is cut off because you have used this month\'s data. Buy an unlock to get back online.';
+
+  @override
+  String get fivegStateOutOfBundle =>
+      'You have used this month\'s data. Buy an unlock to keep your full speed.';
+
+  @override
+  String get fivegStateFup =>
+      'Fair use: your speed is reduced for the rest of this month. It returns to full speed on the 1st.';
+
+  @override
+  String get fivegStateRestoring => 'Unlock applied. Restoring your service.';
+
+  @override
+  String get fivegRestoringHint => 'This usually takes a few minutes.';
+
+  @override
+  String get fivegRestoringTimedOut =>
+      'This is taking longer than usual. Pull down to refresh.';
+
+  @override
+  String get fivegWarn50 => 'You have used half of this month\'s data.';
+
+  @override
+  String get fivegWarn80 => 'You have used 80% of this month\'s data.';
+
+  @override
+  String get fivegWarn100 => 'You have used all of this month\'s data.';
+
+  @override
+  String fivegResetsOn(String date) {
+    return 'Resets on $date';
+  }
+
+  @override
+  String get fivegDaysLeftOne => '1 day left';
+
+  @override
+  String fivegDaysLeftMany(int count) {
+    return '$count days left';
+  }
+
+  @override
+  String fivegRollover(String size) {
+    return '$size rolled over from last month';
+  }
+
+  @override
+  String get fivegUnlockHeading => 'Buy more data';
+
+  @override
+  String get fivegUnlockIntro =>
+      'An unlock adds data for this month only. You pay on the secure payment page.';
+
+  @override
+  String fivegOfferAdds(String size) {
+    return '+$size';
+  }
+
+  @override
+  String fivegPriceInclVat(String price) {
+    return '$price incl. VAT';
+  }
+
+  @override
+  String fivegValidUntil(String date) {
+    return 'Valid until $date';
+  }
+
+  @override
+  String get fivegBuy => 'Buy';
+
+  @override
+  String fivegBuyLabel(String size, String price) {
+    return 'Buy $size of data for $price';
+  }
+
+  @override
+  String get fivegNoOffers => 'No unlocks are available right now.';
+
+  @override
+  String get fivegPendingTitle => 'An unlock is waiting for payment';
+
+  @override
+  String get fivegPendingBody =>
+      'Finish paying to add this data to your month.';
+
+  @override
+  String get fivegContinuePayment => 'Continue payment';
+
+  @override
+  String get fivegSheetTitle => 'Confirm your data unlock';
+
+  @override
+  String get fivegSheetContinue => 'Continue to payment';
+
+  @override
+  String get fivegSheetBusy => 'Preparing your unlock…';
+
+  @override
+  String get fivegDataUnlockLabel => 'Data unlock';
+
+  @override
+  String get fivegUnlockPaidTitle => 'Data unlock paid';
+
+  @override
+  String get fivegUnlockPaidBody =>
+      'Your data is being added. Your service is restored a few minutes after payment.';
+
+  @override
+  String get fivegBackToData => 'Back to 5G data';
+
+  @override
+  String get failureFiveGNotAvailable =>
+      '5G data is not available for this service.';
+
+  @override
+  String get failureUnlockNotAvailable =>
+      'This data unlock is not available right now.';
+
+  @override
+  String get failureUnlockLimitReached =>
+      'You have reached the data unlock limit for this month.';
+
+  @override
+  String get failureUnlockOrderOpen =>
+      'You already have a data unlock waiting for payment.';
+
+  @override
+  String get failureUnlockServiceInactive =>
+      'This service is not active, so data cannot be unlocked right now.';
 }

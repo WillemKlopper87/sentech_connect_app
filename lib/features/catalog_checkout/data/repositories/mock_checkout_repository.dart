@@ -260,3 +260,33 @@ class MockCheckoutRepository implements CheckoutRepository {
     return result;
   }
 }
+
+/// Demo only: records an order created by another demo repository (a 5G data
+/// unlock) in the same store the checkout mock pays from, so the shared
+/// payment screen can find and pay it. Unlike [MockCheckoutRepository], this
+/// does not close other open orders.
+Future<void> recordMockOrder(SecureStore store, Order order) async {
+  final raw = await store.read(MockCheckoutRepository._ordersKey);
+  final decoded = raw == null ? const <Object?>[] : (jsonDecode(raw) as List? ?? const <Object?>[]);
+  await store.write(
+    MockCheckoutRepository._ordersKey,
+    jsonEncode([...decoded.where((e) => (e as Map)['id'] != order.id), order.toJson()]),
+  );
+}
+
+/// Demo only: every order in the mock store (corrupt records are skipped).
+Future<List<Order>> loadMockOrders(SecureStore store) async {
+  final raw = await store.read(MockCheckoutRepository._ordersKey);
+  if (raw == null) return const [];
+  final decoded = jsonDecode(raw);
+  if (decoded is! List) return const [];
+  final orders = <Order>[];
+  for (final entry in decoded) {
+    try {
+      orders.add(Order.fromJson(entry as Map<String, dynamic>));
+    } catch (_) {
+      continue;
+    }
+  }
+  return orders;
+}

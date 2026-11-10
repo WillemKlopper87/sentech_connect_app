@@ -1,0 +1,15 @@
+{
+  "plan_kind": "fup",
+  "state": "fup",
+  "period_start": "2026-11-01",
+  "cycle_end": "2026-11-30",
+  "effective_cap_mb": null,
+  "counted_usage_mb": null,
+  "used_percent": null,
+  "rollover_mb": null,
+  "warn_levels": [],
+  "next_warn_level": null,
+  "offers": [],
+  "pending_unlock": null,
+  "restoring": false
+}

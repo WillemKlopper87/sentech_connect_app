@@ -21,6 +21,11 @@ enum OrderStatus {
   cancelled,
 }
 
+/// What an order buys. A paid data unlock on a 5G service is a
+/// [dataUnlock]; everything else (passes, vouchers, hotspot products) is a
+/// [pass]. Older servers send no kind, which means [pass].
+enum OrderKind { pass, dataUnlock }
+
 class Order extends Equatable {
   const Order({
     required this.id,
@@ -30,6 +35,7 @@ class Order extends Equatable {
     this.status = OrderStatus.pendingVerification,
     this.isHotspotPass = false,
     this.identityVerified = false,
+    this.kind = OrderKind.pass,
   });
 
   /// Opaque identifier used in routes (`/rica/:orderId`). Never the
@@ -50,6 +56,9 @@ class Order extends Equatable {
   /// today) stay false, so nothing claims an identity was verified.
   final bool identityVerified;
 
+  /// [OrderKind.dataUnlock] for a paid 5G data unlock.
+  final OrderKind kind;
+
   bool get isOpen =>
       status == OrderStatus.pendingVerification ||
       status == OrderStatus.awaitingPayment ||
@@ -63,6 +72,7 @@ class Order extends Equatable {
     status: status ?? this.status,
     isHotspotPass: isHotspotPass,
     identityVerified: identityVerified ?? this.identityVerified,
+    kind: kind,
   );
 
   Map<String, dynamic> toJson() => {
@@ -73,6 +83,7 @@ class Order extends Equatable {
     'status': status.name,
     'isHotspotPass': isHotspotPass,
     'identityVerified': identityVerified,
+    'kind': kind.name,
   };
 
   factory Order.fromJson(Map<String, dynamic> json) => Order(
@@ -82,6 +93,10 @@ class Order extends Equatable {
     totalCents: _centsFrom(json),
     isHotspotPass: json['isHotspotPass'] == true,
     identityVerified: json['identityVerified'] == true,
+    kind: OrderKind.values.firstWhere(
+      (k) => k.name == json['kind'],
+      orElse: () => OrderKind.pass,
+    ),
     status: OrderStatus.values.firstWhere(
       (s) => s.name == json['status'],
       orElse: () => OrderStatus.pendingVerification,
@@ -108,5 +123,6 @@ class Order extends Equatable {
     status,
     isHotspotPass,
     identityVerified,
+    kind,
   ];
 }

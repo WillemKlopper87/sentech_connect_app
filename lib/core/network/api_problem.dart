@@ -209,4 +209,8 @@ const _typedRefusals = <String, Failure>{
   'nas_unavailable': NasUnavailableFailure(),
   'login_url_invalid': LoginUrlInvalidFailure(),
   'controller_not_supported': ControllerNotSupportedFailure(),
+  'unlock_not_available': UnlockNotAvailableFailure(),
+  'unlock_limit_reached': UnlockLimitReachedFailure(),
+  'unlock_order_open': UnlockOrderOpenFailure(),
+  'unlock_service_inactive': UnlockServiceInactiveFailure(),
 };

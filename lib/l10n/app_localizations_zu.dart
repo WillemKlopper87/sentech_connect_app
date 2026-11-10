@@ -2752,4 +2752,184 @@ class AppLocalizationsZu extends AppLocalizations {
   @override
   String get hotspotLoginUseOnce =>
       'Sebenzisa le mininingwane kule foni kuphela. Isebenza kanye.';
+
+  @override
+  String get fivegTitle => 'Idatha ye-5G';
+
+  @override
+  String fivegEntryUsed(String percent) {
+    return '$percent% wedatha yale nyanga isetshenzisiwe';
+  }
+
+  @override
+  String get fivegEntryFairUse =>
+      'Uhlelo lokusetshenziswa ngokulinganayo: akukho mkhawulo wenyanga';
+
+  @override
+  String get fivegUnavailable =>
+      'Imininingwane yedatha ye-5G ayitholakali kule sevisi manje.';
+
+  @override
+  String get fivegAllowanceHeading => 'Idatha yale nyanga';
+
+  @override
+  String get fivegFairUseHeading => 'Uhlelo lokusetshenziswa ngokulinganayo';
+
+  @override
+  String fivegMeterUsed(String used, String cap) {
+    return '$used kwangu-$cap kusetshenzisiwe';
+  }
+
+  @override
+  String fivegMeterSemantics(String percent, String used, String cap) {
+    return '$percent amaphesenti asetshenzisiwe: $used kwangu-$cap.';
+  }
+
+  @override
+  String fivegPercentLabel(String percent) {
+    return '$percent%';
+  }
+
+  @override
+  String get fivegStateNormal =>
+      'Isivinini esigcwele. Ungasebenzisa idatha yakho njengokujwayelekile.';
+
+  @override
+  String get fivegStateSlowLane =>
+      'Uhla oluhamba kancane: isivinini sakho sincishisiwe saba ku-5/2 Mbit/s kuze kuvuselelwe idatha yakho noma uthenge ukuvulwa.';
+
+  @override
+  String get fivegStateCutOff =>
+      'Isevisi yakho ivaliwe ngoba usebenzise idatha yale nyanga. Thenga ukuvulwa ukuze ubuyele ku-inthanethi.';
+
+  @override
+  String get fivegStateOutOfBundle =>
+      'Usebenzise idatha yale nyanga. Thenga ukuvulwa ukuze ugcine isivinini sakho esigcwele.';
+
+  @override
+  String get fivegStateFup =>
+      'Ukusetshenziswa okulinganayo: isivinini sakho sincishisiwe kuze kuphele le nyanga. Sibuyela esivinini esigcwele ngomhla woku-1.';
+
+  @override
+  String get fivegStateRestoring =>
+      'Ukuvulwa kusebenze. Sibuyisela isevisi yakho.';
+
+  @override
+  String get fivegRestoringHint => 'Lokhu kuvamise ukuthatha imizuzu embalwa.';
+
+  @override
+  String get fivegRestoringTimedOut =>
+      'Lokhu kuthatha isikhathi eside kunokujwayelekile. Hudula phansi ukuvuselela.';
+
+  @override
+  String get fivegWarn50 => 'Usebenzise uhhafu wedatha yale nyanga.';
+
+  @override
+  String get fivegWarn80 => 'Usebenzise u-80% wedatha yale nyanga.';
+
+  @override
+  String get fivegWarn100 => 'Usebenzise yonke idatha yale nyanga.';
+
+  @override
+  String fivegResetsOn(String date) {
+    return 'Iyavuselelwa ngo-$date';
+  }
+
+  @override
+  String get fivegDaysLeftOne => 'Usuku olu-1 olusele';
+
+  @override
+  String fivegDaysLeftMany(int count) {
+    return 'Izinsuku ezingu-$count ezisele';
+  }
+
+  @override
+  String fivegRollover(String size) {
+    return '$size ziphethwe kusuka enyangeni edlule';
+  }
+
+  @override
+  String get fivegUnlockHeading => 'Thenga idatha engeziwe';
+
+  @override
+  String get fivegUnlockIntro =>
+      'Ukuvulwa kwengeza idatha yale nyanga kuphela. Ukukhokha kwenziwa ekhasini lokukhokha elivikelekile.';
+
+  @override
+  String fivegOfferAdds(String size) {
+    return '+$size';
+  }
+
+  @override
+  String fivegPriceInclVat(String price) {
+    return '$price kuhlanganise ne-VAT';
+  }
+
+  @override
+  String fivegValidUntil(String date) {
+    return 'Isebenza kuze kube ngu-$date';
+  }
+
+  @override
+  String get fivegBuy => 'Thenga';
+
+  @override
+  String fivegBuyLabel(String size, String price) {
+    return 'Thenga idatha engu-$size ngo-$price';
+  }
+
+  @override
+  String get fivegNoOffers => 'Akukho ukuvulwa okutholakalayo manje.';
+
+  @override
+  String get fivegPendingTitle => 'Ukuvulwa kulinde ukukhokha';
+
+  @override
+  String get fivegPendingBody =>
+      'Khokha ukuze lolu datha lungezwe enyangeni yakho.';
+
+  @override
+  String get fivegContinuePayment => 'Qhubeka nokukhokha';
+
+  @override
+  String get fivegSheetTitle => 'Qinisekisa ukuvulwa kwedatha yakho';
+
+  @override
+  String get fivegSheetContinue => 'Qhubeka ukuya ekukhokheni';
+
+  @override
+  String get fivegSheetBusy => 'Silungiselela ukuvulwa kwakho…';
+
+  @override
+  String get fivegDataUnlockLabel => 'Ukuvulwa kwedatha';
+
+  @override
+  String get fivegUnlockPaidTitle => 'Ukuvulwa kwedatha kukhokhiwe';
+
+  @override
+  String get fivegUnlockPaidBody =>
+      'Idatha yakho iyengezwa. Isevisi yakho ibuyiswa imizuzu embalwa ngemva kokukhokha.';
+
+  @override
+  String get fivegBackToData => 'Buyela kudatha ye-5G';
+
+  @override
+  String get failureFiveGNotAvailable =>
+      'Idatha ye-5G ayitholakali kule sevisi.';
+
+  @override
+  String get failureUnlockNotAvailable =>
+      'Ukuvulwa kwedatha akutholakali manje.';
+
+  @override
+  String get failureUnlockLimitReached =>
+      'Ufinyelele umkhawulo wokuvulwa kwedatha wale nyanga.';
+
+  @override
+  String get failureUnlockOrderOpen =>
+      'Useyinayo ukuvulwa kwedatha okulinde ukukhokha.';
+
+  @override
+  String get failureUnlockServiceInactive =>
+      'Le sevisi ayisebenzi, ngakho idatha ayikwazi ukuvulwa manje.';
 }

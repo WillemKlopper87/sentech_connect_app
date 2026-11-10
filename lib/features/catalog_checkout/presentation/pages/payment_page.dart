@@ -370,7 +370,9 @@ class _OrderCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final label = showIdentityVerified
+    final label = order.kind == OrderKind.dataUnlock
+        ? context.l10n.fivegDataUnlockLabel
+        : showIdentityVerified
         ? context.l10n.paymentIdentityVerified
         : order.isHotspotPass
         ? context.l10n.paymentWifiPassOrder

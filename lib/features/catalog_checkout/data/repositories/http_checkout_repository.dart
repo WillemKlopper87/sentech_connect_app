@@ -163,15 +163,26 @@ Order orderFromJson(Map<String, Object?> json) {
   } else {
     planName = '${lines.length} items';
   }
+  final kind = orderKindFromApi(json['kind']);
   return Order(
     id: id,
     orderNumber: 'SC-${id.replaceAll('-', '').substring(0, 8).toUpperCase()}',
     planName: planName,
     totalCents: total['amount_cents']! as int,
-    isHotspotPass: true,
+    // A data unlock is not a Wi-Fi pass, so it never takes the pass wording.
+    isHotspotPass: kind == OrderKind.pass,
     status: orderStatusFromApi(json['status']! as String),
+    kind: kind,
   );
 }
+
+/// `OrderOut.kind`. Absent on servers older than the data-unlock change, which
+/// means a pass; an unknown value fails loudly instead of guessing.
+OrderKind orderKindFromApi(Object? value) => switch (value) {
+  null || 'pass' => OrderKind.pass,
+  'data_unlock' => OrderKind.dataUnlock,
+  final other => throw FormatException('Unknown order kind $other'),
+};
 
 /// M1 `CheckoutOut` -> [PaymentHandoff].
 PaymentHandoff paymentHandoffFromJson(Map<String, Object?> json) {
