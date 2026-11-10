@@ -213,4 +213,6 @@ const _typedRefusals = <String, Failure>{
   'unlock_limit_reached': UnlockLimitReachedFailure(),
   'unlock_order_open': UnlockOrderOpenFailure(),
   'unlock_service_inactive': UnlockServiceInactiveFailure(),
+  'unlock_payment_held': UnlockPaymentHeldFailure(),
+  'idempotency_in_progress': IdempotencyInProgressFailure(),
 };

@@ -42,6 +42,12 @@ void main() {
     const KycDocumentRejectedFailure(),
     const KycUploadFailedFailure(),
     const KycRequiredFailure(),
+    const UnlockNotAvailableFailure(),
+    const UnlockLimitReachedFailure(),
+    const UnlockOrderOpenFailure(),
+    const UnlockServiceInactiveFailure(),
+    const UnlockPaymentHeldFailure(),
+    const IdempotencyInProgressFailure(),
   ];
 
   for (final l10n in [AppLocalizationsEn(), AppLocalizationsAf(), AppLocalizationsZu()]) {

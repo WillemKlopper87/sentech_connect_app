@@ -2732,5 +2732,9 @@
   "failureUnlockOrderOpen": "Useyinayo ukuvulwa kwedatha okulinde ukukhokha.",
   "@failureUnlockOrderOpen": {"description": "Customer error for problem code unlock_order_open."},
   "failureUnlockServiceInactive": "Le sevisi ayisebenzi, ngakho idatha ayikwazi ukuvulwa manje.",
-  "@failureUnlockServiceInactive": {"description": "Customer error for problem code unlock_service_inactive."}
+  "@failureUnlockServiceInactive": {"description": "Customer error for problem code unlock_service_inactive."},
+  "failureUnlockPaymentHeld": "Inkokhelo yakho yalokhu kuvulwa kwedatha iyahlolwa. Ungakhokhi futhi. Osekelo luzokuqinisekisa uma seluqediwe.",
+  "@failureUnlockPaymentHeld": {"description": "Customer error for problem code unlock_payment_held (409 on checkout): the payment is held, succeeded or refunded already; do not pay again."},
+  "failureIdempotencyInProgress": "Sisalucubungula isicelo sakho. Sicela uzame futhi ngemizuzwana embalwa.",
+  "@failureIdempotencyInProgress": {"description": "Customer message for problem code idempotency_in_progress (409): the same request is still being processed."}
 }

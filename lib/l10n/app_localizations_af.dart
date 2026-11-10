@@ -2928,4 +2928,12 @@ class AppLocalizationsAf extends AppLocalizations {
   @override
   String get failureUnlockServiceInactive =>
       'Hierdie diens is nie aktief nie, so data kan nou nie ontsluit word nie.';
+
+  @override
+  String get failureUnlockPaymentHeld =>
+      'Jou betaling vir hierdie dataontsluiting word hersien. Moenie weer betaal nie. Ondersteuning sal bevestig sodra dit klaar is.';
+
+  @override
+  String get failureIdempotencyInProgress =>
+      'Ons verwerk nog jou versoek. Probeer asseblief oor \'n oomblik weer.';
 }

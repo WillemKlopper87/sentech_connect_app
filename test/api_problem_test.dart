@@ -378,6 +378,10 @@ void main() {
       (422, 'nas_unavailable', NasUnavailableFailure),
       (422, 'login_url_invalid', LoginUrlInvalidFailure),
       (422, 'controller_not_supported', ControllerNotSupportedFailure),
+      (409, 'unlock_payment_held', UnlockPaymentHeldFailure),
+      (409, 'idempotency_in_progress', IdempotencyInProgressFailure),
+      (422, 'unlock_not_available', UnlockNotAvailableFailure),
+      (409, 'unlock_not_available', UnlockNotAvailableFailure),
     ];
     for (final (status, code, type) in refusals) {
       test('$status $code is a typed ValidationFailure that ignores the server wording', () {

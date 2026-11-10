@@ -129,6 +129,8 @@ Map<String, String> typedFailureTexts(AppLocalizations l10n) => {
   const UnlockLimitReachedFailure().message: l10n.failureUnlockLimitReached,
   const UnlockOrderOpenFailure().message: l10n.failureUnlockOrderOpen,
   const UnlockServiceInactiveFailure().message: l10n.failureUnlockServiceInactive,
+  const UnlockPaymentHeldFailure().message: l10n.failureUnlockPaymentHeld,
+  const IdempotencyInProgressFailure().message: l10n.failureIdempotencyInProgress,
 };
 
 /// Customer text for a typed refusal, or null when [failure] is not one (the
@@ -225,6 +227,10 @@ String? typedFailureText(AppLocalizations l10n, Failure? failure) {
       return l10n.failureUnlockOrderOpen;
     case UnlockServiceInactiveFailure():
       return l10n.failureUnlockServiceInactive;
+    case UnlockPaymentHeldFailure():
+      return l10n.failureUnlockPaymentHeld;
+    case IdempotencyInProgressFailure():
+      return l10n.failureIdempotencyInProgress;
     default:
       return null;
   }

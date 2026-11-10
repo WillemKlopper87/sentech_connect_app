@@ -2915,4 +2915,12 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get failureUnlockServiceInactive =>
       'This service is not active, so data cannot be unlocked right now.';
+
+  @override
+  String get failureUnlockPaymentHeld =>
+      'Your payment for this data unlock is being reviewed. Do not pay again. Support will confirm once it is done.';
+
+  @override
+  String get failureIdempotencyInProgress =>
+      'We are still processing your request. Please try again in a moment.';
 }

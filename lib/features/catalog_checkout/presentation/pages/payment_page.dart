@@ -138,6 +138,14 @@ class PaymentPage extends StatelessWidget {
                   child: Text(l10n.paymentBackToDashboard),
                 ),
               );
+            case PaymentStatus.paymentHeld:
+              return _Message(
+                text: l10n.failureUnlockPaymentHeld,
+                action: FilledButton(
+                  onPressed: onClosed,
+                  child: Text(l10n.paymentBackToDashboard),
+                ),
+              );
             case PaymentStatus.confirming:
               return _Message(
                 text: context.l10n.paymentConfirmingYourPaymentThisCanTake,

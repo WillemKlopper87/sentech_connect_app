@@ -230,6 +230,31 @@ void main() {
       await cubit.close();
     });
 
+    test('a failed pending order is resumed too (the payment screen offers retry or cancel)', () async {
+      final repo = _ScriptedFiveG(
+        usages: [Right(_usage(pending: const PendingUnlock(orderId: 'o-failed', status: 'failed')))],
+        creates: [const Left(UnlockOrderOpenFailure())],
+      );
+      final cubit = UnlockCubit(repo, _service, newKey: () => 'key-00000001');
+      cubit.choose(_offer);
+      await cubit.confirm();
+      expect(cubit.state.status, UnlockStatus.ready);
+      expect(cubit.state.orderId, 'o-failed');
+      await cubit.close();
+    });
+
+    test('idempotency_in_progress keeps the key so the next tap retries the same request', () async {
+      final repo = _ScriptedFiveG(creates: [const Left(IdempotencyInProgressFailure())]);
+      final cubit = UnlockCubit(repo, _service, newKey: () => 'key-00000001');
+      cubit.choose(_offer);
+      await cubit.confirm();
+      expect(cubit.state.failure, isA<IdempotencyInProgressFailure>());
+      repo.creates.add(Right(_order('o-new')));
+      await cubit.confirm();
+      expect(repo.createKeys, ['key-00000001', 'key-00000001']);
+      await cubit.close();
+    });
+
     test('a 409 unlock_order_open with nothing pending is a failure, not a second order', () async {
       final repo = _ScriptedFiveG(
         usages: [Right(_usage())],
@@ -239,7 +264,8 @@ void main() {
       cubit.choose(_offer);
       await cubit.confirm();
       expect(cubit.state.status, UnlockStatus.failure);
-      expect(cubit.state.failure, isA<UnlockOrderOpenFailure>());
+      // The platform omits pending_unlock while the payment is held or settled.
+      expect(cubit.state.failure, isA<UnlockPaymentHeldFailure>());
       expect(cubit.state.orderId, isNull);
       await cubit.close();
     });

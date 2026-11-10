@@ -291,6 +291,27 @@ void main() {
     await cubit.close();
   });
 
+  test('409 unlock_payment_held on checkout is a held state: no retry, no cancel, no second payment', () async {
+    final repo = _ScriptedCheckout()..startResult = const Left(UnlockPaymentHeldFailure());
+    final cubit = await ready(repo);
+    await cubit.pay();
+    expect(cubit.state.status, PaymentStatus.paymentHeld);
+    expect(cubit.state.failure, isA<UnlockPaymentHeldFailure>());
+    expect(cubit.state.canCancel, isFalse);
+    await cubit.pay();
+    expect(repo.startCalls, 1);
+    await cubit.close();
+  });
+
+  test('unlock_not_available on checkout (422) is a payment failure carrying the typed refusal', () async {
+    final repo = _ScriptedCheckout()..startResult = const Left(UnlockNotAvailableFailure());
+    final cubit = await ready(repo);
+    await cubit.pay();
+    expect(cubit.state.status, PaymentStatus.payFailed);
+    expect(cubit.state.failure, isA<UnlockNotAvailableFailure>());
+    await cubit.close();
+  });
+
   test('an unsafe hand-off URL is a hand-off failure, never opened', () async {
     final repo = _ScriptedCheckout()
       ..startResult = Right(

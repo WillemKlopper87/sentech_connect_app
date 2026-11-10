@@ -2,9 +2,29 @@
   "id": "0c3b9a1e-8f2d-4e6a-9b7c-5d4e3f2a1b0c",
   "status": "awaiting_payment",
   "kind": "data_unlock",
-  "total": {"amount_cents": 19900, "currency": "ZAR"},
+  "total": {
+    "amount_cents": 19900,
+    "currency": "ZAR"
+  },
   "lines": [
-    {"product_id": "5d4e3f2a-1b0c-4a9b-8c7d-6e5f4a3b2c1d", "sku": "data_unlock_50gb", "name": "50 GB data unlock", "unit_price": {"amount_cents": 19900, "currency": "ZAR"}, "quantity": 1, "line_total": {"amount_cents": 19900, "currency": "ZAR"}}
+    {
+      "product_id": null,
+      "sku": "data_unlock_50gb",
+      "name": "50 GB data unlock",
+      "unit_price": {
+        "amount_cents": 19900,
+        "currency": "ZAR"
+      },
+      "quantity": 1,
+      "line_total": {
+        "amount_cents": 19900,
+        "currency": "ZAR"
+      },
+      "duration_minutes": 0,
+      "data_mb": 50000,
+      "speed_kbps": null,
+      "max_devices": 0
+    }
   ],
   "created_at": "2026-11-10T09:00:00Z",
   "paid_at": null,

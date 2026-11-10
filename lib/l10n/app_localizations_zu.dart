@@ -2932,4 +2932,12 @@ class AppLocalizationsZu extends AppLocalizations {
   @override
   String get failureUnlockServiceInactive =>
       'Le sevisi ayisebenzi, ngakho idatha ayikwazi ukuvulwa manje.';
+
+  @override
+  String get failureUnlockPaymentHeld =>
+      'Inkokhelo yakho yalokhu kuvulwa kwedatha iyahlolwa. Ungakhokhi futhi. Osekelo luzokuqinisekisa uma seluqediwe.';
+
+  @override
+  String get failureIdempotencyInProgress =>
+      'Sisalucubungula isicelo sakho. Sicela uzame futhi ngemizuzwana embalwa.';
 }

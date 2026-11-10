@@ -394,6 +394,23 @@ class UnlockOrderOpenFailure extends ValidationFailure {
       : super('You already have a data unlock waiting for payment.', 'unlock_order_open', false);
 }
 
+/// 409 `unlock_payment_held` (POST /v1/orders/{id}/checkout on a data-unlock
+/// order): a payment for it is already held for review, succeeded or refunded.
+/// The customer must not pay again; support confirms. Also what the app shows
+/// when `unlock_order_open` is refused and the usage answer lists no pending
+/// unlock (the platform omits it while the payment is held).
+class UnlockPaymentHeldFailure extends ValidationFailure {
+  const UnlockPaymentHeldFailure()
+      : super('Your payment for this data unlock is being reviewed. Do not pay again.', 'unlock_payment_held', false);
+}
+
+/// 409 `idempotency_in_progress`: the same request (same `Idempotency-Key`) is
+/// still being processed. Not an error: retrying with the same key is safe.
+class IdempotencyInProgressFailure extends ValidationFailure {
+  const IdempotencyInProgressFailure()
+      : super('We are still processing your request. Please try again in a moment.', 'idempotency_in_progress', false);
+}
+
 /// 409 `unlock_service_inactive`: the service is not active, so data cannot be unlocked.
 class UnlockServiceInactiveFailure extends ValidationFailure {
   const UnlockServiceInactiveFailure()

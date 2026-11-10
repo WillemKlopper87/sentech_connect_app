@@ -2750,5 +2750,9 @@
   "failureUnlockOrderOpen": "Jy het reeds 'n dataontsluiting wat op betaling wag.",
   "@failureUnlockOrderOpen": {"description": "Customer error for problem code unlock_order_open."},
   "failureUnlockServiceInactive": "Hierdie diens is nie aktief nie, so data kan nou nie ontsluit word nie.",
-  "@failureUnlockServiceInactive": {"description": "Customer error for problem code unlock_service_inactive."}
+  "@failureUnlockServiceInactive": {"description": "Customer error for problem code unlock_service_inactive."},
+  "failureUnlockPaymentHeld": "Jou betaling vir hierdie dataontsluiting word hersien. Moenie weer betaal nie. Ondersteuning sal bevestig sodra dit klaar is.",
+  "@failureUnlockPaymentHeld": {"description": "Customer error for problem code unlock_payment_held (409 on checkout): the payment is held, succeeded or refunded already; do not pay again."},
+  "failureIdempotencyInProgress": "Ons verwerk nog jou versoek. Probeer asseblief oor 'n oomblik weer.",
+  "@failureIdempotencyInProgress": {"description": "Customer message for problem code idempotency_in_progress (409): the same request is still being processed."}
 }

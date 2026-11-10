@@ -78,6 +78,30 @@ void main() {
       }
     });
 
+    test('unlock_not_available is typed on a 422 (unlock-order POST) as well as on a 409', () async {
+      h.adapter.on('POST', _unlockPath, (_) => FakeReply.problem(422, 'unlock_not_available'));
+      expect(
+        _failure(await repo.createUnlockOrder(_service, productCode: 'x', idempotencyKey: 'key-00000001')),
+        isA<UnlockNotAvailableFailure>(),
+      );
+    });
+
+    test('idempotency_in_progress (409) is its own friendly failure, not a generic error', () async {
+      h.adapter.on('POST', _unlockPath, (_) => FakeReply.problem(409, 'idempotency_in_progress'));
+      expect(
+        _failure(await repo.createUnlockOrder(_service, productCode: 'x', idempotencyKey: 'key-00000001')),
+        isA<IdempotencyInProgressFailure>(),
+      );
+    });
+
+    test('unlock_payment_held (409) is typed', () async {
+      h.adapter.on('POST', _unlockPath, (_) => FakeReply.problem(409, 'unlock_payment_held'));
+      expect(
+        _failure(await repo.createUnlockOrder(_service, productCode: 'x', idempotencyKey: 'key-00000001')),
+        isA<UnlockPaymentHeldFailure>(),
+      );
+    });
+
     test('a 404 on the unlock route is a feature that is not available', () async {
       h.adapter.on('POST', _unlockPath, (_) => FakeReply.problem(404, 'not_found'));
       expect(

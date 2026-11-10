@@ -36,7 +36,11 @@ class UnlockState extends Equatable {
 /// to the payment screen. One idempotency key per offer and attempt: a retry
 /// of the same offer reuses it, a different offer starts a new one. A 409
 /// `unlock_order_open` resumes the order that is already waiting, instead of
-/// creating a second one.
+/// creating a second one. The pending order may be `failed`: it stays
+/// resumable and the payment screen offers retry or cancel. When no pending
+/// order is listed (its payment is held or settled) the failure is
+/// [UnlockPaymentHeldFailure]. A 409 `idempotency_in_progress` keeps the key,
+/// so the next tap retries the same request.
 class UnlockCubit extends Cubit<UnlockState> {
   UnlockCubit(this._repository, this.serviceId, {String Function()? newKey})
     : _newKey = newKey ?? newIdempotencyKey,
@@ -80,9 +84,17 @@ class UnlockCubit extends Cubit<UnlockState> {
   Future<void> _resume(UnlockOffer offer, Failure refusal) async {
     final result = await _repository.getUsage(serviceId);
     if (isClosed) return;
+    // A failed order stays pending (resumable: the payment screen offers
+    // "try again" and "cancel"), so it is resumed like an unpaid one.
+    if (result.isLeft()) {
+      emit(UnlockState(status: UnlockStatus.failure, offer: offer, failure: refusal));
+      return;
+    }
     final pending = result.match((_) => null, (usage) => usage.pendingUnlock);
     if (pending == null) {
-      emit(UnlockState(status: UnlockStatus.failure, offer: offer, failure: refusal));
+      // The usage answer leaves `pending_unlock` out while the order's payment
+      // is held, succeeded or refunded: say so, do not claim it waits for payment.
+      emit(UnlockState(status: UnlockStatus.failure, offer: offer, failure: const UnlockPaymentHeldFailure()));
       return;
     }
     emit(UnlockState(status: UnlockStatus.ready, offer: offer, orderId: pending.orderId));

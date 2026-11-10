@@ -4983,6 +4983,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This service is not active, so data cannot be unlocked right now.'**
   String get failureUnlockServiceInactive;
+
+  /// Customer error for problem code unlock_payment_held (409 on checkout): the payment is held, succeeded or refunded already; do not pay again.
+  ///
+  /// In en, this message translates to:
+  /// **'Your payment for this data unlock is being reviewed. Do not pay again. Support will confirm once it is done.'**
+  String get failureUnlockPaymentHeld;
+
+  /// Customer message for problem code idempotency_in_progress (409): the same request is still being processed.
+  ///
+  /// In en, this message translates to:
+  /// **'We are still processing your request. Please try again in a moment.'**
+  String get failureIdempotencyInProgress;
 }
 
 class _AppLocalizationsDelegate

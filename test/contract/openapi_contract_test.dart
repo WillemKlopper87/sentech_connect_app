@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -57,6 +58,13 @@ const fixtureSchemas = {
   'subscriber_kyc_none.json': 'KycNoneOut',
   'subscriber_kyc_pending.json': 'SubscriberKycOut',
   'voucher_redeem_ok.json': 'RedeemOut',
+  // 5G data usage and paid unlock (platform C5c-1, 4ce8ca8c): GET .../services/{id}/data 200, and POST .../data/unlock-orders 201.
+  'fiveg_usage_normal.json': 'DataUsageOut',
+  'fiveg_usage_cut_off.json': 'DataUsageOut',
+  'fiveg_usage_slow_lane_restoring.json': 'DataUsageOut',
+  'fiveg_usage_fup.json': 'DataUsageOut',
+  'fiveg_usage_pending_failed.json': 'DataUsageOut',
+  'fiveg_unlock_order.json': 'OrderOut',
   // One-tap hotspot login (S10): POST /v1/me/hotspot/login-token 201, with the optional hand-off present (the app ignores it).
   'login_token.json': 'LoginTokenOut',
   'otp_request.json': 'OtpRequestOut',
@@ -113,7 +121,7 @@ const decoderReads = <String, Set<String>>{
   },
   'LegalVersions': {'terms', 'privacy'},
   'TenantDirectory': {'tenants', 'next_cursor'},
-  'OrderOut': {'id', 'status', 'total', 'lines'},
+  'OrderOut': {'id', 'kind', 'status', 'total', 'lines'},
   'HotspotPublicOut': {'id', 'name', 'address_text', 'lat', 'lon', 'status'},
   'OrderLineOut': {'name', 'quantity'},
   'Money': {'amount_cents', 'currency'},
@@ -181,20 +189,15 @@ const decoderReads = <String, Set<String>>{
   'TurnstileConfig': {'site_key', 'base_url', 'required'},
   'HumanCheckRequired': {'otp_request', 'delete_challenge', 'support_message', 'lead'},
   'SupportAcceptedOut': {'reference'},
+  'DataUsageOut': {
+    'plan_kind', 'state', 'period_start', 'cycle_end', 'effective_cap_mb', 'counted_usage_mb',
+    'used_percent', 'rollover_mb', 'warn_levels', 'next_warn_level', 'offers', 'pending_unlock', 'restoring',
+  },
+  'OfferOut': {'code', 'name', 'bytes_mb', 'price_cents', 'vat_cents', 'valid_until'},
+  'PendingUnlockOut': {'order_id', 'status'},
+  // Request body of POST .../data/unlock-orders: the snapshot has no schema for it (the backend reads it through a
+  // dependency), so the key set is pinned in the 5G group below instead.
   'ProblemDetail': {'code', 'title', 'detail', 'request_id'},
-};
-
-/// 5G data usage and paid unlock fixtures (platform slice C5c-1). The backend
-/// change is not merged, so the openapi snapshot cannot answer for them yet:
-/// they are checked by the decoders in the 5G group at the end of this file.
-/// TODO(5G backend): once the snapshot is re-synced, move these into
-/// [fixtureSchemas] (see docs/BACKEND_CONTRACT_SYNC.md).
-const pendingFixtureFiles = {
-  'fiveg_usage_normal.json',
-  'fiveg_usage_cut_off.json',
-  'fiveg_usage_slow_lane_restoring.json',
-  'fiveg_usage_fup.json',
-  'fiveg_unlock_order.json',
 };
 
 /// Keys read before the API serves them (absent = default value).
@@ -212,7 +215,7 @@ void main() {
         .map((f) => f.uri.pathSegments.last)
         .where((n) => n.endsWith('.json'))
         .toSet();
-    expect(files, {...fixtureSchemas.keys, ...pendingFixtureFiles});
+    expect(files, fixtureSchemas.keys.toSet());
   });
 
   for (final MapEntry(key: file, value: name) in fixtureSchemas.entries) {
@@ -696,7 +699,38 @@ void main() {
     });
   });
 
-  group('5G data usage and paid unlock (pending the backend sync)', () {
+  group('5G data usage and paid unlock (C5c-1)', () {
+    test('GET .../data answers DataUsageOut; the unlock-order POST answers 201 OrderOut and needs the Idempotency-Key', () {
+      final get = api.path('/v1/me/subscriber/services/{service_id}/data', 'get');
+      expect(api.responseSchemaName(get, '200'), 'DataUsageOut');
+      final post = api.path('/v1/me/subscriber/services/{service_id}/data/unlock-orders', 'post');
+      expect(api.responseSchemaName(post, '201'), 'OrderOut');
+      final header = [
+        for (final p in post['parameters']! as List)
+          if ((p as Map)['in'] == 'header' && p['name'] == 'Idempotency-Key') p,
+      ];
+      expect(header.single['required'], isTrue);
+      // No requestBody in the snapshot: the body is exactly {"product_code": string}.
+      expect(post['requestBody'], isNull);
+    });
+
+    test('OrderOut.kind is required and typed; OrderLineOut.product_id is nullable', () {
+      expect(((api.schema('OrderOut')['required']! as List)), contains('kind'));
+      final kind = (api.schema('OrderOut')['properties']! as Map)['kind'] as Map;
+      expect((kind['enum']! as List).toSet(), {'pass', 'data_unlock'});
+      for (final k in (kind['enum']! as List).cast<String>()) {
+        expect(orderKindFromApi(k), isNotNull, reason: k);
+      }
+      final productId = (api.schema('OrderLineOut')['properties']! as Map)['product_id'] as Map;
+      expect(jsonEncode(productId), contains('"null"'));
+    });
+
+    test('every pending-unlock order status the app can show is an order status', () {
+      final usage = fiveGUsageFromJson(fixtureMap('fiveg_usage_pending_failed.json'));
+      expect(usage.pendingUnlock?.status, 'failed');
+      expect(orderStatusFromApi(usage.pendingUnlock!.status), OrderStatus.paymentFailed);
+    });
+
     test('the usage fixtures decode into the plan kind and state they describe', () {
       final normal = fiveGUsageFromJson(fixtureMap('fiveg_usage_normal.json'));
       expect(normal.planKind, FiveGPlanKind.capped);
@@ -761,6 +795,11 @@ void main() {
       expect(order.isHotspotPass, isFalse);
       expect(order.totalCents, 19900);
       expect(order.status, OrderStatus.awaitingPayment);
+    });
+
+    test('a data-unlock order with a null line product_id decodes', () {
+      final order = orderFromJson(fixtureMap('fiveg_unlock_order.json'));
+      expect(order.planName, '50 GB data unlock');
     });
 
     test('an order without a kind (older server) is a pass; an unknown kind fails loudly', () {

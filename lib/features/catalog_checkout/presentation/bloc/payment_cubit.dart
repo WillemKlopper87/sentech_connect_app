@@ -40,6 +40,10 @@ enum PaymentStatus {
 
   /// Expired or cancelled: cannot be paid any more.
   closed,
+
+  /// A data-unlock payment is already held for review, settled or refunded
+  /// (409 `unlock_payment_held`): never offer a second payment or a cancel.
+  paymentHeld,
 }
 
 /// About 52 s in total; the first check is immediate.
@@ -178,6 +182,7 @@ class PaymentCubit extends Cubit<PaymentState> {
       PaymentStatus.confirming,
       PaymentStatus.paid,
       PaymentStatus.closed,
+      PaymentStatus.paymentHeld,
     };
     if (blocked.contains(state.status)) return;
     emit(state.copyWith(status: PaymentStatus.starting));
@@ -189,6 +194,8 @@ class PaymentCubit extends Cubit<PaymentState> {
           // The provider collects its own money: nothing here can be paid, so
           // end the flow instead of offering a retry.
           emit(state.copyWith(status: PaymentStatus.closed, failure: failure));
+        } else if (failure is UnlockPaymentHeldFailure) {
+          emit(state.copyWith(status: PaymentStatus.paymentHeld, failure: failure));
         } else if (failure is ValidationFailure &&
             failure.code == 'order_not_payable') {
           await _routeByServerStatus(failure);
