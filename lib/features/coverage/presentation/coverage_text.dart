@@ -1,6 +1,8 @@
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
+import 'package:sentech_connect_app/core/error/failure.dart';
 import 'package:sentech_connect_app/features/coverage/domain/entities/coverage_check.dart';
+import 'package:sentech_connect_app/l10n/failure_copy.dart';
 import 'package:sentech_connect_app/l10n/l10n.dart';
 
 /// App copy for the platform's coverage answer. The platform sends KEYS (a band
@@ -91,4 +93,11 @@ String releaseText(BuildContext context, {String? label, DateTime? date, int? ve
   if (label != null && label.isNotEmpty) return l10n.coverageFooterReleaseLabel(label);
   if (day != null) return l10n.coverageFooterReleaseDate(day);
   return version == null ? '' : l10n.coverageFooterVersion(version.toString());
+}
+
+/// Plain words for a failure on the coverage screens: offline, then the typed copy, then the
+/// message-based copy (the platform's own customer wording for a refusal).
+String coverageFailureText(AppLocalizations l10n, Failure failure) {
+  if (failure is NetworkFailure) return l10n.failureYouReOfflineCheckYourConnection;
+  return typedFailureText(l10n, failure) ?? localizedFailureText(l10n, failure.message);
 }

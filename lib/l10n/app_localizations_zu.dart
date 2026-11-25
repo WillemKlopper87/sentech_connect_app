@@ -3619,4 +3619,105 @@ class AppLocalizationsZu extends AppLocalizations {
 
   @override
   String get coverageNotifyMe => 'Ngazise';
+
+  @override
+  String get coverageNotifyTitle => 'Join the waitlist';
+
+  @override
+  String get coverageNotifyIntro =>
+      'Leave a mobile number or email address and we will contact you when coverage reaches this place.';
+
+  @override
+  String get coverageNotifyContactPhone => 'Inombolo yeselula';
+
+  @override
+  String get coverageNotifyContactEmail => 'Ikheli le-imeyili';
+
+  @override
+  String get coverageNotifyPhoneHint => 'Isibonelo: 082 123 4567';
+
+  @override
+  String get coverageNotifyEmailHint => 'Isibonelo: igama@isibonelo.com';
+
+  @override
+  String get coverageNotifyAddressHint => 'Ikheli ofuna ukufinyelela kulo';
+
+  @override
+  String get coverageNotifyInterest => 'Unentshisekelo ku';
+
+  @override
+  String get coverageInterestAny => 'Noma iyiphi';
+
+  @override
+  String get coverageNotifyConsent =>
+      'I agree to be contacted about coverage at this address.';
+
+  @override
+  String coverageNotifyConsentNote(String version) {
+    return 'Consent version $version. We use these details only for this purpose and delete them after a year (POPIA).';
+  }
+
+  @override
+  String get coverageNotifyArrivalConsent =>
+      'Also tell me if coverage arrives or improves at this address (optional).';
+
+  @override
+  String coverageNotifyArrivalNote(String version) {
+    return 'Separate consent, version $version. You can leave the list at any time and this choice does not affect your place on it.';
+  }
+
+  @override
+  String get coverageNotifySubmit => 'Join the waitlist';
+
+  @override
+  String get coverageNotifySent =>
+      'Thank you. We will let you know when coverage reaches this place.';
+
+  @override
+  String get coverageNotifyContactInvalid =>
+      'Faka inombolo yeselula noma ikheli le-imeyili elivumelekile.';
+
+  @override
+  String get coverageNotifyAddressInvalid =>
+      'Faka ikheli ofuna ukufinyelela kulo.';
+
+  @override
+  String get coverageNotifyConsentRequired =>
+      'Please agree to be contacted so that we can tell you about coverage.';
+
+  @override
+  String get coverageNotifyReconfirm =>
+      'Our consent text was updated. Please read it and tick the box again to confirm.';
+
+  @override
+  String get coverageNotifyPending =>
+      'Your last sign-up may not have finished. Try again to be sure: it will not add you twice.';
+
+  @override
+  String get coverageNotifyError =>
+      'Asikwazanga ukulondoloza imininingwane yakho. Sicela uzame futhi.';
+
+  @override
+  String get coverageNotifyDone => 'Kuqedile';
+
+  @override
+  String get coverageLeaveLink => 'Already on the list and want to leave it?';
+
+  @override
+  String get coverageLeaveTitle => 'Leave the coverage waiting list';
+
+  @override
+  String get coverageLeaveIntro =>
+      'Enter the mobile number or email address you used. If it is on our list we will send a link to that number or address, and only the link can remove it. We do not say whether a number or address is on the list.';
+
+  @override
+  String get coverageLeaveSend => 'Send me a link';
+
+  @override
+  String get coverageLeaveRequested =>
+      'Thank you. If that number or address is on our waiting list, we have sent it a link. The link works once and expires in 24 hours. If nothing arrives, it was not on the list.';
+
+  @override
+  String get coverageLeaveError =>
+      'Asikwazanga ukukwenza lokho. Sicela uzame futhi ngemva kwesikhashana.';
 }

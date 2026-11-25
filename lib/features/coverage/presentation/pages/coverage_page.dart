@@ -4,16 +4,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:sentech_connect_app/core/error/failure.dart';
 import 'package:sentech_connect_app/features/coverage/domain/entities/geo_point.dart';
 import 'package:sentech_connect_app/features/coverage/domain/entities/geocode_match.dart';
 import 'package:sentech_connect_app/features/coverage/presentation/bloc/address_search_cubit.dart';
 import 'package:sentech_connect_app/features/coverage/presentation/bloc/coverage_cubit.dart';
 import 'package:sentech_connect_app/features/coverage/presentation/bloc/location_cubit.dart';
+import 'package:sentech_connect_app/features/coverage/domain/entities/lead.dart';
+import 'package:sentech_connect_app/features/coverage/presentation/coverage_text.dart';
 import 'package:sentech_connect_app/features/coverage/presentation/widgets/coverage_result_view.dart';
+import 'package:sentech_connect_app/features/coverage/presentation/widgets/leave_list_sheet.dart';
+import 'package:sentech_connect_app/features/coverage/presentation/widgets/notify_me_sheet.dart';
 import 'package:sentech_connect_app/features/privacy/domain/entities/consent_record.dart';
 import 'package:sentech_connect_app/features/privacy/presentation/widgets/consent_gate.dart';
-import 'package:sentech_connect_app/l10n/failure_copy.dart';
 import 'package:sentech_connect_app/l10n/l10n.dart';
 import 'package:sentech_connect_app/shared/widgets/failure_view.dart';
 import 'package:sentech_connect_app/shared/widgets/osm_map.dart';
@@ -43,6 +45,9 @@ class _CoveragePageState extends State<CoveragePage> {
   final _map = MapController();
   bool _mapReady = false;
 
+  /// The address the customer picked from the search, to start the waiting-list form from (in memory only).
+  String? _pickedAddress;
+
   @override
   void initState() {
     super.initState();
@@ -69,6 +74,7 @@ class _CoveragePageState extends State<CoveragePage> {
 
   void _pick(GeocodeMatch match) {
     _addressController.text = match.label;
+    _pickedAddress = match.label;
     context.read<AddressSearchCubit>().clear();
     final point = GeoPoint(match.lat, match.lon);
     context.read<CoverageCubit>().checkAt(point.lat, point.lon);
@@ -78,8 +84,15 @@ class _CoveragePageState extends State<CoveragePage> {
 
   void _onMapTap(LatLng point) {
     _addressController.clear();
+    _pickedAddress = null;
     context.read<AddressSearchCubit>().clear();
     context.read<CoverageCubit>().pinDropped(point.latitude, point.longitude);
+  }
+
+  void _openNotify(CoverageState state, TechnologyInterest interest) {
+    final point = state.point;
+    if (point == null) return;
+    NotifyMeSheet.show(context, point: point, interest: interest, initialAddress: _pickedAddress);
   }
 
   Future<void> _useMyLocation() async {
@@ -92,6 +105,7 @@ class _CoveragePageState extends State<CoveragePage> {
     final point = state.point;
     if (state.status != LocationStatus.located || point == null) return;
     _addressController.clear();
+    _pickedAddress = null;
     context.read<AddressSearchCubit>().clear();
     context.read<CoverageCubit>().checkAt(point.lat, point.lon);
     _moveMapTo(point);
@@ -138,7 +152,20 @@ class _CoveragePageState extends State<CoveragePage> {
                             ),
                           ),
                           const SizedBox(height: 16),
-                          _ResultSection(state: state),
+                          _ResultSection(
+                            state: state,
+                            // The waiting list is offered only where the server said so for the answer AND the
+                            // provider can take sign-ups (it names both consent texts); an older server has neither.
+                            onNotify: state.meta?.canOfferNotify == true ? (interest) => _openNotify(state, interest) : null,
+                          ),
+                          if (state.meta?.canOfferNotify == true)
+                            Align(
+                              alignment: AlignmentDirectional.centerStart,
+                              child: TextButton(
+                                onPressed: () => LeaveListSheet.show(context),
+                                child: Text(l10n.coverageLeaveLink),
+                              ),
+                            ),
                         ],
                       ),
                     ),
@@ -255,7 +282,7 @@ class _Suggestions extends StatelessWidget {
           case AddressSearchStatus.rateLimited:
             return note(l10n.coverageSearchRateLimited);
           case AddressSearchStatus.error:
-            return note(state.failure == null ? l10n.failureSomethingWentWrongPleaseTryAgain : failureText(l10n, state.failure!));
+            return note(state.failure == null ? l10n.failureSomethingWentWrongPleaseTryAgain : coverageFailureText(l10n, state.failure!));
           case AddressSearchStatus.results:
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -326,14 +353,11 @@ class _LocationButton extends StatelessWidget {
   }
 }
 
-/// The text for a failure on this screen: the typed copy, else the message-based copy.
-String failureText(AppLocalizations l10n, Failure failure) =>
-    typedFailureText(l10n, failure) ?? localizedFailureText(l10n, failure.message);
-
 class _ResultSection extends StatelessWidget {
-  const _ResultSection({required this.state});
+  const _ResultSection({required this.state, this.onNotify});
 
   final CoverageState state;
+  final void Function(TechnologyInterest interest)? onNotify;
 
   @override
   Widget build(BuildContext context) {
@@ -368,7 +392,7 @@ class _ResultSection extends StatelessWidget {
       case CoverageStatus.error:
         return FailureView(failure: state.failure, compact: true, onRetry: cubit.retry);
       case CoverageStatus.ready:
-        return CoverageResultView(check: state.check!, meta: state.meta, onRetry: cubit.retry);
+        return CoverageResultView(check: state.check!, meta: state.meta, onNotify: onNotify, onRetry: cubit.retry);
     }
   }
 }

@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_initializing_formals
 
 import 'package:sentech_connect_app/core/local/personal_data_wiper.dart';
+import 'package:sentech_connect_app/features/coverage/data/pending_lead_keys.dart';
 import 'package:sentech_connect_app/features/credits/data/pending_redeem_keys.dart';
 import 'package:sentech_connect_app/features/passes/data/repositories/pass_local_store.dart';
 import 'package:sentech_connect_app/features/auth/domain/repositories/registration_repository.dart';
@@ -20,10 +21,12 @@ class DefaultPersonalDataWiper implements PersonalDataWiper {
     required this._consent,
     PassLocalStore? passes,
     PendingRedeemKeys? pendingRedeemKeys,
+    PendingLeadKeys? pendingLeadKeys,
     void Function()? onDemoReset,
   }) : _onDemoReset = onDemoReset,
        _passes = passes,
-       _pendingRedeemKeys = pendingRedeemKeys;
+       _pendingRedeemKeys = pendingRedeemKeys,
+       _pendingLeadKeys = pendingLeadKeys;
 
   final RegistrationRepository _registration;
   final CheckoutRepository _checkout;
@@ -31,6 +34,7 @@ class DefaultPersonalDataWiper implements PersonalDataWiper {
   final ConsentRepository _consent;
   final PassLocalStore? _passes;
   final PendingRedeemKeys? _pendingRedeemKeys;
+  final PendingLeadKeys? _pendingLeadKeys;
 
   /// Demo flavor only: puts the in-memory demo wallet back (the real wallet lives on the server).
   final void Function()? _onDemoReset;
@@ -42,6 +46,8 @@ class DefaultPersonalDataWiper implements PersonalDataWiper {
     if (_passes case final passes?) passes.clearPersonalData,
     // In-memory only: a pending credits redeem key must not outlive the session.
     if (_pendingRedeemKeys case final keys?) () async => keys.clear(),
+    // Likewise a pending waiting-list sign-up key (it belongs to a contact the customer typed).
+    if (_pendingLeadKeys case final keys?) () async => keys.clear(),
     if (_onDemoReset case final reset?) () async => reset(),
     // Drops the active grant but keeps the daily ad counter, so logging
     // out and back in cannot be used to reset the free-WiFi cap.

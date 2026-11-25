@@ -6057,6 +6057,174 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Notify me'**
   String get coverageNotifyMe;
+
+  /// Title of the waiting-list form (platform key lead.title). Waiting-list, consent or data-handling wording (counsel items C1, C2, C4): left in English for af and zu until native review and counsel.
+  ///
+  /// In en, this message translates to:
+  /// **'Join the waitlist'**
+  String get coverageNotifyTitle;
+
+  /// Intro of the waiting-list form (platform key lead.intro with a generic place). Waiting-list, consent or data-handling wording (counsel items C1, C2, C4): left in English for af and zu until native review and counsel.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave a mobile number or email address and we will contact you when coverage reaches this place.'**
+  String get coverageNotifyIntro;
+
+  /// Label of the mobile-number choice and field on the waiting-list form.
+  ///
+  /// In en, this message translates to:
+  /// **'Mobile number'**
+  String get coverageNotifyContactPhone;
+
+  /// Label of the email choice and field on the waiting-list form.
+  ///
+  /// In en, this message translates to:
+  /// **'Email address'**
+  String get coverageNotifyContactEmail;
+
+  /// Hint inside the mobile-number field of the waiting-list form.
+  ///
+  /// In en, this message translates to:
+  /// **'For example 082 123 4567'**
+  String get coverageNotifyPhoneHint;
+
+  /// Hint inside the email field of the waiting-list form.
+  ///
+  /// In en, this message translates to:
+  /// **'For example name@example.com'**
+  String get coverageNotifyEmailHint;
+
+  /// Hint inside the address field of the waiting-list form.
+  ///
+  /// In en, this message translates to:
+  /// **'The address you want coverage at'**
+  String get coverageNotifyAddressHint;
+
+  /// Label above the technology choice (any, 5G or LTE) on the waiting-list form.
+  ///
+  /// In en, this message translates to:
+  /// **'Interested in'**
+  String get coverageNotifyInterest;
+
+  /// The no-preference choice of the technology on the waiting-list form.
+  ///
+  /// In en, this message translates to:
+  /// **'Any'**
+  String get coverageInterestAny;
+
+  /// First consent tick box of the waiting-list form, unticked by default (platform key lead.consent). Waiting-list, consent or data-handling wording (counsel items C1, C2, C4): left in English for af and zu until native review and counsel.
+  ///
+  /// In en, this message translates to:
+  /// **'I agree to be contacted about coverage at this address.'**
+  String get coverageNotifyConsent;
+
+  /// Note under the first consent tick box: the consent text version the platform expects, and the retention period (platform key lead.consent_note). Waiting-list, consent or data-handling wording (counsel items C1, C2, C4): left in English for af and zu until native review and counsel.
+  ///
+  /// In en, this message translates to:
+  /// **'Consent version {version}. We use these details only for this purpose and delete them after a year (POPIA).'**
+  String coverageNotifyConsentNote(String version);
+
+  /// Second, separate consent tick box of the waiting-list form, unticked by default (platform key lead.arrival_consent). Waiting-list, consent or data-handling wording (counsel items C1, C2, C4): left in English for af and zu until native review and counsel.
+  ///
+  /// In en, this message translates to:
+  /// **'Also tell me if coverage arrives or improves at this address (optional).'**
+  String get coverageNotifyArrivalConsent;
+
+  /// Note under the second consent tick box (platform key lead.arrival_note). Waiting-list, consent or data-handling wording (counsel items C1, C2, C4): left in English for af and zu until native review and counsel.
+  ///
+  /// In en, this message translates to:
+  /// **'Separate consent, version {version}. You can leave the list at any time and this choice does not affect your place on it.'**
+  String coverageNotifyArrivalNote(String version);
+
+  /// Submit button of the waiting-list form (platform key lead.submit). Waiting-list, consent or data-handling wording (counsel items C1, C2, C4): left in English for af and zu until native review and counsel.
+  ///
+  /// In en, this message translates to:
+  /// **'Join the waitlist'**
+  String get coverageNotifySubmit;
+
+  /// Shown after the sign-up was accepted (platform key lead.sent with a generic place). Waiting-list, consent or data-handling wording (counsel items C1, C2, C4): left in English for af and zu until native review and counsel.
+  ///
+  /// In en, this message translates to:
+  /// **'Thank you. We will let you know when coverage reaches this place.'**
+  String get coverageNotifySent;
+
+  /// Field error on the waiting-list form for a contact that is not a mobile number or email address.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid mobile number or email address.'**
+  String get coverageNotifyContactInvalid;
+
+  /// Field error on the waiting-list form for an address that is too short.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the address you want coverage at.'**
+  String get coverageNotifyAddressInvalid;
+
+  /// Shown next to the first consent tick box when the form is sent without it (platform key lead.error.consent). Waiting-list, consent or data-handling wording (counsel items C1, C2, C4): left in English for af and zu until native review and counsel.
+  ///
+  /// In en, this message translates to:
+  /// **'Please agree to be contacted so that we can tell you about coverage.'**
+  String get coverageNotifyConsentRequired;
+
+  /// Shown when the platform says the consent text changed; both tick boxes are cleared (platform key lead.error.reconfirm). Waiting-list, consent or data-handling wording (counsel items C1, C2, C4): left in English for af and zu until native review and counsel.
+  ///
+  /// In en, this message translates to:
+  /// **'Our consent text was updated. Please read it and tick the box again to confirm.'**
+  String get coverageNotifyReconfirm;
+
+  /// Shown when a sign-up was sent and its outcome is unknown; trying again reuses the same request. Waiting-list, consent or data-handling wording (counsel items C1, C2, C4): left in English for af and zu until native review and counsel.
+  ///
+  /// In en, this message translates to:
+  /// **'Your last sign-up may not have finished. Try again to be sure: it will not add you twice.'**
+  String get coverageNotifyPending;
+
+  /// Generic error on the waiting-list form.
+  ///
+  /// In en, this message translates to:
+  /// **'We could not save your details. Please try again.'**
+  String get coverageNotifyError;
+
+  /// Button that closes the waiting-list form after a sign-up.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get coverageNotifyDone;
+
+  /// Link under the coverage result that opens the leave-the-list form (platform key lead.withdraw_link). Waiting-list, consent or data-handling wording (counsel items C1, C2, C4): left in English for af and zu until native review and counsel.
+  ///
+  /// In en, this message translates to:
+  /// **'Already on the list and want to leave it?'**
+  String get coverageLeaveLink;
+
+  /// Title of the leave-the-list form (platform key withdraw.title). Waiting-list, consent or data-handling wording (counsel items C1, C2, C4): left in English for af and zu until native review and counsel.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave the coverage waiting list'**
+  String get coverageLeaveTitle;
+
+  /// Intro of the leave-the-list form (platform key withdraw.intro). Waiting-list, consent or data-handling wording (counsel items C1, C2, C4): left in English for af and zu until native review and counsel.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the mobile number or email address you used. If it is on our list we will send a link to that number or address, and only the link can remove it. We do not say whether a number or address is on the list.'**
+  String get coverageLeaveIntro;
+
+  /// Button of the leave-the-list form (platform key withdraw.send). Waiting-list, consent or data-handling wording (counsel items C1, C2, C4): left in English for af and zu until native review and counsel.
+  ///
+  /// In en, this message translates to:
+  /// **'Send me a link'**
+  String get coverageLeaveSend;
+
+  /// Shown after a leave request was accepted; it never says the contact was removed (platform key withdraw.requested). Waiting-list, consent or data-handling wording (counsel items C1, C2, C4): left in English for af and zu until native review and counsel.
+  ///
+  /// In en, this message translates to:
+  /// **'Thank you. If that number or address is on our waiting list, we have sent it a link. The link works once and expires in 24 hours. If nothing arrives, it was not on the list.'**
+  String get coverageLeaveRequested;
+
+  /// Generic error on the leave-the-list form (platform key withdraw.error).
+  ///
+  /// In en, this message translates to:
+  /// **'We could not do that. Please try again in a moment.'**
+  String get coverageLeaveError;
 }
 
 class _AppLocalizationsDelegate

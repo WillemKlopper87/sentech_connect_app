@@ -104,6 +104,16 @@ class CoverageCubit extends Cubit<CoverageState> {
     }
   }
 
+  /// Reads the meta again (the consent text changed, or the dataset moved on) and keeps the screen as it is.
+  Future<void> refreshMeta() async {
+    final result = await _repository.meta(refresh: true);
+    if (isClosed) return;
+    result.match(
+      (_) {},
+      (meta) => emit(CoverageState(status: state.status, point: state.point, check: state.check, meta: meta, failure: state.failure, retryAt: state.retryAt)),
+    );
+  }
+
   /// Checks [lat], [lon] now (a picked address or the phone's location).
   Future<void> checkAt(double lat, double lon) async {
     final generation = _begin(lat, lon);

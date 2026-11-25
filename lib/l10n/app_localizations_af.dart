@@ -3616,4 +3616,105 @@ class AppLocalizationsAf extends AppLocalizations {
 
   @override
   String get coverageNotifyMe => 'Stel my in kennis';
+
+  @override
+  String get coverageNotifyTitle => 'Join the waitlist';
+
+  @override
+  String get coverageNotifyIntro =>
+      'Leave a mobile number or email address and we will contact you when coverage reaches this place.';
+
+  @override
+  String get coverageNotifyContactPhone => 'Selfoonnommer';
+
+  @override
+  String get coverageNotifyContactEmail => 'E-posadres';
+
+  @override
+  String get coverageNotifyPhoneHint => 'Byvoorbeeld 082 123 4567';
+
+  @override
+  String get coverageNotifyEmailHint => 'Byvoorbeeld naam@voorbeeld.com';
+
+  @override
+  String get coverageNotifyAddressHint => 'Die adres waar jy dekking wil hê';
+
+  @override
+  String get coverageNotifyInterest => 'Belangstelling in';
+
+  @override
+  String get coverageInterestAny => 'Enige';
+
+  @override
+  String get coverageNotifyConsent =>
+      'I agree to be contacted about coverage at this address.';
+
+  @override
+  String coverageNotifyConsentNote(String version) {
+    return 'Consent version $version. We use these details only for this purpose and delete them after a year (POPIA).';
+  }
+
+  @override
+  String get coverageNotifyArrivalConsent =>
+      'Also tell me if coverage arrives or improves at this address (optional).';
+
+  @override
+  String coverageNotifyArrivalNote(String version) {
+    return 'Separate consent, version $version. You can leave the list at any time and this choice does not affect your place on it.';
+  }
+
+  @override
+  String get coverageNotifySubmit => 'Join the waitlist';
+
+  @override
+  String get coverageNotifySent =>
+      'Thank you. We will let you know when coverage reaches this place.';
+
+  @override
+  String get coverageNotifyContactInvalid =>
+      'Voer \'n geldige selfoonnommer of e-posadres in.';
+
+  @override
+  String get coverageNotifyAddressInvalid =>
+      'Voer die adres in waar jy dekking wil hê.';
+
+  @override
+  String get coverageNotifyConsentRequired =>
+      'Please agree to be contacted so that we can tell you about coverage.';
+
+  @override
+  String get coverageNotifyReconfirm =>
+      'Our consent text was updated. Please read it and tick the box again to confirm.';
+
+  @override
+  String get coverageNotifyPending =>
+      'Your last sign-up may not have finished. Try again to be sure: it will not add you twice.';
+
+  @override
+  String get coverageNotifyError =>
+      'Ons kon nie jou besonderhede stoor nie. Probeer asseblief weer.';
+
+  @override
+  String get coverageNotifyDone => 'Klaar';
+
+  @override
+  String get coverageLeaveLink => 'Already on the list and want to leave it?';
+
+  @override
+  String get coverageLeaveTitle => 'Leave the coverage waiting list';
+
+  @override
+  String get coverageLeaveIntro =>
+      'Enter the mobile number or email address you used. If it is on our list we will send a link to that number or address, and only the link can remove it. We do not say whether a number or address is on the list.';
+
+  @override
+  String get coverageLeaveSend => 'Send me a link';
+
+  @override
+  String get coverageLeaveRequested =>
+      'Thank you. If that number or address is on our waiting list, we have sent it a link. The link works once and expires in 24 hours. If nothing arrives, it was not on the list.';
+
+  @override
+  String get coverageLeaveError =>
+      'Ons kon dit nie doen nie. Probeer oor \'n oomblik weer.';
 }

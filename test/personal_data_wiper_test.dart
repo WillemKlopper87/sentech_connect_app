@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sentech_connect_app/features/coverage/data/pending_lead_keys.dart';
 import 'package:sentech_connect_app/features/credits/data/pending_redeem_keys.dart';
 import 'package:sentech_connect_app/app/default_personal_data_wiper.dart';
 import 'package:sentech_connect_app/core/storage/secure_store.dart';
@@ -89,5 +90,21 @@ void main() {
     keys.put('acme:cust-1', 50, 'key-bbbbbbbb');
     await expectLater(withKeys.wipeEverything(), throwsStateError);
     expect(keys.pendingFor('acme:cust-1'), isNull);
+  });
+
+  test('sign-out and account deletion forget a pending waiting-list sign-up key, even when another step fails', () async {
+    final keys = PendingLeadKeys()..put('sentech', 1234, 'key-aaaaaaaa');
+    final withKeys = DefaultPersonalDataWiper(
+      registration: _FailingRegistration(store),
+      checkout: checkout,
+      freeWifi: wifi,
+      consent: consent,
+      pendingLeadKeys: keys,
+    );
+    await expectLater(withKeys.wipeOnLogout(), throwsStateError);
+    expect(keys.pendingFor('sentech'), isNull);
+    keys.put('sentech', 1234, 'key-bbbbbbbb');
+    await expectLater(withKeys.wipeEverything(), throwsStateError);
+    expect(keys.pendingFor('sentech'), isNull);
   });
 }

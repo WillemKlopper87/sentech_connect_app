@@ -39,6 +39,7 @@ import 'package:sentech_connect_app/features/catalog_checkout/data/repositories/
 import 'package:sentech_connect_app/features/catalog_checkout/domain/repositories/catalog_repository.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/domain/repositories/checkout_repository.dart';
 import 'package:sentech_connect_app/features/coverage/data/geolocator_device_location.dart';
+import 'package:sentech_connect_app/features/coverage/data/pending_lead_keys.dart';
 import 'package:sentech_connect_app/features/coverage/data/repositories/mock_coverage_repository.dart';
 import 'package:sentech_connect_app/features/coverage/domain/device_location.dart';
 import 'package:sentech_connect_app/features/coverage/domain/repositories/coverage_repository.dart';
@@ -175,6 +176,7 @@ void _registerPlatformServices(CrashReporter? crashReporter) {
   );
   locator.registerLazySingleton<SessionEvents>(() => SessionEvents());
   locator.registerLazySingleton<PendingRedeemKeys>(() => PendingRedeemKeys());
+  locator.registerLazySingleton<PendingLeadKeys>(() => PendingLeadKeys());
   locator.registerLazySingleton<PersonalDataWiper>(
     () => DefaultPersonalDataWiper(
       registration: locator(),
@@ -183,6 +185,7 @@ void _registerPlatformServices(CrashReporter? crashReporter) {
       consent: locator(),
       passes: locator(),
       pendingRedeemKeys: locator(),
+      pendingLeadKeys: locator(),
       onDemoReset: locator<AppEnvironment>().isDemo ? () => (locator<CreditsRepository>() as MockCreditsRepository).reset() : null,
     ),
   );

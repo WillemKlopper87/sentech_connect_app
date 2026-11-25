@@ -40,6 +40,7 @@ import 'package:sentech_connect_app/features/catalog_checkout/presentation/bloc/
 import 'package:sentech_connect_app/features/catalog_checkout/presentation/pages/checkout_page.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/presentation/pages/confirmation_page.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/presentation/pages/payment_page.dart';
+import 'package:sentech_connect_app/features/coverage/domain/repositories/coverage_repository.dart';
 import 'package:sentech_connect_app/features/coverage/presentation/bloc/address_search_cubit.dart';
 import 'package:sentech_connect_app/features/coverage/presentation/bloc/coverage_cubit.dart';
 import 'package:sentech_connect_app/features/coverage/presentation/bloc/location_cubit.dart';
@@ -413,15 +414,18 @@ GoRouter _buildRouter(
       ),
       GoRoute(
         path: AppRoutes.coverage,
-        builder: (context, state) => MultiBlocProvider(
-          providers: [
-            BlocProvider(create: (_) => CoverageCubit(locator())),
-            BlocProvider(create: (_) => AddressSearchCubit(locator())),
-            BlocProvider(create: (_) => LocationCubit(locator())),
-          ],
-          child: CoveragePage(
-            onCovered: () => context.go(AppRoutes.main),
-            onSkip: () => context.go(AppRoutes.main),
+        builder: (context, state) => RepositoryProvider<CoverageRepository>.value(
+          value: locator<CoverageRepository>(),
+          child: MultiBlocProvider(
+            providers: [
+              BlocProvider(create: (_) => CoverageCubit(locator())),
+              BlocProvider(create: (_) => AddressSearchCubit(locator())),
+              BlocProvider(create: (_) => LocationCubit(locator())),
+            ],
+            child: CoveragePage(
+              onCovered: () => context.go(AppRoutes.main),
+              onSkip: () => context.go(AppRoutes.main),
+            ),
           ),
         ),
       ),
