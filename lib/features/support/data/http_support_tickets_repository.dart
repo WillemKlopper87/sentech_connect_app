@@ -36,8 +36,14 @@ class HttpSupportTicketsRepository implements SupportTicketsRepository {
   /// The server's own pattern for a reference (`^[A-Z]{3}-[A-Z0-9]{8}$`).
   static final _reference = RegExp(r'^[A-Z]{3}-[A-Z0-9]{8}$');
 
-  Failure _unavailable(Failure failure) {
+  /// [routeIsFeature] is true for the routes whose plain 404 can only mean "this server has no ticket routes"
+  /// (list, categories, create): the entry is then hidden at once, as for a 409 `feature_disabled`, and the
+  /// Help tab goes back to the one-way form. A plain 404 on one thread, reply or close is not a missing feature.
+  Failure _unavailable(Failure failure, {bool routeIsFeature = false}) {
     if (failure is FeatureDisabledFailure) _onModuleRefused?.call('tickets');
+    if (routeIsFeature && failure is NotFoundFailure && failure is! TicketNotFoundFailure && failure is! OrderNotFoundFailure) {
+      _onModuleRefused?.call('tickets');
+    }
     return switch (failure) {
       // A typed "no such ticket" is the customer's own answer; any other 404 is a server without the routes.
       TicketNotFoundFailure() => failure,
@@ -58,7 +64,7 @@ class HttpSupportTicketsRepository implements SupportTicketsRepository {
       scope: await _api.captureScope(),
       decode: (data) => ticketCategoriesFromJson(_object(data)),
     );
-    return result.mapLeft(_unavailable);
+    return result.mapLeft((f) => _unavailable(f, routeIsFeature: true));
   }
 
   @override
@@ -69,7 +75,7 @@ class HttpSupportTicketsRepository implements SupportTicketsRepository {
       scope: await _api.captureScope(),
       decode: (data) => ticketPageFromJson(_object(data)),
     );
-    return result.mapLeft(_unavailable);
+    return result.mapLeft((f) => _unavailable(f, routeIsFeature: true));
   }
 
   @override
@@ -101,7 +107,7 @@ class HttpSupportTicketsRepository implements SupportTicketsRepository {
         return reference;
       },
     );
-    return result.mapLeft(_unavailable);
+    return result.mapLeft((f) => _unavailable(f, routeIsFeature: true));
   }
 
   @override

@@ -204,6 +204,25 @@ void main() {
       await _disposeApp(tester);
     });
 
+    testWidgets('Report an issue on the dashboard opens a new ticket when ticketing is on', (tester) async {
+      final tenant = await _tenant(modules: {'tickets': true}, ticketingFlag: true);
+      await pumpRouter(tester, tenant, AppRoutes.main);
+      await tester.tap(find.text('Report issue'));
+      await tester.pumpAndSettle();
+      expect(appRouter.router.state.uri.path, AppRoutes.ticketsNew);
+      await _disposeApp(tester);
+    });
+
+    testWidgets('Report an issue on the dashboard is the one-way form when ticketing is off', (tester) async {
+      final tenant = await _tenant(modules: {'tickets': false}, ticketingFlag: true);
+      await pumpRouter(tester, tenant, AppRoutes.main);
+      await tester.tap(find.text('Report issue'));
+      await tester.pumpAndSettle();
+      expect(appRouter.router.state.uri.path, AppRoutes.main);
+      expect(find.text('Send message'), findsOneWidget);
+      await _disposeApp(tester);
+    });
+
     testWidgets('Account has the My tickets row only when ticketing is on', (tester) async {
       final tenant = await _tenant(modules: {'tickets': true}, ticketingFlag: true);
       await pumpRouter(tester, tenant, AppRoutes.main);

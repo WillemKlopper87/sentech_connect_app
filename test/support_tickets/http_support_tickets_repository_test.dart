@@ -119,7 +119,9 @@ void main() {
     expect(_failure(await repo.get(_ref)), isA<TicketsNotAvailableFailure>());
     expect(_failure(await repo.create(categoryKey: 'a', body: 'x', idempotencyKey: _key)), isA<TicketsNotAvailableFailure>());
     expect(_failure(await repo.reply(_ref, body: 'x', idempotencyKey: _key)), isA<TicketsNotAvailableFailure>());
-    expect(refused, isEmpty, reason: 'an older server is not a switched-off provider');
+    // A missing route on list, categories and create hides the entry at once (the Help tab flips back to the old form);
+    // a plain 404 on one thread is not a missing feature.
+    expect(refused, ['tickets', 'tickets', 'tickets']);
   });
 
   test('feature_off_and_module_off_are_unavailable_and_409_hides_the_entry', () async {
