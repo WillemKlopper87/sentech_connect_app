@@ -356,3 +356,30 @@ Read from the platform code at `f58b00cf` (`apps/api/src/sentech_api/modules/sup
 **Platform follow-ups:** (1) the customer thread has no `is_closed` or `can_reply` flag: the app derives it from `status == closed`; (2) there is no per-ticket "last support reply" time, so the list shows `updated_at` only; (3) the hourly limits are only visible on the 429: the app cannot show how many are left; (4) nothing links to the incident route from the platform's own site yet; (5) create returns only the `reference`: returning the ticket header too would save the app a second read; (6) the contact form becomes a ticket (`SUP-`) on a provider with ticketing on, but the form has no session, so it is never tied to the customer and never shows under My tickets: say so to customers or add a link when signed in.
 
 Not verified against a running backend: nothing in this section was run against the real platform, and the screens were not run on a device.
+
+## Checking for drift
+
+Before syncing the snapshot, ask what the platform's newer contract would do to the app:
+
+```
+dart run tool/check_contract_drift.dart ../sentech_connect_platform/apps/api/openapi.json
+dart run tool/check_contract_drift.dart <file> --json      # same findings as JSON
+dart run tool/check_contract_drift.dart <file> --snapshot <saved.json> --manifest <manifest.json>
+```
+
+It compares the saved snapshot (`test/contract/openapi.json`) with the given platform file for the operations the app calls, listed in `test/contract/used_operations.json`. Exit code 0 means no BREAKING finding, 1 means at least one, 64 means a usage or input error (missing or invalid file, unknown option). Output is sorted, so two runs on the same files are identical.
+
+- **BREAKING** (exit 1): a used operation removed; a new required parameter (query, path, header) or a parameter that became required; a new required request-body field or a field that became required; a request enum value removed; a response field removed (any field of the 2xx JSON response counts as read, which is conservative); a request or response type changed (including a type added or dropped, such as `null`).
+- **RISK** (exit 0): an enum value added to a response enum. The app's parsers are mostly lenient (an unknown value maps to an "unknown" case), so this is not breaking, but the tool cannot tell which parsers decode strictly: check those. Also a request field removed from the schema (a body that forbids extra fields would now reject it).
+- **ADDITIVE** (exit 0): new optional parameters, request or response fields, and new request enum values on used operations.
+- **NEW CUSTOMER-FACING ROUTES**: operations in the platform file that are not in the snapshot and not used by the app, for any non-admin, non-platform path (`/v1/me`, `/v1/public`, `/v1/coverage`, `/v1/support`, `/v1/geocode`, `/v1/leads`, `/v1/hotspots`, and so on). `/v1/admin`, `/v1/platform`, `/v1/payments`, `/v1/pay` and `/v1/webhooks` are never listed.
+
+**The manifest.** `test/contract/used_operations.json` is the list of `{method, path}` the app calls (path as an OpenAPI template, for example `/v1/orders/{order_id}/cancel`). `test/contract/used_operations_test.dart` keeps it honest: every string literal in `lib/` that starts with `/v1/` must be in the manifest (interpolations such as `${Uri.encodeComponent(id)}` and OpenAPI `{name}` both normalise to `{}`), every manifest path must be called from `lib/`, and every operation must exist in the saved snapshot. To update it: add the line (method in lower case, entries sorted by path then method) when you add a repository call, remove it when you remove one. Limits of the extraction: the HTTP method is not extracted from the code, only the path, so the method comes from the manifest and is checked against the snapshot; a path built as a constant plus a suffix (the ticket thread and `unlock-orders` routes) is not a literal, so its entry carries `"composed": true` and the test requires a literal prefix for it; a path that is not in the platform contract at all (the dev payment simulator) is listed under `outsideContract`. A path assembled from several variables with no `/v1/` literal would not be seen. Parameter names in a template count: a platform rename such as `{order_id}` to `{id}` shows as the operation removed.
+
+**Not covered.** The tool reads the contract, not the app: it cannot know which response fields a decoder really reads, which enum parsers are strict, or behaviour (status codes, error problem types, rate limits). Response status codes and error bodies are not compared. Fixtures and decoders are still checked by `openapi_contract_test.dart` after a sync.
+
+**Where it runs.** Hosted CI is blocked for this repository, so this is a local check: run it before every `tool/sync_openapi.dart`, read the report, fix the app for anything BREAKING (or agree the change with the platform), then sync and commit the snapshot with the model changes. If hosted CI is available later, an optional step (text only, no workflow is changed here) would check out the platform repo, run `dart run tool/check_contract_drift.dart <platform>/apps/api/openapi.json`, and fail the job on exit code 1.
+
+**Tests.** `test/contract/check_contract_drift_test.dart` runs the tool on small documents in `test/contract/drift_fixtures/` (one per detection: removed operation, new required parameter, new required body field, removed response field, changed type, removed request enum value, added response enum value, new optional field, new customer route, new admin route, unchanged, bad input), on the snapshot against itself (no BREAKING), and, when `C:\tmp\g6\apps\api\openapi.json` exists, on that older platform copy (must not crash; skipped otherwise).
+
+**Last run, 26 November 2026**, platform `bec7a9b4` (`apps/api/openapi.json`, 555 paths) against the saved snapshot (548 paths): 60 used operations checked; BREAKING 0, RISK 0, ADDITIVE 0, new customer-facing routes 0 (exit 0). The platform's 8 new operations since the snapshot are all under `/v1/admin` (stock capture) and are not listed.
