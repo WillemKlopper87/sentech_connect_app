@@ -69,3 +69,48 @@
 - Spec coverage: customer routes (tasks 2 to 4), incidents (tasks 2, 3, 4), gating and the contact-form fallback (task 5), privacy and idempotency (global constraints, tasks 2, 3, 5), copy (task 6).
 - Not covered on purpose: attachments, push notifications for replies (the platform has no device-token route), the router tools on a ticket (staff only), live updates.
 - Risks for the builder: the body and category limits and exact problem codes (read the server code), whether the contact form is also a ticket source when ticketing is on (the runbook says the public form becomes a ticket instead of the old email: keep the old form call working and say so), and the flag/module names in the app config.
+
+## Build notes (2026-11-26, branch `feat/app-tickets`, from `feat/app-cv17`; contract snapshot platform `f58b00cf`)
+
+Built by the Sonnet builder; independent review and the owner's approval are still to come. Nothing is pushed. Not run against a live server, a real provider or a device: every test uses fakes and the fake HTTP adapter.
+
+### Built (one commit per task, each test written and run RED first)
+
+| Task | Commit subject | What |
+|---|---|---|
+| 1 | domain and lenient parsing | `Ticket`, `TicketThread`, `TicketMessage`, `TicketCategory`, `TicketPage`, `Incident`; unknown status, author, severity decode to `unknown`; unreadable rows skipped; staff fields never kept |
+| 2 | HTTP repository, typed failures, contract notes | `HttpSupportTicketsRepository`; `TicketsNotAvailableFailure`, `TicketNotFoundFailure`, `TicketClosedFailure`, `TicketAlreadyResolvedFailure`, `TicketChangedFailure`, `TicketCategoryGoneFailure`; `PiiScrubber` masks a reference in a logged path; five fixtures and a contract group checked against the snapshot; `docs/BACKEND_CONTRACT_SYNC.md` section |
+| 3 | cubits | `TicketsCubit`, `NewTicketCubit`, `TicketThreadCubit`, `IncidentsCubit`, `KeyedAttempt` (the one-key rule), `PendingTicketKeys` |
+| 4 | screens and strings | `TicketsPage`, `NewTicketPage`, `TicketThreadPage`, `IncidentNoticeCard`, status chip; 61 en, af, zu keys (the af and zu strings are machine drafts) and the typed failure copy |
+| 5 | gating, entries, mock, wiper | `ticketsOn`, `FeatureFlags.ticketing`, routes `/support/tickets`, `/support/tickets/new`, `/support/tickets/:reference`, Help and Account entries, `MockSupportTicketsRepository` (demo only), locator and wiper wiring |
+| 6 | docs and language guard | `docs/L10N_NEEDS_NATIVE_REVIEW.md` section, README row, `tickets_l10n_test.dart` |
+
+### Deviations from the plan, with reasons
+
+1. **Repository methods return `Either<Failure, T>`**, not bare futures, as every other repository in the app does (typed failures, no throwing).
+2. **Author type is `you` or `support`** (`TicketAuthor`), not `customer, staff, unknown`: that is all the customer route sends (`MyMessageOut.author`). A message `body` is nullable (retention removes the text after 365 days), shown as "no longer available".
+3. **The category key is a slug string**; the plan's `categoryKey, categoryName` map to `category` and `category_name`.
+4. **Help tab:** with ticketing on, "New ticket" and "My tickets" REPLACE the one-way "Submit a ticket" button on the Help tab (two similar buttons would confuse). The one-way form is unchanged and still reachable from the dashboard's "report an issue" and the account contact sheet; with ticketing off the Help tab is exactly the old page. An assumption for the owner to confirm.
+5. **`PendingTicketKeys` stores a key plus a one-way 64-bit fingerprint** of the category and text (FNV-1a), never the text. The coverage holder deliberately stores no fingerprint; here it is needed so that a CHANGED text after an unknown outcome is detected on a screen opened later (reopen after a lost answer) and is never sent under the old key. It lives in memory only and is wiped on sign-out and erase.
+6. **Drafts live in the page's text field, not in a cubit.** The cubits receive the text per `submit` or `reply` and never hold it, which makes "never persisted, cleared on success" checkable (state, holder and SharedPreferences are asserted free of the text).
+7. **Strings were added with the screens (task 4)**, not in task 6, because the screens need them to compile; task 6 added the review list, the README row and the guard test.
+8. **`SupportCubit` no longer emits after close** (a one-line `isClosed` guard): the new "ticketing switched off mid-session" test exposed it.
+9. **The optional order link** is in the repository (`orderId`) but no screen offers it (the app has no order picker for it in this slice).
+
+### Assumptions (owner to confirm)
+
+- The `ticketing` flag is required alongside the module even though the runbook says the module decides while the kill switch is on: the task says the gate is both. A deployment with the kill switch off therefore hides the entry even if the plan has the module.
+- A new ticket does not carry the customer's text into any route; the thread route carries only the reference (not personal text), so a thread can be reopened from a link.
+- Wait text after a 429 is shown as seconds or minutes from the server's `Retry-After`; without the header the wait is one minute.
+
+### NOT built
+
+Attachments, push notifications for replies (no device-token route), router or Wi-Fi actions, live polling (the thread is read on open and on pull), deep links to a ticket from outside the app, escalation (staff only), the order picker, a site-specific incident filter (the cubit takes a `siteId` but the Help tab passes none), "x of 5 tickets used" (the platform does not expose it).
+
+### Test counts
+
+Full `flutter test` (about 1 minute on this machine, run once at the end): 2,517 passed, 1 skipped (baseline 2,387 passed, 1 skipped; +130). `flutter analyze`: no issues. New tests live in `test/support_tickets/` (json, HTTP repository, cubits, pages, mock, gate, language guard) plus additions to `test/contract/openapi_contract_test.dart`, `test/locator_test.dart` and `test/personal_data_wiper_test.dart`. A mutation of the key rule (always a new key) made the key-reuse cubit tests fail, confirming they bite.
+
+### Not verified
+
+Nothing was run against a live server, a real provider or a device. The 429 hold, the idempotent replay, the retention behaviour and every problem code were checked against the platform source at `f58b00cf` and against fakes only.
