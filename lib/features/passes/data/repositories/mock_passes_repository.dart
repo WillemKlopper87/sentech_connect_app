@@ -6,12 +6,15 @@ import 'package:sentech_connect_app/features/passes/domain/repositories/passes_r
 
 /// Demo flavor: one active Day Pass and, when asked, one expired pass.
 class MockPassesRepository implements PassesRepository {
-  MockPassesRepository({DateTime Function()? now, SimulatedNetwork? network})
+  MockPassesRepository({DateTime Function()? now, SimulatedNetwork? network, this._extraPasses})
     : _now = now ?? DateTime.now,
       _network = network ?? SimulatedNetwork();
 
   final DateTime Function() _now;
   final SimulatedNetwork _network;
+
+  /// Passes created elsewhere in the demo (a pack bought with credits), listed after the fixed ones.
+  final List<Pass> Function()? _extraPasses;
 
   @override
   Future<Either<Failure, PassLoad>> getPassLoad({
@@ -53,6 +56,7 @@ class MockPassesRepository implements PassesRepository {
       speedKbps: 10240,
       maxDevices: 1,
     );
-    return Right(includeExpired ? [active, expired] : [active]);
+    final extra = _extraPasses?.call() ?? const <Pass>[];
+    return Right(includeExpired ? [active, ...extra, expired] : [active, ...extra]);
   }
 }

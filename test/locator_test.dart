@@ -5,10 +5,13 @@ import 'package:sentech_connect_app/features/catalog_checkout/domain/repositorie
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sentech_connect_app/app/locator.dart';
 import 'package:sentech_connect_app/core/config/app_environment.dart';
 import 'package:sentech_connect_app/core/network/api_client.dart';
+import 'package:sentech_connect_app/core/local/personal_data_wiper.dart';
 import 'package:sentech_connect_app/core/network/auth_tokens.dart';
+import 'package:sentech_connect_app/features/passes/domain/repositories/passes_repository.dart';
 import 'package:sentech_connect_app/features/auth/data/repositories/http_auth_repository.dart';
 import 'package:sentech_connect_app/features/auth/domain/repositories/auth_repository.dart';
 import 'package:sentech_connect_app/features/credits/data/http_credits_repository.dart';
@@ -148,6 +151,21 @@ void main() {
     setupLocator();
     registerTestFakes();
     expect(locator<CreditsRepository>(), isA<MockCreditsRepository>());
+  });
+
+  test('in demo a redeemed pack shows in My passes and signing out resets the demo wallet', () async {
+    SharedPreferences.setMockInitialValues({});
+    setupLocator();
+    registerTestFakes();
+    final credits = locator<CreditsRepository>();
+    final passes = locator<PassesRepository>();
+    final before = (await passes.getPasses()).getOrElse((_) => []).length;
+    await credits.redeem(credits: 50, idempotencyKey: 'key-aaaaaaaa');
+    expect((await passes.getPasses()).getOrElse((_) => []).length, before + 1);
+    expect((await credits.summary()).getOrElse((_) => throw StateError('x')).available, 100);
+    await locator<PersonalDataWiper>().wipeOnLogout();
+    expect((await credits.summary()).getOrElse((_) => throw StateError('x')).available, 150);
+    expect((await passes.getPasses()).getOrElse((_) => []).length, before);
   });
 
   test('prod_flavor_never_registers_the_mock_credits_repository', () {

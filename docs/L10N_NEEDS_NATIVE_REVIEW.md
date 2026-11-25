@@ -409,6 +409,8 @@ Plans and signup (slice S5, 2026-10-30). Machine-quality drafts, native review b
 
 Credits (rewards), slice G7, 2026-11-25. Machine-quality drafts, native review before release. The English text is the source of truth for the server's plain-words refusals.
 
+**Consumer terms, need native review AND legal sign-off before the af/zu release:** `creditsTermsLine` ("credits are not cash and expire after N days"), `creditsHowBody` (the same terms plus the data rate and the Johannesburg day rule), `creditsExpiringBanner`, `creditsFrozenNotice`, `creditsPausedNotice`, `creditsInactiveNotice`, `creditsMonthlyLimitNotice` and the three `creditsCheckInCapped*` sentences. They tell the customer what credits are and are not; a machine draft must not ship as the legal wording.
+
 Terms a native reviewer should settle first: "Rewards" (af Belonings, zu Amabhonasi), "credits" (af krediete, zu amakhredithi), "check-in" (af inklokslag, zu ukungena), "streak" (af reeks, zu uchungechunge), "freeze" (af bevriesing, zu ukuqandisa), "on hold" (af aan die hou, zu amiswe). Plural forms (`creditsAmount`, `creditsDaysCount`, `creditsCheckInFreezeUsed`) need a check for isiZulu noun classes. The frozen, paused and limit sentences are plain-words explanations; they must stay accurate about what the customer can do next.
 
 | Key | English | Afrikaans | isiZulu |

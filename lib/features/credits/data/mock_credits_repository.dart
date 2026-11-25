@@ -75,6 +75,22 @@ class MockCreditsRepository implements CreditsRepository {
   final _claimByKey = <String, ClaimResult>{};
   var _nextEntryId = 1000;
 
+  /// The passes bought with credits, for the demo My passes list (see `MockPassesRepository`).
+  List<Pass> get redeemedPasses => List.unmodifiable(_redeemByKey.values);
+
+  /// Back to the starting wallet: what signing out does to the demo. Keys used before are forgotten.
+  void reset() {
+    _available = 150;
+    _run = 6;
+    _best = 9;
+    _total = 21;
+    _claimedDay = null;
+    _entries.clear();
+    _redeemByKey.clear();
+    _claimByKey.clear();
+    _nextEntryId = 1000;
+  }
+
   bool get _frozen => scenario == CreditsScenario.frozen;
 
   String get _today => formatApiDate(sastDay(_now()));

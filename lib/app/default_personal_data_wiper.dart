@@ -20,7 +20,9 @@ class DefaultPersonalDataWiper implements PersonalDataWiper {
     required this._consent,
     PassLocalStore? passes,
     PendingRedeemKeys? pendingRedeemKeys,
-  }) : _passes = passes,
+    void Function()? onDemoReset,
+  }) : _onDemoReset = onDemoReset,
+       _passes = passes,
        _pendingRedeemKeys = pendingRedeemKeys;
 
   final RegistrationRepository _registration;
@@ -30,6 +32,9 @@ class DefaultPersonalDataWiper implements PersonalDataWiper {
   final PassLocalStore? _passes;
   final PendingRedeemKeys? _pendingRedeemKeys;
 
+  /// Demo flavor only: puts the in-memory demo wallet back (the real wallet lives on the server).
+  final void Function()? _onDemoReset;
+
   @override
   Future<void> wipeOnLogout() => _runAll([
     _registration.clear,
@@ -37,6 +42,7 @@ class DefaultPersonalDataWiper implements PersonalDataWiper {
     if (_passes case final passes?) passes.clearPersonalData,
     // In-memory only: a pending credits redeem key must not outlive the session.
     if (_pendingRedeemKeys case final keys?) () async => keys.clear(),
+    if (_onDemoReset case final reset?) () async => reset(),
     // Drops the active grant but keeps the daily ad counter, so logging
     // out and back in cannot be used to reset the free-WiFi cap.
     () => _freeWifi.reset(),

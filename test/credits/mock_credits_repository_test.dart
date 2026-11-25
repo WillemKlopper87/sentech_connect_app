@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:sentech_connect_app/core/error/failure.dart';
 import 'package:sentech_connect_app/features/credits/data/mock_credits_repository.dart';
+import 'package:sentech_connect_app/features/passes/data/repositories/mock_passes_repository.dart';
 
 T _ok<T>(Either<Failure, T> either) => either.getOrElse((f) => throw StateError(f.message));
 
@@ -57,5 +58,23 @@ void main() {
     expect(capped.cappedBy, 'overall_monthly');
     expect(capped.credits, 0);
     expect(_failure(await _repo(CreditsScenario.notAvailable).summary()), isA<CreditsNotAvailableFailure>());
+  });
+
+  test('the redeemed pass appears in the demo passes list, and a reset (sign-out) takes it and the spend away', () async {
+    final repo = _repo();
+    final passes = MockPassesRepository(extraPasses: () => repo.redeemedPasses);
+    expect(_ok(await passes.getPasses()), hasLength(1));
+    final pass = _ok(await repo.redeem(credits: 50, idempotencyKey: 'key-aaaaaaaa'));
+    final listed = _ok(await passes.getPasses());
+    expect(listed.map((p) => p.id), contains(pass.id));
+    expect(listed, hasLength(2));
+    await repo.claimToday(idempotencyKey: 'key-bbbbbbbb');
+    repo.reset();
+    expect(_ok(await repo.summary()).available, 150);
+    expect(_ok(await repo.streak()).claimedToday, isFalse);
+    expect(_ok(await passes.getPasses()), hasLength(1));
+    // A key used before the reset is not remembered: it spends again, as a fresh account would.
+    _ok(await repo.redeem(credits: 50, idempotencyKey: 'key-aaaaaaaa'));
+    expect(_ok(await repo.summary()).available, 100);
   });
 }

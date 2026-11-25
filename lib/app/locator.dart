@@ -180,6 +180,7 @@ void _registerPlatformServices(CrashReporter? crashReporter) {
       consent: locator(),
       passes: locator(),
       pendingRedeemKeys: locator(),
+      onDemoReset: locator<AppEnvironment>().isDemo ? () => (locator<CreditsRepository>() as MockCreditsRepository).reset() : null,
     ),
   );
 }
@@ -234,7 +235,10 @@ void _registerDemoRepositories() {
     () => MockCatalogRepository(locator()),
   );
   locator.registerLazySingleton<PassesRepository>(
-    () => MockPassesRepository(network: locator()),
+    () => MockPassesRepository(
+      network: locator(),
+      extraPasses: () => (locator<CreditsRepository>() as MockCreditsRepository).redeemedPasses,
+    ),
   );
   locator.registerLazySingleton<CheckoutRepository>(
     () => MockCheckoutRepository(locator(), network: locator()),
