@@ -84,3 +84,17 @@
 
 - Spec coverage: result v2 (tasks 1, 4), address lookup and geocode (tasks 2, 3), leads, consent and withdrawal (task 5), privacy and gating (global constraints, tasks 2, 6), copy (task 7). Not covered on purpose: staff counter coverage (platform only), embed and print (web only), the tile layer if it needs a dependency decision (reported, not forced).
 - Risks for the builder: the tile layer and map stack, whether `check` requires `tenant`, and which problem codes the lead routes return (read the platform routers first).
+
+## Build notes (2026-11-26)
+
+**Built (tasks 1 to 7, commits 3ad78fb, 32b62ab, 177b30f, 826ada1, f4f89a0, 87ddcc0, ced5e50):** v2 entities and lenient parsing; `HttpCoverageRepository` (check, meta cache, capabilities, address search with POST address or older GET, leads, withdrawal request) with typed failures; `CoverageCubit`, `AddressSearchCubit`, `LocationCubit` (generation guards, debounce, bounds from meta, Retry-After countdown); the screen with search, pin drop on the existing base map, my-location behind the OS prompt, skip button; option cards, notices and data footer; `NotifyCubit`/`NotifyMeSheet` (two separate unticked consents, one key per attempt, `PendingLeadKeys` in memory, wiped on sign-out), `WithdrawalCubit`/`LeaveListSheet` (never claims removal); locator (prod HTTP, demo mock, test fails if prod gets the mock); en/af/zu strings, native-review lists and a guard test; contract fixtures and docs.
+
+**Tests:** full `flutter test` 2,371 passed, 1 skipped (baseline 2,206 + 165); `flutter analyze` no issues. Not run on a device or against a server.
+
+**Deviations:** (1) the mock rewrite moved from task 6 to task 3 so every commit keeps a working demo flow; its tests came with it. (2) The platform's vector tile layer is NOT drawn (needs a vector-tile package: owner decision); pin drop on the existing base map instead. (3) Timeouts share `NetworkFailure` (the app's existing mapping) instead of a separate Timeout type. (4) `addressLookupAvailable` returns `Either<Failure,bool>` like the other repositories. (5) Task 3 page tests and task 4 card tests were written after the code they cover (cubit, repository, notify and locator tests were red first; the page tests were mutation-checked). (6) A speed range is shown only when the response carries both a band and the range; the direction line shows on every covered option and on a planned option only when the basis is not downlink.
+
+**Assumptions:** meta cached 10 minutes per provider and dropped on another dataset version; 350 ms map-tap and 450 ms search debounce; 30 s wait when 429 has no Retry-After; a check with `dataset_version` null and no options is "not available"; the cooling-off notice is the platform's DRAFT text.
+
+**Not built:** vector coverage layer; deep link to complete a withdrawal; offline cache; technology filter chips, print, share, embed and palette toggle (web only); `audited_figures` table; staff counter checks; real af/zu copy.
+
+**Release blockers/open:** cooling-off text is a DRAFT (counsel C1); consent and leave wording is counsel-gated; af/zu are machine drafts or English.
