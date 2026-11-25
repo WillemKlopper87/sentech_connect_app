@@ -30,6 +30,7 @@ class AccountPage extends StatelessWidget {
     this.onChangeProvider,
     this.providerName,
     this.onOpenPasses,
+    this.onOpenRewards,
   });
 
   final VoidCallback? onChangeProvider;
@@ -37,6 +38,9 @@ class AccountPage extends StatelessWidget {
 
   /// Opens the customer passes. The row is hidden without it.
   final VoidCallback? onOpenPasses;
+
+  /// Opens Rewards. The row is hidden without it (provider has credits off).
+  final VoidCallback? onOpenRewards;
 
   @override
   Widget build(BuildContext context) {
@@ -61,6 +65,7 @@ class AccountPage extends StatelessWidget {
           onChangeProvider: onChangeProvider,
           providerName: providerName,
           onOpenPasses: onOpenPasses,
+          onOpenRewards: onOpenRewards,
         ),
       ),
     );
@@ -72,11 +77,13 @@ class _AccountView extends StatelessWidget {
     this.onChangeProvider,
     this.providerName,
     this.onOpenPasses,
+    this.onOpenRewards,
   });
 
   final VoidCallback? onChangeProvider;
   final String? providerName;
   final VoidCallback? onOpenPasses;
+  final VoidCallback? onOpenRewards;
 
   /// Language codes, empty meaning "match the device".
   String _languageName(BuildContext context, String code) => switch (code) {
@@ -186,6 +193,17 @@ class _AccountView extends StatelessWidget {
                         title: Text(l10n.passesTitle),
                         trailing: const Icon(Icons.chevron_right),
                         onTap: openPasses,
+                      ),
+                      const Divider(height: 1),
+                    ],
+                    if (onOpenRewards case final openRewards?) ...[
+                      ListTile(
+                        key: const Key('account-rewards-row'),
+                        minTileHeight: 48,
+                        leading: const Icon(Icons.card_giftcard_outlined),
+                        title: Text(l10n.creditsTitle),
+                        trailing: const Icon(Icons.chevron_right),
+                        onTap: openRewards,
                       ),
                       const Divider(height: 1),
                     ],

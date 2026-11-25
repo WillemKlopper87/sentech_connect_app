@@ -16,6 +16,8 @@ class MockTenantRepository implements TenantRepository {
     minAppVersion: '1.0.0',
     featureFlags: FeatureFlags.demo,
     legal: LegalVersions(terms: '2026-09-30', privacy: '2026-09-30'),
+    // Scan stays visible as before, and the demo shows Rewards (mock data).
+    modules: AppModules({AppModuleKeys.vouchers: true, AppModuleKeys.credits: true}),
   );
 
   final SimulatedNetwork _network;

@@ -80,7 +80,7 @@ class _MissionCard extends StatelessWidget {
             Text(status, key: Key('credits-mission-status-${mission.key}')),
             const SizedBox(height: 2),
             Text(
-              mission.window == 'monthly' ? l10n.creditsMissionMonthly : l10n.creditsMissionOnce,
+              missionWindowText(l10n, mission.window),
               style: theme.textTheme.bodySmall,
             ),
           ],

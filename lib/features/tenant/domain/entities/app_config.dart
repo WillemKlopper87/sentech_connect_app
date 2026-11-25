@@ -10,11 +10,19 @@ class FeatureFlags extends Equatable {
     required this.cpe,
     this.vouchers = false,
     this.hotspotRadius = false,
+    this.credits = false,
   });
 
   /// Demo flavor: hotspot passes lead; router/CPE content stays off, as at
   /// launch (RICA stays on for the physical-product demo flow).
-  static const demo = FeatureFlags(hotspotPasses: true, rica: true, cpe: false, vouchers: true, hotspotRadius: true);
+  static const demo = FeatureFlags(
+    hotspotPasses: true,
+    rica: true,
+    cpe: false,
+    vouchers: true,
+    hotspotRadius: true,
+    credits: true,
+  );
 
   final bool hotspotPasses;
   final bool rica;
@@ -22,12 +30,17 @@ class FeatureFlags extends Equatable {
   final bool vouchers;
   final bool hotspotRadius;
 
+  /// The rewards (credits) flag. Absent or anything but `true` is OFF, so an
+  /// older server, which does not send it, never shows rewards.
+  final bool credits;
+
   factory FeatureFlags.fromJson(Map<String, Object?> json) => FeatureFlags(
         hotspotPasses: json['hotspot_passes'] == true,
         rica: json['rica'] == true,
         cpe: json['cpe'] == true,
         vouchers: json['vouchers'] == true,
         hotspotRadius: json['hotspot_radius'] == true,
+        credits: json['credits'] == true,
       );
 
   Map<String, Object?> toJson() => {
@@ -36,10 +49,11 @@ class FeatureFlags extends Equatable {
         'cpe': cpe,
         'vouchers': vouchers,
         'hotspot_radius': hotspotRadius,
+        'credits': credits,
       };
 
   @override
-  List<Object?> get props => [hotspotPasses, rica, cpe, vouchers, hotspotRadius];
+  List<Object?> get props => [hotspotPasses, rica, cpe, vouchers, hotspotRadius, credits];
 }
 
 /// Module keys, as named in the platform catalog (`plan_modules/catalog.py`).

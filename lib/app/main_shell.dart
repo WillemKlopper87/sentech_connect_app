@@ -39,6 +39,7 @@ class MainShell extends StatefulWidget {
     required this.onOpenPromotions,
     required this.onFindHotspots,
     this.onOpenPasses,
+    this.onOpenRewards,
     this.showMockFeatures = true,
     this.showPromotions,
     this.showFreeWifi,
@@ -52,6 +53,9 @@ class MainShell extends StatefulWidget {
   final VoidCallback onOpenPromotions;
   final VoidCallback onFindHotspots;
   final VoidCallback? onOpenPasses;
+
+  /// Opens Rewards; null when the provider has credits off (no entry then).
+  final VoidCallback? onOpenRewards;
 
   /// Support tickets and free Wi-Fi (and the hotspot finder) are backed by
   /// mock repositories until real APIs exist: shown in demo only, never prod.
@@ -226,6 +230,7 @@ class _MainShellState extends State<MainShell> {
           onChangeProvider: widget.onChangeProvider,
           providerName: widget.providerName,
           onOpenPasses: widget.onOpenPasses,
+          onOpenRewards: widget.onOpenRewards,
         ),
         dest: NavigationDestination(
           icon: Icon(Icons.person_outline),

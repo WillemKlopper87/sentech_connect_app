@@ -8,6 +8,19 @@ import 'package:go_router/go_router.dart';
 import 'package:sentech_connect_app/app/locator.dart';
 import 'package:sentech_connect_app/app/mock_feature_guard.dart';
 import 'package:sentech_connect_app/features/tenant/domain/entities/app_config.dart';
+import 'package:sentech_connect_app/features/credits/credits_gate.dart';
+import 'package:sentech_connect_app/features/credits/domain/repositories/credits_repository.dart';
+import 'package:sentech_connect_app/features/credits/presentation/bloc/credits_cubit.dart';
+import 'package:sentech_connect_app/features/credits/presentation/bloc/ledger_cubit.dart';
+import 'package:sentech_connect_app/features/credits/presentation/bloc/missions_cubit.dart';
+import 'package:sentech_connect_app/features/credits/presentation/bloc/redeem_cubit.dart';
+import 'package:sentech_connect_app/features/credits/presentation/bloc/streak_cubit.dart';
+import 'package:sentech_connect_app/features/credits/presentation/pages/badges_page.dart';
+import 'package:sentech_connect_app/features/credits/presentation/pages/credits_home_page.dart';
+import 'package:sentech_connect_app/features/credits/presentation/pages/ledger_page.dart';
+import 'package:sentech_connect_app/features/credits/presentation/pages/missions_page.dart';
+import 'package:sentech_connect_app/features/credits/presentation/pages/redeem_page.dart';
+import 'package:sentech_connect_app/features/credits/presentation/pages/streak_page.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/data/dev_payment_simulator.dart';
 import 'package:sentech_connect_app/app/main_shell.dart';
 import 'package:sentech_connect_app/core/config/app_environment.dart';
@@ -108,6 +121,15 @@ abstract class AppRoutes {
   static const fiveg = '/fiveg/:serviceId';
 
   static String fivegFor(String serviceId) => '/fiveg/$serviceId';
+
+  // Rewards (credits): module `credits` and the `credits` flag. Every page
+  // bounces home when either is off.
+  static const credits = '/rewards';
+  static const creditsRedeem = '/rewards/redeem';
+  static const creditsCheckIn = '/rewards/check-in';
+  static const creditsMissions = '/rewards/missions';
+  static const creditsBadges = '/rewards/badges';
+  static const creditsHistory = '/rewards/history';
 
   static String planFor(String planId) => '/plans/$planId';
   static String signupFor(String planId) => '/signup/$planId';
@@ -401,6 +423,9 @@ GoRouter _buildRouter(
           onOpenPromotions: () => context.push(AppRoutes.promotions),
           onFindHotspots: () => context.push(AppRoutes.wifiHotspots),
           onOpenPasses: () => context.push(AppRoutes.passes),
+          onOpenRewards: tenantCubit != null && creditsOn(tenantCubit.state)
+              ? () => context.push(AppRoutes.credits)
+              : null,
           showMockFeatures: locator<AppEnvironment>().isDemo,
           showPromotions: promotionsVisible(locator<AppEnvironment>()),
           showFreeWifi: freeWifiVisible(
@@ -425,6 +450,9 @@ GoRouter _buildRouter(
           ),
           child: MyPassesPage(
             onBuyPass: () => context.go(AppRoutes.main),
+            onOpenRewards: tenantCubit != null && creditsOn(tenantCubit.state)
+                ? () => context.push(AppRoutes.credits)
+                : null,
             now: locator<PlatformClock>().wallNow,
           ),
         ),
@@ -530,6 +558,77 @@ GoRouter _buildRouter(
             ),
           );
         },
+      ),
+      // Rewards (credits). Hidden when the module or the flag is off.
+      GoRoute(
+        path: AppRoutes.credits,
+        redirect: (context, state) => creditsRoutesOff(tenantCubit) ? AppRoutes.main : null,
+        builder: (context, state) => BlocProvider(
+          create: (_) => CreditsCubit(locator<CreditsRepository>()),
+          child: Builder(
+            builder: (context) {
+              // Back from a sub-page the wallet is read again (a redeem or a check-in changed it).
+              Future<void> open(String route) async {
+                await context.push<void>(route);
+                if (context.mounted) unawaited(context.read<CreditsCubit>().refresh());
+              }
+
+              return CreditsHomePage(
+                onOpenRedeem: () => open(AppRoutes.creditsRedeem),
+                onOpenStreak: () => open(AppRoutes.creditsCheckIn),
+                onOpenMissions: () => open(AppRoutes.creditsMissions),
+                onOpenBadges: () => open(AppRoutes.creditsBadges),
+                onOpenLedger: () => open(AppRoutes.creditsHistory),
+              );
+            },
+          ),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.creditsRedeem,
+        redirect: (context, state) => creditsRoutesOff(tenantCubit) ? AppRoutes.main : null,
+        builder: (context, state) => MultiBlocProvider(
+          providers: [
+            BlocProvider(create: (_) => CreditsCubit(locator<CreditsRepository>())),
+            BlocProvider(create: (_) => RedeemCubit(locator<CreditsRepository>())),
+          ],
+          child: RedeemPage(onOpenPasses: () => context.push(AppRoutes.passes)),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.creditsCheckIn,
+        redirect: (context, state) => creditsRoutesOff(tenantCubit) ? AppRoutes.main : null,
+        builder: (context, state) => MultiBlocProvider(
+          providers: [
+            BlocProvider(create: (_) => CreditsCubit(locator<CreditsRepository>())),
+            BlocProvider(create: (_) => StreakCubit(locator<CreditsRepository>())),
+          ],
+          child: const StreakPage(),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.creditsMissions,
+        redirect: (context, state) => creditsRoutesOff(tenantCubit) ? AppRoutes.main : null,
+        builder: (context, state) => BlocProvider(
+          create: (_) => MissionsCubit(locator<CreditsRepository>()),
+          child: const MissionsPage(),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.creditsBadges,
+        redirect: (context, state) => creditsRoutesOff(tenantCubit) ? AppRoutes.main : null,
+        builder: (context, state) => BlocProvider(
+          create: (_) => BadgesCubit(locator<CreditsRepository>()),
+          child: const BadgesPage(),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.creditsHistory,
+        redirect: (context, state) => creditsRoutesOff(tenantCubit) ? AppRoutes.main : null,
+        builder: (context, state) => BlocProvider(
+          create: (_) => LedgerCubit(locator<CreditsRepository>()),
+          child: const CreditsLedgerPage(),
+        ),
       ),
       // ID check (S4). Hidden when the module is off.
       GoRoute(

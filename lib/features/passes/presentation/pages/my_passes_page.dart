@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sentech_connect_app/features/credits/presentation/widgets/rewards_entry.dart';
 import 'package:sentech_connect_app/features/hotspot_login/presentation/widgets/get_online_entry.dart';
 import 'package:sentech_connect_app/features/passes/domain/entities/pass.dart';
 import 'package:sentech_connect_app/features/passes/presentation/bloc/passes_cubit.dart';
@@ -11,10 +12,14 @@ import 'package:sentech_connect_app/l10n/l10n.dart';
 import 'package:sentech_connect_app/shared/widgets/failure_view.dart';
 
 class MyPassesPage extends StatefulWidget {
-  const MyPassesPage({super.key, this.onBuyPass, this.now = DateTime.now});
+  const MyPassesPage({super.key, this.onBuyPass, this.onOpenRewards, this.now = DateTime.now});
 
   /// Empty state shortcut to the Shop's hotspot passes.
   final VoidCallback? onBuyPass;
+
+  /// Opens Rewards. The card shows only when this is given (the router gives it
+  /// when the provider has the credits module and flag on).
+  final VoidCallback? onOpenRewards;
   final DateTime Function() now;
 
   @override
@@ -77,6 +82,7 @@ class _MyPassesPageState extends State<MyPassesPage> {
                   value: state.includeExpired,
                   onChanged: cubit.setIncludeExpired,
                 ),
+                if (widget.onOpenRewards case final openRewards?) RewardsEntryCard(onOpen: openRewards),
                 GetOnlineEntry(passes: state.passes, now: now),
                 if (state.passes.isEmpty) ...[
                   const SizedBox(height: 24),

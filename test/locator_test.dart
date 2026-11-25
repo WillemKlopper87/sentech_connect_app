@@ -11,6 +11,9 @@ import 'package:sentech_connect_app/core/network/api_client.dart';
 import 'package:sentech_connect_app/core/network/auth_tokens.dart';
 import 'package:sentech_connect_app/features/auth/data/repositories/http_auth_repository.dart';
 import 'package:sentech_connect_app/features/auth/domain/repositories/auth_repository.dart';
+import 'package:sentech_connect_app/features/credits/data/http_credits_repository.dart';
+import 'package:sentech_connect_app/features/credits/data/mock_credits_repository.dart';
+import 'package:sentech_connect_app/features/credits/domain/repositories/credits_repository.dart';
 import 'package:sentech_connect_app/features/fiveg_service/data/http_fiveg_repository.dart';
 import 'package:sentech_connect_app/features/fiveg_service/data/mock_fiveg_repository.dart';
 import 'package:sentech_connect_app/features/fiveg_service/domain/repositories/fiveg_repository.dart';
@@ -134,6 +137,28 @@ void main() {
     setupLocator();
     registerTestFakes();
     expect(locator<FiveGRepository>(), isA<MockFiveGRepository>());
+  });
+
+  test('prod reads credits over HTTP only; demo uses the named mock', () {
+    setupLocator(environment: prod);
+    registerTestFakes();
+    expect(locator<CreditsRepository>(), isA<HttpCreditsRepository>());
+    expect(stillMockInProd, isNot(contains(CreditsRepository)));
+    expect(mockUntilLaterTasks, isNot(contains(CreditsRepository)));
+    setupLocator();
+    registerTestFakes();
+    expect(locator<CreditsRepository>(), isA<MockCreditsRepository>());
+  });
+
+  test('prod_flavor_never_registers_the_mock_credits_repository', () {
+    final source = File('lib/app/locator.dart').readAsStringSync().replaceAll('\r\n', '\n');
+    final prodStart = source.indexOf('void _registerProdRepositories');
+    final demoStart = source.indexOf('void _registerDemoRepositories');
+    final stillMockStart = source.indexOf('void _registerStillMockRepositories');
+    expect(prodStart, greaterThan(demoStart));
+    final prodSource = source.substring(prodStart) + source.substring(stillMockStart, demoStart);
+    expect(prodSource, isNot(contains('MockCreditsRepository')));
+    expect(source.substring(demoStart, prodStart), contains('MockCreditsRepository'));
   });
 
   test('demo keeps the mock voucher service', () {

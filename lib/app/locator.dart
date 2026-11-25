@@ -67,6 +67,9 @@ import 'package:sentech_connect_app/features/promotions/data/repositories/mock_p
 import 'package:sentech_connect_app/features/promotions/domain/repositories/promotions_repository.dart';
 import 'package:sentech_connect_app/features/rica/data/repositories/mock_liveness_repository.dart';
 import 'package:sentech_connect_app/features/rica/domain/repositories/liveness_repository.dart';
+import 'package:sentech_connect_app/features/credits/data/http_credits_repository.dart';
+import 'package:sentech_connect_app/features/credits/data/mock_credits_repository.dart';
+import 'package:sentech_connect_app/features/credits/domain/repositories/credits_repository.dart';
 import 'package:sentech_connect_app/features/fiveg_service/data/http_fiveg_repository.dart';
 import 'package:sentech_connect_app/features/fiveg_service/data/mock_fiveg_repository.dart';
 import 'package:sentech_connect_app/features/fiveg_service/domain/repositories/fiveg_repository.dart';
@@ -218,6 +221,7 @@ void _registerDemoRepositories() {
   locator.registerLazySingleton<KycRepository>(() => MockKycRepository());
   locator.registerLazySingleton<HotspotLoginRepository>(() => MockHotspotLoginRepository());
   locator.registerLazySingleton<FiveGRepository>(() => MockFiveGRepository(store: locator()));
+  locator.registerLazySingleton<CreditsRepository>(() => MockCreditsRepository());
   locator.registerLazySingleton<SubscriberProfileRepository>(() => MockSubscriberProfileRepository());
   locator.registerLazySingleton<PrivacyRepository>(
     () => MockPrivacyRepository(locator()),
@@ -317,6 +321,7 @@ void _registerProdRepositories(Uri baseUrl, TurnstileConfig? turnstile) {
   locator.registerLazySingleton<KycRepository>(() => HttpKycRepository(locator()));
   locator.registerLazySingleton<HotspotLoginRepository>(() => HttpHotspotLoginRepository(locator()));
   locator.registerLazySingleton<FiveGRepository>(() => HttpFiveGRepository(locator()));
+  locator.registerLazySingleton<CreditsRepository>(() => HttpCreditsRepository(locator()));
   locator.registerLazySingleton<SubscriberProfileRepository>(() => HttpSubscriberProfileRepository(locator()));
   locator.registerLazySingleton<CheckoutRepository>(
     () => HttpCheckoutRepository(locator()),

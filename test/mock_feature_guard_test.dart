@@ -36,6 +36,12 @@ void main() {
       expect(promotionsVisible(prod), isFalse);
     });
 
+    test('free_wifi_card_is_hidden_in_prod even when credits are on: the rewarded-ad mock is a different thing', () {
+      // Turning Rewards (credits) on must not reveal the ad-based free Wi-Fi mock.
+      expect(freeWifiVisible(prod, creditsModuleOn: true), isFalse);
+      expect(stillMockInProd, contains(FreeWifiRepository));
+    });
+
     test('demo, dev and test builds always show them', () {
       expect(freeWifiVisible(demo, creditsModuleOn: false), isTrue);
       expect(promotionsVisible(demo), isTrue);

@@ -72,3 +72,9 @@ String? blockingNoticeText(AppLocalizations l10n, Object? failure) => switch (fa
   CreditsNotAvailableFailure() => l10n.creditsUnavailable,
   _ => null,
 };
+
+/// `monthly` missions restart every Johannesburg month; anything else counts once.
+String missionWindowText(AppLocalizations l10n, String window) => switch (window) {
+  'monthly' => l10n.creditsMissionMonthly,
+  _ => l10n.creditsMissionOnce,
+};
