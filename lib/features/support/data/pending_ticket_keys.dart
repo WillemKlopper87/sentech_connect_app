@@ -9,7 +9,7 @@
 /// ticket reference.
 ///
 /// NOTHING the customer typed is stored: an entry is a key and a one-way number
-/// ([fingerprint], a 64-bit hash of the category and text) that only answers
+/// ([fingerprint], a hash of the category and text) that only answers
 /// "is this the same text as the attempt that has the key?". The number cannot
 /// give the text back; it is kept so that a CHANGED text after an unknown outcome
 /// is never sent under the old key, even on a screen opened later.
@@ -22,24 +22,12 @@ class PendingTicketKeys {
   /// `tenant|user|reply|REFERENCE`: one pending reply per ticket.
   static String replyScope(String tenant, String user, String reference) => '$tenant|$user|reply|$reference';
 
-  /// FNV-1a (64 bit) over the UTF-16 code units of the two parts, with a separator
-  /// between them. Not a secret: an equality check.
-  static int fingerprint(String first, [String second = '']) {
-    var hash = 0xcbf29ce484222325;
-    void mix(int unit) {
-      hash ^= unit;
-      hash = hash * 0x100000001b3; // wraps at 64 bits
-    }
-
-    for (final unit in first.codeUnits) {
-      mix(unit);
-    }
-    mix(0x1f);
-    for (final unit in second.codeUnits) {
-      mix(unit);
-    }
-    return hash;
-  }
+  /// A hash of the two parts, for equality only (is this the same text as the attempt that has
+  /// the key?). Portable: it uses no integer above 2^53, which a web build cannot hold. It is
+  /// stable only inside this process, which is all the in-memory holder needs; a collision
+  /// would at worst send a changed text under the old key, and the server then refuses it
+  /// (422 `idempotency_key_reused`) and the cubit replaces the key once.
+  static int fingerprint(String first, [String second = '']) => Object.hash(first, second);
 
   ({String key, int fingerprint})? pendingFor(String scope) => _entries[scope];
 
