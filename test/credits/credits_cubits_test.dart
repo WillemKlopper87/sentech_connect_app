@@ -313,6 +313,67 @@ void main() {
     });
   });
 
+  group('StreakCubit races and refusals', () {
+    test('a slow read that finishes after a claim does not undo the claim result', () async {
+      final cubit = StreakCubit(repo, newKey: _keys());
+      await _settle();
+      repo.streakGate = Completer<void>();
+      unawaited(cubit.refresh());
+      await _settle();
+      await cubit.claim();
+      expect(cubit.state.claimStatus, ClaimStatus.done);
+      repo.streakGate!.complete();
+      await _settle();
+      expect(cubit.state.claimStatus, ClaimStatus.done);
+      expect(cubit.state.claim, isNotNull);
+      expect(cubit.state.streak!.claimedToday, isTrue, reason: 'the claim answer is newer than the stale read');
+      await cubit.close();
+    });
+
+    test('a read that finishes while the claim is still going keeps the claim state and a failed claim keeps its failure', () async {
+      repo.claimResults.add(const Left(WalletFrozenFailure()));
+      final cubit = StreakCubit(repo, newKey: _keys());
+      await _settle();
+      await cubit.claim();
+      expect(cubit.state.claimFailure, isA<WalletFrozenFailure>());
+      await cubit.refresh();
+      expect(cubit.state.claimFailure, isA<WalletFrozenFailure>());
+      expect(cubit.state.claimStatus, ClaimStatus.failed);
+      await cubit.close();
+    });
+
+    test('a feature that turned off blocks the check-in; a refused check-in has no retry', () async {
+      repo.claimResults.add(const Left(CreditsNotAvailableFailure()));
+      final cubit = StreakCubit(repo, newKey: _keys());
+      await _settle();
+      await cubit.claim();
+      expect(cubit.state.claimBlocked, isTrue);
+      await cubit.close();
+    });
+  });
+
+  group('LedgerCubit races', () {
+    test('a failed pull-to-refresh while the next page loads does not leave the spinner on', () async {
+      repo.ledgerPages[null] = Right(ledgerPageFromJson(fixtureMap('credits_ledger_page_1.json')));
+      final next = ledgerPageFromJson(fixtureMap('credits_ledger_page_1.json')).nextCursor;
+      repo.ledgerPages[next] = Right(ledgerPageFromJson(fixtureMap('credits_ledger_page_2.json')));
+      final cubit = LedgerCubit(repo);
+      await _settle();
+      repo.gate = Completer<void>();
+      unawaited(cubit.loadMore());
+      await _settle();
+      expect(cubit.state.loadingMore, isTrue);
+      repo.ledgerPages[null] = const Left(NetworkFailure());
+      unawaited(cubit.refresh());
+      await _settle();
+      repo.gate!.complete();
+      await _settle();
+      expect(cubit.state.loadingMore, isFalse);
+      expect(cubit.state.items, isNotEmpty);
+      await cubit.close();
+    });
+  });
+
   group('LedgerCubit', () {
     void pages() {
       repo.ledgerPages[null] = Right(ledgerPageFromJson(fixtureMap('credits_ledger_page_1.json')));

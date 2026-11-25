@@ -37,6 +37,9 @@ class FakeCreditsRepository implements CreditsRepository {
   /// When set, the next redeem or claim waits for it.
   Completer<void>? gate;
 
+  /// When set, the next streak read waits for it.
+  Completer<void>? streakGate;
+
   final redeemCalls = <({int credits, String key})>[];
   final claimKeys = <String>[];
   final ledgerCursors = <String?>[];
@@ -66,7 +69,10 @@ class FakeCreditsRepository implements CreditsRepository {
   }
 
   @override
-  Future<Either<Failure, StreakState>> streak() async => streakResult;
+  Future<Either<Failure, StreakState>> streak() async {
+    await streakGate?.future;
+    return streakResult;
+  }
 
   @override
   Future<Either<Failure, ClaimResult>> claimToday({required String idempotencyKey}) async {

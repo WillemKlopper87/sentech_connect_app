@@ -365,6 +365,24 @@ void main() {
       expect(tester.widget<FilledButton>(find.byKey(const Key('credits-checkin-button'))).onPressed, isNull);
     });
 
+    testWidgets('a refused check-in says to try later and offers no Try again', (tester) async {
+      repo.claimResults.add(const Left(EarnRefusedFailure()));
+      await _pumpStreak(tester, repo);
+      await tester.tap(find.byKey(const Key('credits-checkin-button')));
+      await tester.pumpAndSettle();
+      expect(find.textContaining('Try again later'), findsOneWidget);
+      expect(find.text('Retry'), findsNothing);
+    });
+
+    testWidgets('a check-in after the feature was switched off says it is unavailable and the button goes off', (tester) async {
+      repo.claimResults.add(const Left(CreditsNotAvailableFailure()));
+      await _pumpStreak(tester, repo);
+      await tester.tap(find.byKey(const Key('credits-checkin-button')));
+      await tester.pumpAndSettle();
+      expect(find.text('Rewards are not available right now.'), findsOneWidget);
+      expect(tester.widget<FilledButton>(find.byKey(const Key('credits-checkin-button'))).onPressed, isNull);
+    });
+
     testWidgets('the rules come from the server', (tester) async {
       await _pumpStreak(tester, repo);
       expect(find.text('Each check-in earns 3 credits.'), findsOneWidget);

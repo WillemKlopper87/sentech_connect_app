@@ -33,12 +33,22 @@ class StreakCubitState extends Equatable {
   final Failure? claimFailure;
 
   bool get claimBlocked => switch (claimFailure) {
-    WalletFrozenFailure() || CustomerInactiveFailure() || CreditsPausedFailure() => true,
+    WalletFrozenFailure() ||
+    CustomerInactiveFailure() ||
+    CreditsPausedFailure() ||
+    CreditsNotAvailableFailure() => true,
     _ => false,
   };
 
   @override
-  List<Object?> get props => [status, streak, failure, claimStatus, claim, claimFailure];
+  List<Object?> get props => [
+    status,
+    streak,
+    failure,
+    claimStatus,
+    claim,
+    claimFailure,
+  ];
 }
 
 /// The streak and today's check-in. ONE idempotency key per attempt: a double
@@ -67,17 +77,24 @@ class StreakCubit extends Cubit<StreakCubitState> {
     result.match(
       (failure) {
         if (failure is CreditsNotAvailableFailure) {
-          emit(StreakCubitState(status: StreakStatus.unavailable, failure: failure));
+          emit(
+            StreakCubitState(
+              status: StreakStatus.unavailable,
+              failure: failure,
+            ),
+          );
         } else if (!(keepVisible && state.streak != null)) {
           emit(StreakCubitState(status: StreakStatus.error, failure: failure));
         }
       },
+      // A read never rewrites the claim: the claim state is kept as it is.
       (streak) => emit(
         StreakCubitState(
           status: StreakStatus.ready,
           streak: streak,
-          claimStatus: state.claimStatus == ClaimStatus.claiming ? ClaimStatus.claiming : ClaimStatus.idle,
+          claimStatus: state.claimStatus,
           claim: state.claim,
+          claimFailure: state.claimFailure,
         ),
       ),
     );
@@ -87,14 +104,29 @@ class StreakCubit extends Cubit<StreakCubitState> {
 
   Future<void> claim() async {
     if (isClosed || _busy || state.streak == null) return;
+    // A read that started earlier is now older than the claim answer: drop it.
+    _generation++;
     _key ??= _newKey();
-    emit(StreakCubitState(status: StreakStatus.ready, streak: state.streak, claimStatus: ClaimStatus.claiming));
+    emit(
+      StreakCubitState(
+        status: StreakStatus.ready,
+        streak: state.streak,
+        claimStatus: ClaimStatus.claiming,
+      ),
+    );
     final result = await _repository.claimToday(idempotencyKey: _key!);
     if (isClosed) return;
     switch (result) {
       case Right(value: final claim):
         _key = null;
-        emit(StreakCubitState(status: StreakStatus.ready, streak: claim.streak, claimStatus: ClaimStatus.done, claim: claim));
+        emit(
+          StreakCubitState(
+            status: StreakStatus.ready,
+            streak: claim.streak,
+            claimStatus: ClaimStatus.done,
+            claim: claim,
+          ),
+        );
       case Left(value: final failure):
         // The outcome is unknown after a lost or unfinished request: keep the
         // key so the retry is the same request. A final answer starts afresh.

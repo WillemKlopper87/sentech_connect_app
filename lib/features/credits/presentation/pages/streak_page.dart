@@ -7,7 +7,9 @@ import 'package:sentech_connect_app/features/credits/presentation/bloc/credits_c
 import 'package:sentech_connect_app/features/credits/presentation/bloc/streak_cubit.dart';
 import 'package:sentech_connect_app/features/credits/presentation/credits_text.dart';
 import 'package:sentech_connect_app/features/credits/presentation/widgets/credits_notice.dart';
+import 'package:sentech_connect_app/l10n/failure_copy.dart';
 import 'package:sentech_connect_app/l10n/l10n.dart';
+import 'package:sentech_connect_app/core/error/failure.dart';
 import 'package:sentech_connect_app/shared/widgets/failure_view.dart';
 
 /// The daily check-in. Needs a [StreakCubit] and a [CreditsCubit] above it (the
@@ -27,12 +29,17 @@ class StreakPage extends StatelessWidget {
       body: SafeArea(
         child: BlocListener<StreakCubit, StreakCubitState>(
           listenWhen: (previous, current) =>
-              previous.claimStatus != ClaimStatus.done && current.claimStatus == ClaimStatus.done,
+              previous.claimStatus != ClaimStatus.done &&
+              current.claimStatus == ClaimStatus.done,
           listener: (context, state) => context.read<CreditsCubit>().refresh(),
           child: BlocBuilder<StreakCubit, StreakCubitState>(
             builder: (context, state) => switch (state.status) {
-              StreakStatus.loading => const Center(child: CircularProgressIndicator()),
-              StreakStatus.unavailable => CreditsMessage(l10n.creditsUnavailable),
+              StreakStatus.loading => const Center(
+                child: CircularProgressIndicator(),
+              ),
+              StreakStatus.unavailable => CreditsMessage(
+                l10n.creditsUnavailable,
+              ),
               StreakStatus.error => FailureView(
                 failure: state.failure,
                 onRetry: () => context.read<StreakCubit>().refresh(),
@@ -65,24 +72,65 @@ class _Loaded extends StatelessWidget {
     final claimNotice = blockingNoticeText(l10n, state.claimFailure);
     final locale = Localizations.localeOf(context).toLanguageTag();
     final date = DateFormat.yMMMMd(locale).format(parseApiDate(streak.day));
-    final canClaim = !frozen && !state.claimBlocked && !claiming && !streak.claimedToday;
+    final canClaim =
+        !frozen && !state.claimBlocked && !claiming && !streak.claimedToday;
     return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.all(20),
       children: [
-        if (frozen) ...[CreditsNotice(text: l10n.creditsFrozenNotice, warning: true), const SizedBox(height: 12)],
-        if (claimNotice != null && !frozen) ...[CreditsNotice(text: claimNotice, warning: true), const SizedBox(height: 12)],
-        Text(l10n.creditsStreakDayLine(date), key: const Key('credits-streak-dayline')),
+        if (frozen) ...[
+          CreditsNotice(text: l10n.creditsFrozenNotice, warning: true),
+          const SizedBox(height: 12),
+        ],
+        if (claimNotice != null && !frozen) ...[
+          CreditsNotice(text: claimNotice, warning: true),
+          const SizedBox(height: 12),
+        ],
+        Text(
+          l10n.creditsStreakDayLine(date),
+          key: const Key('credits-streak-dayline'),
+        ),
         const SizedBox(height: 16),
-        _Stat(label: l10n.creditsStreakRun, value: l10n.creditsDaysCount(streak.runDays), big: true),
-        _Stat(label: l10n.creditsStreakBest, value: l10n.creditsDaysCount(streak.bestRunDays)),
-        _Stat(label: l10n.creditsStreakTotal, value: l10n.creditsDaysCount(streak.totalDays)),
-        _Stat(label: l10n.creditsStreakFreezes, value: '${streak.freezes}', hint: l10n.creditsStreakFreezesHint),
+        _Stat(
+          label: l10n.creditsStreakRun,
+          value: l10n.creditsDaysCount(streak.runDays),
+          big: true,
+        ),
+        _Stat(
+          label: l10n.creditsStreakBest,
+          value: l10n.creditsDaysCount(streak.bestRunDays),
+        ),
+        _Stat(
+          label: l10n.creditsStreakTotal,
+          value: l10n.creditsDaysCount(streak.totalDays),
+        ),
+        _Stat(
+          label: l10n.creditsStreakFreezes,
+          value: '${streak.freezes}',
+          hint: l10n.creditsStreakFreezesHint,
+        ),
         const SizedBox(height: 8),
-        Text(l10n.creditsStreakNext(l10n.creditsDaysCount(streak.nextMilestoneInDays)), style: theme.textTheme.bodyMedium),
+        Text(
+          l10n.creditsStreakNext(
+            l10n.creditsDaysCount(streak.nextMilestoneInDays),
+          ),
+          style: theme.textTheme.bodyMedium,
+        ),
         const SizedBox(height: 16),
-        if (state.claim case final claim?) ...[_ClaimResultCard(claim: claim), const SizedBox(height: 12)],
-        if (state.claimStatus == ClaimStatus.failed && claimNotice == null && state.claimFailure != null) ...[
+        if (state.claim case final claim?) ...[
+          _ClaimResultCard(claim: claim),
+          const SizedBox(height: 12),
+        ],
+        if (state.claimFailure is EarnRefusedFailure) ...[
+          // The server gives no reason and the copy says later: no retry button.
+          CreditsNotice(
+            text: typedFailureText(l10n, state.claimFailure) ?? '',
+            warning: true,
+          ),
+          const SizedBox(height: 12),
+        ] else if (state.claimStatus == ClaimStatus.failed &&
+            claimNotice == null &&
+            state.claimFailure != null) ...[
           FailureView(
             failure: state.claimFailure,
             compact: true,
@@ -91,16 +139,27 @@ class _Loaded extends StatelessWidget {
           const SizedBox(height: 12),
         ],
         if (streak.claimedToday && state.claim == null) ...[
-          Text(l10n.creditsAlreadyCheckedIn, key: const Key('credits-already'), style: theme.textTheme.bodyLarge),
+          Text(
+            l10n.creditsAlreadyCheckedIn,
+            key: const Key('credits-already'),
+            style: theme.textTheme.bodyLarge,
+          ),
           const SizedBox(height: 12),
         ],
         FilledButton(
           key: const Key('credits-checkin-button'),
-          onPressed: canClaim ? () => context.read<StreakCubit>().claim() : null,
-          child: Text(claiming ? l10n.creditsCheckingIn : l10n.creditsCheckInButton),
+          onPressed: canClaim
+              ? () => context.read<StreakCubit>().claim()
+              : null,
+          child: Text(
+            claiming ? l10n.creditsCheckingIn : l10n.creditsCheckInButton,
+          ),
         ),
         const SizedBox(height: 20),
-        Text(l10n.creditsStreakRuleDaily(l10n.creditsAmount(rules.dailyCredits)), style: theme.textTheme.bodySmall),
+        Text(
+          l10n.creditsStreakRuleDaily(l10n.creditsAmount(rules.dailyCredits)),
+          style: theme.textTheme.bodySmall,
+        ),
         Text(
           l10n.creditsStreakRuleBonus(
             l10n.creditsAmount(rules.shortMilestoneBonus),
@@ -121,7 +180,12 @@ class _Loaded extends StatelessWidget {
 }
 
 class _Stat extends StatelessWidget {
-  const _Stat({required this.label, required this.value, this.hint, this.big = false});
+  const _Stat({
+    required this.label,
+    required this.value,
+    this.hint,
+    this.big = false,
+  });
 
   final String label;
   final String value;
@@ -140,7 +204,12 @@ class _Stat extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Expanded(child: Text(label)),
-              Text(value, style: big ? theme.textTheme.headlineSmall : theme.textTheme.titleMedium),
+              Text(
+                value,
+                style: big
+                    ? theme.textTheme.headlineSmall
+                    : theme.textTheme.titleMedium,
+              ),
             ],
           ),
           if (hint != null) Text(hint!, style: theme.textTheme.bodySmall),
@@ -167,8 +236,12 @@ class _ClaimResultCard extends StatelessWidget {
       lines.add(cappedSentence(l10n, cappedBy));
     } else {
       lines.add(l10n.creditsCheckInEarned(l10n.creditsAmount(claim.credits)));
-      if (claim.bonusCredits > 0) lines.add(l10n.creditsCheckInBonus(l10n.creditsAmount(claim.bonusCredits)));
-      if (claim.freezesUsed > 0) lines.add(l10n.creditsCheckInFreezeUsed(claim.freezesUsed));
+      if (claim.bonusCredits > 0) {
+        lines.add(l10n.creditsCheckInBonus(l10n.creditsAmount(claim.bonusCredits)));
+      }
+      if (claim.freezesUsed > 0) {
+        lines.add(l10n.creditsCheckInFreezeUsed(claim.freezesUsed));
+      }
       if (cappedBy != null) lines.add(l10n.creditsCheckInPartlyCapped);
     }
     return CreditsNotice(

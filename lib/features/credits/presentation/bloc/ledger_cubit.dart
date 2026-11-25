@@ -28,7 +28,14 @@ class LedgerState extends Equatable {
   bool get hasMore => nextCursor != null;
 
   @override
-  List<Object?> get props => [status, items, nextCursor, loadingMore, failure, moreFailure];
+  List<Object?> get props => [
+    status,
+    items,
+    nextCursor,
+    loadingMore,
+    failure,
+    moreFailure,
+  ];
 }
 
 /// The credits history, newest first, one keyset page at a time.
@@ -42,16 +49,36 @@ class LedgerCubit extends Cubit<LedgerState> {
 
   Future<void> load({bool keepVisible = false}) async {
     final generation = ++_generation;
-    if (!keepVisible || state.status != LedgerStatus.ready) emit(const LedgerState());
+    if (!keepVisible || state.status != LedgerStatus.ready) {
+      emit(const LedgerState());
+    }
     final result = await _repository.ledger();
     if (isClosed || generation != _generation) return;
-    result.match((failure) {
-      if (failure is CreditsNotAvailableFailure) {
-        emit(LedgerState(status: LedgerStatus.unavailable, failure: failure));
-      } else if (!(keepVisible && state.status == LedgerStatus.ready)) {
-        emit(LedgerState(status: LedgerStatus.error, failure: failure));
-      }
-    }, (page) => emit(LedgerState(status: LedgerStatus.ready, items: page.items, nextCursor: page.nextCursor)));
+    result.match(
+      (failure) {
+        if (failure is CreditsNotAvailableFailure) {
+          emit(LedgerState(status: LedgerStatus.unavailable, failure: failure));
+        } else if (!(keepVisible && state.status == LedgerStatus.ready)) {
+          emit(LedgerState(status: LedgerStatus.error, failure: failure));
+        } else if (state.loadingMore) {
+          // The refresh failed and replaced the page in flight: its spinner must not stay on.
+          emit(
+            LedgerState(
+              status: LedgerStatus.ready,
+              items: state.items,
+              nextCursor: state.nextCursor,
+            ),
+          );
+        }
+      },
+      (page) => emit(
+        LedgerState(
+          status: LedgerStatus.ready,
+          items: page.items,
+          nextCursor: page.nextCursor,
+        ),
+      ),
+    );
   }
 
   Future<void> refresh() => load(keepVisible: true);
@@ -60,19 +87,50 @@ class LedgerCubit extends Cubit<LedgerState> {
   /// scroll cannot fetch the same page twice or append it twice.
   Future<void> loadMore() async {
     final cursor = state.nextCursor;
-    if (isClosed || cursor == null || state.loadingMore || state.status != LedgerStatus.ready) return;
+    if (isClosed ||
+        cursor == null ||
+        state.loadingMore ||
+        state.status != LedgerStatus.ready) {
+      return;
+    }
     final generation = _generation;
     emit(
-      LedgerState(status: LedgerStatus.ready, items: state.items, nextCursor: cursor, loadingMore: true),
+      LedgerState(
+        status: LedgerStatus.ready,
+        items: state.items,
+        nextCursor: cursor,
+        loadingMore: true,
+      ),
     );
     final result = await _repository.ledger(cursor: cursor);
-    if (isClosed || generation != _generation) return;
+    if (isClosed) return;
+    if (generation != _generation) {
+      if (state.loadingMore) {
+        emit(
+          LedgerState(
+            status: LedgerStatus.ready,
+            items: state.items,
+            nextCursor: state.nextCursor,
+          ),
+        );
+      }
+      return;
+    }
     result.match(
       (failure) => emit(
-        LedgerState(status: LedgerStatus.ready, items: state.items, nextCursor: cursor, moreFailure: failure),
+        LedgerState(
+          status: LedgerStatus.ready,
+          items: state.items,
+          nextCursor: cursor,
+          moreFailure: failure,
+        ),
       ),
       (page) => emit(
-        LedgerState(status: LedgerStatus.ready, items: [...state.items, ...page.items], nextCursor: page.nextCursor),
+        LedgerState(
+          status: LedgerStatus.ready,
+          items: [...state.items, ...page.items],
+          nextCursor: page.nextCursor,
+        ),
       ),
     );
   }
