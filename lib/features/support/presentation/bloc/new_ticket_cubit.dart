@@ -178,7 +178,7 @@ class NewTicketCubit extends Cubit<NewTicketState> {
   NewTicketIssue? _issue(String? categoryKey, String text) {
     if (categoryKey == null || !state.categories.any((c) => c.key == categoryKey)) return NewTicketIssue.noCategory;
     if (text.isEmpty) return NewTicketIssue.bodyEmpty;
-    if (text.length > ticketBodyMaxLength) return NewTicketIssue.bodyTooLong;
+    if (text.runes.length > ticketBodyMaxLength) return NewTicketIssue.bodyTooLong; // code points, as the server counts
     return null;
   }
 
@@ -214,7 +214,8 @@ class NewTicketCubit extends Cubit<NewTicketState> {
           final wait = failure.retryAfter;
           final retryAt = _now().add(wait == null || wait <= Duration.zero ? defaultRetryAfter : wait);
           _blockedUntil = retryAt;
-          // A 429 means the request was not accepted; the key is kept all the same: trying again is the same request.
+          // A 429 stored nothing on the server: the attempt is settled (a changed text needs no check).
+          _attempt.settle();
           if (!isClosed) emit(_next(failure: failure, notice: NewTicketNotice.notSent, retryAt: retryAt));
           return;
         }
@@ -233,10 +234,16 @@ class NewTicketCubit extends Cubit<NewTicketState> {
   Future<void> _checkFirst() async {
     if (!isClosed) emit(_next(status: NewTicketStatus.submitting));
     final result = await _repository.list();
-    _attempt.acknowledge();
     if (isClosed) return;
-    final recent = result.match((_) => const <Ticket>[], (page) => page.items.take(3).toList());
-    emit(_next(notice: NewTicketNotice.checkFirst, recent: recent));
+    switch (result) {
+      case Right(value: final page):
+        // Only a read the customer can see counts as the check.
+        _attempt.acknowledge();
+        emit(_next(notice: NewTicketNotice.checkFirst, recent: page.items.take(3).toList()));
+      case Left():
+        // Not acknowledged: the unknown-outcome notice stays and nothing is sent.
+        emit(_next(notice: NewTicketNotice.unknownOutcome));
+    }
   }
 
   /// Back to the form (after a refusal the customer has read).

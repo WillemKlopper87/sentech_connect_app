@@ -14,6 +14,9 @@ enum ThreadStatus { loading, ready, unavailable, notFound, error }
 
 enum ReplyStatus { idle, sending, sent }
 
+/// A reply the device refused before anything was sent.
+enum ReplyIssue { empty, tooLong }
+
 enum ReplyNotice {
   none,
 
@@ -46,6 +49,7 @@ class ThreadState extends Equatable {
     this.retryAt,
     this.closing = false,
     this.closeFailure,
+    this.replyIssue,
   });
 
   final ThreadStatus status;
@@ -60,8 +64,11 @@ class ThreadState extends Equatable {
   final bool closing;
   final Failure? closeFailure;
 
+  /// The last reply was refused on the device (empty or over the limit).
+  final ReplyIssue? replyIssue;
+
   @override
-  List<Object?> get props => [status, thread, failure, replyStatus, replyFailure, notice, retryAt, closing, closeFailure];
+  List<Object?> get props => [status, thread, failure, replyStatus, replyFailure, notice, retryAt, closing, closeFailure, replyIssue];
 }
 
 /// One ticket and its messages. The thread is read on open and on pull to
@@ -110,6 +117,7 @@ class TicketThreadCubit extends Cubit<ThreadState> {
     DateTime? retryAt,
     bool? closing,
     Object? closeFailure = _keep,
+    Object? replyIssue = _keep,
   }) => ThreadState(
     status: status ?? state.status,
     thread: thread ?? state.thread,
@@ -120,6 +128,7 @@ class TicketThreadCubit extends Cubit<ThreadState> {
     retryAt: retryAt ?? state.retryAt,
     closing: closing ?? state.closing,
     closeFailure: identical(closeFailure, _keep) ? state.closeFailure : closeFailure as Failure?,
+    replyIssue: identical(replyIssue, _keep) ? state.replyIssue : replyIssue as ReplyIssue?,
   );
 
   Future<void> load({bool keepVisible = false}) async {
@@ -153,7 +162,12 @@ class TicketThreadCubit extends Cubit<ThreadState> {
     final thread = state.thread;
     if (isClosed || _sending || thread == null || state.status != ThreadStatus.ready || thread.isClosed) return;
     final text = body.trim();
-    if (text.isEmpty || text.length > ticketBodyMaxLength) return;
+    // The server counts code points, so an emoji is one, not two.
+    final length = text.runes.length;
+    if (text.isEmpty || length > ticketBodyMaxLength) {
+      emit(_with(replyIssue: text.isEmpty ? ReplyIssue.empty : ReplyIssue.tooLong));
+      return;
+    }
     final until = _blockedUntil;
     if (until != null && _now().isBefore(until)) {
       emit(_with(notice: ReplyNotice.notSent, retryAt: until));
@@ -163,14 +177,17 @@ class TicketThreadCubit extends Cubit<ThreadState> {
   }
 
   Future<void> _send(String text, {required bool canReplaceKey}) async {
+    // A retry of an attempt with an unknown outcome may already be on screen (a read showed it).
+    final replay = _attempt.hasUnknown;
+    final before = _countMine(state.thread, text);
     final key = _attempt.begin(PendingTicketKeys.fingerprint(reference, text));
     if (key == null) {
       await _checkFirst();
       return;
     }
     // A read that started before this send must not overwrite the result of it.
-    final generation = ++_generation;
-    if (!isClosed) emit(_with(replyStatus: ReplyStatus.sending, notice: ReplyNotice.none, replyFailure: null));
+    ++_generation;
+    if (!isClosed) emit(_with(replyStatus: ReplyStatus.sending, notice: ReplyNotice.none, replyFailure: null, replyIssue: null));
     final result = await _repository.reply(reference, body: text, idempotencyKey: key);
     switch (result) {
       case Right(value: final header):
@@ -178,14 +195,17 @@ class TicketThreadCubit extends Cubit<ThreadState> {
         _blockedUntil = null;
         if (isClosed) return;
         final current = state.thread;
-        if (current != null && generation == _generation) {
-          // The sent text is shown at once; the read below then replaces it with the server's thread.
+        if (current != null) {
+          // Shown once: not again if a read already shows it (a fresh send adds one more than before;
+          // a replay is already there if any identical message is). Kept if the follow-up read fails.
+          final shown = _countMine(current, text);
+          final already = replay ? shown > 0 : shown > before;
+          final updated = current.withHeader(header);
           emit(
             _with(
-              thread: current.withHeader(header).withMessages([
-                ...current.messages,
-                TicketMessage(author: TicketAuthor.you, body: text, createdAt: _now().toUtc()),
-              ]),
+              thread: already
+                  ? updated
+                  : updated.withMessages([...current.messages, TicketMessage(author: TicketAuthor.you, body: text, createdAt: _now().toUtc())]),
               replyStatus: ReplyStatus.sent,
               notice: ReplyNotice.none,
               replyFailure: null,
@@ -213,6 +233,8 @@ class TicketThreadCubit extends Cubit<ThreadState> {
           final wait = failure.retryAfter;
           final retryAt = _now().add(wait == null || wait <= Duration.zero ? defaultRetryAfter : wait);
           _blockedUntil = retryAt;
+          // A 429 stored nothing on the server: the attempt is settled (a changed text needs no check).
+          _attempt.settle();
           if (!isClosed) {
             emit(_with(replyStatus: ReplyStatus.idle, replyFailure: failure, notice: ReplyNotice.notSent, retryAt: retryAt));
           }
@@ -247,11 +269,19 @@ class TicketThreadCubit extends Cubit<ThreadState> {
     final generation = ++_generation;
     if (!isClosed) emit(_with(replyStatus: ReplyStatus.sending, notice: ReplyNotice.none));
     final result = await _repository.get(reference);
-    _attempt.acknowledge();
     if (isClosed) return;
     final read = generation == _generation ? result.match((_) => null, (thread) => thread) : null;
+    if (read == null) {
+      // Nothing was shown to the customer: not acknowledged, the unknown-outcome notice stays, nothing is sent.
+      emit(_with(replyStatus: ReplyStatus.idle, notice: ReplyNotice.unknownOutcome));
+      return;
+    }
+    _attempt.acknowledge();
     emit(_with(thread: read, replyStatus: ReplyStatus.idle, notice: ReplyNotice.checkFirst));
   }
+
+  static int _countMine(TicketThread? thread, String text) =>
+      thread == null ? 0 : thread.messages.where((m) => m.author == TicketAuthor.you && m.body == text).length;
 
   /// The customer marks the ticket solved. Only the server's answer changes the status shown.
   Future<void> closeTicket() async {

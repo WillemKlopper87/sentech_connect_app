@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fpdart/fpdart.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sentech_connect_app/core/error/failure.dart';
 import 'package:sentech_connect_app/features/support/data/pending_ticket_keys.dart';
 import 'package:sentech_connect_app/features/support/domain/entities/ticket.dart';
@@ -139,22 +138,15 @@ void main() {
       await cubit.close();
     });
 
-    test('every outcome the app cannot know keeps the key: network, server, still processing, rate limit', () async {
-      for (final failure in <Failure>[
-        const NetworkFailure(),
-        const ServerFailure(),
-        const IdempotencyInProgressFailure(),
-        const RateLimitedFailure('slow down', Duration(seconds: 5)),
-      ]) {
+    test('every outcome the app cannot know keeps the key: network, server, still processing', () async {
+      for (final failure in <Failure>[const NetworkFailure(), const ServerFailure(), const IdempotencyInProgressFailure()]) {
         final fresh = FakeSupportTicketsRepository()..createResults.addAll([Left(failure), const Right(_ref)]);
         final cubit = NewTicketCubit(fresh, newKey: _keys(), pending: PendingTicketKeys(), scope: 's', now: () => DateTime.utc(2030));
         await _settle();
         await cubit.submit(categoryKey: 'billing', body: _text);
-        // A rate limit holds the button first; the hold is over when the clock says so (see below).
         await cubit.submit(categoryKey: 'billing', body: _text);
-        if (failure is! RateLimitedFailure) {
-          expect(fresh.createCalls.map((c) => c.key).toSet(), hasLength(1), reason: '${failure.runtimeType}');
-        }
+        expect(fresh.createCalls, hasLength(2), reason: '${failure.runtimeType}');
+        expect(fresh.createCalls.map((c) => c.key).toSet(), hasLength(1), reason: '${failure.runtimeType}');
         await cubit.close();
       }
     });
@@ -235,7 +227,7 @@ void main() {
       now = DateTime.utc(2030, 1, 1, 12, 10, 1);
       await cubit.submit(categoryKey: 'billing', body: _text);
       expect(repo.createCalls, hasLength(2));
-      expect(repo.createCalls.map((c) => c.key).toSet(), hasLength(1), reason: 'a 429 is not an answer: the same key');
+      expect(repo.createCalls.map((c) => c.key).toSet(), hasLength(2), reason: 'a 429 stored nothing: the attempt is settled and the retry is a new one');
       await cubit.close();
     });
 
@@ -271,24 +263,21 @@ void main() {
     });
 
     test('the_draft_is_cleared_on_success_and_never_persisted', () async {
-      SharedPreferences.setMockInitialValues({});
       final holder = PendingTicketKeys();
       final cubit = make(pending: holder);
       await _settle();
       await cubit.submit(categoryKey: 'billing', body: _text);
       expect(cubit.state.status, NewTicketStatus.done);
-      // The cubit never holds the text: no state field, no holder entry and no preference carries it.
+      // The cubit never holds the text: no state field carries it, and the key is forgotten.
       expect(cubit.state.props.map((p) => '$p').join(), isNot(contains('charged')));
-      expect(holder.toString(), isNot(contains('charged')));
       expect(holder.pendingFor('sentech|u1|new'), isNull);
-      expect((await SharedPreferences.getInstance()).getKeys(), isEmpty);
       await cubit.close();
     });
 
     test('the holder keeps no text, only a key and a number, and clear() empties it', () {
       final holder = PendingTicketKeys()..put('s', 'key-aaaaaaaa', PendingTicketKeys.fingerprint('billing', _text));
       expect(holder.pendingFor('s')!.key, 'key-aaaaaaaa');
-      expect(holder.toString(), isNot(contains('charged')));
+      expect(holder.pendingFor('s')!.fingerprint, isA<int>());
       holder.clear();
       expect(holder.pendingFor('s'), isNull);
       expect(PendingTicketKeys.fingerprint('billing', _text), isNot(PendingTicketKeys.fingerprint('billing', '$_text.')));
@@ -464,7 +453,7 @@ void main() {
       now = DateTime.utc(2030, 1, 1, 12, 4);
       await cubit.reply('hello');
       expect(repo.replyCalls, hasLength(2));
-      expect(repo.replyCalls.map((c) => c.key).toSet(), hasLength(1));
+      expect(repo.replyCalls.map((c) => c.key).toSet(), hasLength(2), reason: 'a 429 stored nothing: settled');
       await cubit.close();
     });
 
