@@ -98,3 +98,21 @@
 **Not built:** vector coverage layer; deep link to complete a withdrawal; offline cache; technology filter chips, print, share, embed and palette toggle (web only); `audited_figures` table; staff counter checks; real af/zu copy.
 
 **Release blockers/open:** cooling-off text is a DRAFT (counsel C1); consent and leave wording is counsel-gated; af/zu are machine drafts or English.
+
+## Review fixes (2026-11-26, after the independent review; no critical findings)
+
+Commits: 6dcbf26 (items 1 to 3), 759b991 (4, 8, 11), 35caad1 (5 to 7, 11), 66ff707 (9, 11), plus this docs commit. Each test was written and run red first (compile errors or failures) before the code.
+
+1. **No address in a URL.** The `GET /v1/geocode/search` fallback and the `geocode_search.json` fixture are gone. Only `POST /v1/coverage/address`. With `address_lookup` false or capabilities 404 the address field is disabled with the "address search is not available" words (location and map stay); a capabilities network failure is "unknown" and is read again; capabilities are cached for ten minutes.
+2. Lead coordinates are rounded to 5 decimals (test checks the body).
+3. The "no data yet" retry calls `meta(refresh: true)`; a meta with no active dataset is never cached (repository test with the real cache).
+4. **Lead key:** stored before the request, removed only on success or a final refusal even after the sheet was closed; backing out of the security check restores the earlier state. Tests: close mid-request then reopen; unknown outcome, retry, back out of the check.
+5. A band is kept for `covered` only; an unknown kind is a neutral card (no band, no predicted wording) under a neutral title when nothing is covered or planned.
+6. The direction line appears only on a card that shows a figure; a planned or no-figure card says nothing is measured.
+7. After a 429 the check, search and lead are held until Retry-After (pin stays, countdown shown, live region, lead button waits).
+8. "May not have finished" only for network, server and still-processing; the security check outage and 429 say "not sent or saved". The pending notice is scoped by provider plus the rounded place plus technology.
+9. **Consent:** separate device-only purpose `coverageLocation` for the coverage screen (smallest option the store supports: one enum value, no server mapping). Registration keeps `locationCapture` and its map-service sentence. Tested in both orders.
+10. The DRAFT cooling-off text is kept and is a **release blocker: it must not ship to production before counsel item C1** (recorded in docs/L10N_NEEDS_NATIVE_REVIEW.md and docs/BACKEND_CONTRACT_SYNC.md).
+11. An unknown technology always reads "Network"; the footer date follows the language; "Open settings" for denied-for-good and services-off (geolocator already has the openers); the contact-cleared test was replaced by one that can fail (the sheet exposes what the form holds and clears it on success); `PendingLeadKeys` holds a key and a flag only, scoped by provider, rounded place and technology (nothing derived from the contact).
+
+**Deviation from the review text:** because the holder no longer fingerprints the request (item 11), a key restored after a reopen can meet a changed contact; the platform answers `idempotency_key_reused` and the cubit replaces the key once automatically (tested). **Unverified:** still no device, GPS prompt, Turnstile WebView or live server.

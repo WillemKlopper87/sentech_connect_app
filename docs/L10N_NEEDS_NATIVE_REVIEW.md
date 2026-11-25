@@ -535,6 +535,8 @@ The live coverage screen (search, pin drop, answer cards, waiting list, leave th
 1. **Machine-quality drafts** (labels and plain error messages): a native Afrikaans and a native isiZulu speaker must review every line before release (gate L3). Placeholders must stay.
 2. **English fallbacks** (claims, disclaimers, band copy, consent, waiting-list and data-handling wording): NEVER machine-drafted. af and zu show the platform's English until a native speaker, and for legal and consent text counsel (items C1, C2, C4), has written them. `test/coverage/coverage_l10n_test.dart` fails if one of these is translated by machine, or if one is missing from this list. The platform keeps the same keys in English (`docs/coverage/native-review-af-zu.md`).
 
+**RELEASE BLOCKER: `coverageDisclaimerCoolingOff` is still the platform's DRAFT text ("DRAFT - needs legal review: ECTA s42 ..."). It must not ship to production before counsel item C1 has settled it and the website and the app carry the final wording.**
+
 Counsel-gated copy to settle before release: the waiting-list consent text and its two versions (`waitlist_consent_version`, `coverage_arrived_consent_version`), the "leave the list" wording, the privacy notes under the search field and the location button, and the cooling-off notice (`coverageDisclaimerCoolingOff`, still the platform's DRAFT text, and it must change together with the website).
 
 ### Machine drafts
