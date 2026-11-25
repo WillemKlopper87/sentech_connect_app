@@ -8,7 +8,8 @@ import 'package:sentech_connect_app/core/network/api_client.dart';
 enum HumanCheckAction {
   otpRequest('signin'),
   deleteChallenge('signin'),
-  supportMessage('support');
+  supportMessage('support'),
+  lead('lead');
 
   const HumanCheckAction(this.widgetAction);
   final String widgetAction;
@@ -52,6 +53,7 @@ class HumanCheckConfig {
     HumanCheckAction.otpRequest => otpRequestRequired,
     HumanCheckAction.deleteChallenge => deleteChallengeRequired,
     HumanCheckAction.supportMessage => supportMessageRequired,
+    HumanCheckAction.lead => leadRequired,
   };
 }
 

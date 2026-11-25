@@ -3363,4 +3363,16 @@ class AppLocalizationsAf extends AppLocalizations {
   String creditsAmountMinus(String amount) {
     return 'minus $amount';
   }
+
+  @override
+  String get failureCoverageUnavailable =>
+      'Dekkingsinligting is nou nie beskikbaar nie.';
+
+  @override
+  String get failureAddressSearchUnavailable =>
+      'Adressoektog is nou nie beskikbaar nie. Gebruik eerder jou ligging of die kaart.';
+
+  @override
+  String get failureOutsideServiceArea =>
+      'Ons kan net plekke in Suid-Afrika nagaan. Kontroleer die plek en probeer weer.';
 }

@@ -128,6 +128,7 @@ class ApiClient {
     String path, {
     required ResponseDecoder<T> decode,
     Object? body,
+    Map<String, Object?>? query,
     bool authenticated = true,
     String? idempotencyKey,
     Duration? timeout,
@@ -138,6 +139,7 @@ class ApiClient {
     () => _dio.post<Object?>(
       path,
       data: body,
+      queryParameters: query,
       options: _options(
         authenticated,
         timeout,

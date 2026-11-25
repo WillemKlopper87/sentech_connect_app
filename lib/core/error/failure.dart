@@ -477,3 +477,31 @@ class EarnRefusedFailure extends ValidationFailure {
   const EarnRefusedFailure()
       : super('Your check-in cannot be completed right now. Try again later.', 'earn_refused', false);
 }
+
+// Public coverage (the customer's coverage check, address search and waiting list).
+
+/// The coverage check is not available: the server is older than the routes
+/// (404), or the provider has no coverage data yet. The screens say so in plain
+/// words and offer a retry, never an empty screen.
+class CoverageUnavailableFailure extends Failure {
+  const CoverageUnavailableFailure([super.message = 'Coverage information is not available right now.']);
+}
+
+/// 503 `address_lookup_unavailable` (the address step) or `geocoder_unavailable`
+/// (the older search): the customer can still use their location or the map.
+/// [retryAfter] is the server's hint.
+class AddressSearchUnavailableFailure extends Failure {
+  const AddressSearchUnavailableFailure([this.retryAfter, super.message = 'Address search is not available right now. Use your location or the map instead.']);
+
+  final Duration? retryAfter;
+
+  @override
+  List<Object?> get props => [message, retryAfter];
+}
+
+/// 422 `outside_service_area` or `coordinates_swapped`: the point is not in
+/// South Africa.
+class OutsideServiceAreaFailure extends ValidationFailure {
+  const OutsideServiceAreaFailure()
+      : super('We can only check places in South Africa. Check the place and try again.', 'outside_service_area', false);
+}

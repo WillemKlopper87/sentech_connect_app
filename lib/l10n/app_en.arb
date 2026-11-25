@@ -3026,5 +3026,11 @@
   "creditsAmountPlus": "plus {amount}",
   "@creditsAmountPlus": {"description": "Screen-reader label for a history line that added credits. {amount} is a number of credits.", "placeholders": {"amount": {"type": "String", "example": "x"}}},
   "creditsAmountMinus": "minus {amount}",
-  "@creditsAmountMinus": {"description": "Screen-reader label for a history line that took credits away. {amount} is a number of credits.", "placeholders": {"amount": {"type": "String", "example": "x"}}}
+  "@creditsAmountMinus": {"description": "Screen-reader label for a history line that took credits away. {amount} is a number of credits.", "placeholders": {"amount": {"type": "String", "example": "x"}}},
+  "failureCoverageUnavailable": "Coverage information is not available right now.",
+  "@failureCoverageUnavailable": {"description": "Customer message when the coverage check is not available: the provider has no coverage data yet, or the server is older than the check. A retry is offered next to it."},
+  "failureAddressSearchUnavailable": "Address search is not available right now. Use your location or the map instead.",
+  "@failureAddressSearchUnavailable": {"description": "Customer message when the platform's address search is off or failed (503 address_lookup_unavailable or geocoder_unavailable). The location button and the map still work."},
+  "failureOutsideServiceArea": "We can only check places in South Africa. Check the place and try again.",
+  "@failureOutsideServiceArea": {"description": "Customer message for problem codes outside_service_area and coordinates_swapped on the coverage check or the waiting list: the place is not in South Africa."}
 }

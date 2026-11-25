@@ -139,6 +139,9 @@ Map<String, String> typedFailureTexts(AppLocalizations l10n) => {
   const RedemptionLimitReachedFailure().message: l10n.failureRedemptionLimitReached,
   const PackNotOfferedFailure().message: l10n.failurePackNotOffered,
   const EarnRefusedFailure().message: l10n.failureEarnRefused,
+  const CoverageUnavailableFailure().message: l10n.failureCoverageUnavailable,
+  const AddressSearchUnavailableFailure().message: l10n.failureAddressSearchUnavailable,
+  const OutsideServiceAreaFailure().message: l10n.failureOutsideServiceArea,
 };
 
 /// Customer text for a typed refusal, or null when [failure] is not one (the
@@ -255,6 +258,12 @@ String? typedFailureText(AppLocalizations l10n, Failure? failure) {
       return l10n.failurePackNotOffered;
     case EarnRefusedFailure():
       return l10n.failureEarnRefused;
+    case CoverageUnavailableFailure():
+      return l10n.failureCoverageUnavailable;
+    case AddressSearchUnavailableFailure():
+      return l10n.failureAddressSearchUnavailable;
+    case OutsideServiceAreaFailure():
+      return l10n.failureOutsideServiceArea;
     default:
       return null;
   }

@@ -56,6 +56,9 @@ void main() {
     const RedemptionLimitReachedFailure(),
     const PackNotOfferedFailure(),
     const EarnRefusedFailure(),
+    const CoverageUnavailableFailure(),
+    const AddressSearchUnavailableFailure(),
+    const OutsideServiceAreaFailure(),
   ];
 
   for (final l10n in [AppLocalizationsEn(), AppLocalizationsAf(), AppLocalizationsZu()]) {

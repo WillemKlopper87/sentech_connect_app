@@ -3366,4 +3366,16 @@ class AppLocalizationsZu extends AppLocalizations {
   String creditsAmountMinus(String amount) {
     return 'kususiwe $amount';
   }
+
+  @override
+  String get failureCoverageUnavailable =>
+      'Ulwazi lokufinyelela alutholakali okwamanje.';
+
+  @override
+  String get failureAddressSearchUnavailable =>
+      'Ukusesha kwekheli akutholakali okwamanje. Sebenzisa indawo yakho noma imephu esikhundleni.';
+
+  @override
+  String get failureOutsideServiceArea =>
+      'Singahlola kuphela izindawo eNingizimu Afrika. Hlola indawo bese uzame futhi.';
 }

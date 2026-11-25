@@ -5667,6 +5667,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'minus {amount}'**
   String creditsAmountMinus(String amount);
+
+  /// Customer message when the coverage check is not available: the provider has no coverage data yet, or the server is older than the check. A retry is offered next to it.
+  ///
+  /// In en, this message translates to:
+  /// **'Coverage information is not available right now.'**
+  String get failureCoverageUnavailable;
+
+  /// Customer message when the platform's address search is off or failed (503 address_lookup_unavailable or geocoder_unavailable). The location button and the map still work.
+  ///
+  /// In en, this message translates to:
+  /// **'Address search is not available right now. Use your location or the map instead.'**
+  String get failureAddressSearchUnavailable;
+
+  /// Customer message for problem codes outside_service_area and coordinates_swapped on the coverage check or the waiting list: the place is not in South Africa.
+  ///
+  /// In en, this message translates to:
+  /// **'We can only check places in South Africa. Check the place and try again.'**
+  String get failureOutsideServiceArea;
 }
 
 class _AppLocalizationsDelegate

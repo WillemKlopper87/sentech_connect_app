@@ -3346,4 +3346,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String creditsAmountMinus(String amount) {
     return 'minus $amount';
   }
+
+  @override
+  String get failureCoverageUnavailable =>
+      'Coverage information is not available right now.';
+
+  @override
+  String get failureAddressSearchUnavailable =>
+      'Address search is not available right now. Use your location or the map instead.';
+
+  @override
+  String get failureOutsideServiceArea =>
+      'We can only check places in South Africa. Check the place and try again.';
 }
