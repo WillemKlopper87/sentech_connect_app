@@ -3395,4 +3395,208 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get coverageNoDataYet =>
       'Coverage data for your provider is not available yet. Please try again later.';
+
+  @override
+  String get coverageTech5g => '5G';
+
+  @override
+  String get coverageTechLte => 'LTE (4G)';
+
+  @override
+  String get coverageTechUnknown => 'Network';
+
+  @override
+  String coverageOptionCoveredHeading(String technology) {
+    return '$technology: predicted coverage';
+  }
+
+  @override
+  String coverageOptionPlannedHeading(String technology) {
+    return '$technology: planned';
+  }
+
+  @override
+  String coverageOptionPlannedText(String date) {
+    return 'Expected around $date. Planned dates are estimates and can change.';
+  }
+
+  @override
+  String get coverageOptionPlannedNoDate =>
+      'We do not have a date yet. Planned dates are estimates and can change.';
+
+  @override
+  String get coverageOptionPredictedTitle => 'Coverage is predicted here';
+
+  @override
+  String get coverageOptionPredictedText =>
+      'Our network plan predicts that this technology reaches this place. We do not show a figure for it yet.';
+
+  @override
+  String get coverageOptionNearBoundary =>
+      'This place is close to the edge of this area, so the result may differ.';
+
+  @override
+  String get coverageBandExcellentTitle => 'Strong service is predicted';
+
+  @override
+  String get coverageBandExcellentText =>
+      'Strong service is predicted here. Most things should run smoothly.';
+
+  @override
+  String get coverageBandGoodTitle => 'Good service is predicted';
+
+  @override
+  String get coverageBandGoodText =>
+      'Good service is predicted here for everyday use.';
+
+  @override
+  String get coverageBandFairTitle => 'Fair service is predicted';
+
+  @override
+  String get coverageBandFairText =>
+      'Fair service is predicted here. Video calls may sometimes struggle.';
+
+  @override
+  String get coverageBandBasicTitle => 'Basic service is predicted';
+
+  @override
+  String get coverageBandBasicText =>
+      'Basic service is predicted here. Browsing and messages should work. Tell us and we will let you know if it improves.';
+
+  @override
+  String get coverageBandNoneTitle => 'Service is not predicted yet';
+
+  @override
+  String get coverageBandNoneText =>
+      'We do not predict service here yet. Tell us and we will let you know.';
+
+  @override
+  String coverageSpeedTypical(String min, String max) {
+    return 'Typical download speed: $min–$max Mbps';
+  }
+
+  @override
+  String coverageSpeedBusy(String min, String max) {
+    return 'Busy-hour download speed: $min–$max Mbps';
+  }
+
+  @override
+  String get coverageConfidenceHigh => 'Prediction confidence: high';
+
+  @override
+  String get coverageConfidenceMedium => 'Prediction confidence: medium';
+
+  @override
+  String get coverageConfidenceLow => 'Prediction confidence: low';
+
+  @override
+  String get coverageMeasureDownlink =>
+      'The speeds shown are predicted download speeds, measured outdoors.';
+
+  @override
+  String get coverageMeasureUplink =>
+      'This information is about upload, not download.';
+
+  @override
+  String get coverageMeasureUnknown =>
+      'We do not know what this information measures.';
+
+  @override
+  String coverageNearestUnder5(String technology) {
+    return 'The closest predicted $technology coverage is less than 5 km from this place.';
+  }
+
+  @override
+  String coverageNearestFrom5To20(String technology) {
+    return 'The closest predicted $technology coverage is about 5 to 20 km from this place.';
+  }
+
+  @override
+  String coverageNearestFrom20To50(String technology) {
+    return 'The closest predicted $technology coverage is about 20 to 50 km from this place.';
+  }
+
+  @override
+  String coverageNearestOver50(String technology) {
+    return 'The closest predicted $technology coverage is more than 50 km from this place.';
+  }
+
+  @override
+  String get coverageFooterPredicted =>
+      'These are predictions, not guarantees.';
+
+  @override
+  String coverageFooterRelease(String label, String date) {
+    return 'Network data: $label, released $date.';
+  }
+
+  @override
+  String coverageFooterReleaseLabel(String label) {
+    return 'Network data: $label.';
+  }
+
+  @override
+  String coverageFooterReleaseDate(String date) {
+    return 'Network data released $date.';
+  }
+
+  @override
+  String coverageFooterVersion(String version) {
+    return 'Network data version $version.';
+  }
+
+  @override
+  String get coverageSourceTechnologyPartner =>
+      'Source: our technology partner\'s network plan.';
+
+  @override
+  String get coverageSourceNetworkRfPlanning =>
+      'Source: our network planning team.';
+
+  @override
+  String get coverageSourceIspPlanning =>
+      'Source: the network plan of this provider.';
+
+  @override
+  String get coverageSourceDriveTest => 'Source: drive tests on the network.';
+
+  @override
+  String get coverageDisclaimerEstimate =>
+      'Coverage is an estimate from our network plan. Actual speeds vary with location, time of day and device.';
+
+  @override
+  String get coverageDisclaimerIndoor =>
+      'Coverage is predicted for outdoor use. Indoor signal can be weaker because of walls, windows and building materials.';
+
+  @override
+  String get coverageDisclaimerPlannedDate =>
+      'Planned dates are estimates and can change.';
+
+  @override
+  String get coverageDisclaimerCoolingOff =>
+      'DRAFT — needs legal review: ECTA s42 applicability to be confirmed. Refund requests are reviewed by your provider; contact support with your order reference.';
+
+  @override
+  String get coverageDisclaimerGeneric =>
+      'Coverage and speeds are predictions, not guarantees.';
+
+  @override
+  String get coverageNotCoveredTitle => 'We do not cover this place yet.';
+
+  @override
+  String get coverageOptionsTitle => 'Coverage is predicted at this place';
+
+  @override
+  String get coverageStatusPlanned => 'Coverage is planned for this place.';
+
+  @override
+  String get coverageStatusUnreadable =>
+      'We could not read the answer. Please try again.';
+
+  @override
+  String get coverageNotifyPrompt =>
+      'Join the waitlist and we will let you know when we arrive.';
+
+  @override
+  String get coverageNotifyMe => 'Notify me';
 }

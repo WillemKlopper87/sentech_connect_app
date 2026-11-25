@@ -138,6 +138,28 @@ void main() {
     expect(repo.checkCalls, [(lat: -26.3, lon: 28.1)]);
   });
 
+  testWidgets('the answer is the server cards with the release of the data shown, and a new tap clears it at once', (tester) async {
+    await pump(tester);
+    final map = tester.widget<FlutterMap>(find.byType(FlutterMap));
+    map.options.onTap!(const TapPosition(Offset.zero, Offset.zero), const LatLng(-26.2, 28.0));
+    await tester.pump(const Duration(milliseconds: 30));
+    await tester.pump();
+    expect(find.text('5G: predicted coverage'), findsOneWidget);
+    expect(find.text('LTE (4G): predicted coverage'), findsOneWidget);
+    expect(find.textContaining('Network data: 2026 Q4 plan'), findsOneWidget);
+    final gate = Completer<Either<Failure, CoverageCheck>>();
+    repo.checkGates.add(gate);
+    map.options.onTap!(const TapPosition(Offset.zero, Offset.zero), const LatLng(-26.3, 28.0));
+    await tester.pump();
+    expect(find.text('5G: predicted coverage'), findsNothing, reason: 'the old answer is not shown for the new point');
+    expect(find.text('Checking coverage…'), findsOneWidget);
+    await tester.pump(const Duration(milliseconds: 30));
+    gate.complete(Right(checkFixture('coverage_check_planned.json')));
+    await tester.pump();
+    await tester.pump();
+    expect(find.text('5G: planned'), findsOneWidget);
+  });
+
   testWidgets('a tap outside the service area is explained and sends nothing', (tester) async {
     await pump(tester);
     final map = tester.widget<FlutterMap>(find.byType(FlutterMap));

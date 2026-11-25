@@ -10,6 +10,7 @@ import 'package:sentech_connect_app/features/coverage/domain/entities/geocode_ma
 import 'package:sentech_connect_app/features/coverage/presentation/bloc/address_search_cubit.dart';
 import 'package:sentech_connect_app/features/coverage/presentation/bloc/coverage_cubit.dart';
 import 'package:sentech_connect_app/features/coverage/presentation/bloc/location_cubit.dart';
+import 'package:sentech_connect_app/features/coverage/presentation/widgets/coverage_result_view.dart';
 import 'package:sentech_connect_app/features/privacy/domain/entities/consent_record.dart';
 import 'package:sentech_connect_app/features/privacy/presentation/widgets/consent_gate.dart';
 import 'package:sentech_connect_app/l10n/failure_copy.dart';
@@ -367,9 +368,7 @@ class _ResultSection extends StatelessWidget {
       case CoverageStatus.error:
         return FailureView(failure: state.failure, compact: true, onRetry: cubit.retry);
       case CoverageStatus.ready:
-        final check = state.check!;
-        // Replaced by the option cards in the next step of this slice.
-        return Text(check.status.name, style: theme.textTheme.titleMedium);
+        return CoverageResultView(check: state.check!, meta: state.meta, onRetry: cubit.retry);
     }
   }
 }

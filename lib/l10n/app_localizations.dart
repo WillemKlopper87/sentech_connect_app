@@ -5745,6 +5745,318 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Coverage data for your provider is not available yet. Please try again later.'**
   String get coverageNoDataYet;
+
+  /// Name of the 5G technology on a coverage card. The same in every language.
+  ///
+  /// In en, this message translates to:
+  /// **'5G'**
+  String get coverageTech5g;
+
+  /// Name of the LTE technology on a coverage card. The same in every language.
+  ///
+  /// In en, this message translates to:
+  /// **'LTE (4G)'**
+  String get coverageTechLte;
+
+  /// Neutral label for a technology the app does not know, shown with the server's own technology name.
+  ///
+  /// In en, this message translates to:
+  /// **'Network'**
+  String get coverageTechUnknown;
+
+  /// Heading of a covered coverage card (key coverage.option.covered.heading). {technology} is 5G or LTE (4G). The platform's own wording; left in English for af and zu until native review (counsel-gated claim copy).
+  ///
+  /// In en, this message translates to:
+  /// **'{technology}: predicted coverage'**
+  String coverageOptionCoveredHeading(String technology);
+
+  /// Heading of a planned coverage card (key coverage.option.planned.heading). {technology} is 5G or LTE (4G). The platform's own wording; left in English for af and zu until native review (counsel-gated claim copy).
+  ///
+  /// In en, this message translates to:
+  /// **'{technology}: planned'**
+  String coverageOptionPlannedHeading(String technology);
+
+  /// Text of a planned card with a date (key coverage.option.planned.text). {date} is a month and year. The platform's own wording; left in English for af and zu until native review (counsel-gated claim copy).
+  ///
+  /// In en, this message translates to:
+  /// **'Expected around {date}. Planned dates are estimates and can change.'**
+  String coverageOptionPlannedText(String date);
+
+  /// Text of a planned card with no date (key coverage.option.planned.no_date). The platform's own wording; left in English for af and zu until native review (counsel-gated claim copy).
+  ///
+  /// In en, this message translates to:
+  /// **'We do not have a date yet. Planned dates are estimates and can change.'**
+  String get coverageOptionPlannedNoDate;
+
+  /// Title of a covered card that has no band or speed (key coverage.option.predicted.title). The platform's own wording; left in English for af and zu until native review (counsel-gated claim copy).
+  ///
+  /// In en, this message translates to:
+  /// **'Coverage is predicted here'**
+  String get coverageOptionPredictedTitle;
+
+  /// Text of a covered card that has no band or speed (key coverage.option.predicted.text). The platform's own wording; left in English for af and zu until native review (counsel-gated claim copy).
+  ///
+  /// In en, this message translates to:
+  /// **'Our network plan predicts that this technology reaches this place. We do not show a figure for it yet.'**
+  String get coverageOptionPredictedText;
+
+  /// Note on a card when the point is within 100 m of the area's edge (key coverage.option.near_boundary). The platform's own wording; left in English for af and zu until native review (counsel-gated claim copy).
+  ///
+  /// In en, this message translates to:
+  /// **'This place is close to the edge of this area, so the result may differ.'**
+  String get coverageOptionNearBoundary;
+
+  /// Title of the excellent band (key coverage.band.excellent.title). The platform's own wording; left in English for af and zu until native review (counsel-gated claim copy).
+  ///
+  /// In en, this message translates to:
+  /// **'Strong service is predicted'**
+  String get coverageBandExcellentTitle;
+
+  /// Text of the excellent band (key coverage.band.excellent.text). The platform's own wording; left in English for af and zu until native review (counsel-gated claim copy).
+  ///
+  /// In en, this message translates to:
+  /// **'Strong service is predicted here. Most things should run smoothly.'**
+  String get coverageBandExcellentText;
+
+  /// Title of the good band (key coverage.band.good.title). The platform's own wording; left in English for af and zu until native review (counsel-gated claim copy).
+  ///
+  /// In en, this message translates to:
+  /// **'Good service is predicted'**
+  String get coverageBandGoodTitle;
+
+  /// Text of the good band (key coverage.band.good.text). The platform's own wording; left in English for af and zu until native review (counsel-gated claim copy).
+  ///
+  /// In en, this message translates to:
+  /// **'Good service is predicted here for everyday use.'**
+  String get coverageBandGoodText;
+
+  /// Title of the fair band (key coverage.band.fair.title). The platform's own wording; left in English for af and zu until native review (counsel-gated claim copy).
+  ///
+  /// In en, this message translates to:
+  /// **'Fair service is predicted'**
+  String get coverageBandFairTitle;
+
+  /// Text of the fair band (key coverage.band.fair.text). The platform's own wording; left in English for af and zu until native review (counsel-gated claim copy).
+  ///
+  /// In en, this message translates to:
+  /// **'Fair service is predicted here. Video calls may sometimes struggle.'**
+  String get coverageBandFairText;
+
+  /// Title of the basic band (key coverage.band.basic.title). The platform's own wording; left in English for af and zu until native review (counsel-gated claim copy).
+  ///
+  /// In en, this message translates to:
+  /// **'Basic service is predicted'**
+  String get coverageBandBasicTitle;
+
+  /// Text of the basic band (key coverage.band.basic.text). The platform's own wording; left in English for af and zu until native review (counsel-gated claim copy).
+  ///
+  /// In en, this message translates to:
+  /// **'Basic service is predicted here. Browsing and messages should work. Tell us and we will let you know if it improves.'**
+  String get coverageBandBasicText;
+
+  /// Title of the none band (key coverage.band.none.title). The platform's own wording; left in English for af and zu until native review (counsel-gated claim copy).
+  ///
+  /// In en, this message translates to:
+  /// **'Service is not predicted yet'**
+  String get coverageBandNoneTitle;
+
+  /// Text of the none band (key coverage.band.none.text). The platform's own wording; left in English for af and zu until native review (counsel-gated claim copy).
+  ///
+  /// In en, this message translates to:
+  /// **'We do not predict service here yet. Tell us and we will let you know.'**
+  String get coverageBandNoneText;
+
+  /// Typical predicted download range, only when the server states one (key coverage.speed.typical). {min} and {max} are Mbps numbers. The platform's own wording; left in English for af and zu until native review (counsel-gated claim copy).
+  ///
+  /// In en, this message translates to:
+  /// **'Typical download speed: {min}–{max} Mbps'**
+  String coverageSpeedTypical(String min, String max);
+
+  /// Busy-hour predicted download range, only when the server states one (key coverage.speed.busy). {min} and {max} are Mbps numbers. The platform's own wording; left in English for af and zu until native review (counsel-gated claim copy).
+  ///
+  /// In en, this message translates to:
+  /// **'Busy-hour download speed: {min}–{max} Mbps'**
+  String coverageSpeedBusy(String min, String max);
+
+  /// Prediction confidence in words (key coverage.confidence.high). The platform's own wording; left in English for af and zu until native review (counsel-gated claim copy).
+  ///
+  /// In en, this message translates to:
+  /// **'Prediction confidence: high'**
+  String get coverageConfidenceHigh;
+
+  /// Prediction confidence in words (key coverage.confidence.medium). The platform's own wording; left in English for af and zu until native review (counsel-gated claim copy).
+  ///
+  /// In en, this message translates to:
+  /// **'Prediction confidence: medium'**
+  String get coverageConfidenceMedium;
+
+  /// Prediction confidence in words (key coverage.confidence.low). The platform's own wording; left in English for af and zu until native review (counsel-gated claim copy).
+  ///
+  /// In en, this message translates to:
+  /// **'Prediction confidence: low'**
+  String get coverageConfidenceLow;
+
+  /// What the figures measure when they are download (key coverage.measure.downlink). The platform's own wording; left in English for af and zu until native review (counsel-gated claim copy).
+  ///
+  /// In en, this message translates to:
+  /// **'The speeds shown are predicted download speeds, measured outdoors.'**
+  String get coverageMeasureDownlink;
+
+  /// What the data measures when it is upload (key coverage.measure.uplink). The platform's own wording; left in English for af and zu until native review (counsel-gated claim copy).
+  ///
+  /// In en, this message translates to:
+  /// **'This information is about upload, not download.'**
+  String get coverageMeasureUplink;
+
+  /// What the data measures when the basis is unknown (key coverage.measure.unknown). The platform's own wording; left in English for af and zu until native review (counsel-gated claim copy).
+  ///
+  /// In en, this message translates to:
+  /// **'We do not know what this information measures.'**
+  String get coverageMeasureUnknown;
+
+  /// Distance band to the nearest coverage when there is none here (key coverage.nearest.under_5). {technology} is 5G or LTE (4G). The platform's own wording; left in English for af and zu until native review (counsel-gated claim copy).
+  ///
+  /// In en, this message translates to:
+  /// **'The closest predicted {technology} coverage is less than 5 km from this place.'**
+  String coverageNearestUnder5(String technology);
+
+  /// Distance band to the nearest coverage when there is none here (key coverage.nearest.5_20). {technology} is 5G or LTE (4G). The platform's own wording; left in English for af and zu until native review (counsel-gated claim copy).
+  ///
+  /// In en, this message translates to:
+  /// **'The closest predicted {technology} coverage is about 5 to 20 km from this place.'**
+  String coverageNearestFrom5To20(String technology);
+
+  /// Distance band to the nearest coverage when there is none here (key coverage.nearest.20_50). {technology} is 5G or LTE (4G). The platform's own wording; left in English for af and zu until native review (counsel-gated claim copy).
+  ///
+  /// In en, this message translates to:
+  /// **'The closest predicted {technology} coverage is about 20 to 50 km from this place.'**
+  String coverageNearestFrom20To50(String technology);
+
+  /// Distance band to the nearest coverage when there is none here (key coverage.nearest.over_50). {technology} is 5G or LTE (4G). The platform's own wording; left in English for af and zu until native review (counsel-gated claim copy).
+  ///
+  /// In en, this message translates to:
+  /// **'The closest predicted {technology} coverage is more than 50 km from this place.'**
+  String coverageNearestOver50(String technology);
+
+  /// Footer line on every coverage answer (key coverage.footer.predicted). The platform's own wording; left in English for af and zu until native review (counsel-gated claim copy).
+  ///
+  /// In en, this message translates to:
+  /// **'These are predictions, not guarantees.'**
+  String get coverageFooterPredicted;
+
+  /// Footer: dataset release label and date (key coverage.footer.release). The platform's own wording; left in English for af and zu until native review (counsel-gated claim copy).
+  ///
+  /// In en, this message translates to:
+  /// **'Network data: {label}, released {date}.'**
+  String coverageFooterRelease(String label, String date);
+
+  /// Footer: dataset release label only (key coverage.footer.release_label). The platform's own wording; left in English for af and zu until native review (counsel-gated claim copy).
+  ///
+  /// In en, this message translates to:
+  /// **'Network data: {label}.'**
+  String coverageFooterReleaseLabel(String label);
+
+  /// Footer: dataset release date only (key coverage.footer.release_date). The platform's own wording; left in English for af and zu until native review (counsel-gated claim copy).
+  ///
+  /// In en, this message translates to:
+  /// **'Network data released {date}.'**
+  String coverageFooterReleaseDate(String date);
+
+  /// Footer: dataset version when there is no release label or date (key coverage.footer.version). The platform's own wording; left in English for af and zu until native review (counsel-gated claim copy).
+  ///
+  /// In en, this message translates to:
+  /// **'Network data version {version}.'**
+  String coverageFooterVersion(String version);
+
+  /// Data source line (key coverage.source.technology_partner). The platform's own wording; left in English for af and zu until native review (counsel-gated claim copy).
+  ///
+  /// In en, this message translates to:
+  /// **'Source: our technology partner\'s network plan.'**
+  String get coverageSourceTechnologyPartner;
+
+  /// Data source line (key coverage.source.network_rf_planning). The platform's own wording; left in English for af and zu until native review (counsel-gated claim copy).
+  ///
+  /// In en, this message translates to:
+  /// **'Source: our network planning team.'**
+  String get coverageSourceNetworkRfPlanning;
+
+  /// Data source line (key coverage.source.isp_planning). The platform's own wording; left in English for af and zu until native review (counsel-gated claim copy).
+  ///
+  /// In en, this message translates to:
+  /// **'Source: the network plan of this provider.'**
+  String get coverageSourceIspPlanning;
+
+  /// Data source line (key coverage.source.drive_test). The platform's own wording; left in English for af and zu until native review (counsel-gated claim copy).
+  ///
+  /// In en, this message translates to:
+  /// **'Source: drive tests on the network.'**
+  String get coverageSourceDriveTest;
+
+  /// Disclaimer for the server key coverage.estimate (platform key coverage.disclaimer.estimate). The platform's own wording; left in English for af and zu until native review (counsel-gated claim copy).
+  ///
+  /// In en, this message translates to:
+  /// **'Coverage is an estimate from our network plan. Actual speeds vary with location, time of day and device.'**
+  String get coverageDisclaimerEstimate;
+
+  /// Disclaimer for the server key coverage.indoor (platform key coverage.indoor_disclaimer). The platform's own wording; left in English for af and zu until native review (counsel-gated claim copy).
+  ///
+  /// In en, this message translates to:
+  /// **'Coverage is predicted for outdoor use. Indoor signal can be weaker because of walls, windows and building materials.'**
+  String get coverageDisclaimerIndoor;
+
+  /// Disclaimer for the server key coverage.planned_date (platform key coverage.disclaimer.planned_date). The platform's own wording; left in English for af and zu until native review (counsel-gated claim copy).
+  ///
+  /// In en, this message translates to:
+  /// **'Planned dates are estimates and can change.'**
+  String get coverageDisclaimerPlannedDate;
+
+  /// Cooling-off notice for the server key commerce.cooling_off (platform key legal.cooling_off_notice). It is the platform's own DRAFT text and must change with the website when counsel has settled it (item C1). The platform's own wording; left in English for af and zu until native review (counsel-gated claim copy).
+  ///
+  /// In en, this message translates to:
+  /// **'DRAFT — needs legal review: ECTA s42 applicability to be confirmed. Refund requests are reviewed by your provider; contact support with your order reference.'**
+  String get coverageDisclaimerCoolingOff;
+
+  /// Shown once when the server sends a disclaimer key the app has no text for. The platform's own wording; left in English for af and zu until native review (counsel-gated claim copy).
+  ///
+  /// In en, this message translates to:
+  /// **'Coverage and speeds are predictions, not guarantees.'**
+  String get coverageDisclaimerGeneric;
+
+  /// Title when there is no coverage at the place and no planned area (key coverage.not_covered.title with a generic place). The platform's own wording; left in English for af and zu until native review (counsel-gated claim copy).
+  ///
+  /// In en, this message translates to:
+  /// **'We do not cover this place yet.'**
+  String get coverageNotCoveredTitle;
+
+  /// Heading above the coverage cards when at least one is covered (key coverage.options.title with a generic place). The platform's own wording; left in English for af and zu until native review (counsel-gated claim copy).
+  ///
+  /// In en, this message translates to:
+  /// **'Coverage is predicted at this place'**
+  String get coverageOptionsTitle;
+
+  /// Heading when only a planned area exists, or when an older server only says planned (key coverage.planned.title with a generic place). The platform's own wording; left in English for af and zu until native review (counsel-gated claim copy).
+  ///
+  /// In en, this message translates to:
+  /// **'Coverage is planned for this place.'**
+  String get coverageStatusPlanned;
+
+  /// Shown when the server's answer has a status the app does not know and no options.
+  ///
+  /// In en, this message translates to:
+  /// **'We could not read the answer. Please try again.'**
+  String get coverageStatusUnreadable;
+
+  /// Prompt above the notify button (key coverage.waitlist). The platform's own wording; left in English for af and zu until native review (counsel-gated claim copy).
+  ///
+  /// In en, this message translates to:
+  /// **'Join the waitlist and we will let you know when we arrive.'**
+  String get coverageNotifyPrompt;
+
+  /// Button that opens the waiting-list form for a place without coverage yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Notify me'**
+  String get coverageNotifyMe;
 }
 
 class _AppLocalizationsDelegate
