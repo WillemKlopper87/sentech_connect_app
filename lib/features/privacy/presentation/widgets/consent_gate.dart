@@ -58,7 +58,7 @@ class ConsentDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final body = switch (purpose) {
-      ConsentPurpose.locationCapture => l10n.consentLocationBody,
+      ConsentPurpose.locationCapture || ConsentPurpose.coverageLocation => l10n.consentLocationBody,
       ConsentPurpose.ricaCapture => l10n.consentRicaBody,
       ConsentPurpose.terms || ConsentPurpose.privacy || ConsentPurpose.marketingSms => l10n.consentLegalBody,
     };
@@ -72,6 +72,7 @@ class ConsentDialog extends StatelessWidget {
             Text(body),
             // Reverse geocoding uses the platform geocoder (Google or Apple):
             // say so before any location is read.
+            // The registration notice always says so; the coverage notice never does (it does not use the map service).
             if (purpose == ConsentPurpose.locationCapture && mapServiceNote) ...[
               const SizedBox(height: 8),
               Text(l10n.consentLocationMapService),

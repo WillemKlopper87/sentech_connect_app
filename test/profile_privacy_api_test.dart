@@ -293,6 +293,7 @@ void main() {
         ConsentPurpose.privacy: 'privacy',
         ConsentPurpose.marketingSms: 'marketing_sms',
         ConsentPurpose.locationCapture: null,
+        ConsentPurpose.coverageLocation: null,
         ConsentPurpose.ricaCapture: null,
       });
     });

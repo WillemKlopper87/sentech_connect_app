@@ -99,7 +99,7 @@ class _CoveragePageState extends State<CoveragePage> {
 
   Future<void> _useMyLocation() async {
     // POPIA: agree to the location notice before any location is read.
-    if (!await ensureConsent(context, ConsentPurpose.locationCapture, mapServiceNote: false) || !mounted) return;
+    if (!await ensureConsent(context, ConsentPurpose.coverageLocation, mapServiceNote: false) || !mounted) return;
     unawaited(context.read<LocationCubit>().locate());
   }
 
@@ -328,6 +328,7 @@ class _LocationButton extends StatelessWidget {
           LocationStatus.failed => l10n.coverageCouldNotGetYourLocationCheck,
           _ => null,
         };
+        final canOpenSettings = state.status == LocationStatus.deniedForever || state.status == LocationStatus.serviceOff;
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -349,6 +350,11 @@ class _LocationButton extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(top: 8),
                 child: Text(message, style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.error)),
+              ),
+            if (canOpenSettings)
+              Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: TextButton(onPressed: context.read<LocationCubit>().openSettings, child: Text(l10n.coverageOpenSettings)),
               ),
           ],
         );

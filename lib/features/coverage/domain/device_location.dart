@@ -3,6 +3,12 @@
 /// `GeolocatorDeviceLocation`; tests use a fake. The position is never stored.
 abstract interface class DeviceLocationService {
   Future<DeviceLocationResult> current();
+
+  /// Opens this app's page in the phone's settings (to allow location after "denied for good").
+  Future<void> openAppSettings();
+
+  /// Opens the phone's location switch (when location services are off).
+  Future<void> openLocationSettings();
 }
 
 sealed class DeviceLocationResult {

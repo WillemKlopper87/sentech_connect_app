@@ -27,6 +27,15 @@ class _FakeLocation implements DeviceLocationService {
     await gate?.future;
     return result;
   }
+
+  int appSettingsOpened = 0;
+  int locationSettingsOpened = 0;
+
+  @override
+  Future<void> openAppSettings() async => appSettingsOpened++;
+
+  @override
+  Future<void> openLocationSettings() async => locationSettingsOpened++;
 }
 
 void main() {

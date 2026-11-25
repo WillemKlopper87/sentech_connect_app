@@ -32,6 +32,15 @@ class _FakeLocation implements DeviceLocationService {
     calls++;
     return result;
   }
+
+  int appSettingsOpened = 0;
+  int locationSettingsOpened = 0;
+
+  @override
+  Future<void> openAppSettings() async => appSettingsOpened++;
+
+  @override
+  Future<void> openLocationSettings() async => locationSettingsOpened++;
 }
 
 void main() {
@@ -65,7 +74,7 @@ void main() {
   }
 
   Future<void> grantLocationConsent() async {
-    await locator<ConsentRepository>().grant(ConsentPurpose.locationCapture);
+    await locator<ConsentRepository>().grant(ConsentPurpose.coverageLocation);
   }
 
   testWidgets('shows the search, the location button, a map and the plain start hint, and reads the provider meta', (tester) async {
@@ -218,6 +227,30 @@ void main() {
     await tester.pump();
     await tester.pump();
     expect(find.textContaining('Turn on location services'), findsOneWidget);
+  });
+
+  testWidgets('open_settings_is_offered_when_location_is_denied_for_good_or_services_are_off', (tester) async {
+    location.result = const LocationDeniedForever();
+    await pump(tester);
+    await grantLocationConsent();
+    await tester.tap(find.text('Use my current location'));
+    await tester.pump();
+    await tester.pump();
+    await tester.tap(find.text('Open settings'));
+    expect(location.appSettingsOpened, 1);
+    expect(location.locationSettingsOpened, 0);
+    location.result = const LocationServiceOff();
+    await tester.tap(find.text('Use my current location'));
+    await tester.pump();
+    await tester.pump();
+    await tester.tap(find.text('Open settings'));
+    expect(location.locationSettingsOpened, 1);
+    // Plain denial (can be asked again) offers no settings button.
+    location.result = const LocationDenied();
+    await tester.tap(find.text('Use my current location'));
+    await tester.pump();
+    await tester.pump();
+    expect(find.text('Open settings'), findsNothing);
   });
 
   testWidgets('an older server or a provider with no data says so in words with a retry, never an empty screen', (tester) async {

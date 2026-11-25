@@ -30,6 +30,12 @@ import 'fake_coverage_repository.dart';
 class _NoLocation implements DeviceLocationService {
   @override
   Future<DeviceLocationResult> current() async => const LocationFailed();
+
+  @override
+  Future<void> openAppSettings() async {}
+
+  @override
+  Future<void> openLocationSettings() async {}
 }
 
 const _point = GeoPoint(-26.514, 29.103);

@@ -10,6 +10,16 @@ class GeolocatorDeviceLocation implements DeviceLocationService {
   final Duration timeout;
 
   @override
+  Future<void> openAppSettings() async {
+    await Geolocator.openAppSettings();
+  }
+
+  @override
+  Future<void> openLocationSettings() async {
+    await Geolocator.openLocationSettings();
+  }
+
+  @override
   Future<DeviceLocationResult> current() async {
     try {
       if (!await Geolocator.isLocationServiceEnabled()) return const LocationServiceOff();

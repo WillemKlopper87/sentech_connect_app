@@ -38,6 +38,23 @@ class LocationCubit extends Cubit<LocationState> {
     });
   }
 
+  /// Opens the phone's settings for the problem the customer is looking at: the app's permission when it is
+  /// denied for good, the location switch when location services are off.
+  Future<void> openSettings() async {
+    try {
+      switch (state.status) {
+        case LocationStatus.deniedForever:
+          await _service.openAppSettings();
+        case LocationStatus.serviceOff:
+          await _service.openLocationSettings();
+        case LocationStatus.idle || LocationStatus.locating || LocationStatus.located || LocationStatus.denied || LocationStatus.failed:
+          break;
+      }
+    } on Object {
+      // Nothing to do: the message stays and the customer can open the settings by hand.
+    }
+  }
+
   void reset() {
     if (!isClosed) emit(const LocationState());
   }

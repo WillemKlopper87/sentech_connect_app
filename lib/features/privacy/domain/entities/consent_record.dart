@@ -6,6 +6,12 @@ enum ConsentPurpose {
   /// One-off use of the device location for the coverage check (device-only).
   locationCapture,
 
+  /// One-off use of the device location for the coverage check, asked on the coverage screen. A
+  /// SEPARATE purpose from [locationCapture]: that one is asked at registration with the sentence that
+  /// the phone's map service (Google or Apple) turns a position into an address, which the coverage
+  /// check does not do. Agreeing to one never stands in for the other (device-only).
+  coverageLocation,
+
   /// Processing of face/ID data for RICA identity verification (device-only).
   ricaCapture,
 
@@ -26,7 +32,7 @@ extension ConsentPurposeApi on ConsentPurpose {
         ConsentPurpose.terms => 'terms',
         ConsentPurpose.privacy => 'privacy',
         ConsentPurpose.marketingSms => 'marketing_sms',
-        ConsentPurpose.locationCapture || ConsentPurpose.ricaCapture => null,
+        ConsentPurpose.locationCapture || ConsentPurpose.coverageLocation || ConsentPurpose.ricaCapture => null,
       };
 }
 
