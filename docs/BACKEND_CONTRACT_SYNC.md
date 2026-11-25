@@ -303,3 +303,52 @@ Not verified against a running backend: nothing in this section was run against 
 - *Consent:* the coverage screen asks its own device-only purpose `coverageLocation`, separate from `locationCapture`, which registration still asks with the sentence that the phone's map service (Google or Apple) turns a position into an address. Agreeing to one never skips the other's notice (tested in both orders). Chosen because it is the smallest change the consent store already supports (one enum value, no server mapping).
 - *Settings:* `deniedForever` and location-services-off offer "Open settings" (`Geolocator.openAppSettings` / `openLocationSettings`).
 - *Release blocker (counsel C1):* the cooling-off notice shown on a covered answer is the platform's DRAFT text ("DRAFT - needs legal review ..."). The app build must NOT ship to production until counsel has settled it and both the website and `coverageDisclaimerCoolingOff` carry the final wording.
+
+## Support tickets, G7, 2026-11-26: BUILT, NOT RUN AGAINST A SERVER
+
+Read from the platform code at `f58b00cf` (`apps/api/src/sentech_api/modules/support/{me_router,schemas_tickets,incidents_router,enabled,state}.py`, `docs/runbooks/support-ticketing.md`, `support-messages.md`) and the snapshot (it already holds every route below). Not run against a live backend.
+
+**Routes (customer token; staff tokens are refused):**
+
+| Route | Used for | Limits and notes |
+|---|---|---|
+| `GET /v1/me/tickets?cursor&limit` | the customer's tickets, newest first (`Page[MyTicketItem]`) | keyset cursor, default 20; a ticket that has no public message yet (staff opened it with only an internal note) is not listed |
+| `POST /v1/me/tickets` | open a ticket, body `{category, body, order_id?}`, 201 `{reference}` | `Idempotency-Key` required; `body` 1 to 4000 characters; `category` is a slug from the categories route; `order_id` must be one of the customer's own orders (404 `order_not_found`); 5 per customer per hour (429 with `Retry-After`) |
+| `GET /v1/me/tickets/categories` | what a ticket can be about (`{items: [{slug, name}]}`) | only active, public categories; the app never hard-codes one |
+| `GET /v1/me/tickets/{reference}` | one ticket with its public messages (`MyTicketDetail`) | reference pattern `^[A-Z]{3}-[A-Z0-9]{8}$` (the app refuses anything else before it builds a path); another customer's reference is 404 `ticket_not_found` |
+| `POST /v1/me/tickets/{reference}/messages` | reply, body `{body}`, 201 `MyTicketItem` | `Idempotency-Key` required; 1 to 4000 characters; 30 per customer per hour; REOPENS a solved ticket; a closed one is 409 `ticket_closed` |
+| `POST /v1/me/tickets/{reference}/close` | the customer marks it solved, 200 `MyTicketItem` | no body; the new status is `resolved` (NOT `closed`); 409 `ticket_closed`, 409 `ticket_already_resolved`, 409 `ticket_version_conflict` |
+| `GET /v1/support/incidents?tenant&site_id` | public incident notices (`PublicIncidentList`) | no sign-in; 60 per minute per client; cached 30 seconds; open incidents and those resolved in the last 24 hours; an incident without a site is always included; when ticketing is off the answer is an empty list (not a 409) |
+| `POST /v1/support/messages` | the existing contact form, unchanged | when the provider has ticketing on, the server turns the message into a ticket `SUP-XXXXXXXX` (no email); the app keeps the same call and its receipt wording |
+
+**The single switch (runbook, owner decision 18 November 2026):** the `tickets` plan module turns ticketing on for a provider; the `ticketing` feature flag is Sentech's kill switch and must be on for the deployment (and not turned off for the provider). The server enforces both on every route: 409 `feature_disabled` (flag off), 403 `module_not_enabled` (module off). The app opens the entry only when the module `tickets` is on AND `feature_flags.ticketing` is literally `true` AND the app config has loaded; an older server (no `ticketing` flag, or no `modules`) reads as off.
+
+**What the customer routes return, and what the app shows:** `status` is `new`, `open`, `pending_customer`, `on_hold`, `resolved`, `closed` (an unfamiliar value shows a neutral label). `awaiting_reply` is true when support answered last and the ticket is not closed: the app says support is waiting for the customer's reply and nothing about response times (the customer routes carry no target or time). A message `author` is `you` or `support` only: no staff name or id exists. `body` is null once the retention job has removed the text (365 days after closing): the app says the text is no longer available. A category staff keep private is shown by the server as `other` / "Support". Internal notes, events, assignees and times never reach these routes.
+
+**Problem codes found:**
+
+| Route | Status and code | Meaning in the app |
+|---|---|---|
+| any ticket route | 409 `feature_disabled`, 403 `module_not_enabled`, plain 404 (older server) | feature off: entry hidden, contact form stays (`TicketsNotAvailableFailure`); the 409 also tells the tenant cubit to hide the `tickets` module at once |
+| get, reply, close | 404 `ticket_not_found` | `TicketNotFoundFailure`: plain words, back to the list |
+| create | 404 `order_not_found` | the optional order link is not used by the v1 screens |
+| create | 422 `category_not_found` | the topic is gone: the categories are read again |
+| create, reply | 422 `idempotency_key_reused` | the key was used with a different body (the app starts a new key once) |
+| create, reply | 409 `idempotency_in_progress` | still processing: the same key is retried |
+| create, reply | 429 `rate_limited` with `Retry-After` | the send button is held until the wait passes |
+| create, reply | 400 `idempotency_key_required` / `idempotency_key_invalid` | cannot happen with the app's `app-` + 32 hex key |
+| reply, close | 409 `ticket_closed` | plain refusal, the thread is read again |
+| close | 409 `ticket_already_resolved`, 409 `ticket_version_conflict` | the thread is read again |
+| create, reply | 422 `validation_error` | empty or over-long body; the app validates first |
+
+**Idempotency:** create and reply each need an `Idempotency-Key`; the fingerprint is the keyed hash of the request body, so the same key with a different body is 422 `idempotency_key_reused`. One key per attempt, kept in an in-memory holder (scoped by provider and customer, and by reference for a reply; the key and the "unknown outcome" flag only, never the text) after an outcome the app cannot know (network, 5xx, `idempotency_in_progress`, 429), dropped after success or a final refusal, wiped on sign-out and erase (`DefaultPersonalDataWiper`). After an unknown outcome the app reads the ticket list or thread again before it lets the customer send a different text.
+
+**Privacy:** ticket text is never logged (the request log carries method and path; `PiiScrubber` masks a reference such as `TKT-7K3M9Q2A` in a path), never written to disk or preferences, never put in a route argument or deep link, and a draft lives in memory only while the screen is open. It is cleared on success and on sign-out.
+
+**Not in the app (on purpose):** attachments, router or Wi-Fi actions (staff routes only), push notifications for replies (no device-token route), live polling (the thread is read on open and on pull to refresh), deep links to a ticket, the optional order link (the route takes it; the app has no order picker for it), escalation (staff only).
+
+**Fixtures:** `tickets_page.json`, `ticket_detail.json`, `ticket_categories.json`, `ticket_created.json`, `incidents_public.json` are validated against the snapshot; every status, author, severity and incident status the API can send is asserted to decode; the 4000-character body limit is asserted against the schema.
+
+**Platform follow-ups:** (1) the customer thread has no `is_closed` or `can_reply` flag: the app derives it from `status == closed`; (2) there is no per-ticket "last support reply" time, so the list shows `updated_at` only; (3) the hourly limits are only visible on the 429: the app cannot show how many are left; (4) nothing links to the incident route from the platform's own site yet; (5) create returns only the `reference`: returning the ticket header too would save the app a second read; (6) the contact form becomes a ticket (`SUP-`) on a provider with ticketing on, but the form has no session, so it is never tied to the customer and never shows under My tickets: say so to customers or add a link when signed in.
+
+Not verified against a running backend: nothing in this section was run against the real platform, and the screens were not run on a device.

@@ -505,3 +505,42 @@ class OutsideServiceAreaFailure extends ValidationFailure {
   const OutsideServiceAreaFailure()
       : super('We can only check places in South Africa. Check the place and try again.', 'outside_service_area', false);
 }
+
+// Support tickets (the customer's own tickets and the public incident notices).
+
+/// The ticket feature is not available: the provider has it off (409
+/// `feature_disabled`, 403 `module_not_enabled`) or the server is older than the
+/// routes (404). The screens hide the entry quietly and the contact form stays
+/// the way to reach support.
+class TicketsNotAvailableFailure extends Failure {
+  const TicketsNotAvailableFailure([super.message = 'Support tickets are not available right now.']);
+}
+
+/// 404 `ticket_not_found`: no such ticket for this customer.
+class TicketNotFoundFailure extends NotFoundFailure {
+  const TicketNotFoundFailure([super.message = 'We could not find that ticket.']);
+}
+
+/// 409 `ticket_closed`: a closed ticket takes no more messages and cannot be closed again.
+class TicketClosedFailure extends ValidationFailure {
+  const TicketClosedFailure()
+      : super('This ticket is closed. Open a new one instead.', 'ticket_closed', false);
+}
+
+/// 409 `ticket_already_resolved`: the ticket is already marked solved.
+class TicketAlreadyResolvedFailure extends ValidationFailure {
+  const TicketAlreadyResolvedFailure()
+      : super('This ticket is already marked solved.', 'ticket_already_resolved', false);
+}
+
+/// 409 `ticket_version_conflict`: support changed the ticket at the same moment.
+class TicketChangedFailure extends ValidationFailure {
+  const TicketChangedFailure()
+      : super('The ticket just changed. Check it and try again.', 'ticket_version_conflict', false);
+}
+
+/// 422 `category_not_found`: that category is no longer offered.
+class TicketCategoryGoneFailure extends ValidationFailure {
+  const TicketCategoryGoneFailure()
+      : super('That topic is no longer offered. Pick another.', 'category_not_found', false);
+}

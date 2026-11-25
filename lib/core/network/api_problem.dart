@@ -138,6 +138,7 @@ Failure failureFromStatus(int status, ApiProblem? problem, {String? requestId, D
   if (status == 404 && problem?.code == 'subscriber_not_found') return const SubscriberNotFoundFailure();
   if (status == 404 && problem?.code == 'order_not_found') return const OrderNotFoundFailure();
   if (status == 404 && problem?.code == 'subscriber_plan_not_found') return const PlanUnavailableFailure('subscriber_plan_not_found');
+  if (status == 404 && problem?.code == 'ticket_not_found') return const TicketNotFoundFailure();
   if (status == 404) return NotFoundFailure(detail ?? 'We could not find that.');
   if (status == 429) return RateLimitedFailure(detail ?? 'Too many attempts. Please wait and try again.', retryAfter);
   if (status == 503 && problem?.code == 'document_upload_failed') return const KycUploadFailedFailure();
@@ -225,6 +226,10 @@ const _typedRefusals = <String, Failure>{
   'redemption_limit_reached': RedemptionLimitReachedFailure(),
   'pack_not_offered': PackNotOfferedFailure(),
   'earn_refused': EarnRefusedFailure(),
+  'ticket_closed': TicketClosedFailure(),
+  'ticket_already_resolved': TicketAlreadyResolvedFailure(),
+  'ticket_version_conflict': TicketChangedFailure(),
+  'category_not_found': TicketCategoryGoneFailure(),
   'outside_service_area': OutsideServiceAreaFailure(),
   'coordinates_swapped': OutsideServiceAreaFailure(),
 };

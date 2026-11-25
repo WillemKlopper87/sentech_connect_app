@@ -28,6 +28,9 @@ import 'package:sentech_connect_app/features/credits/domain/entities/tier.dart';
 import 'package:sentech_connect_app/features/fiveg_service/data/fiveg_json.dart';
 import 'package:sentech_connect_app/features/fiveg_service/domain/entities/fiveg_usage.dart';
 import 'package:sentech_connect_app/features/fiveg_service/domain/usage_levels.dart';
+import 'package:sentech_connect_app/features/support/data/support_tickets_json.dart';
+import 'package:sentech_connect_app/features/support/domain/entities/incident.dart';
+import 'package:sentech_connect_app/features/support/domain/entities/ticket.dart';
 import '../helpers/fixtures.dart';
 import 'openapi_schema.dart';
 
@@ -109,6 +112,12 @@ const fixtureSchemas = {
   'coverage_address.json': 'AddressSearchOut', // POST /v1/coverage/address 200
   'lead_accepted.json': 'LeadAcceptedOut', // POST /v1/leads 202
   'withdrawal_requested.json': 'WithdrawalRequestedOut', // POST /v1/leads/withdrawal-requests 202
+  // Support tickets (platform f58b00cf, support/me_router.py and incidents_router.py): the customer's own tickets and the public notices.
+  'tickets_page.json': 'Page_MyTicketItem_',
+  'ticket_detail.json': 'MyTicketDetail',
+  'ticket_categories.json': 'MyCategoryList',
+  'ticket_created.json': 'MyTicketCreatedOut', // POST /v1/me/tickets 201
+  'incidents_public.json': 'PublicIncidentList',
 };
 
 /// Keys each hand-written decoder reads. Change it in the same commit as the decoder.
@@ -270,6 +279,16 @@ const decoderReads = <String, Set<String>>{
   'TileLayerOut': {'name', 'version', 'url_template'},
   'CoverageCapabilitiesOut': {'address_lookup'},
   'AddressSearchOut': {'matched', 'results'},
+  'Page_MyTicketItem_': {'items', 'next_cursor'},
+  'MyTicketItem': {'reference', 'status', 'category', 'category_name', 'created_at', 'updated_at', 'awaiting_reply'},
+  'MyTicketDetail': {'reference', 'status', 'category', 'category_name', 'created_at', 'updated_at', 'awaiting_reply', 'messages'},
+  'MyMessageOut': {'author', 'body', 'created_at'},
+  'MyCategoryList': {'items'},
+  'MyCategoryOut': {'slug', 'name'},
+  'MyTicketCreatedOut': {'reference'},
+  'PublicIncidentList': {'items'},
+  'PublicIncident': {'id', 'title', 'severity', 'status', 'body', 'started_at', 'resolved_at', 'updates'},
+  'IncidentUpdateOut': {'status', 'body', 'created_at'},
   'AddressHitOut': {'label', 'lat', 'lon', 'precision'},
 };
 
@@ -944,6 +963,62 @@ void main() {
 
     test('the platform sends the credits flag in app-config feature_flags', () {
       expect(api.properties('FeatureFlags'), contains('credits'));
+    });
+  });
+
+  group('support tickets (G7)', () {
+    List<String> enumOf(String schema, String property) =>
+        (((api.schema(schema)['properties']! as Map)[property]! as Map)['enum']! as List).cast<String>();
+
+    test('every route the app calls exists with the answer the app decodes', () {
+      const answers = {
+        ('/v1/me/tickets', 'get', '200'): 'Page_MyTicketItem_',
+        ('/v1/me/tickets', 'post', '201'): 'MyTicketCreatedOut',
+        ('/v1/me/tickets/categories', 'get', '200'): 'MyCategoryList',
+        ('/v1/me/tickets/{reference}', 'get', '200'): 'MyTicketDetail',
+        ('/v1/me/tickets/{reference}/messages', 'post', '201'): 'MyTicketItem',
+        ('/v1/me/tickets/{reference}/close', 'post', '200'): 'MyTicketItem',
+        ('/v1/support/incidents', 'get', '200'): 'PublicIncidentList',
+      };
+      for (final MapEntry(key: (path, method, status), value: name) in answers.entries) {
+        expect(api.responseSchemaName(api.path(path, method), status), name, reason: '$method $path');
+      }
+    });
+
+    test('create and reply carry an Idempotency-Key header; the incidents route takes tenant and site_id', () {
+      for (final path in ['/v1/me/tickets', '/v1/me/tickets/{reference}/messages']) {
+        final headers = ((api.path(path, 'post')['parameters'] as List?) ?? const []).cast<Map>().where((p) => p['in'] == 'header');
+        expect(headers.map((p) => p['name']), contains('Idempotency-Key'), reason: path);
+      }
+      final query = ((api.path('/v1/support/incidents', 'get')['parameters'] as List?) ?? const []).cast<Map>();
+      expect(query.map((p) => p['name']), containsAll(['tenant', 'site_id']));
+    });
+
+    test('the body limits the app enforces match the server limits', () {
+      final create = (api.schema('MyTicketCreateIn')['properties']! as Map)['body']! as Map;
+      final message = (api.schema('MyMessageIn')['properties']! as Map)['body']! as Map;
+      expect(create['maxLength'], ticketBodyMaxLength);
+      expect(message['maxLength'], ticketBodyMaxLength);
+      expect(create['minLength'], 1);
+    });
+
+    test('every status, author, severity and incident status the API can send decodes', () {
+      for (final v in enumOf('MyTicketItem', 'status')) {
+        expect(ticketStatusFromApi(v), isNot(TicketStatus.unknown), reason: v);
+      }
+      for (final v in enumOf('MyMessageOut', 'author')) {
+        expect(ticketAuthorFromApi(v), isNot(TicketAuthor.unknown), reason: v);
+      }
+      for (final v in enumOf('PublicIncident', 'severity')) {
+        expect(incidentSeverityFromApi(v), isNot(IncidentSeverity.unknown), reason: v);
+      }
+      for (final v in enumOf('PublicIncident', 'status')) {
+        expect(incidentStatusFromApi(v), isNot(IncidentStatus.unknown), reason: v);
+      }
+    });
+
+    test('the platform sends the ticketing flag in app-config feature_flags', () {
+      expect(api.properties('FeatureFlags'), contains('ticketing'));
     });
   });
 

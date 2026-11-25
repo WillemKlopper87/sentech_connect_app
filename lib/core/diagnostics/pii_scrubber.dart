@@ -9,6 +9,8 @@ class PiiScrubber {
   static final _rules = <(RegExp, String)>[
     // Email addresses.
     (RegExp(r'[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}'), '[email]'),
+    // Support ticket references (TKT-, SUP-, ESC-): who raised a ticket is personal, so a request path never shows one.
+    (RegExp(r'\b[A-Z]{3}-[A-Z0-9]{8}\b'), '[ticket]'),
     // Sentech voucher codes.
     (RegExp(r'\bSEN-[A-Za-z0-9]{4}-[A-Za-z0-9]{4}\b', caseSensitive: false), '[voucher]'),
     // Bearer / authorization tokens.
