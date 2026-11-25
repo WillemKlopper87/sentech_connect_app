@@ -19,6 +19,9 @@ import 'package:sentech_connect_app/features/wifi_voucher/domain/entities/wifi_h
 
 import 'package:sentech_connect_app/features/hotspot_login/data/http_hotspot_login_repository.dart';
 import 'package:sentech_connect_app/features/credits/data/credits_json.dart';
+import 'package:sentech_connect_app/features/coverage/data/coverage_json.dart';
+import 'package:sentech_connect_app/features/coverage/domain/entities/coverage_check.dart';
+import 'package:sentech_connect_app/features/coverage/domain/entities/geocode_match.dart';
 import 'package:sentech_connect_app/features/credits/domain/entities/credit_entry.dart';
 import 'package:sentech_connect_app/features/credits/domain/entities/mission.dart';
 import 'package:sentech_connect_app/features/credits/domain/entities/tier.dart';
@@ -96,6 +99,17 @@ const fixtureSchemas = {
   'human_check_config.json': 'HumanCheckConfig',
   'human_check_config_no_widget.json': 'HumanCheckConfig',
   'support_accepted.json': 'SupportAcceptedOut', // POST /v1/support/messages 202
+  // Public coverage (platform f58b00cf; app CV17): the check in its v2 shape, the layer metadata, the address step.
+  'coverage_check_two_options.json': 'CoverageCheckOut',
+  'coverage_check_placeholder.json': 'CoverageCheckOut',
+  'coverage_check_planned.json': 'CoverageCheckOut',
+  'coverage_check_nearest.json': 'CoverageCheckOut',
+  'coverage_meta.json': 'CoverageMetaOut',
+  'coverage_capabilities.json': 'CoverageCapabilitiesOut',
+  'coverage_address.json': 'AddressSearchOut', // POST /v1/coverage/address 200
+  'geocode_search.json': 'GeocodeSearchOut', // GET /v1/geocode/search 200 (older route, used when the address step is off)
+  'lead_accepted.json': 'LeadAcceptedOut', // POST /v1/leads 202
+  'withdrawal_requested.json': 'WithdrawalRequestedOut', // POST /v1/leads/withdrawal-requests 202
 };
 
 /// Keys each hand-written decoder reads. Change it in the same commit as the decoder.
@@ -238,6 +252,28 @@ const decoderReads = <String, Set<String>>{
   // Request body of POST .../data/unlock-orders: the snapshot has no schema for it (the backend reads it through a
   // dependency), so the key set is pinned in the 5G group below instead.
   'ProblemDetail': {'code', 'title', 'detail', 'request_id'},
+  'CoverageCheckOut': {
+    'status', 'tenant', 'shape_version', 'options', 'primary_index', 'nearest', 'disclaimer_keys', 'waitlist_available',
+    'dataset_version',
+  },
+  'CoverageOptionOut': {
+    'technology', 'kind', 'band', 'typical_down', 'busy_hour_down', 'confidence', 'expected_date', 'near_boundary',
+    'notify_available', 'dataset',
+  },
+  'OptionBandOut': {'key', 'rank', 'notify'},
+  'SpeedRange': {'min_mbps', 'max_mbps'},
+  'OptionDatasetOut': {'version', 'release_label', 'release_date', 'source_label', 'measure_direction', 'measure_label_key'},
+  'CoverageNearestOut': {'technology', 'distance_band'},
+  'CoverageMetaOut': {
+    'dataset_version', 'dataset_activated_at', 'bounds', 'waitlist_consent_version', 'coverage_arrived_consent_version',
+    'attribution', 'min_zoom', 'max_zoom', 'layers',
+  },
+  'TileLayerOut': {'name', 'version', 'url_template'},
+  'CoverageCapabilitiesOut': {'address_lookup'},
+  'AddressSearchOut': {'matched', 'results'},
+  'AddressHitOut': {'label', 'lat', 'lon', 'precision'},
+  'GeocodeSearchOut': {'results'},
+  'GeocodeResultOut': {'label', 'lat', 'lon'},
 };
 
 /// Keys read before the API serves them (absent = default value).
@@ -911,6 +947,50 @@ void main() {
 
     test('the platform sends the credits flag in app-config feature_flags', () {
       expect(api.properties('FeatureFlags'), contains('credits'));
+    });
+  });
+
+  group('public coverage (CV17)', () {
+    List<String> enumOf(String schema, String property) =>
+        (((api.schema(schema)['properties']! as Map)[property]! as Map)['enum']! as List).cast<String>();
+
+    List<String> enumOfNullable(String schema, String property) {
+      final node = (api.schema(schema)['properties']! as Map)[property]! as Map;
+      final options = (node['anyOf'] as List?) ?? [node];
+      return options.cast<Map>().expand((o) => ((o['enum'] as List?) ?? const []).cast<String>()).toList();
+    }
+
+    test('every status, technology, kind, confidence, direction, distance band and precision the API can send decodes', () {
+      for (final v in enumOf('CoverageCheckOut', 'status')) {
+        expect(coverageAnswerFromApi(v), isNot(CoverageAnswer.unknown), reason: v);
+      }
+      for (final v in enumOf('CoverageOptionOut', 'technology')) {
+        expect(coverageTechnologyFromApi(v), isNot(CoverageTechnology.unknown), reason: v);
+      }
+      for (final v in enumOf('CoverageNearestOut', 'technology')) {
+        expect(coverageTechnologyFromApi(v), isNot(CoverageTechnology.unknown), reason: v);
+      }
+      for (final v in enumOf('CoverageOptionOut', 'kind')) {
+        expect(optionKindFromApi(v), isNot(OptionKind.unknown), reason: v);
+      }
+      for (final v in enumOf('CoverageOptionOut', 'confidence')) {
+        expect(coverageConfidenceFromApi(v), isNot(CoverageConfidence.unknown), reason: v);
+      }
+      for (final v in enumOf('OptionDatasetOut', 'measure_direction')) {
+        // `unknown` is itself a value the API sends: it must read as unknown, the rest must not.
+        expect(measureDirectionFromApi(v) == MeasureDirection.unknown, v == 'unknown', reason: v);
+      }
+      for (final v in enumOf('CoverageNearestOut', 'distance_band')) {
+        expect(distanceBandFromApi(v), isNot(DistanceBand.unknown), reason: v);
+      }
+      for (final v in enumOfNullable('AddressSearchOut', 'matched')) {
+        expect(matchPrecisionFromApi(v), isNot(MatchPrecision.unknown), reason: v);
+      }
+    });
+
+    test('the check fixtures decode', () {
+      expect(coverageCheckFromJson(fixtureMap('coverage_check_two_options.json')).options, hasLength(2));
+      expect(coverageCheckFromJson(fixtureMap('coverage_check_nearest.json')).nearest, isNotNull);
     });
   });
 }

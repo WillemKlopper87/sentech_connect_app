@@ -1,0 +1,41 @@
+{
+  "status": "planned",
+  "tenant": "sentech",
+  "technology": "5g",
+  "typical_down": null,
+  "busy_hour_down": null,
+  "confidence": "low",
+  "expected_date": "2027-03-01",
+  "dataset_version": 7,
+  "band": null,
+  "band_set_version": null,
+  "band_set_provenance": null,
+  "disclaimer_keys": ["coverage.estimate", "coverage.planned_date"],
+  "waitlist_available": true,
+  "shape_version": 2,
+  "options": [
+    {
+      "technology": "5g",
+      "kind": "planned",
+      "band": null,
+      "band_set_version": null,
+      "typical_down": null,
+      "busy_hour_down": null,
+      "typical_up": null,
+      "confidence": "low",
+      "expected_date": "2027-03-01",
+      "near_boundary": false,
+      "notify_available": true,
+      "dataset": {
+        "version": 7,
+        "release_label": "2026 Q4 plan",
+        "release_date": "2026-11-01",
+        "source_label": "coverage.source.network_rf_planning",
+        "measure_direction": "downlink",
+        "measure_label_key": "coverage.measure.downlink"
+      }
+    }
+  ],
+  "primary_index": 0,
+  "nearest": null
+}

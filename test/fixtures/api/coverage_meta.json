@@ -1,0 +1,16 @@
+{
+  "tenant": "sentech",
+  "dataset_version": 7,
+  "dataset_activated_at": "2026-11-02T08:30:00Z",
+  "min_zoom": 5,
+  "max_zoom": 14,
+  "bounds": [16.0, -35.5, 33.5, -22.0],
+  "layers": [
+    {"name": "coverage", "version": "v7", "url_template": "/v1/tiles/coverage/{z}/{x}/{y}.mvt?tenant=sentech&v=v7"},
+    {"name": "hotspots", "version": "h3", "url_template": "/v1/tiles/hotspots/{z}/{x}/{y}.mvt?tenant=sentech&v=h3"}
+  ],
+  "attribution": "Coverage: Sentech (estimate)",
+  "waitlist_consent_version": "2026-10-01",
+  "coverage_arrived_consent_version": "2026-11-18",
+  "hotspot_count": 12
+}

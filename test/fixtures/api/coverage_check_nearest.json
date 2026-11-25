@@ -1,0 +1,19 @@
+{
+  "status": "not_covered",
+  "tenant": "sentech",
+  "technology": null,
+  "typical_down": null,
+  "busy_hour_down": null,
+  "confidence": null,
+  "expected_date": null,
+  "dataset_version": 7,
+  "band": null,
+  "band_set_version": null,
+  "band_set_provenance": null,
+  "disclaimer_keys": ["coverage.estimate"],
+  "waitlist_available": true,
+  "shape_version": 2,
+  "options": [],
+  "primary_index": null,
+  "nearest": {"technology": "lte", "distance_band": "5 to 20 km"}
+}
