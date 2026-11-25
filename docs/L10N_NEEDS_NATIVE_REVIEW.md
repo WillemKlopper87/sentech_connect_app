@@ -651,3 +651,83 @@ Counsel-gated copy to settle before release: the waiting-list consent text and i
 | `coverageLeaveIntro` | Enter the mobile number or email address you used. If it is on our list we will send a link to that number or address, and only the link can remove it. We do not say whether a number or address is on the list. |
 | `coverageLeaveSend` | Send me a link |
 | `coverageLeaveRequested` | Thank you. If that number or address is on our waiting list, we have sent it a link. The link works once and expires in 24 hours. If nothing arrives, it was not on the list. |
+
+## Support tickets (G7, 2026-11-26)
+
+The customer ticket screens (My tickets, New ticket, a ticket with its messages, the incident notice on Help) and their error messages. Two kinds of string:
+
+1. **Machine-quality drafts** (labels, status words, plain error messages): a native Afrikaans and a native isiZulu speaker must review every line before release (gate L3). Placeholders must stay. Terms to settle first: "ticket" (af kaartjie, zu ithikithi), "reference" (af verwysing, zu inkomba), "support" (af ondersteuning, zu usizo), "marked as solved" (af as opgelos gemerk, zu kumakwe njengokuxazululiwe), "network issue" (af netwerkprobleem, zu inkinga yenethiwekhi). The status words must stay neutral: "Received" and "Open" say nothing about when support will answer.
+2. **English fallbacks** (promises and policy wording): af and zu show the English text until a native speaker, and where it states a policy, the provider or counsel, has written them. They say what the app will do with a retry, what happens when a ticket is closed or solved, the hourly limit, and that a removed message text is gone. `test/support_tickets/tickets_l10n_test.dart` fails if one of these is translated by machine, or if a key of this feature is missing from this file.
+
+No string in this feature promises a response time, and none may be added without the provider agreeing the wording. The incident notice shows only the provider's own text (title, body, latest update); the app adds no cause and no time to fix.
+
+### Machine drafts
+
+| Key | English | Afrikaans (draft) | isiZulu (draft) |
+|---|---|---|---|
+| `ticketsTitle` | My tickets | My kaartjies | Amathikithi ami |
+| `ticketsEntrySubtitle` | Follow your messages to support | Volg jou boodskappe aan ondersteuning | Landela imiyalezo yakho eya osizweni |
+| `ticketsNewTitle` | New ticket | Nuwe kaartjie | Ithikithi elisha |
+| `ticketsEmpty` | You have no tickets yet. | Jy het nog geen kaartjies nie. | Awunamathikithi okwamanje. |
+| `ticketsUnavailable` | Support tickets are not available right now. You can still send a message from the Help tab. | Ondersteuningskaartjies is nou nie beskikbaar nie. Jy kan steeds 'n boodskap vanaf die Hulp-oortjie stuur. | Amathikithi osizo awatholakali okwamanje. Usengathumela umyalezo ngethebhu Yosizo. |
+| `ticketsLoadMore` | Show more | Wys meer | Bonisa okuningi |
+| `ticketsOpenedOn` | Opened {date} | Geopen {date} | Livulwe ngo-{date} |
+| `ticketsReference` | Reference {reference} | Verwysing {reference} | Inkomba {reference} |
+| `ticketsCategoryFallback` | Support | Ondersteuning | Usizo |
+| `ticketStatusNew` | Received | Ontvang | Itholiwe |
+| `ticketStatusOpen` | Open | Oop | Livuliwe |
+| `ticketStatusPendingCustomer` | Waiting for you | Wag vir jou | Lilinde wena |
+| `ticketStatusOnHold` | On hold | Aan die hou | Limisiwe |
+| `ticketStatusResolved` | Marked as solved | As opgelos gemerk | Kumakwe njengokuxazululiwe |
+| `ticketStatusClosed` | Closed | Gesluit | Livaliwe |
+| `ticketStatusUnknown` | Status not shown | Status word nie gewys nie | Isimo asiboniswa |
+| `ticketsAwaitingReply` | Support is waiting for your reply | Ondersteuning wag vir jou antwoord | Usizo lulinde impendulo yakho |
+| `ticketsAuthorYou` | You | Jy | Wena |
+| `ticketsAuthorSupport` | Support | Ondersteuning | Usizo |
+| `ticketsAuthorOther` | Message | Boodskap | Umyalezo |
+| `ticketsReplyHint` | Write a reply | Skryf 'n antwoord | Loba impendulo |
+| `ticketsReplySend` | Send reply | Stuur antwoord | Thumela impendulo |
+| `ticketsMarkSolved` | Mark as solved | Merk as opgelos | Maka njengokuxazululiwe |
+| `ticketsMarkSolvedTitle` | Mark this ticket as solved? | Merk hierdie kaartjie as opgelos? | Maka leli thikithi njengelixazululiwe? |
+| `ticketsChangedNotice` | The ticket changed while you were looking at it. It is shown as it is now. | Die kaartjie het verander terwyl jy daarna gekyk het. Dit word nou soos dit tans is gewys. | Ithikithi liguquke ngenkathi ulibheka. Libonisiwe njengoba linjalo manje. |
+| `ticketsNewCategoryLabel` | What is it about? | Waaroor gaan dit? | Mayelana nani? |
+| `ticketsNewCategoryHint` | Choose a topic | Kies 'n onderwerp | Khetha isihloko |
+| `ticketsNewBodyLabel` | Describe the problem | Beskryf die probleem | Chaza inkinga |
+| `ticketsNewBodyHelper` | Do not include passwords or card numbers. | Moenie wagwoorde of kaartnommers insluit nie. | Ungafaki amagama ayimfihlo noma izinombolo zamakhadi. |
+| `ticketsNewSend` | Send ticket | Stuur kaartjie | Thumela ithikithi |
+| `ticketsNewIssueNoCategory` | Choose what the ticket is about. | Kies waaroor die kaartjie gaan. | Khetha ukuthi ithikithi limayelana nani. |
+| `ticketsNewIssueEmpty` | Write a message. | Skryf 'n boodskap. | Loba umyalezo. |
+| `ticketsNewIssueTooLong` | That message is too long. Keep it under {max} characters. | Daardie boodskap is te lank. Hou dit onder {max} karakters. | Lowo mlayezo mude kakhulu. Wugcine ungaphansi kwezinhlamvu ezingu-{max}. |
+| `ticketsNewDoneTitle` | Ticket sent | Kaartjie gestuur | Ithikithi lithunyelwe |
+| `ticketsNewDoneBody` | Your ticket reference is {reference}. You can follow it under My tickets. | Jou kaartjie se verwysing is {reference}. Jy kan dit onder My kaartjies volg. | Inkomba yethikithi lakho ingu-{reference}. Ungalilandela ku-Amathikithi ami. |
+| `ticketsNewDoneView` | View ticket | Sien kaartjie | Buka ithikithi |
+| `ticketsNewDoneClose` | Done | Klaar | Kuqedile |
+| `ticketsCheckFirstTitle` | Your latest tickets | Jou nuutste kaartjies | Amathikithi akho amasha |
+| `ticketsWaitMinutes` | {count, plural, =1{1 minute} other{{count} minutes}} | {count, plural, =1{1 minuut} other{{count} minute}} | {count, plural, =1{umzuzu o-1} other{imizuzu engu-{count}}} |
+| `ticketsWaitSeconds` | {count, plural, =1{1 second} other{{count} seconds}} | {count, plural, =1{1 sekonde} other{{count} sekondes}} | {count, plural, =1{isekhondi eli-1} other{amasekhondi angu-{count}}} |
+| `ticketsIncidentTitle` | Known network issue | Bekende netwerkprobleem | Inkinga yenethiwekhi eyaziwayo |
+| `ticketsIncidentInfo` | Notice | Kennisgewing | Isaziso |
+| `ticketsIncidentDegraded` | Service affected | Diens geraak | Isevisi ithintekile |
+| `ticketsIncidentOutage` | Outage | Onderbreking | Ukunqamuka |
+| `ticketsIncidentSince` | Since {time} | Sedert {time} | Kusukela ngo-{time} |
+| `ticketsIncidentLatestUpdate` | Latest update | Nuutste opdatering | Isibuyekezo sakamuva |
+| `failureTicketsNotAvailable` | Support tickets are not available right now. | Ondersteuningskaartjies is nou nie beskikbaar nie. | Amathikithi osizo awatholakali okwamanje. |
+| `failureTicketNotFound` | We could not find that ticket. | Ons kon nie daardie kaartjie vind nie. | Asikwazanga ukulithola leli thikithi. |
+| `failureTicketAlreadyResolved` | This ticket is already marked solved. | Hierdie kaartjie is reeds as opgelos gemerk. | Leli thikithi seliphawulwe njengelixazululiwe. |
+| `failureTicketChanged` | The ticket just changed. Check it and try again. | Die kaartjie het pas verander. Kyk daarna en probeer weer. | Ithikithi liguquke ngempela. Lihlole bese uyazama futhi. |
+| `failureTicketCategoryGone` | That topic is no longer offered. Pick another. | Daardie onderwerp word nie meer aangebied nie. Kies 'n ander. | Lesi sihloko asisatholakali. Khetha esinye. |
+
+### English fallbacks (promises and policy wording, not drafted)
+
+| Key | English |
+|---|---|
+| `ticketsMessageRemoved` | The text of this message is no longer available. |
+| `ticketsMarkSolvedBody` | If you write again later, the ticket opens again. |
+| `ticketsResolvedNote` | This ticket is marked as solved. Write a reply to open it again. |
+| `ticketsClosedNote` | This ticket is closed, so it cannot take more messages. If you still need help, open a new ticket. |
+| `ticketsClosedRefused` | This ticket was closed, so your message was not sent. Open a new ticket if you still need help. |
+| `ticketsUnknownOutcome` | We could not confirm that your message was sent. If you try again with the same text, it will not be sent twice. |
+| `ticketsCheckFirst` | Your earlier message may have been sent. Check your latest tickets below. If it is not there, send again. |
+| `ticketsReplyCheckFirst` | Your earlier reply may have been sent. Check the conversation above. If it is not there, send again. |
+| `ticketsHeldRateLimit` | You have sent a lot of messages in the last hour, so sending is paused. You can send again in {time}. |
+| `failureTicketClosed` | This ticket is closed. Open a new one instead. |

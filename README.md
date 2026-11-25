@@ -113,6 +113,7 @@ These repositories are listed in `stillMockInProd` (`lib/app/locator.dart`) and 
 | Subscriber account (signup, services, invoices, KYC) | not built yet (M3) | `GET/PATCH /v1/me/subscriber`, `POST /v1/me/subscriber/signup`, `.../services`, `.../invoices`, `.../kyc`, `GET /v1/subscriber-plans` | M3 |
 | Support FAQ | `support/data/repositories/mock_support_repository.dart` | no FAQ API on the platform | none planned |
 | Support message (real) | `support/data/repositories/http_support_message_repository.dart` | `POST /v1/support/messages` (Idempotency-Key, 202 `{reference}`) | done |
+| Support tickets (real, module `tickets` and flag `ticketing`) | `support/data/repositories/mock_support_tickets_repository.dart` (demo only; prod registers only `http_support_tickets_repository.dart`) | `GET/POST /v1/me/tickets`, `GET /v1/me/tickets/categories`, `GET /v1/me/tickets/{reference}`, `POST .../messages`, `POST .../close`, public `GET /v1/support/incidents` | done |
 | RICA liveness | `rica/data/repositories/mock_liveness_repository.dart` | none (needs a vendor) | not in the V1 app |
 
 ### Modules and branding
