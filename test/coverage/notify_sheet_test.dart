@@ -33,6 +33,7 @@ class _NoLocation implements DeviceLocationService {
 }
 
 const _point = GeoPoint(-26.514, 29.103);
+const _scope = 'sentech|-26.51400,29.10300|any';
 
 void main() {
   setUpAppTests();
@@ -41,11 +42,13 @@ void main() {
   late PendingLeadKeys pending;
   late CoverageCubit coverage;
   var keys = 0;
+  var clock = DateTime.utc(2026, 11, 26, 10);
 
   setUp(() async {
     repo = FakeCoverageRepository();
     pending = PendingLeadKeys();
     keys = 0;
+    clock = DateTime.utc(2026, 11, 26, 10);
     coverage = CoverageCubit(repo, debounce: const Duration(milliseconds: 10));
     await coverage.load();
   });
@@ -59,7 +62,7 @@ void main() {
       MultiBlocProvider(
         providers: [
           BlocProvider.value(value: coverage),
-          BlocProvider(create: (_) => NotifyCubit(repo, newKey: () => 'key-${++keys}', pending: pending, scope: 'sentech')),
+          BlocProvider(create: (_) => NotifyCubit(repo, newKey: () => 'key-${++keys}', pending: pending, scope: _scope, now: () => clock)),
         ],
         child: Scaffold(body: NotifyMeSheet(point: _point, initialAddress: address, interest: interest)),
       ),
@@ -189,7 +192,54 @@ void main() {
       expect(find.byKey(const ValueKey('notify-contact')), findsNothing);
       expect(find.textContaining('082'), findsNothing);
       expect(find.textContaining('Lifalethu'), findsNothing);
-      expect(pending.pendingFor('sentech'), isNull);
+      expect(pending.pendingFor(_scope), isNull);
+    });
+
+    testWidgets('the_form_really_lets_go_of_the_contact_and_address_once_the_sign_up_is_accepted', (tester) async {
+      await pumpSheet(tester);
+      await fill(tester, contact: '082 123 4567');
+      await tester.tap(consent(0));
+      await tester.pump();
+      final state = tester.state<NotifyMeSheetState>(find.byType(NotifyMeSheet));
+      expect(state.heldText, contains('082 123 4567'), reason: 'the form does hold it while it is open');
+      expect(state.heldText, contains('Lifalethu'));
+      await tapSubmit(tester);
+      await tester.pump();
+      expect(state.heldText, isEmpty, reason: 'accepted: the typed contact and address are cleared');
+    });
+
+    testWidgets('a security check outage says the details were not sent, never that they may have been', (tester) async {
+      repo.leadResults
+        ..clear()
+        ..add(const Left(HumanVerificationUnavailableFailure()));
+      await pumpSheet(tester);
+      await fill(tester);
+      await tester.tap(consent(0));
+      await tester.pump();
+      await tapSubmit(tester);
+      expect(find.textContaining('were not sent'), findsOneWidget);
+      expect(find.textContaining('may not have finished'), findsNothing);
+    });
+
+    testWidgets('a rate limit counts down, holds the button and lets go when the wait is over', (tester) async {
+      repo.leadResults
+        ..clear()
+        ..addAll([const Left(RateLimitedFailure('Too many attempts. Please wait and try again.', Duration(seconds: 5))), const Right(unit)]);
+      await pumpSheet(tester);
+      await fill(tester);
+      await tester.tap(consent(0));
+      await tester.pump();
+      await tapSubmit(tester);
+      expect(find.textContaining('try again in 5 seconds'), findsOneWidget);
+      expect(find.textContaining('may not have finished'), findsNothing);
+      expect(submitEnabled(tester), isFalse);
+      expect(repo.leadCalls, hasLength(1));
+      clock = clock.add(const Duration(seconds: 6));
+      await tester.pump(const Duration(seconds: 1));
+      expect(submitEnabled(tester), isTrue);
+      await tapSubmit(tester);
+      expect(repo.leadCalls, hasLength(2));
+      expect(find.textContaining('Thank you'), findsOneWidget);
     });
 
     testWidgets('a lost response keeps the form, says it may not have finished, and the retry sends the same key', (tester) async {
@@ -264,7 +314,7 @@ void main() {
         MultiBlocProvider(
           providers: [
             BlocProvider.value(value: coverage),
-            BlocProvider(create: (_) => NotifyCubit(repo, pending: pending, scope: 'sentech')),
+            BlocProvider(create: (_) => NotifyCubit(repo, pending: pending, scope: _scope)),
           ],
           child: Scaffold(body: NotifyMeSheet(point: _point, initialAddress: '12 Lifalethu Avenue', interest: TechnologyInterest.any)),
         ),

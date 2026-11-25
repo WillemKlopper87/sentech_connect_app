@@ -6225,6 +6225,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'We could not do that. Please try again in a moment.'**
   String get coverageLeaveError;
+
+  /// Shown on the waiting-list form when nothing reached the platform (the security check was unavailable or the rate limit held the request), so trying again is safe.
+  ///
+  /// In en, this message translates to:
+  /// **'Your details were not sent or saved. Please try again.'**
+  String get coverageNotifyNotSent;
+
+  /// Shown on the waiting-list form while the platform's Retry-After wait runs. {seconds} is the number of seconds left.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many attempts. Please try again in {seconds} seconds.'**
+  String coverageNotifyRateLimitedWait(String seconds);
 }
 
 class _AppLocalizationsDelegate

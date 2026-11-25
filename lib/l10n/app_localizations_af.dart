@@ -3717,4 +3717,13 @@ class AppLocalizationsAf extends AppLocalizations {
   @override
   String get coverageLeaveError =>
       'Ons kon dit nie doen nie. Probeer oor \'n oomblik weer.';
+
+  @override
+  String get coverageNotifyNotSent =>
+      'Jou besonderhede is nie gestuur of gestoor nie. Probeer asseblief weer.';
+
+  @override
+  String coverageNotifyRateLimitedWait(String seconds) {
+    return 'Te veel pogings. Probeer oor $seconds sekondes weer.';
+  }
 }

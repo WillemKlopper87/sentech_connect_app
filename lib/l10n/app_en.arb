@@ -3185,5 +3185,9 @@
   "coverageLeaveRequested": "Thank you. If that number or address is on our waiting list, we have sent it a link. The link works once and expires in 24 hours. If nothing arrives, it was not on the list.",
   "@coverageLeaveRequested": {"description": "Shown after a leave request was accepted; it never says the contact was removed (platform key withdraw.requested). Waiting-list, consent or data-handling wording (counsel items C1, C2, C4): left in English for af and zu until native review and counsel."},
   "coverageLeaveError": "We could not do that. Please try again in a moment.",
-  "@coverageLeaveError": {"description": "Generic error on the leave-the-list form (platform key withdraw.error)."}
+  "@coverageLeaveError": {"description": "Generic error on the leave-the-list form (platform key withdraw.error)."},
+  "coverageNotifyNotSent": "Your details were not sent or saved. Please try again.",
+  "@coverageNotifyNotSent": {"description": "Shown on the waiting-list form when nothing reached the platform (the security check was unavailable or the rate limit held the request), so trying again is safe."},
+  "coverageNotifyRateLimitedWait": "Too many attempts. Please try again in {seconds} seconds.",
+  "@coverageNotifyRateLimitedWait": {"description": "Shown on the waiting-list form while the platform's Retry-After wait runs. {seconds} is the number of seconds left.", "placeholders": {"seconds": {"type": "String", "example": "30"}}}
 }

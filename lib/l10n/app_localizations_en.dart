@@ -3700,4 +3700,13 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get coverageLeaveError =>
       'We could not do that. Please try again in a moment.';
+
+  @override
+  String get coverageNotifyNotSent =>
+      'Your details were not sent or saved. Please try again.';
+
+  @override
+  String coverageNotifyRateLimitedWait(String seconds) {
+    return 'Too many attempts. Please try again in $seconds seconds.';
+  }
 }

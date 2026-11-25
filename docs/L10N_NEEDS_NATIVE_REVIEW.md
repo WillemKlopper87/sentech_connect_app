@@ -567,6 +567,8 @@ Counsel-gated copy to settle before release: the waiting-list consent text and i
 | `coverageNotifyError` | We could not save your details. Please try again. | Ons kon nie jou besonderhede stoor nie. Probeer asseblief weer. | Asikwazanga ukulondoloza imininingwane yakho. Sicela uzame futhi. |
 | `coverageNotifyDone` | Done | Klaar | Kuqedile |
 | `coverageLeaveError` | We could not do that. Please try again in a moment. | Ons kon dit nie doen nie. Probeer oor 'n oomblik weer. | Asikwazanga ukukwenza lokho. Sicela uzame futhi ngemva kwesikhashana. |
+| `coverageNotifyNotSent` | Your details were not sent or saved. Please try again. | Jou besonderhede is nie gestuur of gestoor nie. Probeer asseblief weer. | Imininingwane yakho ayithunyelwanga noma ayilondolozwanga. Sicela uzame futhi. |
+| `coverageNotifyRateLimitedWait` | Too many attempts. Please try again in {seconds} seconds. | Te veel pogings. Probeer oor {seconds} sekondes weer. | Imizamo eminingi kakhulu. Sicela uzame futhi ngemva kwemizuzwana engu-{seconds}. |
 | `failureCoverageUnavailable` | Coverage information is not available right now. | Dekkingsinligting is nou nie beskikbaar nie. | Ulwazi lokufinyelela alutholakali okwamanje. |
 | `failureAddressSearchUnavailable` | Address search is not available right now. Use your location or the map instead. | Adressoektog is nou nie beskikbaar nie. Gebruik eerder jou ligging of die kaart. | Ukusesha kwekheli akutholakali okwamanje. Sebenzisa indawo yakho noma imephu esikhundleni. |
 | `failureOutsideServiceArea` | We can only check places in South Africa. Check the place and try again. | Ons kan net plekke in Suid-Afrika nagaan. Kontroleer die plek en probeer weer. | Singahlola kuphela izindawo eNingizimu Afrika. Hlola indawo bese uzame futhi. |

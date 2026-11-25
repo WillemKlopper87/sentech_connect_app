@@ -3720,4 +3720,13 @@ class AppLocalizationsZu extends AppLocalizations {
   @override
   String get coverageLeaveError =>
       'Asikwazanga ukukwenza lokho. Sicela uzame futhi ngemva kwesikhashana.';
+
+  @override
+  String get coverageNotifyNotSent =>
+      'Imininingwane yakho ayithunyelwanga noma ayilondolozwanga. Sicela uzame futhi.';
+
+  @override
+  String coverageNotifyRateLimitedWait(String seconds) {
+    return 'Imizamo eminingi kakhulu. Sicela uzame futhi ngemva kwemizuzwana engu-$seconds.';
+  }
 }

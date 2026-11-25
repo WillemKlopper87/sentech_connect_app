@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sentech_connect_app/app/locator.dart';
@@ -38,7 +40,7 @@ class NotifyMeSheet extends StatefulWidget {
     final coverage = context.read<CoverageCubit>();
     final repository = context.read<CoverageRepository>();
     final pending = locator<PendingLeadKeys>();
-    final scope = locator<TenantContext>().slug;
+    final scope = PendingLeadKeys.scopeFor(locator<TenantContext>().slug, point.lat, point.lon, interest);
     return showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
@@ -55,10 +57,10 @@ class NotifyMeSheet extends StatefulWidget {
   }
 
   @override
-  State<NotifyMeSheet> createState() => _NotifyMeSheetState();
+  State<NotifyMeSheet> createState() => NotifyMeSheetState();
 }
 
-class _NotifyMeSheetState extends State<NotifyMeSheet> {
+class NotifyMeSheetState extends State<NotifyMeSheet> {
   final _contact = TextEditingController();
   late final TextEditingController _address = TextEditingController(text: widget.initialAddress ?? '');
   var _kind = ContactKind.phone;
@@ -66,9 +68,24 @@ class _NotifyMeSheetState extends State<NotifyMeSheet> {
   var _consent = false;
   var _arrival = false;
   var _contactTouched = false;
+  Timer? _ticker;
+
+  /// What the form holds right now (contact and address). Empty once a sign-up is accepted.
+  @visibleForTesting
+  String get heldText => _contact.text + _address.text;
+
+  void _tickWhileWaiting(DateTime? until, DateTime Function() now) {
+    _ticker?.cancel();
+    if (until == null || !now().isBefore(until)) return;
+    _ticker = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted || !now().isBefore(until)) timer.cancel();
+      if (mounted) setState(() {});
+    });
+  }
 
   @override
   void dispose() {
+    _ticker?.cancel();
     _contact.dispose();
     _address.dispose();
     super.dispose();
@@ -100,9 +117,17 @@ class _NotifyMeSheetState extends State<NotifyMeSheet> {
     final failure = state.failure;
     if (state.consentOutdated) return l10n.coverageNotifyReconfirm;
     if (failure is HumanCheckCancelledFailure) return state.outcomeUnknown ? l10n.coverageNotifyPending : null;
+    final until = state.retryAt;
+    if (failure is RateLimitedFailure && until != null) {
+      final left = until.difference(context.read<NotifyCubit>().now());
+      if (left > Duration.zero) return l10n.coverageNotifyRateLimitedWait(((left.inMilliseconds) / 1000).ceil().toString());
+      return null;
+    }
     if (failure != null) {
       final text = coverageFailureText(l10n, failure);
-      return state.outcomeUnknown ? '${l10n.coverageNotifyPending}\n$text' : text;
+      if (state.outcomeUnknown) return '${l10n.coverageNotifyPending}\n$text';
+      if (state.notSent) return '${l10n.coverageNotifyNotSent}\n$text';
+      return text;
     }
     return state.outcomeUnknown ? l10n.coverageNotifyPending : null;
   }
@@ -113,8 +138,19 @@ class _NotifyMeSheetState extends State<NotifyMeSheet> {
     final theme = Theme.of(context);
     final meta = context.select((CoverageCubit cubit) => cubit.state.meta);
     return BlocConsumer<NotifyCubit, NotifyState>(
-      listenWhen: (previous, current) => current.consentOutdated && !previous.consentOutdated,
+      listenWhen: (previous, current) =>
+          (current.consentOutdated && !previous.consentOutdated) ||
+          (current.status == NotifyStatus.done && previous.status != NotifyStatus.done) ||
+          current.retryAt != previous.retryAt,
       listener: (context, state) {
+        if (state.status == NotifyStatus.done) {
+          // Accepted: nothing the customer typed stays on the screen.
+          _contact.clear();
+          _address.clear();
+          return;
+        }
+        _tickWhileWaiting(state.retryAt, context.read<NotifyCubit>().now);
+        if (!state.consentOutdated) return;
         // The consent text changed: both boxes are cleared so the customer reads and ticks again,
         // and the new versions are read.
         setState(() {
@@ -143,8 +179,13 @@ class _NotifyMeSheetState extends State<NotifyMeSheet> {
         }
         final submitting = state.status == NotifyStatus.submitting;
         final message = _message(l10n, state);
-        final canSend =
-            !submitting && _consent && _addressOk && isPlausibleContact(_kind, _contact.text) && (meta?.canOfferNotify ?? false);
+        final waiting = state.retryAt != null && context.read<NotifyCubit>().now().isBefore(state.retryAt!);
+        final canSend = !submitting &&
+            !waiting &&
+            _consent &&
+            _addressOk &&
+            isPlausibleContact(_kind, _contact.text) &&
+            (meta?.canOfferNotify ?? false);
         return SingleChildScrollView(
           padding: EdgeInsets.fromLTRB(20, 8, 20, 24 + bottom),
           child: Column(

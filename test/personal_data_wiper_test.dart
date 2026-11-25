@@ -93,7 +93,7 @@ void main() {
   });
 
   test('sign-out and account deletion forget a pending waiting-list sign-up key, even when another step fails', () async {
-    final keys = PendingLeadKeys()..put('sentech', 1234, 'key-aaaaaaaa');
+    final keys = PendingLeadKeys()..put('sentech', 'key-aaaaaaaa', unknown: true);
     final withKeys = DefaultPersonalDataWiper(
       registration: _FailingRegistration(store),
       checkout: checkout,
@@ -103,7 +103,7 @@ void main() {
     );
     await expectLater(withKeys.wipeOnLogout(), throwsStateError);
     expect(keys.pendingFor('sentech'), isNull);
-    keys.put('sentech', 1234, 'key-bbbbbbbb');
+    keys.put('sentech', 'key-bbbbbbbb', unknown: true);
     await expectLater(withKeys.wipeEverything(), throwsStateError);
     expect(keys.pendingFor('sentech'), isNull);
   });
