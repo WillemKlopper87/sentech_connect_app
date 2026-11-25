@@ -3729,4 +3729,15 @@ class AppLocalizationsZu extends AppLocalizations {
   String coverageNotifyRateLimitedWait(String seconds) {
     return 'Imizamo eminingi kakhulu. Sicela uzame futhi ngemva kwemizuzwana engu-$seconds.';
   }
+
+  @override
+  String get coverageOptionUnknownText =>
+      'Asikwazanga ukufunda imininingwane yalesi sinqumo.';
+
+  @override
+  String get coverageOptionsTitleNeutral =>
+      'Izinketho zokufinyelela kule ndawo';
+
+  @override
+  String get coverageOpenSettings => 'Vula izilungiselelo';
 }

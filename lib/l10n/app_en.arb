@@ -3189,5 +3189,11 @@
   "coverageNotifyNotSent": "Your details were not sent or saved. Please try again.",
   "@coverageNotifyNotSent": {"description": "Shown on the waiting-list form when nothing reached the platform (the security check was unavailable or the rate limit held the request), so trying again is safe."},
   "coverageNotifyRateLimitedWait": "Too many attempts. Please try again in {seconds} seconds.",
-  "@coverageNotifyRateLimitedWait": {"description": "Shown on the waiting-list form while the platform's Retry-After wait runs. {seconds} is the number of seconds left.", "placeholders": {"seconds": {"type": "String", "example": "30"}}}
+  "@coverageNotifyRateLimitedWait": {"description": "Shown on the waiting-list form while the platform's Retry-After wait runs. {seconds} is the number of seconds left.", "placeholders": {"seconds": {"type": "String", "example": "30"}}},
+  "coverageOptionUnknownText": "We could not read the details of this option.",
+  "@coverageOptionUnknownText": {"description": "Neutral text on a coverage card whose kind the app does not know (neither covered nor planned): no band, no speed and no claim."},
+  "coverageOptionsTitleNeutral": "Coverage options at this place",
+  "@coverageOptionsTitleNeutral": {"description": "Neutral heading above the coverage cards when none of them is covered or planned (a kind the app does not know)."},
+  "coverageOpenSettings": "Open settings",
+  "@coverageOpenSettings": {"description": "Button next to a location message: opens the phone's settings so the customer can allow location or switch location services on."}
 }

@@ -402,10 +402,13 @@ class _ResultSection extends StatelessWidget {
 }
 
 class _Notice extends StatelessWidget {
-  const _Notice({required this.icon, required this.text, this.action});
+  const _Notice({required this.icon, required this.text, this.action, this.liveRegion = false});
 
   final IconData icon;
   final String text;
+
+  /// Announced to a screen reader when it changes (the rate-limit countdown).
+  final bool liveRegion;
   final Widget? action;
 
   @override
@@ -419,7 +422,7 @@ class _Notice extends StatelessWidget {
           children: [
             Icon(icon, color: theme.colorScheme.onSurfaceVariant),
             const SizedBox(width: 10),
-            Expanded(child: Text(text, style: theme.textTheme.bodyMedium)),
+            Expanded(child: Semantics(liveRegion: liveRegion, child: Text(text, style: theme.textTheme.bodyMedium))),
           ],
         ),
         if (action != null) ...[const SizedBox(height: 12), action!],
@@ -466,6 +469,7 @@ class _RateLimitNoticeState extends State<_RateLimitNotice> {
     final seconds = (left.inMilliseconds / 1000).ceil();
     return _Notice(
       icon: Icons.hourglass_bottom,
+      liveRegion: true,
       text: waiting ? l10n.coverageRateLimitedWait(seconds.toString()) : l10n.coverageRateLimitedNow,
       action: OutlinedButton.icon(
         onPressed: waiting ? null : widget.onRetry,

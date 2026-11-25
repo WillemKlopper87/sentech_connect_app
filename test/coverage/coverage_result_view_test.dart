@@ -195,32 +195,35 @@ void main() {
     }
   });
 
-  testWidgets('every option names what its figures measure, and an uplink basis is never called download', (tester) async {
+  testWidgets('the_direction_line_is_shown_with_the_figures_it_describes_and_nowhere_else', (tester) async {
     await _pump(tester, checkFixture());
-    expect(find.text('The speeds shown are predicted download speeds, measured outdoors.'), findsWidgets);
-    final uplink = _withOption(
-      (o) => {
-        ...o,
-        'dataset': {...Map<String, Object?>.from(o['dataset']! as Map), 'measure_direction': 'uplink', 'measure_label_key': 'coverage.measure.uplink'},
-      },
+    expect(find.text('The speeds shown are predicted download speeds, measured outdoors.'), findsNWidgets(2), reason: 'one per card with figures');
+    // No band, so no figure and no line about what a figure measures.
+    await _pump(tester, checkFixture('coverage_check_placeholder.json'));
+    expect(find.textContaining('speeds shown'), findsNothing);
+    expect(find.textContaining('upload'), findsNothing);
+    // An uplink or unknown basis carries no figure, so the card says nothing is measured at all.
+    for (final direction in ['uplink', 'unknown']) {
+      final check = _withOption(
+        (o) => {
+          ...o,
+          'dataset': {...Map<String, Object?>.from(o['dataset']! as Map), 'measure_direction': direction, 'measure_label_key': 'coverage.measure.$direction'},
+        },
+      );
+      await _pump(tester, check);
+      expect(find.textContaining('Mbps'), findsNothing, reason: direction);
+      expect(find.textContaining('predicted download speeds'), findsNothing, reason: direction);
+      expect(find.textContaining('measures'), findsNothing, reason: direction);
+      expect(find.textContaining('upload, not download'), findsNothing, reason: direction);
+    }
+    // A planned card, even on a non-download basis, never says anything is measured.
+    final planned = _withOption(
+      (o) => {...o, 'dataset': {...Map<String, Object?>.from(o['dataset']! as Map), 'measure_direction': 'uplink', 'measure_label_key': 'coverage.measure.uplink'}},
+      'coverage_check_planned.json',
     );
-    await _pump(tester, uplink);
-    expect(find.text('This information is about upload, not download.'), findsWidgets);
-    expect(find.textContaining('Mbps'), findsNothing, reason: 'no figure for a non-download basis');
-    expect(find.textContaining('predicted download speeds'), findsNothing);
-    final unknown = _withOption(
-      (o) => {
-        ...o,
-        'dataset': {...Map<String, Object?>.from(o['dataset']! as Map), 'measure_direction': 'unknown', 'measure_label_key': 'coverage.measure.unknown'},
-      },
-    );
-    await _pump(tester, unknown);
-    expect(find.text('We do not know what this information measures.'), findsWidgets);
-    // A missing or unrecognised key reads as "we do not know", never as download.
-    final odd = _withOption((o) => {...o, 'dataset': {'version': 7}});
-    await _pump(tester, odd);
-    expect(find.text('We do not know what this information measures.'), findsWidgets);
-    expect(find.textContaining('predicted download speeds'), findsNothing);
+    await _pump(tester, planned);
+    expect(find.textContaining('upload'), findsNothing);
+    expect(find.textContaining('measure'), findsNothing);
   });
 
   testWidgets('an unknown technology, band, confidence and status render neutral labels and never throw', (tester) async {
@@ -245,7 +248,8 @@ void main() {
     });
     await _pump(tester, check);
     expect(tester.takeException(), isNull);
-    expect(find.textContaining('6g'), findsWidgets, reason: 'the server\'s own technology string is the neutral label');
+    expect(find.textContaining('6g'), findsNothing, reason: 'the server string is never shown');
+    expect(find.textContaining('Network'), findsWidgets);
     expect(find.textContaining('confidence'), findsNothing);
     expect(find.textContaining('Mbps'), findsNothing);
     expect(find.textContaining('platinum'), findsNothing);
@@ -269,7 +273,7 @@ void main() {
 
   testWidgets('the footer names the release of the answer shown, the source, the attribution and that these are predictions', (tester) async {
     await _pump(tester, checkFixture());
-    expect(find.text('Network data: 2026 Q4 plan, released 2026-11-01.'), findsOneWidget);
+    expect(find.text('Network data: 2026 Q4 plan, released Nov 1, 2026.'), findsOneWidget);
     expect(find.text('Source: our network planning team.'), findsOneWidget);
     expect(find.text('Coverage: Sentech (estimate)'), findsOneWidget);
     expect(find.text('These are predictions, not guarantees.'), findsOneWidget);
@@ -279,7 +283,7 @@ void main() {
     expect(find.text('Network data: 2026 Q4 plan.'), findsOneWidget);
     final dateOnly = _withOption((o) => {...o, 'dataset': {...Map<String, Object?>.from(o['dataset']! as Map), 'release_label': null}});
     await _pump(tester, dateOnly);
-    expect(find.text('Network data released 2026-11-01.'), findsOneWidget);
+    expect(find.text('Network data released Nov 1, 2026.'), findsOneWidget);
     final versionOnly = _withOption(
       (o) => {...o, 'dataset': {...Map<String, Object?>.from(o['dataset']! as Map), 'release_label': null, 'release_date': null, 'source_label': 'coverage.source.new'}},
     );
@@ -289,6 +293,22 @@ void main() {
     // An empty answer still says which data it came from.
     await _pump(tester, checkFixture('coverage_check_nearest.json'));
     expect(find.text('Network data version 7.'), findsOneWidget);
+  });
+
+  testWidgets('an_unknown_kind_gets_a_neutral_card_with_no_band_and_no_predicted_wording', (tester) async {
+    final check = _withOption((o) => {...o, 'kind': 'rumoured'}, 'coverage_check_two_options.json');
+    await _pump(tester, check);
+    expect(tester.takeException(), isNull);
+    expect(find.textContaining('predicted coverage'), findsNothing);
+    expect(find.textContaining('Good service'), findsNothing);
+    expect(find.textContaining('Basic service'), findsNothing);
+    expect(find.textContaining('Mbps'), findsNothing);
+    expect(find.text('Coverage is predicted at this place'), findsNothing, reason: 'nothing is covered, so no covered title');
+    expect(find.text('Coverage is planned for this place.'), findsNothing, reason: 'nothing is planned either');
+    expect(find.text('Coverage options at this place'), findsOneWidget);
+    expect(find.text('5G'), findsOneWidget);
+    expect(find.text('LTE (4G)'), findsOneWidget);
+    expect(find.textContaining('could not read the details'), findsWidgets);
   });
 
   testWidgets('large_text_does_not_overflow', (tester) async {

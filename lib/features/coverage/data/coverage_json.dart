@@ -110,7 +110,8 @@ CoverageOption? _option(Object? value) {
     technology: coverageTechnologyFromApi(raw),
     technologyRaw: raw,
     kind: kind,
-    band: kind == OptionKind.planned ? null : _band(json['band']),
+    // A band belongs to a covered option only; a planned or unknown kind shows none.
+    band: kind == OptionKind.covered ? _band(json['band']) : null,
     typicalDown: figuresAllowed ? speedRangeFromJson(json['typical_down']) : null,
     busyHourDown: figuresAllowed ? speedRangeFromJson(json['busy_hour_down']) : null,
     confidence: coverageConfidenceFromApi(json['confidence']),

@@ -50,6 +50,7 @@ class AddressSearchCubit extends Cubit<AddressSearchState> {
   int _generation = 0;
   Timer? _timer;
   String? _lastQuery;
+  DateTime? _blockedUntil;
 
   /// Asks the platform whether the address step is on. A network failure is "unknown", not "off".
   Future<void> load() async {
@@ -77,6 +78,14 @@ class AddressSearchCubit extends Cubit<AddressSearchState> {
       return;
     }
     if (query == _lastQuery) return;
+    final until = _blockedUntil;
+    if (until != null && _now().isBefore(until)) {
+      // Held: nothing is sent before the platform's wait is over; typing again afterwards searches.
+      _generation++;
+      _lastQuery = null;
+      emit(AddressSearchState(status: AddressSearchStatus.rateLimited, retryAt: until, failure: const RateLimitedFailure()));
+      return;
+    }
     final generation = ++_generation;
     _timer = Timer(debounce, () => _search(generation, query));
   }
@@ -114,14 +123,16 @@ class AddressSearchCubit extends Cubit<AddressSearchState> {
         _lastQuery = null;
         emit(switch (failure) {
           AddressSearchUnavailableFailure() => AddressSearchState(status: AddressSearchStatus.unavailable, failure: failure),
-          RateLimitedFailure(:final retryAfter) => AddressSearchState(
-            status: AddressSearchStatus.rateLimited,
-            failure: failure,
-            retryAt: _now().add(retryAfter == null || retryAfter <= Duration.zero ? defaultRetryAfter : retryAfter),
-          ),
+          RateLimitedFailure(:final retryAfter) => _limited(failure, retryAfter),
           _ => AddressSearchState(status: AddressSearchStatus.error, failure: failure),
         });
     }
+  }
+
+  AddressSearchState _limited(Failure failure, Duration? retryAfter) {
+    final until = _now().add(retryAfter == null || retryAfter <= Duration.zero ? defaultRetryAfter : retryAfter);
+    _blockedUntil = until;
+    return AddressSearchState(status: AddressSearchStatus.rateLimited, failure: failure, retryAt: until);
   }
 
   @override

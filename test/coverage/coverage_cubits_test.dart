@@ -149,6 +149,27 @@ void main() {
       await cubit.close();
     });
 
+    test('a_new_pin_during_a_rate_limit_wait_is_held_not_sent_and_keeps_the_countdown', () async {
+      repo.checkResult = const Left(RateLimitedFailure('x', Duration(seconds: 30)));
+      final cubit = makeCoverage();
+      await cubit.checkAt(-26.1, 28.1);
+      final until = cubit.state.retryAt!;
+      expect(repo.checkCalls, hasLength(1));
+      await cubit.checkAt(-26.2, 28.2);
+      cubit.pinDropped(-26.3, 28.3);
+      await _wait();
+      expect(repo.checkCalls, hasLength(1), reason: 'nothing is sent before Retry-After has passed');
+      expect(cubit.state.status, CoverageStatus.rateLimited);
+      expect(cubit.state.point!.lat, -26.3, reason: 'the pin stays where the customer put it');
+      expect(cubit.state.retryAt, until);
+      clock = clock.add(const Duration(seconds: 31));
+      repo.checkResult = Right(checkFixture());
+      await cubit.retry();
+      expect(repo.checkCalls.last, (lat: -26.3, lon: 28.3));
+      expect(cubit.state.status, CoverageStatus.ready);
+      await cubit.close();
+    });
+
     test('a rate limit with no Retry-After still waits a little', () async {
       repo.checkResult = const Left(RateLimitedFailure());
       final cubit = makeCoverage();
@@ -315,10 +336,31 @@ void main() {
       await _wait();
       expect(cubit.state.status, AddressSearchStatus.rateLimited);
       expect(cubit.state.retryAt, clock.add(const Duration(seconds: 20)));
+      clock = clock.add(const Duration(seconds: 21)); // the platform's wait is over
       repo.searchResult = const Left(NetworkFailure());
       cubit.queryChanged('Nowhere4');
       await _wait();
       expect(cubit.state.status, AddressSearchStatus.error);
+      await cubit.close();
+    });
+
+    test('typing_during_a_search_rate_limit_wait_sends_nothing_and_searches_again_after_it', () async {
+      repo.searchResult = const Left(RateLimitedFailure('x', Duration(seconds: 20)));
+      final cubit = makeSearch();
+      cubit.queryChanged('Lifalethu');
+      await _wait();
+      expect(cubit.state.status, AddressSearchStatus.rateLimited);
+      cubit.queryChanged('Lifalethu Avenue');
+      await _wait();
+      expect(repo.searchCalls, ['Lifalethu'], reason: 'held');
+      expect(cubit.state.status, AddressSearchStatus.rateLimited);
+      expect(cubit.state.retryAt, clock.add(const Duration(seconds: 20)));
+      clock = clock.add(const Duration(seconds: 21));
+      repo.searchResult = Right(const AddressSearchResult(matches: [GeocodeMatch(label: 'A', lat: -26.5, lon: 29.1)]));
+      cubit.queryChanged('Lifalethu Avenue 12');
+      await _wait();
+      expect(repo.searchCalls, ['Lifalethu', 'Lifalethu Avenue 12']);
+      expect(cubit.state.status, AddressSearchStatus.results);
       await cubit.close();
     });
 

@@ -75,6 +75,9 @@ class CoverageCubit extends Cubit<CoverageState> {
   int _generation = 0;
   Timer? _timer;
 
+  /// While set (and in the future) no check is sent: the platform's `Retry-After`.
+  DateTime? _blockedUntil;
+
   /// Reads the provider's coverage meta (service area, consent versions, dataset version).
   /// A missing route or no active dataset is `unavailable`; a network blip is ignored here
   /// (the first check shows it).
@@ -159,6 +162,20 @@ class CoverageCubit extends Cubit<CoverageState> {
       emit(CoverageState(status: CoverageStatus.outside, point: point, meta: state.meta));
       return null;
     }
+    final until = _blockedUntil;
+    if (until != null && _now().isBefore(until)) {
+      // Held: the pin stays where the customer put it and nothing is sent before the wait is over.
+      emit(
+        CoverageState(
+          status: CoverageStatus.rateLimited,
+          point: point,
+          meta: state.meta,
+          failure: const RateLimitedFailure(),
+          retryAt: until,
+        ),
+      );
+      return null;
+    }
     emit(CoverageState(status: CoverageStatus.loading, point: point, meta: state.meta));
     return generation;
   }
@@ -190,16 +207,16 @@ class CoverageCubit extends Cubit<CoverageState> {
 
   CoverageState _failed(Failure failure, GeoPoint point) => switch (failure) {
     CoverageUnavailableFailure() => CoverageState(status: CoverageStatus.unavailable, point: point, meta: state.meta, failure: failure),
-    RateLimitedFailure(:final retryAfter) => CoverageState(
-      status: CoverageStatus.rateLimited,
-      point: point,
-      meta: state.meta,
-      failure: failure,
-      retryAt: _now().add(retryAfter == null || retryAfter <= Duration.zero ? defaultRetryAfter : retryAfter),
-    ),
+    RateLimitedFailure(:final retryAfter) => _limited(failure, point, retryAfter),
     OutsideServiceAreaFailure() => CoverageState(status: CoverageStatus.outside, point: point, meta: state.meta, failure: failure),
     _ => CoverageState(status: CoverageStatus.error, point: point, meta: state.meta, failure: failure),
   };
+
+  CoverageState _limited(Failure failure, GeoPoint point, Duration? retryAfter) {
+    final until = _now().add(retryAfter == null || retryAfter <= Duration.zero ? defaultRetryAfter : retryAfter);
+    _blockedUntil = until;
+    return CoverageState(status: CoverageStatus.rateLimited, point: point, meta: state.meta, failure: failure, retryAt: until);
+  }
 
   /// The answer came from another dataset version than the meta read earlier: read it again
   /// (consent versions and attribution may have changed with it).

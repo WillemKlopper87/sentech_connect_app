@@ -13,8 +13,8 @@ import 'package:sentech_connect_app/l10n/l10n.dart';
 String technologyName(AppLocalizations l10n, CoverageTechnology technology, String raw) => switch (technology) {
   CoverageTechnology.fiveG => l10n.coverageTech5g,
   CoverageTechnology.lte => l10n.coverageTechLte,
-  // The server's own technology string is the neutral label; with none at all, "Network".
-  CoverageTechnology.unknown => raw.trim().isEmpty ? l10n.coverageTechUnknown : raw.trim(),
+  // A technology the app does not know is always the neutral "Network": the server's string is never shown.
+  CoverageTechnology.unknown => l10n.coverageTechUnknown,
 };
 
 /// The band title, or null for a band key the app has no words for (the card then
@@ -88,7 +88,7 @@ String plannedMonth(BuildContext context, DateTime date) =>
 /// The release line of the footer: label and date, label, date, or the dataset version.
 String releaseText(BuildContext context, {String? label, DateTime? date, int? version}) {
   final l10n = context.l10n;
-  final day = date == null ? null : '${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+  final day = date == null ? null : DateFormat.yMMMd(Localizations.localeOf(context).toLanguageTag()).format(DateTime(date.year, date.month, date.day));
   if (label != null && label.isNotEmpty && day != null) return l10n.coverageFooterRelease(label, day);
   if (label != null && label.isNotEmpty) return l10n.coverageFooterReleaseLabel(label);
   if (day != null) return l10n.coverageFooterReleaseDate(day);

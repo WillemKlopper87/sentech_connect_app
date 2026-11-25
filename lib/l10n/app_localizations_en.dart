@@ -3709,4 +3709,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String coverageNotifyRateLimitedWait(String seconds) {
     return 'Too many attempts. Please try again in $seconds seconds.';
   }
+
+  @override
+  String get coverageOptionUnknownText =>
+      'We could not read the details of this option.';
+
+  @override
+  String get coverageOptionsTitleNeutral => 'Coverage options at this place';
+
+  @override
+  String get coverageOpenSettings => 'Open settings';
 }

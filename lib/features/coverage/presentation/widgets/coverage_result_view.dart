@@ -49,7 +49,9 @@ class CoverageResultView extends StatelessWidget {
         Semantics(
           header: true,
           child: Text(
-            check.hasCoveredOption ? l10n.coverageOptionsTitle : l10n.coverageStatusPlanned,
+            check.hasCoveredOption
+                ? l10n.coverageOptionsTitle
+                : (options.any((o) => o.kind == OptionKind.planned) ? l10n.coverageStatusPlanned : l10n.coverageOptionsTitleNeutral),
             style: theme.textTheme.titleMedium,
           ),
         ),

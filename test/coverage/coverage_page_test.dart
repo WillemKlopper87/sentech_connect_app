@@ -256,6 +256,9 @@ void main() {
     await tester.pump(const Duration(milliseconds: 30));
     await tester.pump();
     expect(find.textContaining('try again in 5 seconds'), findsOneWidget);
+    final handle = tester.ensureSemantics();
+    expect(tester.getSemantics(find.textContaining('try again in 5 seconds')).flagsCollection.isLiveRegion, isTrue, reason: 'the countdown is announced');
+    handle.dispose();
     expect(tester.widget<OutlinedButton>(find.widgetWithText(OutlinedButton, 'Retry')).onPressed, isNull);
     clock = clock.add(const Duration(seconds: 6));
     await tester.pump(const Duration(seconds: 1));

@@ -3726,4 +3726,14 @@ class AppLocalizationsAf extends AppLocalizations {
   String coverageNotifyRateLimitedWait(String seconds) {
     return 'Te veel pogings. Probeer oor $seconds sekondes weer.';
   }
+
+  @override
+  String get coverageOptionUnknownText =>
+      'Ons kon nie die besonderhede van hierdie opsie lees nie.';
+
+  @override
+  String get coverageOptionsTitleNeutral => 'Dekkingopsies by hierdie plek';
+
+  @override
+  String get coverageOpenSettings => 'Maak instellings oop';
 }

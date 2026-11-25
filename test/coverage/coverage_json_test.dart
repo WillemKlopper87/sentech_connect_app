@@ -115,6 +115,7 @@ void main() {
     expect(option.technology, CoverageTechnology.unknown);
     expect(option.technologyRaw, '6g');
     expect(option.kind, OptionKind.unknown);
+    expect(option.band, isNull, reason: 'a band belongs to a covered option only');
     expect(option.confidence, CoverageConfidence.unknown);
     expect(option.measureDirection, MeasureDirection.unknown);
     expect(option.typicalDown, isNull, reason: 'an unknown direction shows no figure');

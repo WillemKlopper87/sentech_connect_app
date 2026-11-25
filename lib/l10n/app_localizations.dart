@@ -6237,6 +6237,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Too many attempts. Please try again in {seconds} seconds.'**
   String coverageNotifyRateLimitedWait(String seconds);
+
+  /// Neutral text on a coverage card whose kind the app does not know (neither covered nor planned): no band, no speed and no claim.
+  ///
+  /// In en, this message translates to:
+  /// **'We could not read the details of this option.'**
+  String get coverageOptionUnknownText;
+
+  /// Neutral heading above the coverage cards when none of them is covered or planned (a kind the app does not know).
+  ///
+  /// In en, this message translates to:
+  /// **'Coverage options at this place'**
+  String get coverageOptionsTitleNeutral;
+
+  /// Button next to a location message: opens the phone's settings so the customer can allow location or switch location services on.
+  ///
+  /// In en, this message translates to:
+  /// **'Open settings'**
+  String get coverageOpenSettings;
 }
 
 class _AppLocalizationsDelegate

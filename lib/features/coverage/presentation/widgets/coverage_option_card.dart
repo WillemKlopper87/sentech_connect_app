@@ -25,13 +25,16 @@ class CoverageOptionCard extends StatelessWidget {
     final theme = Theme.of(context);
     final name = technologyName(l10n, option.technology, option.technologyRaw);
     final planned = option.kind == OptionKind.planned;
-    final heading = planned ? l10n.coverageOptionPlannedHeading(name) : l10n.coverageOptionCoveredHeading(name);
+    final unknown = option.kind == OptionKind.unknown;
+    // A kind the app does not know is a neutral card: the technology and nothing that claims coverage.
+    final heading = unknown ? name : (planned ? l10n.coverageOptionPlannedHeading(name) : l10n.coverageOptionCoveredHeading(name));
     final band = option.band;
     final title = band == null ? null : bandTitle(l10n, band.key);
     final text = band == null ? null : bandText(l10n, band.key);
     final confidence = confidenceText(l10n, option.confidence);
-    final showFigures = !planned && band != null;
-    final showMeasure = !planned || option.measureDirection != MeasureDirection.downlink;
+    final showFigures = option.kind == OptionKind.covered && band != null && option.hasFigures;
+    // What the figures measure is said where a figure is shown, and nowhere else.
+    final showMeasure = showFigures;
     final border = theme.colorScheme.outlineVariant;
     final canNotify = onNotify != null && option.notifyAvailable;
 
@@ -62,7 +65,9 @@ class CoverageOptionCard extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 8),
-                if (planned)
+                if (unknown)
+                  Text(l10n.coverageOptionUnknownText)
+                else if (planned)
                   Text(
                     option.expectedDate == null
                         ? l10n.coverageOptionPlannedNoDate
@@ -86,7 +91,7 @@ class CoverageOptionCard extends StatelessWidget {
                   const SizedBox(height: 8),
                   Text(measureText(l10n, option), style: theme.textTheme.bodySmall),
                 ],
-                if (!planned && confidence != null) ...[
+                if (option.kind == OptionKind.covered && confidence != null) ...[
                   const SizedBox(height: 4),
                   Text(confidence, style: theme.textTheme.bodySmall),
                 ],

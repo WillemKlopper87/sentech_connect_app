@@ -3123,5 +3123,11 @@
   "coverageNotifyNotSent": "Imininingwane yakho ayithunyelwanga noma ayilondolozwanga. Sicela uzame futhi.",
   "@coverageNotifyNotSent": {"description": "Shown on the waiting-list form when nothing reached the platform (the security check was unavailable or the rate limit held the request), so trying again is safe."},
   "coverageNotifyRateLimitedWait": "Imizamo eminingi kakhulu. Sicela uzame futhi ngemva kwemizuzwana engu-{seconds}.",
-  "@coverageNotifyRateLimitedWait": {"description": "Shown on the waiting-list form while the platform's Retry-After wait runs. {seconds} is the number of seconds left.", "placeholders": {"seconds": {"type": "String", "example": "30"}}}
+  "@coverageNotifyRateLimitedWait": {"description": "Shown on the waiting-list form while the platform's Retry-After wait runs. {seconds} is the number of seconds left.", "placeholders": {"seconds": {"type": "String", "example": "30"}}},
+  "coverageOptionUnknownText": "Asikwazanga ukufunda imininingwane yalesi sinqumo.",
+  "@coverageOptionUnknownText": {"description": "Neutral text on a coverage card whose kind the app does not know (neither covered nor planned): no band, no speed and no claim."},
+  "coverageOptionsTitleNeutral": "Izinketho zokufinyelela kule ndawo",
+  "@coverageOptionsTitleNeutral": {"description": "Neutral heading above the coverage cards when none of them is covered or planned (a kind the app does not know)."},
+  "coverageOpenSettings": "Vula izilungiselelo",
+  "@coverageOpenSettings": {"description": "Button next to a location message: opens the phone's settings so the customer can allow location or switch location services on."}
 }
