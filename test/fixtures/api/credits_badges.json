@@ -1,0 +1,18 @@
+{
+  "items": [
+    {
+      "key": "first_checkin",
+      "target": 1,
+      "progress": 1,
+      "earned": true,
+      "awarded_at": "2026-11-04T07:00:00Z"
+    },
+    {
+      "key": "streak_7",
+      "target": 7,
+      "progress": 6,
+      "earned": false,
+      "awarded_at": null
+    }
+  ]
+}

@@ -18,6 +18,7 @@ import 'package:sentech_connect_app/features/subscriber/domain/service_actions.d
 import 'package:sentech_connect_app/features/wifi_voucher/domain/entities/wifi_hotspot.dart';
 
 import 'package:sentech_connect_app/features/hotspot_login/data/http_hotspot_login_repository.dart';
+import 'package:sentech_connect_app/features/credits/data/credits_json.dart';
 import 'package:sentech_connect_app/features/fiveg_service/data/fiveg_json.dart';
 import 'package:sentech_connect_app/features/fiveg_service/domain/entities/fiveg_usage.dart';
 import 'package:sentech_connect_app/features/fiveg_service/domain/usage_levels.dart';
@@ -65,6 +66,19 @@ const fixtureSchemas = {
   'fiveg_usage_fup.json': 'DataUsageOut',
   'fiveg_usage_pending_failed.json': 'DataUsageOut',
   'fiveg_unlock_order.json': 'OrderOut',
+  // Credits (platform G1b to G5; app G7): the customer wallet, history, redeem, check-in, missions and badges.
+  'credits_summary.json': 'CreditsOut',
+  'credits_summary_frozen.json': 'CreditsOut',
+  'credits_ledger_page_1.json': 'CreditEntryPage',
+  'credits_ledger_page_2.json': 'CreditEntryPage',
+  'credits_redeem_pass.json': 'EntitlementOut', // POST /v1/me/credits/redeem 201
+  'credits_streak.json': 'StreakOut',
+  'credits_streak_claimed.json': 'StreakOut',
+  'streak_claim_paid.json': 'StreakClaimOut',
+  'streak_claim_repeat.json': 'StreakClaimOut',
+  'streak_claim_capped.json': 'StreakClaimOut',
+  'credits_missions.json': 'MissionsOut',
+  'credits_badges.json': 'BadgesOut',
   // One-tap hotspot login (S10): POST /v1/me/hotspot/login-token 201, with the optional hand-off present (the app ignores it).
   'login_token.json': 'LoginTokenOut',
   'otp_request.json': 'OtpRequestOut',
@@ -98,6 +112,7 @@ const decoderReads = <String, Set<String>>{
     'cpe',
     'vouchers',
     'hotspot_radius',
+    'credits',
   },
   'SupportContact': {'email', 'phone'},
   'TenantPublic': {'slug', 'name', 'type', 'branding'},
@@ -195,6 +210,28 @@ const decoderReads = <String, Set<String>>{
   },
   'OfferOut': {'code', 'name', 'bytes_mb', 'price_cents', 'vat_cents', 'valid_until'},
   'PendingUnlockOut': {'order_id', 'status'},
+  'CreditsOut': {
+    'balance', 'available', 'pending', 'expiring_30d', 'frozen', 'caps', 'rates', 'tier', 'streak',
+  },
+  'CapsOut': {'ad_today', 'ad_daily_max', 'ad_month', 'ad_monthly_cap', 'overall_month', 'overall_monthly_cap'},
+  'RatesOut': {'mb_per_credit', 'ad_credits', 'pack_sizes', 'expiry_days'},
+  'CreditEntryPage': {'items', 'next_cursor'},
+  'CreditEntryOut': {'id', 'kind', 'credits', 'source', 'created_at'},
+  'StreakOut': {
+    'day', 'claimed_today', 'run_days', 'best_run_days', 'freezes', 'total_days', 'tier', 'next_milestone_in_days',
+    'rules',
+  },
+  'StreakRulesOut': {
+    'daily_credits', 'short_milestone_days', 'short_milestone_bonus', 'long_milestone_days', 'long_milestone_bonus',
+    'freeze_cap', 'silver_streak_days', 'gold_streak_days', 'silver_purchases', 'gold_purchases', 'tier_window_days',
+  },
+  'StreakClaimOut': {'claimed', 'credits', 'bonus_credits', 'freezes_used', 'milestones', 'capped_by', 'streak'},
+  'MissionsOut': {'items'},
+  'MissionOut': {
+    'key', 'window', 'window_key', 'target', 'progress', 'reward_credits', 'status', 'completed_at',
+  },
+  'BadgesOut': {'items'},
+  'BadgeOut': {'key', 'target', 'progress', 'earned', 'awarded_at'},
   // Request body of POST .../data/unlock-orders: the snapshot has no schema for it (the backend reads it through a
   // dependency), so the key set is pinned in the 5G group below instead.
   'ProblemDetail': {'code', 'title', 'detail', 'request_id'},
@@ -807,6 +844,70 @@ void main() {
       expect(pass.kind, OrderKind.pass);
       expect(pass.isHotspotPass, isTrue);
       expect(() => orderKindFromApi('coupon'), throwsA(isA<FormatException>()));
+    });
+  });
+  group('credits routes (G7)', () {
+    test('every route the app calls exists with the answer the app decodes', () {
+      const answers = {
+        ('/v1/me/credits', 'get', '200'): 'CreditsOut',
+        ('/v1/me/credits/ledger', 'get', '200'): 'CreditEntryPage',
+        ('/v1/me/credits/redeem', 'post', '201'): 'EntitlementOut',
+        ('/v1/me/streak', 'get', '200'): 'StreakOut',
+        ('/v1/me/streak/claim', 'post', '200'): 'StreakClaimOut',
+        ('/v1/me/missions', 'get', '200'): 'MissionsOut',
+        ('/v1/me/badges', 'get', '200'): 'BadgesOut',
+      };
+      for (final MapEntry(key: (path, method, status), value: name) in answers.entries) {
+        expect(api.responseSchemaName(api.path(path, method), status), name, reason: '$method $path');
+      }
+    });
+
+    test('redeem and claim need an Idempotency-Key; the claim also takes an optional X-Device-Id the app does not send', () {
+      for (final path in ['/v1/me/credits/redeem', '/v1/me/streak/claim']) {
+        final post = api.path(path, 'post');
+        final headers = ((post['parameters'] as List?) ?? const [])
+            .cast<Map>()
+            .where((p) => p['in'] == 'header')
+            .toList();
+        final key = headers.singleWhere((p) => p['name'] == 'Idempotency-Key');
+        expect(key['required'], isTrue, reason: path);
+      }
+    });
+
+    test('the ledger takes a cursor query and nothing the app computes', () {
+      final get = api.path('/v1/me/credits/ledger', 'get');
+      final names = ((get['parameters'] as List?) ?? const []).cast<Map>().map((p) => p['name']).toSet();
+      expect(names, containsAll(['cursor', 'limit']));
+    });
+
+    test('every entry kind, mission status and tier the API can send decodes', () {
+      final kinds = ((api.schema('CreditEntryOut')['properties']! as Map)['kind']! as Map)['enum']! as List;
+      for (final k in kinds.cast<String>()) {
+        expect(() => creditEntryKindFromApi(k), returnsNormally, reason: k);
+      }
+      final statuses = ((api.schema('MissionOut')['properties']! as Map)['status']! as Map)['enum']! as List;
+      for (final v in statuses.cast<String>()) {
+        expect(() => missionStatusFromApi(v), returnsNormally, reason: v);
+      }
+      final tiers = ((api.schema('StreakOut')['properties']! as Map)['tier']! as Map)['enum']! as List;
+      for (final v in tiers.cast<String>()) {
+        expect(() => creditTierFromApi(v), returnsNormally, reason: v);
+      }
+    });
+
+    test('the fixtures decode', () {
+      final summary = creditsSummaryFromJson(fixtureMap('credits_summary.json'));
+      expect(summary.available, 150);
+      expect(summary.pending, 25);
+      expect(summary.rates.packSizes, [50, 100, 250]);
+      final frozen = creditsSummaryFromJson(fixtureMap('credits_summary_frozen.json'));
+      expect(frozen.frozen, isTrue);
+      expect(frozen.tier, isNull);
+      expect(claimResultFromJson(fixtureMap('streak_claim_capped.json')).cappedBy, 'overall_monthly');
+    });
+
+    test('the platform sends the credits flag in app-config feature_flags', () {
+      expect(api.properties('FeatureFlags'), contains('credits'));
     });
   });
 }

@@ -145,6 +145,7 @@ Failure failureFromStatus(int status, ApiProblem? problem, {String? requestId, D
   if (status == 503 && problem?.code == 'human_verification_unavailable') return HumanVerificationUnavailableFailure(retryAfter);
   if (status == 503 && problem?.code == 'sms_unavailable') return SmsUnavailableFailure(retryAfter);
   if (status == 503 && problem?.code == 'support_unavailable') return SupportUnavailableFailure(retryAfter);
+  if (status == 503 && problem?.code == 'credits_paused') return CreditsPausedFailure(retryAfter);
   if (status >= 500 || problem == null) return ServerFailure('Something went wrong on our end.', requestId);
   if (status == 403 && problem.code == 'tenant_suspended') return const ProviderUnavailableFailure();
   if (status == 403 && (problem.code == 'module_not_enabled' || problem.code == 'module_disabled')) {
@@ -215,4 +216,10 @@ const _typedRefusals = <String, Failure>{
   'unlock_service_inactive': UnlockServiceInactiveFailure(),
   'unlock_payment_held': UnlockPaymentHeldFailure(),
   'idempotency_in_progress': IdempotencyInProgressFailure(),
+  'wallet_frozen': WalletFrozenFailure(),
+  'customer_inactive': CustomerInactiveFailure(),
+  'insufficient_credits': InsufficientCreditsFailure(),
+  'redemption_limit_reached': RedemptionLimitReachedFailure(),
+  'pack_not_offered': PackNotOfferedFailure(),
+  'earn_refused': EarnRefusedFailure(),
 };

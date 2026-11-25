@@ -1,0 +1,33 @@
+{
+  "claimed": false,
+  "credits": 3,
+  "bonus_credits": 0,
+  "freezes_used": 0,
+  "milestones": [],
+  "capped_by": null,
+  "streak": {
+    "day": "2026-11-25",
+    "claimed_today": true,
+    "run_days": 7,
+    "best_run_days": 9,
+    "freezes": 1,
+    "total_days": 21,
+    "tier": "silver",
+    "next_milestone_in_days": 7,
+    "rules": {
+      "daily_credits": 3,
+      "short_milestone_days": 7,
+      "short_milestone_bonus": 10,
+      "long_milestone_days": 30,
+      "long_milestone_bonus": 50,
+      "freeze_cap": 2,
+      "silver_bonus_bps": 1000,
+      "gold_bonus_bps": 2500,
+      "silver_streak_days": 7,
+      "gold_streak_days": 30,
+      "silver_purchases": 2,
+      "gold_purchases": 5,
+      "tier_window_days": 90
+    }
+  }
+}

@@ -416,3 +416,64 @@ class UnlockServiceInactiveFailure extends ValidationFailure {
   const UnlockServiceInactiveFailure()
       : super('This service is not active, so data cannot be unlocked right now.', 'unlock_service_inactive', false);
 }
+
+// Credits (rewards). Typed refusals of the customer credits routes
+// (`/v1/me/credits*`, `/v1/me/streak*`, `/v1/me/missions`, `/v1/me/badges`).
+
+/// The credits feature is not available: the provider has it off (409
+/// `feature_disabled`, 403 `module_not_enabled`) or the server is older than
+/// the routes (404). The screens hide the feature quietly instead of showing
+/// this text.
+class CreditsNotAvailableFailure extends Failure {
+  const CreditsNotAvailableFailure([super.message = 'Rewards are not available right now.']);
+}
+
+/// 409 `wallet_frozen`: the wallet is frozen, so nothing can be earned or spent
+/// until the provider releases it.
+class WalletFrozenFailure extends ValidationFailure {
+  const WalletFrozenFailure()
+      : super('Your rewards wallet is frozen, so credits cannot be earned or used right now. Contact your provider.', 'wallet_frozen', false);
+}
+
+/// 409 `customer_inactive`: the account is not active.
+class CustomerInactiveFailure extends ValidationFailure {
+  const CustomerInactiveFailure()
+      : super('Your account is not active, so credits cannot be earned or used right now.', 'customer_inactive', false);
+}
+
+/// 503 `credits_paused`: the programme is paused (the whole platform or this
+/// provider). Balances can still be viewed. [retryAfter] is the server's hint.
+class CreditsPausedFailure extends Failure {
+  const CreditsPausedFailure([this.retryAfter, super.message = 'Rewards are paused right now. You can still see your balance.']);
+
+  final Duration? retryAfter;
+
+  @override
+  List<Object?> get props => [message, retryAfter];
+}
+
+/// 409 `insufficient_credits`: not enough available credits for that pack.
+class InsufficientCreditsFailure extends ValidationFailure {
+  const InsufficientCreditsFailure()
+      : super('You do not have enough available credits for that pack.', 'insufficient_credits', false);
+}
+
+/// 409 `redemption_limit_reached`: today's redemption limit (Johannesburg day) is reached.
+class RedemptionLimitReachedFailure extends ValidationFailure {
+  const RedemptionLimitReachedFailure()
+      : super('You have reached today\'s limit for packs. Try again tomorrow.', 'redemption_limit_reached', false);
+}
+
+/// 422 `pack_not_offered`: that size is not one of the provider's packs (the
+/// rates changed since the screen loaded).
+class PackNotOfferedFailure extends ValidationFailure {
+  const PackNotOfferedFailure()
+      : super('That pack is no longer offered. Refresh and pick another.', 'pack_not_offered', false);
+}
+
+/// 409 `earn_refused`: the check-in cannot be completed right now. The server
+/// gives no reason on purpose (device and address limits).
+class EarnRefusedFailure extends ValidationFailure {
+  const EarnRefusedFailure()
+      : super('Your check-in cannot be completed right now. Try again later.', 'earn_refused', false);
+}

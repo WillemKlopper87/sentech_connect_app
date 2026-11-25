@@ -1,0 +1,26 @@
+{
+  "balance": 60,
+  "available": 60,
+  "pending": 0,
+  "expiring_30d": 0,
+  "frozen": true,
+  "caps": {
+    "ad_today": 0,
+    "ad_daily_max": 5,
+    "ad_month": 0,
+    "ad_monthly_cap": 100,
+    "overall_month": 300,
+    "overall_monthly_cap": 300
+  },
+  "rates": {
+    "mb_per_credit": 1,
+    "ad_credits": 2,
+    "pack_sizes": [
+      100,
+      500
+    ],
+    "expiry_days": 60
+  },
+  "tier": null,
+  "streak": null
+}

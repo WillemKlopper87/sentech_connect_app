@@ -1,0 +1,19 @@
+{
+  "items": [
+    {
+      "id": 398,
+      "kind": "earn",
+      "credits": 10,
+      "source": "mission",
+      "created_at": "2026-11-20T08:00:00Z"
+    },
+    {
+      "id": 380,
+      "kind": "expire",
+      "credits": -5,
+      "source": "expiry",
+      "created_at": "2026-11-01T00:00:00Z"
+    }
+  ],
+  "next_cursor": null
+}
