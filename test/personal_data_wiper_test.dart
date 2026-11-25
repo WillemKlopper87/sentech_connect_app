@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sentech_connect_app/features/credits/data/pending_redeem_keys.dart';
 import 'package:sentech_connect_app/app/default_personal_data_wiper.dart';
 import 'package:sentech_connect_app/core/storage/secure_store.dart';
 import 'package:sentech_connect_app/features/auth/data/repositories/local_registration_repository.dart';
@@ -72,5 +73,21 @@ void main() {
     expect(checkout.clears, 1);
     expect(wifi.resets, [false, true]);
     expect(consent.clears, 1);
+  });
+
+  test('sign-out and account deletion forget a pending credits redeem key, even when another step fails', () async {
+    final keys = PendingRedeemKeys()..put('acme:cust-1', 50, 'key-aaaaaaaa');
+    final withKeys = DefaultPersonalDataWiper(
+      registration: _FailingRegistration(store),
+      checkout: checkout,
+      freeWifi: wifi,
+      consent: consent,
+      pendingRedeemKeys: keys,
+    );
+    await expectLater(withKeys.wipeOnLogout(), throwsStateError);
+    expect(keys.pendingFor('acme:cust-1'), isNull);
+    keys.put('acme:cust-1', 50, 'key-bbbbbbbb');
+    await expectLater(withKeys.wipeEverything(), throwsStateError);
+    expect(keys.pendingFor('acme:cust-1'), isNull);
   });
 }

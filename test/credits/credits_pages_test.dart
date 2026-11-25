@@ -16,6 +16,10 @@ import 'package:sentech_connect_app/features/credits/presentation/pages/ledger_p
 import 'package:sentech_connect_app/features/credits/presentation/pages/missions_page.dart';
 import 'package:sentech_connect_app/features/credits/presentation/pages/redeem_page.dart';
 import 'package:sentech_connect_app/features/credits/presentation/pages/streak_page.dart';
+import 'package:sentech_connect_app/features/passes/data/repositories/mock_passes_repository.dart';
+import 'package:sentech_connect_app/features/passes/domain/entities/pass.dart';
+import 'package:sentech_connect_app/features/passes/presentation/bloc/passes_cubit.dart';
+import 'package:sentech_connect_app/features/passes/presentation/pages/my_passes_page.dart';
 
 import '../helpers/fixtures.dart';
 import '../helpers/pump_themed.dart';
@@ -72,6 +76,16 @@ Future<void> _pumpStreak(WidgetTester tester, FakeCreditsRepository repo) async 
     ),
   );
   await tester.pumpAndSettle();
+}
+
+class _CountingPasses extends MockPassesRepository {
+  int loads = 0;
+
+  @override
+  Future<Either<Failure, List<Pass>>> getPasses({bool includeExpired = false}) {
+    loads++;
+    return super.getPasses(includeExpired: includeExpired);
+  }
 }
 
 void main() {
@@ -248,6 +262,39 @@ void main() {
       expect(tester.widget<FilledButton>(find.byKey(const Key('credits-redeem-button'))).onPressed, isNull);
     });
 
+    testWidgets('after a lost response the wallet is read again and only the pending pack can be retried', (tester) async {
+      repo.redeemResults.addAll([const Left(NetworkFailure()), Right(redeemedPassFixture())]);
+      await _pumpRedeem(tester, repo);
+      final before = repo.summaryCalls;
+      await tester.tap(find.byKey(const Key('credits-pack-50')));
+      await tester.pump();
+      await tester.tap(find.byKey(const Key('credits-redeem-button')));
+      await tester.pumpAndSettle();
+      expect(repo.summaryCalls, greaterThan(before), reason: 'the wallet is refreshed after a failure');
+      expect(find.textContaining('may not have finished'), findsOneWidget);
+      await tester.tap(find.byKey(const Key('credits-pack-100')));
+      await tester.pump();
+      expect(tester.widget<ListTile>(find.byKey(const Key('credits-pack-100'))).enabled, isFalse);
+      expect(find.text('Try again'), findsWidgets);
+      await tester.tap(find.byKey(const Key('credits-redeem-button')));
+      await tester.pumpAndSettle();
+      expect(repo.redeemCalls, hasLength(2));
+      expect(repo.redeemCalls[0].key, repo.redeemCalls[1].key);
+      expect(find.text('Your pass is ready'), findsOneWidget);
+    });
+
+    testWidgets('any failed redeem refreshes the wallet, and the choose view can be pulled to refresh', (tester) async {
+      repo.redeemResults.add(const Left(PackNotOfferedFailure()));
+      await _pumpRedeem(tester, repo);
+      expect(find.byType(RefreshIndicator), findsOneWidget);
+      final before = repo.summaryCalls;
+      await tester.tap(find.byKey(const Key('credits-pack-50')));
+      await tester.pump();
+      await tester.tap(find.byKey(const Key('credits-redeem-button')));
+      await tester.pumpAndSettle();
+      expect(repo.summaryCalls, greaterThan(before));
+    });
+
     testWidgets('a daily limit refusal is shown in words with the packs still usable', (tester) async {
       repo.redeemResults.add(const Left(RedemptionLimitReachedFailure()));
       await _pumpRedeem(tester, repo);
@@ -416,6 +463,22 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('No credit activity yet.'), findsOneWidget);
     });
+  });
+
+  testWidgets('My passes is read again when the customer comes back from Rewards', (tester) async {
+    final passes = _CountingPasses();
+    await pumpThemed(
+      tester,
+      BlocProvider(
+        create: (_) => PassesCubit(passes),
+        child: MyPassesPage(onOpenRewards: () async {}),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(passes.loads, 1);
+    await tester.tap(find.byKey(const Key('rewards-entry-card')));
+    await tester.pumpAndSettle();
+    expect(passes.loads, 2, reason: 'a pass bought with credits must show on return');
   });
 
   testWidgets('every Rewards page lays out at a large text size on a small phone without overflow', (tester) async {

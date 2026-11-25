@@ -178,6 +178,27 @@ void main() {
       await _disposeApp(tester);
     });
 
+    testWidgets('View my passes after a redeem returns to the one passes page instead of stacking another', (tester) async {
+      final tenant = await _tenant(modules: {'credits': true}, creditsFlag: true);
+      await pumpRouter(tester, tenant, AppRoutes.passes);
+      await tester.tap(find.byKey(const Key('rewards-entry-card')));
+      await tester.pumpAndSettle();
+      appRouter.router.push(AppRoutes.creditsRedeem);
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('credits-pack-50')));
+      await tester.pump();
+      await tester.tap(find.byKey(const Key('credits-redeem-button')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('credits-view-passes')));
+      await tester.pumpAndSettle();
+      expect(appRouter.router.state.uri.path, AppRoutes.passes);
+      final stack = appRouter.router.routerDelegate.currentConfiguration.matches.map((m) => m.matchedLocation).toList();
+      expect(stack.where((p) => p == AppRoutes.passes), hasLength(1), reason: '$stack');
+      expect(stack.where((p) => p.startsWith('/rewards')), isEmpty, reason: '$stack');
+      await tester.pump(const Duration(seconds: 3)); // let the Home tabs under it finish their demo loads
+      await _disposeApp(tester);
+    });
+
     testWidgets('every Rewards sub-page opens when credits are on', (tester) async {
       final tenant = await _tenant(modules: {'credits': true}, creditsFlag: true);
       await pumpRouter(tester, tenant, AppRoutes.credits);

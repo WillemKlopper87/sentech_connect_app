@@ -37,14 +37,20 @@ class _RedeemPageState extends State<RedeemPage> {
       body: SafeArea(
         child: BlocListener<RedeemCubit, RedeemState>(
           listenWhen: (previous, current) =>
-              previous.status != RedeemStatus.done && current.status == RedeemStatus.done,
+              previous.status != current.status &&
+              (current.status == RedeemStatus.done ||
+                  current.status == RedeemStatus.failed),
+          // A result of any kind (and a failure above all: the answer may have been lost
+          // after the credits were spent) means the wallet is read again.
           listener: (context, state) => context.read<CreditsCubit>().refresh(),
           child: BlocBuilder<CreditsCubit, CreditsState>(
             builder: (context, wallet) {
               final summary = wallet.summary;
               if (summary == null) {
                 return switch (wallet.status) {
-                  CreditsStatus.unavailable => CreditsMessage(l10n.creditsUnavailable),
+                  CreditsStatus.unavailable => CreditsMessage(
+                    l10n.creditsUnavailable,
+                  ),
                   CreditsStatus.error => FailureView(
                     failure: wallet.failure,
                     onRetry: () => context.read<CreditsCubit>().refresh(),
@@ -54,12 +60,18 @@ class _RedeemPageState extends State<RedeemPage> {
               }
               return BlocBuilder<RedeemCubit, RedeemState>(
                 builder: (context, state) => state.status == RedeemStatus.done
-                    ? _Done(state: state, summary: summary, onOpenPasses: widget.onOpenPasses, onAnother: _another)
+                    ? _Done(
+                        state: state,
+                        summary: summary,
+                        onOpenPasses: widget.onOpenPasses,
+                        onAnother: _another,
+                      )
                     : _Choose(
                         summary: summary,
                         state: state,
                         selected: _selected,
-                        onSelect: (credits) => setState(() => _selected = credits),
+                        onSelect: (credits) =>
+                            setState(() => _selected = credits),
                       ),
               );
             },
@@ -76,7 +88,12 @@ class _RedeemPageState extends State<RedeemPage> {
 }
 
 class _Choose extends StatelessWidget {
-  const _Choose({required this.summary, required this.state, required this.selected, required this.onSelect});
+  const _Choose({
+    required this.summary,
+    required this.state,
+    required this.selected,
+    required this.onSelect,
+  });
 
   final CreditsSummary summary;
   final RedeemState state;
@@ -91,56 +108,94 @@ class _Choose extends StatelessWidget {
     final blockedByWallet = summary.frozen;
     final blockedByRefusal = state.blocksActions;
     final blocked = blockedByWallet || blockedByRefusal;
-    final notice = blockedByWallet ? l10n.creditsFrozenNotice : blockingNoticeText(l10n, state.failure);
-    final choice = selected;
+    final notice = blockedByWallet
+        ? l10n.creditsFrozenNotice
+        : blockingNoticeText(l10n, state.failure);
+    final pendingPack = state.pendingCredits;
+    // While a redeem has an unknown outcome only that pack can be tried again.
+    final choice = pendingPack ?? selected;
     final canRedeem =
-        choice != null && !blocked && !submitting && summary.rates.packSizes.contains(choice) && choice <= summary.available;
-    return ListView(
-      padding: const EdgeInsets.all(20),
-      children: [
-        if (notice != null) ...[CreditsNotice(text: notice, warning: true), const SizedBox(height: 12)],
-        Text(l10n.creditsHomeAvailable, style: theme.textTheme.labelLarge),
-        Text(l10n.creditsAmount(summary.available), style: theme.textTheme.headlineSmall),
-        const SizedBox(height: 12),
-        Text(l10n.creditsRedeemIntro),
-        const SizedBox(height: 12),
-        if (summary.rates.packSizes.isEmpty)
-          CreditsMessage(l10n.creditsRedeemNoPacks)
-        else
-          for (final size in summary.rates.packSizes)
-            _PackTile(
-              credits: size,
-              data: formatMegabytes(l10n, summary.rates.megabytesFor(size)),
-              selected: choice == size,
-              enough: size <= summary.available,
-              enabled: !blocked && !submitting,
-              onTap: () => onSelect(size),
+        choice != null &&
+        !blocked &&
+        !submitting &&
+        summary.rates.packSizes.contains(choice) &&
+        choice <= summary.available;
+    return RefreshIndicator(
+      onRefresh: () => context.read<CreditsCubit>().refresh(),
+      child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(20),
+        children: [
+          if (notice != null) ...[
+            CreditsNotice(text: notice, warning: true),
+            const SizedBox(height: 12),
+          ],
+          if (pendingPack != null && !blocked) ...[
+            CreditsNotice(
+              text: l10n.creditsRedeemPendingNotice,
+              icon: Icons.sync_problem,
             ),
-        const SizedBox(height: 8),
-        if (state.status == RedeemStatus.failed && !blockedByRefusal && state.failure != null)
-          FailureView(
-            failure: state.failure,
-            compact: true,
-            onRetry: () {
-              final retry = state.credits ?? choice;
-              if (retry != null) context.read<RedeemCubit>().redeem(retry);
-            },
+            const SizedBox(height: 12),
+          ],
+          Text(l10n.creditsHomeAvailable, style: theme.textTheme.labelLarge),
+          Text(
+            l10n.creditsAmount(summary.available),
+            style: theme.textTheme.headlineSmall,
           ),
-        const SizedBox(height: 8),
-        FilledButton(
-          key: const Key('credits-redeem-button'),
-          onPressed: canRedeem ? () => context.read<RedeemCubit>().redeem(choice) : null,
-          child: Text(
-            submitting
-                ? l10n.creditsRedeeming
-                : choice == null
-                ? l10n.creditsTileRedeem
-                : l10n.creditsRedeemButton(l10n.creditsAmount(choice)),
+          const SizedBox(height: 12),
+          Text(l10n.creditsRedeemIntro),
+          const SizedBox(height: 12),
+          if (summary.rates.packSizes.isEmpty)
+            CreditsMessage(l10n.creditsRedeemNoPacks)
+          else
+            for (final size in summary.rates.packSizes)
+              _PackTile(
+                credits: size,
+                data: formatMegabytes(l10n, summary.rates.megabytesFor(size)),
+                selected: choice == size,
+                enough: size <= summary.available,
+                enabled:
+                    !blocked &&
+                    !submitting &&
+                    (pendingPack == null || pendingPack == size),
+                onTap: () => onSelect(size),
+              ),
+          const SizedBox(height: 8),
+          if (state.status == RedeemStatus.failed &&
+              !blockedByRefusal &&
+              state.failure != null &&
+              pendingPack == null)
+            FailureView(
+              failure: state.failure,
+              compact: true,
+              onRetry: () {
+                final retry = state.credits ?? choice;
+                if (retry != null) context.read<RedeemCubit>().redeem(retry);
+              },
+            ),
+          const SizedBox(height: 8),
+          FilledButton(
+            key: const Key('credits-redeem-button'),
+            onPressed: canRedeem
+                ? () => context.read<RedeemCubit>().redeem(choice)
+                : null,
+            child: Text(
+              submitting
+                  ? l10n.creditsRedeeming
+                  : choice == null
+                  ? l10n.creditsTileRedeem
+                  : pendingPack != null
+                  ? l10n.creditsTryAgain
+                  : l10n.creditsRedeemButton(l10n.creditsAmount(choice)),
+            ),
           ),
-        ),
-        const SizedBox(height: 12),
-        Text(l10n.creditsTermsLine(summary.rates.expiryDays.toString()), style: theme.textTheme.bodySmall),
-      ],
+          const SizedBox(height: 12),
+          Text(
+            l10n.creditsTermsLine(summary.rates.expiryDays.toString()),
+            style: theme.textTheme.bodySmall,
+          ),
+        ],
+      ),
     );
   }
 }
@@ -171,7 +226,10 @@ class _PackTile extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 8),
       child: DecoratedBox(
         decoration: BoxDecoration(
-          border: Border.all(color: selected ? scheme.primary : scheme.outlineVariant, width: selected ? 2 : 1),
+          border: Border.all(
+            color: selected ? scheme.primary : scheme.outlineVariant,
+            width: selected ? 2 : 1,
+          ),
           borderRadius: BorderRadius.circular(12),
         ),
         child: ListTile(
@@ -179,9 +237,15 @@ class _PackTile extends StatelessWidget {
           minTileHeight: 56,
           enabled: usable,
           selected: selected,
-          leading: Icon(selected ? Icons.radio_button_checked : Icons.radio_button_unchecked),
+          leading: Icon(
+            selected
+                ? Icons.radio_button_checked
+                : Icons.radio_button_unchecked,
+          ),
           title: Text(l10n.creditsAmount(credits)),
-          subtitle: Text(enough ? l10n.creditsPackData(data) : l10n.creditsPackNotEnough),
+          subtitle: Text(
+            enough ? l10n.creditsPackData(data) : l10n.creditsPackNotEnough,
+          ),
           onTap: usable ? onTap : null,
         ),
       ),
@@ -190,7 +254,12 @@ class _PackTile extends StatelessWidget {
 }
 
 class _Done extends StatelessWidget {
-  const _Done({required this.state, required this.summary, required this.onOpenPasses, required this.onAnother});
+  const _Done({
+    required this.state,
+    required this.summary,
+    required this.onOpenPasses,
+    required this.onAnother,
+  });
 
   final RedeemState state;
   final CreditsSummary summary;
@@ -206,22 +275,40 @@ class _Done extends StatelessWidget {
     final megabytes = pass?.dataMb ?? summary.rates.megabytesFor(credits);
     final until = pass == null
         ? ''
-        : DateFormat.yMMMd(Localizations.localeOf(context).toLanguageTag()).add_Hm().format(pass.expiresAt.toLocal());
+        : DateFormat.yMMMd(
+            Localizations.localeOf(context).toLanguageTag(),
+          ).add_Hm().format(pass.expiresAt.toLocal());
     return ListView(
       padding: const EdgeInsets.all(20),
       children: [
-        Icon(Icons.check_circle_outline, size: 48, color: theme.colorScheme.primary),
+        Icon(
+          Icons.check_circle_outline,
+          size: 48,
+          color: theme.colorScheme.primary,
+        ),
         const SizedBox(height: 12),
-        Text(l10n.creditsRedeemDoneTitle, style: theme.textTheme.titleLarge, textAlign: TextAlign.center),
+        Text(
+          l10n.creditsRedeemDoneTitle,
+          style: theme.textTheme.titleLarge,
+          textAlign: TextAlign.center,
+        ),
         const SizedBox(height: 8),
         Text(
-          l10n.creditsRedeemDoneBody(l10n.creditsAmount(credits), formatMegabytes(l10n, megabytes), until),
+          l10n.creditsRedeemDoneBody(
+            l10n.creditsAmount(credits),
+            formatMegabytes(l10n, megabytes),
+            until,
+          ),
           key: const Key('credits-redeem-done'),
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 20),
         if (onOpenPasses case final open?)
-          FilledButton(key: const Key('credits-view-passes'), onPressed: open, child: Text(l10n.creditsViewPasses)),
+          FilledButton(
+            key: const Key('credits-view-passes'),
+            onPressed: open,
+            child: Text(l10n.creditsViewPasses),
+          ),
         const SizedBox(height: 8),
         OutlinedButton(onPressed: onAnother, child: Text(l10n.commonDone)),
       ],

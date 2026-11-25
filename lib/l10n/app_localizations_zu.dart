@@ -3349,4 +3349,11 @@ class AppLocalizationsZu extends AppLocalizations {
 
   @override
   String get creditsSourceAdmin => 'Lilungiswe umhlinzeki wakho';
+
+  @override
+  String get creditsRedeemPendingNotice =>
+      'Ukusebenzisa kwakho kokugcina kungenzeka kungaqedi. Zama futhi ukuze uqiniseke: ngeke kusebenzise amakhredithi akho kabili.';
+
+  @override
+  String get creditsTryAgain => 'Zama futhi';
 }

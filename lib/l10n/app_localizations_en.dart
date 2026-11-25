@@ -3329,4 +3329,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get creditsSourceAdmin => 'Adjusted by your provider';
+
+  @override
+  String get creditsRedeemPendingNotice =>
+      'Your last redeem may not have finished. Try again to be sure: it will not use your credits twice.';
+
+  @override
+  String get creditsTryAgain => 'Try again';
 }

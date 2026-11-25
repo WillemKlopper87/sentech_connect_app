@@ -68,6 +68,7 @@ import 'package:sentech_connect_app/features/promotions/domain/repositories/prom
 import 'package:sentech_connect_app/features/rica/data/repositories/mock_liveness_repository.dart';
 import 'package:sentech_connect_app/features/rica/domain/repositories/liveness_repository.dart';
 import 'package:sentech_connect_app/features/credits/data/http_credits_repository.dart';
+import 'package:sentech_connect_app/features/credits/data/pending_redeem_keys.dart';
 import 'package:sentech_connect_app/features/credits/data/mock_credits_repository.dart';
 import 'package:sentech_connect_app/features/credits/domain/repositories/credits_repository.dart';
 import 'package:sentech_connect_app/features/fiveg_service/data/http_fiveg_repository.dart';
@@ -170,6 +171,7 @@ void _registerPlatformServices(CrashReporter? crashReporter) {
     () => SharedPrefsTenantPreferences(),
   );
   locator.registerLazySingleton<SessionEvents>(() => SessionEvents());
+  locator.registerLazySingleton<PendingRedeemKeys>(() => PendingRedeemKeys());
   locator.registerLazySingleton<PersonalDataWiper>(
     () => DefaultPersonalDataWiper(
       registration: locator(),
@@ -177,6 +179,7 @@ void _registerPlatformServices(CrashReporter? crashReporter) {
       freeWifi: locator(),
       consent: locator(),
       passes: locator(),
+      pendingRedeemKeys: locator(),
     ),
   );
 }

@@ -521,3 +521,5 @@ Terms a native reviewer should settle first: "Rewards" (af Belonings, zu Amabhon
 | `creditsSourceMission` | Mission | Taak | Umsebenzi |
 | `creditsSourcePack` | Data pack | Datapakket | Iphakheji ledatha |
 | `creditsSourceAdmin` | Adjusted by your provider | Aangepas deur jou diensverskaffer | Lilungiswe umhlinzeki wakho |
+| `creditsRedeemPendingNotice` | Your last redeem may not have finished. Try again to be sure: it will not use your credits twice. | Jou laaste gebruik het dalk nie klaargemaak nie. Probeer weer om seker te maak: dit sal nie jou krediete twee keer gebruik nie. | Ukusebenzisa kwakho kokugcina kungenzeka kungaqedi. Zama futhi ukuze uqiniseke: ngeke kusebenzise amakhredithi akho kabili. |
+| `creditsTryAgain` | Try again | Probeer weer | Zama futhi |

@@ -5,6 +5,7 @@ import 'package:fpdart/fpdart.dart';
 import 'package:sentech_connect_app/core/error/failure.dart';
 import 'package:sentech_connect_app/features/credits/data/credits_json.dart';
 import 'package:sentech_connect_app/features/credits/domain/entities/credit_entry.dart';
+import 'package:sentech_connect_app/features/credits/data/pending_redeem_keys.dart';
 import 'package:sentech_connect_app/features/credits/presentation/bloc/credits_cubit.dart';
 import 'package:sentech_connect_app/features/credits/presentation/bloc/ledger_cubit.dart';
 import 'package:sentech_connect_app/features/credits/presentation/bloc/missions_cubit.dart';
@@ -90,10 +91,10 @@ void main() {
       await cubit.close();
     });
 
-    test('a different pack after a failure starts a new key (the server refuses one key for two requests)', () async {
-      repo.redeemResults.addAll([const Left(NetworkFailure()), Right(redeemedPassFixture())]);
+    test('a different pack after a final refusal starts a new key (the server refuses one key for two requests)', () async {
+      repo.redeemResults.addAll([const Left(InsufficientCreditsFailure()), Right(redeemedPassFixture())]);
       final cubit = RedeemCubit(repo, newKey: _keys());
-      await cubit.redeem(50);
+      await cubit.redeem(250);
       await cubit.redeem(100);
       expect(repo.redeemCalls.map((c) => c.key).toSet(), hasLength(2));
       await cubit.close();
@@ -159,6 +160,67 @@ void main() {
       await cubit.redeem(50);
       expect(cubit.state.blocksActions, isFalse);
       await cubit.close();
+    });
+  });
+
+  group('RedeemCubit after an unknown outcome (lost response)', () {
+    const scope = 'acme:cust-1';
+
+    test('a different pack is refused while one is pending; only the pending pack can be retried, with the same key', () async {
+      final keys = PendingRedeemKeys();
+      repo.redeemResults.addAll([const Left(NetworkFailure()), Right(redeemedPassFixture())]);
+      final cubit = RedeemCubit(repo, newKey: _keys(), pending: keys, scope: scope);
+      await cubit.redeem(50);
+      expect(cubit.state.pendingCredits, 50);
+      await cubit.redeem(100);
+      expect(repo.redeemCalls, hasLength(1), reason: 'the other pack sends nothing');
+      await cubit.redeem(50);
+      expect(repo.redeemCalls.map((c) => c.key).toSet(), hasLength(1));
+      expect(cubit.state.status, RedeemStatus.done);
+      expect(cubit.state.pendingCredits, isNull);
+      expect(keys.pendingFor(scope), isNull, reason: 'success clears it');
+      await cubit.close();
+    });
+
+    test('leaving the page and reopening it: the same pack reuses the key, another pack is still refused', () async {
+      final keys = PendingRedeemKeys();
+      repo.redeemResults.addAll([const Left(ServerFailure()), Right(redeemedPassFixture())]);
+      final first = RedeemCubit(repo, newKey: _keys(), pending: keys, scope: scope);
+      await first.redeem(50);
+      await first.close();
+      final reopened = RedeemCubit(repo, newKey: _keys(), pending: keys, scope: scope);
+      expect(reopened.state.pendingCredits, 50);
+      await reopened.redeem(250);
+      expect(repo.redeemCalls, hasLength(1));
+      await reopened.redeem(50);
+      expect(repo.redeemCalls[0].key, repo.redeemCalls[1].key);
+      await reopened.close();
+    });
+
+    test('a final refusal on the retry clears the pending key', () async {
+      final keys = PendingRedeemKeys();
+      repo.redeemResults.addAll([const Left(NetworkFailure()), const Left(InsufficientCreditsFailure())]);
+      final cubit = RedeemCubit(repo, newKey: _keys(), pending: keys, scope: scope);
+      await cubit.redeem(50);
+      await cubit.redeem(50);
+      expect(keys.pendingFor(scope), isNull);
+      expect(cubit.state.pendingCredits, isNull);
+      await cubit.close();
+    });
+
+    test('a pending key of another customer or provider is not used', () async {
+      final keys = PendingRedeemKeys()..put('other:cust-9', 50, 'key-foreign-00000');
+      final cubit = RedeemCubit(repo, newKey: _keys(), pending: keys, scope: scope);
+      expect(cubit.state.pendingCredits, isNull);
+      await cubit.redeem(50);
+      expect(repo.redeemCalls.single.key, isNot('key-foreign-00000'));
+      await cubit.close();
+    });
+
+    test('sign-out clears every pending key', () {
+      final keys = PendingRedeemKeys()..put(scope, 50, 'key-aaaaaaaa');
+      keys.clear();
+      expect(keys.pendingFor(scope), isNull);
     });
   });
 

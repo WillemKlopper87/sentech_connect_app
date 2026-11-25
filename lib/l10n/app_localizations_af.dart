@@ -3346,4 +3346,11 @@ class AppLocalizationsAf extends AppLocalizations {
 
   @override
   String get creditsSourceAdmin => 'Aangepas deur jou diensverskaffer';
+
+  @override
+  String get creditsRedeemPendingNotice =>
+      'Jou laaste gebruik het dalk nie klaargemaak nie. Probeer weer om seker te maak: dit sal nie jou krediete twee keer gebruik nie.';
+
+  @override
+  String get creditsTryAgain => 'Probeer weer';
 }

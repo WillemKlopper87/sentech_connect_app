@@ -5643,6 +5643,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Adjusted by your provider'**
   String get creditsSourceAdmin;
+
+  /// Shown on the redeem page after a request got no clear answer (a lost connection): the earlier redeem may or may not have gone through, so only that pack can be tried again, which is safe and never spends twice.
+  ///
+  /// In en, this message translates to:
+  /// **'Your last redeem may not have finished. Try again to be sure: it will not use your credits twice.'**
+  String get creditsRedeemPendingNotice;
+
+  /// Button to try the same redeem again after a lost response.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get creditsTryAgain;
 }
 
 class _AppLocalizationsDelegate

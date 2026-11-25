@@ -2952,5 +2952,9 @@
   "creditsSourcePack": "Iphakheji ledatha",
   "@creditsSourcePack": {"description": "History source: a data pack."},
   "creditsSourceAdmin": "Lilungiswe umhlinzeki wakho",
-  "@creditsSourceAdmin": {"description": "History source: adjusted by the provider."}
+  "@creditsSourceAdmin": {"description": "History source: adjusted by the provider."},
+  "creditsRedeemPendingNotice": "Ukusebenzisa kwakho kokugcina kungenzeka kungaqedi. Zama futhi ukuze uqiniseke: ngeke kusebenzise amakhredithi akho kabili.",
+  "@creditsRedeemPendingNotice": {"description": "Shown on the redeem page after a request got no clear answer (a lost connection): the earlier redeem may or may not have gone through, so only that pack can be tried again, which is safe and never spends twice."},
+  "creditsTryAgain": "Zama futhi",
+  "@creditsTryAgain": {"description": "Button to try the same redeem again after a lost response."}
 }

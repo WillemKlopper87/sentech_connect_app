@@ -2970,5 +2970,9 @@
   "creditsSourcePack": "Datapakket",
   "@creditsSourcePack": {"description": "History source: a data pack."},
   "creditsSourceAdmin": "Aangepas deur jou diensverskaffer",
-  "@creditsSourceAdmin": {"description": "History source: adjusted by the provider."}
+  "@creditsSourceAdmin": {"description": "History source: adjusted by the provider."},
+  "creditsRedeemPendingNotice": "Jou laaste gebruik het dalk nie klaargemaak nie. Probeer weer om seker te maak: dit sal nie jou krediete twee keer gebruik nie.",
+  "@creditsRedeemPendingNotice": {"description": "Shown on the redeem page after a request got no clear answer (a lost connection): the earlier redeem may or may not have gone through, so only that pack can be tried again, which is safe and never spends twice."},
+  "creditsTryAgain": "Probeer weer",
+  "@creditsTryAgain": {"description": "Button to try the same redeem again after a lost response."}
 }

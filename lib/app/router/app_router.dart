@@ -9,6 +9,7 @@ import 'package:sentech_connect_app/app/locator.dart';
 import 'package:sentech_connect_app/app/mock_feature_guard.dart';
 import 'package:sentech_connect_app/features/tenant/domain/entities/app_config.dart';
 import 'package:sentech_connect_app/features/credits/credits_gate.dart';
+import 'package:sentech_connect_app/features/credits/data/pending_redeem_keys.dart';
 import 'package:sentech_connect_app/features/credits/domain/repositories/credits_repository.dart';
 import 'package:sentech_connect_app/features/credits/presentation/bloc/credits_cubit.dart';
 import 'package:sentech_connect_app/features/credits/presentation/bloc/ledger_cubit.dart';
@@ -451,7 +452,7 @@ GoRouter _buildRouter(
           child: MyPassesPage(
             onBuyPass: () => context.go(AppRoutes.main),
             onOpenRewards: tenantCubit != null && creditsOn(tenantCubit.state)
-                ? () => context.push(AppRoutes.credits)
+                ? () => context.push<void>(AppRoutes.credits)
                 : null,
             now: locator<PlatformClock>().wallNow,
           ),
@@ -590,9 +591,21 @@ GoRouter _buildRouter(
         builder: (context, state) => MultiBlocProvider(
           providers: [
             BlocProvider(create: (_) => CreditsCubit(locator<CreditsRepository>())),
-            BlocProvider(create: (_) => RedeemCubit(locator<CreditsRepository>())),
+            BlocProvider(
+              create: (_) => RedeemCubit(
+                locator<CreditsRepository>(),
+                pending: locator<PendingRedeemKeys>(),
+                scope: '${tenantCubit?.state.config?.tenant.slug ?? ''}:${authCubit.state.user?.id ?? ''}',
+              ),
+            ),
           ],
-          child: RedeemPage(onOpenPasses: () => context.push(AppRoutes.passes)),
+          // One passes page in the stack: back to Home, then open it fresh (it reads the new pass).
+          child: RedeemPage(
+            onOpenPasses: () {
+              context.go(AppRoutes.main);
+              context.push(AppRoutes.passes);
+            },
+          ),
         ),
       ),
       GoRoute(

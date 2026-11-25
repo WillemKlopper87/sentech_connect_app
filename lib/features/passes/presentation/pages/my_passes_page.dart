@@ -19,7 +19,7 @@ class MyPassesPage extends StatefulWidget {
 
   /// Opens Rewards. The card shows only when this is given (the router gives it
   /// when the provider has the credits module and flag on).
-  final VoidCallback? onOpenRewards;
+  final Future<void> Function()? onOpenRewards;
   final DateTime Function() now;
 
   @override
@@ -82,7 +82,13 @@ class _MyPassesPageState extends State<MyPassesPage> {
                   value: state.includeExpired,
                   onChanged: cubit.setIncludeExpired,
                 ),
-                if (widget.onOpenRewards case final openRewards?) RewardsEntryCard(onOpen: openRewards),
+                if (widget.onOpenRewards case final openRewards?) RewardsEntryCard(
+                    onOpen: () async {
+                      await openRewards();
+                      // A pack redeemed in Rewards is a new pass: read the list again.
+                      if (mounted) unawaited(cubit.load());
+                    },
+                  ),
                 GetOnlineEntry(passes: state.passes, now: now),
                 if (state.passes.isEmpty) ...[
                   const SizedBox(height: 24),
