@@ -14,6 +14,9 @@ import 'package:sentech_connect_app/core/network/auth_tokens.dart';
 import 'package:sentech_connect_app/features/passes/domain/repositories/passes_repository.dart';
 import 'package:sentech_connect_app/features/auth/data/repositories/http_auth_repository.dart';
 import 'package:sentech_connect_app/features/auth/domain/repositories/auth_repository.dart';
+import 'package:sentech_connect_app/features/coverage/data/http_coverage_repository.dart';
+import 'package:sentech_connect_app/features/coverage/data/repositories/mock_coverage_repository.dart';
+import 'package:sentech_connect_app/features/coverage/domain/repositories/coverage_repository.dart';
 import 'package:sentech_connect_app/features/credits/data/http_credits_repository.dart';
 import 'package:sentech_connect_app/features/credits/data/mock_credits_repository.dart';
 import 'package:sentech_connect_app/features/credits/domain/repositories/credits_repository.dart';
@@ -177,6 +180,34 @@ void main() {
     final prodSource = source.substring(prodStart) + source.substring(stillMockStart, demoStart);
     expect(prodSource, isNot(contains('MockCreditsRepository')));
     expect(source.substring(demoStart, prodStart), contains('MockCreditsRepository'));
+  });
+
+  test('prod reads the public coverage check over HTTP only; demo uses the named mock', () {
+    setupLocator(environment: prod);
+    registerTestFakes();
+    expect(locator<CoverageRepository>(), isA<HttpCoverageRepository>());
+    expect(stillMockInProd, isNot(contains(CoverageRepository)));
+    expect(mockUntilLaterTasks, isNot(contains(CoverageRepository)));
+    setupLocator();
+    registerTestFakes();
+    expect(locator<CoverageRepository>(), isA<MockCoverageRepository>());
+  });
+
+  test('prod_flavor_never_registers_the_mock_coverage_repository', () {
+    final source = File('lib/app/locator.dart').readAsStringSync().replaceAll('\r\n', '\n');
+    final prodStart = source.indexOf('void _registerProdRepositories');
+    final demoStart = source.indexOf('void _registerDemoRepositories');
+    final stillMockStart = source.indexOf('void _registerStillMockRepositories');
+    expect(prodStart, greaterThan(demoStart));
+    final prodSource = source.substring(prodStart) + source.substring(stillMockStart, demoStart);
+    expect(prodSource, isNot(contains('MockCoverageRepository')));
+    expect(prodSource, contains('HttpCoverageRepository'));
+    expect(source.substring(demoStart, prodStart), contains('MockCoverageRepository'));
+  });
+
+  test('the coverage human check is the lead action, so the waiting list asks the platform what it enforces', () {
+    final source = File('lib/app/locator.dart').readAsStringSync();
+    expect(source, contains('HumanCheckAction.lead'));
   });
 
   test('demo keeps the mock voucher service', () {

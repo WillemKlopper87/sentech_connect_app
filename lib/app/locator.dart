@@ -39,6 +39,7 @@ import 'package:sentech_connect_app/features/catalog_checkout/data/repositories/
 import 'package:sentech_connect_app/features/catalog_checkout/domain/repositories/catalog_repository.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/domain/repositories/checkout_repository.dart';
 import 'package:sentech_connect_app/features/coverage/data/geolocator_device_location.dart';
+import 'package:sentech_connect_app/features/coverage/data/http_coverage_repository.dart';
 import 'package:sentech_connect_app/features/coverage/data/pending_lead_keys.dart';
 import 'package:sentech_connect_app/features/coverage/data/repositories/mock_coverage_repository.dart';
 import 'package:sentech_connect_app/features/coverage/domain/device_location.dart';
@@ -110,7 +111,6 @@ final locator = GetIt.instance;
 /// exists; nothing above this file changes. README ("Mock repositories and
 /// their real routes") lists the same set with the real API route for each.
 const stillMockInProd = <Type>[
-  CoverageRepository,
   FreeWifiRepository,
   PromotionsRepository,
   SupportRepository,
@@ -192,9 +192,6 @@ void _registerPlatformServices(CrashReporter? crashReporter) {
 }
 
 void _registerStillMockRepositories() {
-  locator.registerLazySingleton<CoverageRepository>(
-    () => MockCoverageRepository(locator()),
-  );
   locator.registerLazySingleton<LivenessRepository>(
     () => MockLivenessRepository(),
   );
@@ -210,6 +207,9 @@ void _registerStillMockRepositories() {
 }
 
 void _registerDemoRepositories() {
+  locator.registerLazySingleton<CoverageRepository>(
+    () => MockCoverageRepository(locator()),
+  );
   locator.registerLazySingleton<WifiHotspotsRepository>(
     () => MockWifiHotspotsRepository(),
   );
@@ -334,6 +334,13 @@ void _registerProdRepositories(Uri baseUrl, TurnstileConfig? turnstile) {
   locator.registerLazySingleton<KycRepository>(() => HttpKycRepository(locator()));
   locator.registerLazySingleton<HotspotLoginRepository>(() => HttpHotspotLoginRepository(locator()));
   locator.registerLazySingleton<FiveGRepository>(() => HttpFiveGRepository(locator()));
+  locator.registerLazySingleton<CoverageRepository>(
+    () => HttpCoverageRepository(
+      locator(),
+      tenant: locator(),
+      humanCheck: locator<HumanCheckGate>().forAction(HumanCheckAction.lead),
+    ),
+  );
   locator.registerLazySingleton<CreditsRepository>(() => HttpCreditsRepository(locator(), onModuleRefused: locator<SessionEvents>().refuseModule));
   locator.registerLazySingleton<SubscriberProfileRepository>(() => HttpSubscriberProfileRepository(locator()));
   locator.registerLazySingleton<CheckoutRepository>(

@@ -472,6 +472,24 @@ void main() {
       expect(appRouter.router.state.uri.path, '/coverage');
     });
 
+    testWidgets('onboarding_still_lands_on_coverage_after_a_fresh_sign_in', (tester) async {
+      await pumpRouter(
+        tester,
+        initial: const AuthState(status: AuthStatus.success, user: _user, freshSignIn: true),
+        at: '/login',
+      );
+      expect(appRouter.router.state.uri.path, '/coverage');
+      // The live coverage screen is there (search, location, map) and never a dead end.
+      expect(find.text('Coverage check'), findsOneWidget);
+      expect(find.byType(TextField), findsOneWidget);
+      expect(find.text('Use my current location'), findsOneWidget);
+      await tester.ensureVisible(find.text('Skip for now'));
+      await tester.tap(find.text('Skip for now'));
+      await tester.pumpAndSettle();
+      expect(appRouter.router.state.uri.path, '/main');
+      await tester.pump(const Duration(seconds: 2)); // the home screen's mock repositories finish their delays
+    });
+
     testWidgets(
       'hotspot profile and legal gates retain protected destination',
       (tester) async {
