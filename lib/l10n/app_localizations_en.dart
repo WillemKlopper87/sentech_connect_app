@@ -3719,4 +3719,231 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get coverageOpenSettings => 'Open settings';
+
+  @override
+  String get ticketsTitle => 'My tickets';
+
+  @override
+  String get ticketsEntrySubtitle => 'Follow your messages to support';
+
+  @override
+  String get ticketsNewTitle => 'New ticket';
+
+  @override
+  String get ticketsEmpty => 'You have no tickets yet.';
+
+  @override
+  String get ticketsUnavailable =>
+      'Support tickets are not available right now. You can still send a message from the Help tab.';
+
+  @override
+  String get ticketsLoadMore => 'Show more';
+
+  @override
+  String ticketsOpenedOn(String date) {
+    return 'Opened $date';
+  }
+
+  @override
+  String ticketsReference(String reference) {
+    return 'Reference $reference';
+  }
+
+  @override
+  String get ticketsCategoryFallback => 'Support';
+
+  @override
+  String get ticketStatusNew => 'Received';
+
+  @override
+  String get ticketStatusOpen => 'Open';
+
+  @override
+  String get ticketStatusPendingCustomer => 'Waiting for you';
+
+  @override
+  String get ticketStatusOnHold => 'On hold';
+
+  @override
+  String get ticketStatusResolved => 'Marked as solved';
+
+  @override
+  String get ticketStatusClosed => 'Closed';
+
+  @override
+  String get ticketStatusUnknown => 'Status not shown';
+
+  @override
+  String get ticketsAwaitingReply => 'Support is waiting for your reply';
+
+  @override
+  String get ticketsAuthorYou => 'You';
+
+  @override
+  String get ticketsAuthorSupport => 'Support';
+
+  @override
+  String get ticketsAuthorOther => 'Message';
+
+  @override
+  String get ticketsMessageRemoved =>
+      'The text of this message is no longer available.';
+
+  @override
+  String get ticketsReplyHint => 'Write a reply';
+
+  @override
+  String get ticketsReplySend => 'Send reply';
+
+  @override
+  String get ticketsMarkSolved => 'Mark as solved';
+
+  @override
+  String get ticketsMarkSolvedTitle => 'Mark this ticket as solved?';
+
+  @override
+  String get ticketsMarkSolvedBody =>
+      'If you write again later, the ticket opens again.';
+
+  @override
+  String get ticketsResolvedNote =>
+      'This ticket is marked as solved. Write a reply to open it again.';
+
+  @override
+  String get ticketsClosedNote =>
+      'This ticket is closed, so it cannot take more messages. If you still need help, open a new ticket.';
+
+  @override
+  String get ticketsClosedRefused =>
+      'This ticket was closed, so your message was not sent. Open a new ticket if you still need help.';
+
+  @override
+  String get ticketsChangedNotice =>
+      'The ticket changed while you were looking at it. It is shown as it is now.';
+
+  @override
+  String get ticketsNewCategoryLabel => 'What is it about?';
+
+  @override
+  String get ticketsNewCategoryHint => 'Choose a topic';
+
+  @override
+  String get ticketsNewBodyLabel => 'Describe the problem';
+
+  @override
+  String get ticketsNewBodyHelper =>
+      'Do not include passwords or card numbers.';
+
+  @override
+  String get ticketsNewSend => 'Send ticket';
+
+  @override
+  String get ticketsNewIssueNoCategory => 'Choose what the ticket is about.';
+
+  @override
+  String get ticketsNewIssueEmpty => 'Write a message.';
+
+  @override
+  String ticketsNewIssueTooLong(int max) {
+    return 'That message is too long. Keep it under $max characters.';
+  }
+
+  @override
+  String get ticketsNewDoneTitle => 'Ticket sent';
+
+  @override
+  String ticketsNewDoneBody(String reference) {
+    return 'Your ticket reference is $reference. You can follow it under My tickets.';
+  }
+
+  @override
+  String get ticketsNewDoneView => 'View ticket';
+
+  @override
+  String get ticketsNewDoneClose => 'Done';
+
+  @override
+  String get ticketsUnknownOutcome =>
+      'We could not confirm that your message was sent. If you try again with the same text, it will not be sent twice.';
+
+  @override
+  String get ticketsCheckFirst =>
+      'Your earlier message may have been sent. Check your latest tickets below. If it is not there, send again.';
+
+  @override
+  String get ticketsCheckFirstTitle => 'Your latest tickets';
+
+  @override
+  String get ticketsReplyCheckFirst =>
+      'Your earlier reply may have been sent. Check the conversation above. If it is not there, send again.';
+
+  @override
+  String ticketsHeldRateLimit(String time) {
+    return 'You have sent a lot of messages in the last hour, so sending is paused. You can send again in $time.';
+  }
+
+  @override
+  String ticketsWaitMinutes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count minutes',
+      one: '1 minute',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String ticketsWaitSeconds(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count seconds',
+      one: '1 second',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get ticketsIncidentTitle => 'Known network issue';
+
+  @override
+  String get ticketsIncidentInfo => 'Notice';
+
+  @override
+  String get ticketsIncidentDegraded => 'Service affected';
+
+  @override
+  String get ticketsIncidentOutage => 'Outage';
+
+  @override
+  String ticketsIncidentSince(String time) {
+    return 'Since $time';
+  }
+
+  @override
+  String get ticketsIncidentLatestUpdate => 'Latest update';
+
+  @override
+  String get failureTicketsNotAvailable =>
+      'Support tickets are not available right now.';
+
+  @override
+  String get failureTicketNotFound => 'We could not find that ticket.';
+
+  @override
+  String get failureTicketClosed =>
+      'This ticket is closed. Open a new one instead.';
+
+  @override
+  String get failureTicketAlreadyResolved =>
+      'This ticket is already marked solved.';
+
+  @override
+  String get failureTicketChanged =>
+      'The ticket just changed. Check it and try again.';
+
+  @override
+  String get failureTicketCategoryGone =>
+      'That topic is no longer offered. Pick another.';
 }

@@ -3740,4 +3740,232 @@ class AppLocalizationsZu extends AppLocalizations {
 
   @override
   String get coverageOpenSettings => 'Vula izilungiselelo';
+
+  @override
+  String get ticketsTitle => 'Amathikithi ami';
+
+  @override
+  String get ticketsEntrySubtitle => 'Landela imiyalezo yakho eya osizweni';
+
+  @override
+  String get ticketsNewTitle => 'Ithikithi elisha';
+
+  @override
+  String get ticketsEmpty => 'Awunamathikithi okwamanje.';
+
+  @override
+  String get ticketsUnavailable =>
+      'Amathikithi osizo awatholakali okwamanje. Usengathumela umyalezo ngethebhu Yosizo.';
+
+  @override
+  String get ticketsLoadMore => 'Bonisa okuningi';
+
+  @override
+  String ticketsOpenedOn(String date) {
+    return 'Livulwe ngo-$date';
+  }
+
+  @override
+  String ticketsReference(String reference) {
+    return 'Inkomba $reference';
+  }
+
+  @override
+  String get ticketsCategoryFallback => 'Usizo';
+
+  @override
+  String get ticketStatusNew => 'Itholiwe';
+
+  @override
+  String get ticketStatusOpen => 'Livuliwe';
+
+  @override
+  String get ticketStatusPendingCustomer => 'Lilinde wena';
+
+  @override
+  String get ticketStatusOnHold => 'Limisiwe';
+
+  @override
+  String get ticketStatusResolved => 'Kumakwe njengokuxazululiwe';
+
+  @override
+  String get ticketStatusClosed => 'Livaliwe';
+
+  @override
+  String get ticketStatusUnknown => 'Isimo asiboniswa';
+
+  @override
+  String get ticketsAwaitingReply => 'Usizo lulinde impendulo yakho';
+
+  @override
+  String get ticketsAuthorYou => 'Wena';
+
+  @override
+  String get ticketsAuthorSupport => 'Usizo';
+
+  @override
+  String get ticketsAuthorOther => 'Umyalezo';
+
+  @override
+  String get ticketsMessageRemoved =>
+      'The text of this message is no longer available.';
+
+  @override
+  String get ticketsReplyHint => 'Loba impendulo';
+
+  @override
+  String get ticketsReplySend => 'Thumela impendulo';
+
+  @override
+  String get ticketsMarkSolved => 'Maka njengokuxazululiwe';
+
+  @override
+  String get ticketsMarkSolvedTitle => 'Maka leli thikithi njengelixazululiwe?';
+
+  @override
+  String get ticketsMarkSolvedBody =>
+      'If you write again later, the ticket opens again.';
+
+  @override
+  String get ticketsResolvedNote =>
+      'This ticket is marked as solved. Write a reply to open it again.';
+
+  @override
+  String get ticketsClosedNote =>
+      'This ticket is closed, so it cannot take more messages. If you still need help, open a new ticket.';
+
+  @override
+  String get ticketsClosedRefused =>
+      'This ticket was closed, so your message was not sent. Open a new ticket if you still need help.';
+
+  @override
+  String get ticketsChangedNotice =>
+      'Ithikithi liguquke ngenkathi ulibheka. Libonisiwe njengoba linjalo manje.';
+
+  @override
+  String get ticketsNewCategoryLabel => 'Mayelana nani?';
+
+  @override
+  String get ticketsNewCategoryHint => 'Khetha isihloko';
+
+  @override
+  String get ticketsNewBodyLabel => 'Chaza inkinga';
+
+  @override
+  String get ticketsNewBodyHelper =>
+      'Ungafaki amagama ayimfihlo noma izinombolo zamakhadi.';
+
+  @override
+  String get ticketsNewSend => 'Thumela ithikithi';
+
+  @override
+  String get ticketsNewIssueNoCategory =>
+      'Khetha ukuthi ithikithi limayelana nani.';
+
+  @override
+  String get ticketsNewIssueEmpty => 'Loba umyalezo.';
+
+  @override
+  String ticketsNewIssueTooLong(int max) {
+    return 'Lowo mlayezo mude kakhulu. Wugcine ungaphansi kwezinhlamvu ezingu-$max.';
+  }
+
+  @override
+  String get ticketsNewDoneTitle => 'Ithikithi lithunyelwe';
+
+  @override
+  String ticketsNewDoneBody(String reference) {
+    return 'Inkomba yethikithi lakho ingu-$reference. Ungalilandela ku-Amathikithi ami.';
+  }
+
+  @override
+  String get ticketsNewDoneView => 'Buka ithikithi';
+
+  @override
+  String get ticketsNewDoneClose => 'Kuqedile';
+
+  @override
+  String get ticketsUnknownOutcome =>
+      'We could not confirm that your message was sent. If you try again with the same text, it will not be sent twice.';
+
+  @override
+  String get ticketsCheckFirst =>
+      'Your earlier message may have been sent. Check your latest tickets below. If it is not there, send again.';
+
+  @override
+  String get ticketsCheckFirstTitle => 'Amathikithi akho amasha';
+
+  @override
+  String get ticketsReplyCheckFirst =>
+      'Your earlier reply may have been sent. Check the conversation above. If it is not there, send again.';
+
+  @override
+  String ticketsHeldRateLimit(String time) {
+    return 'You have sent a lot of messages in the last hour, so sending is paused. You can send again in $time.';
+  }
+
+  @override
+  String ticketsWaitMinutes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'imizuzu engu-$count',
+      one: 'umzuzu o-1',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String ticketsWaitSeconds(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'amasekhondi angu-$count',
+      one: 'isekhondi eli-1',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get ticketsIncidentTitle => 'Inkinga yenethiwekhi eyaziwayo';
+
+  @override
+  String get ticketsIncidentInfo => 'Isaziso';
+
+  @override
+  String get ticketsIncidentDegraded => 'Isevisi ithintekile';
+
+  @override
+  String get ticketsIncidentOutage => 'Ukunqamuka';
+
+  @override
+  String ticketsIncidentSince(String time) {
+    return 'Kusukela ngo-$time';
+  }
+
+  @override
+  String get ticketsIncidentLatestUpdate => 'Isibuyekezo sakamuva';
+
+  @override
+  String get failureTicketsNotAvailable =>
+      'Amathikithi osizo awatholakali okwamanje.';
+
+  @override
+  String get failureTicketNotFound => 'Asikwazanga ukulithola leli thikithi.';
+
+  @override
+  String get failureTicketClosed =>
+      'This ticket is closed. Open a new one instead.';
+
+  @override
+  String get failureTicketAlreadyResolved =>
+      'Leli thikithi seliphawulwe njengelixazululiwe.';
+
+  @override
+  String get failureTicketChanged =>
+      'Ithikithi liguquke ngempela. Lihlole bese uyazama futhi.';
+
+  @override
+  String get failureTicketCategoryGone =>
+      'Lesi sihloko asisatholakali. Khetha esinye.';
 }

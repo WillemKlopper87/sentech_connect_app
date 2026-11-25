@@ -6255,6 +6255,372 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Open settings'**
   String get coverageOpenSettings;
+
+  /// Title of the support tickets list and the entry that opens it (Help tab and Account).
+  ///
+  /// In en, this message translates to:
+  /// **'My tickets'**
+  String get ticketsTitle;
+
+  /// Short line under the My tickets entry on the Help tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow your messages to support'**
+  String get ticketsEntrySubtitle;
+
+  /// Title of the page where the customer opens a new support ticket, and the button that opens it.
+  ///
+  /// In en, this message translates to:
+  /// **'New ticket'**
+  String get ticketsNewTitle;
+
+  /// Empty state of the tickets list.
+  ///
+  /// In en, this message translates to:
+  /// **'You have no tickets yet.'**
+  String get ticketsEmpty;
+
+  /// Plain-words notice when the provider has support tickets off or the server is older. Help is the name of the Help tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Support tickets are not available right now. You can still send a message from the Help tab.'**
+  String get ticketsUnavailable;
+
+  /// Button under the tickets list that loads the next page.
+  ///
+  /// In en, this message translates to:
+  /// **'Show more'**
+  String get ticketsLoadMore;
+
+  /// Line on a ticket: the date it was opened.
+  ///
+  /// In en, this message translates to:
+  /// **'Opened {date}'**
+  String ticketsOpenedOn(String date);
+
+  /// The ticket reference (like TKT-7K3M9Q2A) shown on a ticket. Keep the reference as is.
+  ///
+  /// In en, this message translates to:
+  /// **'Reference {reference}'**
+  String ticketsReference(String reference);
+
+  /// Topic shown for a ticket whose topic name the server did not send.
+  ///
+  /// In en, this message translates to:
+  /// **'Support'**
+  String get ticketsCategoryFallback;
+
+  /// Ticket status: new.
+  ///
+  /// In en, this message translates to:
+  /// **'Received'**
+  String get ticketStatusNew;
+
+  /// Ticket status: open.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get ticketStatusOpen;
+
+  /// Ticket status: waiting for the customer.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for you'**
+  String get ticketStatusPendingCustomer;
+
+  /// Ticket status: on hold.
+  ///
+  /// In en, this message translates to:
+  /// **'On hold'**
+  String get ticketStatusOnHold;
+
+  /// Ticket status: marked as solved.
+  ///
+  /// In en, this message translates to:
+  /// **'Marked as solved'**
+  String get ticketStatusResolved;
+
+  /// Ticket status: closed.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed'**
+  String get ticketStatusClosed;
+
+  /// Ticket status the app does not know yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Status not shown'**
+  String get ticketStatusUnknown;
+
+  /// Cue on a ticket when support answered last and is waiting for the customer. Not a promise about timing.
+  ///
+  /// In en, this message translates to:
+  /// **'Support is waiting for your reply'**
+  String get ticketsAwaitingReply;
+
+  /// Label on a message the customer wrote.
+  ///
+  /// In en, this message translates to:
+  /// **'You'**
+  String get ticketsAuthorYou;
+
+  /// Label on a message support wrote.
+  ///
+  /// In en, this message translates to:
+  /// **'Support'**
+  String get ticketsAuthorSupport;
+
+  /// Label on a message whose author the app does not know.
+  ///
+  /// In en, this message translates to:
+  /// **'Message'**
+  String get ticketsAuthorOther;
+
+  /// Shown in place of a message whose text the provider has removed. Policy wording: English until reviewed.
+  ///
+  /// In en, this message translates to:
+  /// **'The text of this message is no longer available.'**
+  String get ticketsMessageRemoved;
+
+  /// Hint in the reply box of a ticket.
+  ///
+  /// In en, this message translates to:
+  /// **'Write a reply'**
+  String get ticketsReplyHint;
+
+  /// Button that sends a reply on a ticket.
+  ///
+  /// In en, this message translates to:
+  /// **'Send reply'**
+  String get ticketsReplySend;
+
+  /// Button that marks a ticket as solved.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as solved'**
+  String get ticketsMarkSolved;
+
+  /// Title of the confirmation before a ticket is marked as solved.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark this ticket as solved?'**
+  String get ticketsMarkSolvedTitle;
+
+  /// Body of the confirmation before a ticket is marked as solved. Policy wording: English until reviewed.
+  ///
+  /// In en, this message translates to:
+  /// **'If you write again later, the ticket opens again.'**
+  String get ticketsMarkSolvedBody;
+
+  /// Note on a ticket marked as solved. Policy wording: English until reviewed.
+  ///
+  /// In en, this message translates to:
+  /// **'This ticket is marked as solved. Write a reply to open it again.'**
+  String get ticketsResolvedNote;
+
+  /// Note on a closed ticket, in place of the reply box. Policy wording: English until reviewed.
+  ///
+  /// In en, this message translates to:
+  /// **'This ticket is closed, so it cannot take more messages. If you still need help, open a new ticket.'**
+  String get ticketsClosedNote;
+
+  /// Notice when a reply was refused because the ticket is closed. Policy wording: English until reviewed.
+  ///
+  /// In en, this message translates to:
+  /// **'This ticket was closed, so your message was not sent. Open a new ticket if you still need help.'**
+  String get ticketsClosedRefused;
+
+  /// Notice after the app read a ticket again because support changed it.
+  ///
+  /// In en, this message translates to:
+  /// **'The ticket changed while you were looking at it. It is shown as it is now.'**
+  String get ticketsChangedNotice;
+
+  /// Label of the topic picker on the new ticket page.
+  ///
+  /// In en, this message translates to:
+  /// **'What is it about?'**
+  String get ticketsNewCategoryLabel;
+
+  /// Hint of the topic picker.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a topic'**
+  String get ticketsNewCategoryHint;
+
+  /// Label of the message box on the new ticket page.
+  ///
+  /// In en, this message translates to:
+  /// **'Describe the problem'**
+  String get ticketsNewBodyLabel;
+
+  /// Helper under the message box on the new ticket page.
+  ///
+  /// In en, this message translates to:
+  /// **'Do not include passwords or card numbers.'**
+  String get ticketsNewBodyHelper;
+
+  /// Button that sends a new ticket.
+  ///
+  /// In en, this message translates to:
+  /// **'Send ticket'**
+  String get ticketsNewSend;
+
+  /// Validation: no topic chosen.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose what the ticket is about.'**
+  String get ticketsNewIssueNoCategory;
+
+  /// Validation: empty message.
+  ///
+  /// In en, this message translates to:
+  /// **'Write a message.'**
+  String get ticketsNewIssueEmpty;
+
+  /// Validation: message over the limit. {max} is the largest allowed number of characters.
+  ///
+  /// In en, this message translates to:
+  /// **'That message is too long. Keep it under {max} characters.'**
+  String ticketsNewIssueTooLong(int max);
+
+  /// Title of the success state after a ticket was opened.
+  ///
+  /// In en, this message translates to:
+  /// **'Ticket sent'**
+  String get ticketsNewDoneTitle;
+
+  /// Success text after a ticket was opened. Keep the reference as is. No promise about timing.
+  ///
+  /// In en, this message translates to:
+  /// **'Your ticket reference is {reference}. You can follow it under My tickets.'**
+  String ticketsNewDoneBody(String reference);
+
+  /// Button on the success state: open the ticket.
+  ///
+  /// In en, this message translates to:
+  /// **'View ticket'**
+  String get ticketsNewDoneView;
+
+  /// Button on the success state: leave the page.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get ticketsNewDoneClose;
+
+  /// Notice after a send whose outcome is unknown (lost connection). Promise wording: English until reviewed.
+  ///
+  /// In en, this message translates to:
+  /// **'We could not confirm that your message was sent. If you try again with the same text, it will not be sent twice.'**
+  String get ticketsUnknownOutcome;
+
+  /// Notice when the customer changed the text after an unknown outcome: the app shows the latest tickets first. English until reviewed.
+  ///
+  /// In en, this message translates to:
+  /// **'Your earlier message may have been sent. Check your latest tickets below. If it is not there, send again.'**
+  String get ticketsCheckFirst;
+
+  /// Heading above the latest tickets shown after an unknown outcome.
+  ///
+  /// In en, this message translates to:
+  /// **'Your latest tickets'**
+  String get ticketsCheckFirstTitle;
+
+  /// Notice when the customer changed a reply after an unknown outcome: the thread was read again. English until reviewed.
+  ///
+  /// In en, this message translates to:
+  /// **'Your earlier reply may have been sent. Check the conversation above. If it is not there, send again.'**
+  String get ticketsReplyCheckFirst;
+
+  /// Notice while sending is held because of the hourly limit. {time} is a wait such as '5 minutes'. Policy wording: English until reviewed.
+  ///
+  /// In en, this message translates to:
+  /// **'You have sent a lot of messages in the last hour, so sending is paused. You can send again in {time}.'**
+  String ticketsHeldRateLimit(String time);
+
+  /// A wait in minutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 minute} other{{count} minutes}}'**
+  String ticketsWaitMinutes(int count);
+
+  /// A wait in seconds.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 second} other{{count} seconds}}'**
+  String ticketsWaitSeconds(int count);
+
+  /// Heading of the notice card on the Help tab when the provider has announced a network incident.
+  ///
+  /// In en, this message translates to:
+  /// **'Known network issue'**
+  String get ticketsIncidentTitle;
+
+  /// Severity label of an incident: information.
+  ///
+  /// In en, this message translates to:
+  /// **'Notice'**
+  String get ticketsIncidentInfo;
+
+  /// Severity label of an incident: service degraded.
+  ///
+  /// In en, this message translates to:
+  /// **'Service affected'**
+  String get ticketsIncidentDegraded;
+
+  /// Severity label of an incident: outage.
+  ///
+  /// In en, this message translates to:
+  /// **'Outage'**
+  String get ticketsIncidentOutage;
+
+  /// When an incident started. {time} is a date and time.
+  ///
+  /// In en, this message translates to:
+  /// **'Since {time}'**
+  String ticketsIncidentSince(String time);
+
+  /// Label above the provider's latest update text on an incident.
+  ///
+  /// In en, this message translates to:
+  /// **'Latest update'**
+  String get ticketsIncidentLatestUpdate;
+
+  /// Customer error when ticketing is off for the provider.
+  ///
+  /// In en, this message translates to:
+  /// **'Support tickets are not available right now.'**
+  String get failureTicketsNotAvailable;
+
+  /// Customer error for problem code ticket_not_found.
+  ///
+  /// In en, this message translates to:
+  /// **'We could not find that ticket.'**
+  String get failureTicketNotFound;
+
+  /// Customer error for problem code ticket_closed. Policy wording: English until reviewed.
+  ///
+  /// In en, this message translates to:
+  /// **'This ticket is closed. Open a new one instead.'**
+  String get failureTicketClosed;
+
+  /// Customer error for problem code ticket_already_resolved.
+  ///
+  /// In en, this message translates to:
+  /// **'This ticket is already marked solved.'**
+  String get failureTicketAlreadyResolved;
+
+  /// Customer error for problem code ticket_version_conflict.
+  ///
+  /// In en, this message translates to:
+  /// **'The ticket just changed. Check it and try again.'**
+  String get failureTicketChanged;
+
+  /// Customer error for problem code category_not_found.
+  ///
+  /// In en, this message translates to:
+  /// **'That topic is no longer offered. Pick another.'**
+  String get failureTicketCategoryGone;
 }
 
 class _AppLocalizationsDelegate

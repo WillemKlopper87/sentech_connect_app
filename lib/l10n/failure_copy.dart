@@ -142,6 +142,12 @@ Map<String, String> typedFailureTexts(AppLocalizations l10n) => {
   const CoverageUnavailableFailure().message: l10n.failureCoverageUnavailable,
   const AddressSearchUnavailableFailure().message: l10n.failureAddressSearchUnavailable,
   const OutsideServiceAreaFailure().message: l10n.failureOutsideServiceArea,
+  const TicketsNotAvailableFailure().message: l10n.failureTicketsNotAvailable,
+  const TicketNotFoundFailure().message: l10n.failureTicketNotFound,
+  const TicketClosedFailure().message: l10n.failureTicketClosed,
+  const TicketAlreadyResolvedFailure().message: l10n.failureTicketAlreadyResolved,
+  const TicketChangedFailure().message: l10n.failureTicketChanged,
+  const TicketCategoryGoneFailure().message: l10n.failureTicketCategoryGone,
 };
 
 /// Customer text for a typed refusal, or null when [failure] is not one (the
@@ -264,6 +270,18 @@ String? typedFailureText(AppLocalizations l10n, Failure? failure) {
       return l10n.failureAddressSearchUnavailable;
     case OutsideServiceAreaFailure():
       return l10n.failureOutsideServiceArea;
+    case TicketsNotAvailableFailure():
+      return l10n.failureTicketsNotAvailable;
+    case TicketNotFoundFailure():
+      return l10n.failureTicketNotFound;
+    case TicketClosedFailure():
+      return l10n.failureTicketClosed;
+    case TicketAlreadyResolvedFailure():
+      return l10n.failureTicketAlreadyResolved;
+    case TicketChangedFailure():
+      return l10n.failureTicketChanged;
+    case TicketCategoryGoneFailure():
+      return l10n.failureTicketCategoryGone;
     default:
       return null;
   }

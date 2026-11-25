@@ -3736,4 +3736,231 @@ class AppLocalizationsAf extends AppLocalizations {
 
   @override
   String get coverageOpenSettings => 'Maak instellings oop';
+
+  @override
+  String get ticketsTitle => 'My kaartjies';
+
+  @override
+  String get ticketsEntrySubtitle => 'Volg jou boodskappe aan ondersteuning';
+
+  @override
+  String get ticketsNewTitle => 'Nuwe kaartjie';
+
+  @override
+  String get ticketsEmpty => 'Jy het nog geen kaartjies nie.';
+
+  @override
+  String get ticketsUnavailable =>
+      'Ondersteuningskaartjies is nou nie beskikbaar nie. Jy kan steeds \'n boodskap vanaf die Hulp-oortjie stuur.';
+
+  @override
+  String get ticketsLoadMore => 'Wys meer';
+
+  @override
+  String ticketsOpenedOn(String date) {
+    return 'Geopen $date';
+  }
+
+  @override
+  String ticketsReference(String reference) {
+    return 'Verwysing $reference';
+  }
+
+  @override
+  String get ticketsCategoryFallback => 'Ondersteuning';
+
+  @override
+  String get ticketStatusNew => 'Ontvang';
+
+  @override
+  String get ticketStatusOpen => 'Oop';
+
+  @override
+  String get ticketStatusPendingCustomer => 'Wag vir jou';
+
+  @override
+  String get ticketStatusOnHold => 'Aan die hou';
+
+  @override
+  String get ticketStatusResolved => 'As opgelos gemerk';
+
+  @override
+  String get ticketStatusClosed => 'Gesluit';
+
+  @override
+  String get ticketStatusUnknown => 'Status word nie gewys nie';
+
+  @override
+  String get ticketsAwaitingReply => 'Ondersteuning wag vir jou antwoord';
+
+  @override
+  String get ticketsAuthorYou => 'Jy';
+
+  @override
+  String get ticketsAuthorSupport => 'Ondersteuning';
+
+  @override
+  String get ticketsAuthorOther => 'Boodskap';
+
+  @override
+  String get ticketsMessageRemoved =>
+      'The text of this message is no longer available.';
+
+  @override
+  String get ticketsReplyHint => 'Skryf \'n antwoord';
+
+  @override
+  String get ticketsReplySend => 'Stuur antwoord';
+
+  @override
+  String get ticketsMarkSolved => 'Merk as opgelos';
+
+  @override
+  String get ticketsMarkSolvedTitle => 'Merk hierdie kaartjie as opgelos?';
+
+  @override
+  String get ticketsMarkSolvedBody =>
+      'If you write again later, the ticket opens again.';
+
+  @override
+  String get ticketsResolvedNote =>
+      'This ticket is marked as solved. Write a reply to open it again.';
+
+  @override
+  String get ticketsClosedNote =>
+      'This ticket is closed, so it cannot take more messages. If you still need help, open a new ticket.';
+
+  @override
+  String get ticketsClosedRefused =>
+      'This ticket was closed, so your message was not sent. Open a new ticket if you still need help.';
+
+  @override
+  String get ticketsChangedNotice =>
+      'Die kaartjie het verander terwyl jy daarna gekyk het. Dit word nou soos dit tans is gewys.';
+
+  @override
+  String get ticketsNewCategoryLabel => 'Waaroor gaan dit?';
+
+  @override
+  String get ticketsNewCategoryHint => 'Kies \'n onderwerp';
+
+  @override
+  String get ticketsNewBodyLabel => 'Beskryf die probleem';
+
+  @override
+  String get ticketsNewBodyHelper =>
+      'Moenie wagwoorde of kaartnommers insluit nie.';
+
+  @override
+  String get ticketsNewSend => 'Stuur kaartjie';
+
+  @override
+  String get ticketsNewIssueNoCategory => 'Kies waaroor die kaartjie gaan.';
+
+  @override
+  String get ticketsNewIssueEmpty => 'Skryf \'n boodskap.';
+
+  @override
+  String ticketsNewIssueTooLong(int max) {
+    return 'Daardie boodskap is te lank. Hou dit onder $max karakters.';
+  }
+
+  @override
+  String get ticketsNewDoneTitle => 'Kaartjie gestuur';
+
+  @override
+  String ticketsNewDoneBody(String reference) {
+    return 'Jou kaartjie se verwysing is $reference. Jy kan dit onder My kaartjies volg.';
+  }
+
+  @override
+  String get ticketsNewDoneView => 'Sien kaartjie';
+
+  @override
+  String get ticketsNewDoneClose => 'Klaar';
+
+  @override
+  String get ticketsUnknownOutcome =>
+      'We could not confirm that your message was sent. If you try again with the same text, it will not be sent twice.';
+
+  @override
+  String get ticketsCheckFirst =>
+      'Your earlier message may have been sent. Check your latest tickets below. If it is not there, send again.';
+
+  @override
+  String get ticketsCheckFirstTitle => 'Jou nuutste kaartjies';
+
+  @override
+  String get ticketsReplyCheckFirst =>
+      'Your earlier reply may have been sent. Check the conversation above. If it is not there, send again.';
+
+  @override
+  String ticketsHeldRateLimit(String time) {
+    return 'You have sent a lot of messages in the last hour, so sending is paused. You can send again in $time.';
+  }
+
+  @override
+  String ticketsWaitMinutes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count minute',
+      one: '1 minuut',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String ticketsWaitSeconds(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count sekondes',
+      one: '1 sekonde',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get ticketsIncidentTitle => 'Bekende netwerkprobleem';
+
+  @override
+  String get ticketsIncidentInfo => 'Kennisgewing';
+
+  @override
+  String get ticketsIncidentDegraded => 'Diens geraak';
+
+  @override
+  String get ticketsIncidentOutage => 'Onderbreking';
+
+  @override
+  String ticketsIncidentSince(String time) {
+    return 'Sedert $time';
+  }
+
+  @override
+  String get ticketsIncidentLatestUpdate => 'Nuutste opdatering';
+
+  @override
+  String get failureTicketsNotAvailable =>
+      'Ondersteuningskaartjies is nou nie beskikbaar nie.';
+
+  @override
+  String get failureTicketNotFound => 'Ons kon nie daardie kaartjie vind nie.';
+
+  @override
+  String get failureTicketClosed =>
+      'This ticket is closed. Open a new one instead.';
+
+  @override
+  String get failureTicketAlreadyResolved =>
+      'Hierdie kaartjie is reeds as opgelos gemerk.';
+
+  @override
+  String get failureTicketChanged =>
+      'Die kaartjie het pas verander. Kyk daarna en probeer weer.';
+
+  @override
+  String get failureTicketCategoryGone =>
+      'Daardie onderwerp word nie meer aangebied nie. Kies \'n ander.';
 }
