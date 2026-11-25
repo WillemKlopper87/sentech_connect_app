@@ -130,6 +130,9 @@ class OsmMap extends StatelessWidget {
     this.markers = const [],
     this.unavailableMessage,
     this.borderRadius = const BorderRadius.all(Radius.circular(16)),
+    this.controller,
+    this.onTap,
+    this.onMapReady,
   });
 
   final LatLng center;
@@ -137,6 +140,15 @@ class OsmMap extends StatelessWidget {
   final List<Marker> markers;
   final String? unavailableMessage;
   final BorderRadius borderRadius;
+
+  /// Lets a page move the camera (for example to a place the customer picked).
+  final MapController? controller;
+
+  /// A tap on the map (a pin drop). The point is never logged by this widget.
+  final void Function(LatLng point)? onTap;
+
+  /// The map is built and [controller] may be used.
+  final VoidCallback? onMapReady;
 
   @override
   Widget build(BuildContext context) {
@@ -158,7 +170,13 @@ class OsmMap extends StatelessWidget {
     return ClipRRect(
       borderRadius: borderRadius,
       child: FlutterMap(
-        options: MapOptions(initialCenter: center, initialZoom: zoom),
+        mapController: controller,
+        options: MapOptions(
+          initialCenter: center,
+          initialZoom: zoom,
+          onTap: onTap == null ? null : (_, point) => onTap!(point),
+          onMapReady: onMapReady,
+        ),
         children: [
           TileLayer(
             urlTemplate: template,

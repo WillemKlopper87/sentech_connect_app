@@ -22,7 +22,10 @@ import 'package:sentech_connect_app/features/wifi_voucher/presentation/pages/wif
 import 'package:sentech_connect_app/features/wifi_voucher/domain/entities/wifi_hotspot.dart';
 import 'package:sentech_connect_app/features/wifi_voucher/domain/repositories/wifi_hotspots_repository.dart';
 import 'package:sentech_connect_app/features/coverage/data/repositories/mock_coverage_repository.dart';
+import 'package:sentech_connect_app/features/coverage/data/geolocator_device_location.dart';
+import 'package:sentech_connect_app/features/coverage/presentation/bloc/address_search_cubit.dart';
 import 'package:sentech_connect_app/features/coverage/presentation/bloc/coverage_cubit.dart';
+import 'package:sentech_connect_app/features/coverage/presentation/bloc/location_cubit.dart';
 import 'package:sentech_connect_app/features/coverage/presentation/pages/coverage_page.dart';
 
 final _png = base64Decode(
@@ -273,26 +276,34 @@ void main() {
     OsmMap.tileProviderOverride = tiles;
     final saver = DataSaverCubit(initial: true);
     final coverage = CoverageCubit(MockCoverageRepository());
+    final search = AddressSearchCubit(MockCoverageRepository());
+    final location = LocationCubit(const GeolocatorDeviceLocation());
     await tester.pumpWidget(
       MultiBlocProvider(
         providers: [
           BlocProvider.value(value: saver),
           BlocProvider.value(value: coverage),
+          BlocProvider.value(value: search),
+          BlocProvider.value(value: location),
         ],
         child: MaterialApp(home: CoveragePage(onCovered: () {})),
       ),
     );
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 800));
+    await tester.enterText(find.byType(TextField), 'Lifalethu');
+    await tester.pump(const Duration(milliseconds: 500));
+    await tester.pump(const Duration(milliseconds: 300));
     expect(
-      find.widgetWithText(TextField, '12 Lifalethu Ave, eMbalenhle'),
+      find.widgetWithText(TextField, 'Lifalethu'),
       findsOneWidget,
     );
-    expect(find.text('Home internet is available here'), findsOneWidget);
+    expect(find.text('12 Lifalethu Avenue, eMbalenhle, Secunda'), findsOneWidget);
     expect(find.byType(FlutterMap), findsNothing);
     expect(tiles.requests, 0);
     await tester.pumpWidget(const SizedBox());
     await coverage.close();
+    await search.close();
+    await location.close();
     await saver.close();
   });
 }

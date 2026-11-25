@@ -438,10 +438,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'To turn your location into an address, your phone\'s map service (Google or Apple) looks it up.';
 
   @override
-  String get coverageAddressLookupNotice =>
-      'Your phone\'s map service (Google or Apple) finds the address you type.';
-
-  @override
   String get consentRicaBody =>
       'South African law (RICA) requires us to verify your identity. We will process your face and ID information for verification only, under POPIA.';
 
@@ -1354,16 +1350,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get hotspotsClosest => 'CLOSEST';
 
   @override
-  String coverageCurrentLocation(String latitude, String longitude) {
-    return 'Current location ($latitude, $longitude)';
-  }
-
-  @override
-  String coverageEstimatedSpeed(String speed) {
-    return 'Estimated speed: up to $speed Mbps';
-  }
-
-  @override
   String get coverageTurnOnLocationServicesToUse =>
       'Turn on location services to use this.';
 
@@ -1386,19 +1372,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get coverageViewPlansForThisAddress => 'View plans for this address';
-
-  @override
-  String get coverageCheckADifferentAddress => 'Check a different address';
-
-  @override
-  String get coverageCheckThisAddress => 'Check this address';
-
-  @override
-  String get coverageNotYetCovered => 'Not yet covered';
-
-  @override
-  String get coverageHomeInternetIsAvailableHere =>
-      'Home internet is available here';
 
   @override
   String get ricaPrivacyNotice =>
@@ -3358,4 +3331,68 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get failureOutsideServiceArea =>
       'We can only check places in South Africa. Check the place and try again.';
+
+  @override
+  String get coverageSearchHint => 'Street, suburb or town';
+
+  @override
+  String get coverageSearchPrivacyNote =>
+      'The address you type is sent to your provider to find the place. It is not saved on your phone.';
+
+  @override
+  String get coverageClearSearch => 'Clear the address';
+
+  @override
+  String get coverageSearching => 'Searching…';
+
+  @override
+  String get coverageNoAddressMatches =>
+      'We could not find that address. Try a street name and suburb.';
+
+  @override
+  String get coverageMatchedStreet =>
+      'We could not find that house number, so these results are for the street.';
+
+  @override
+  String get coverageMatchedArea =>
+      'We could not find that street, so these results are for the area.';
+
+  @override
+  String get coverageSearchRateLimited =>
+      'Too many searches. Please wait a moment and try again.';
+
+  @override
+  String get coverageMapSemantics =>
+      'Map. Tap a place to check coverage there.';
+
+  @override
+  String get coverageLocationExplain =>
+      'We use your phone\'s location once to check coverage here. It is sent to your provider only and is not saved.';
+
+  @override
+  String get coverageLocationDeniedForever =>
+      'Location is turned off for this app in your phone\'s settings. You can still search for an address or tap the map.';
+
+  @override
+  String get coverageStartHint =>
+      'Search for an address, use your location, or tap the map to check coverage.';
+
+  @override
+  String get coverageChecking => 'Checking coverage…';
+
+  @override
+  String coverageRateLimitedWait(String seconds) {
+    return 'Too many checks. You can try again in $seconds seconds.';
+  }
+
+  @override
+  String get coverageRateLimitedNow =>
+      'Too many checks. You can try again now.';
+
+  @override
+  String get coverageSkipForNow => 'Skip for now';
+
+  @override
+  String get coverageNoDataYet =>
+      'Coverage data for your provider is not available yet. Please try again later.';
 }

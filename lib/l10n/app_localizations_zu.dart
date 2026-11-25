@@ -440,10 +440,6 @@ class AppLocalizationsZu extends AppLocalizations {
       'To turn your location into an address, your phone\'s map service (Google or Apple) looks it up.';
 
   @override
-  String get coverageAddressLookupNotice =>
-      'Your phone\'s map service (Google or Apple) finds the address you type.';
-
-  @override
   String get consentRicaBody =>
       'Umthetho waseNingizimu Afrika (i-RICA) udinga ukuthi siqinisekise ubunikazi bakho. Sizocubungula ubuso bakho nolwazi lwe-ID ukuze siqinisekise kuphela, ngokwe-POPIA.';
 
@@ -1356,16 +1352,6 @@ class AppLocalizationsZu extends AppLocalizations {
   String get hotspotsClosest => 'CLOSEST';
 
   @override
-  String coverageCurrentLocation(String latitude, String longitude) {
-    return 'Current location ($latitude, $longitude)';
-  }
-
-  @override
-  String coverageEstimatedSpeed(String speed) {
-    return 'Estimated speed: up to $speed Mbps';
-  }
-
-  @override
   String get coverageTurnOnLocationServicesToUse =>
       'Turn on location services to use this.';
 
@@ -1388,19 +1374,6 @@ class AppLocalizationsZu extends AppLocalizations {
 
   @override
   String get coverageViewPlansForThisAddress => 'View plans for this address';
-
-  @override
-  String get coverageCheckADifferentAddress => 'Check a different address';
-
-  @override
-  String get coverageCheckThisAddress => 'Check this address';
-
-  @override
-  String get coverageNotYetCovered => 'Not yet covered';
-
-  @override
-  String get coverageHomeInternetIsAvailableHere =>
-      'Home internet is available here';
 
   @override
   String get ricaPrivacyNotice =>
@@ -3378,4 +3351,68 @@ class AppLocalizationsZu extends AppLocalizations {
   @override
   String get failureOutsideServiceArea =>
       'Singahlola kuphela izindawo eNingizimu Afrika. Hlola indawo bese uzame futhi.';
+
+  @override
+  String get coverageSearchHint => 'Isitaladi, indawo noma idolobha';
+
+  @override
+  String get coverageSearchPrivacyNote =>
+      'The address you type is sent to your provider to find the place. It is not saved on your phone.';
+
+  @override
+  String get coverageClearSearch => 'Sula ikheli';
+
+  @override
+  String get coverageSearching => 'Iyasesha…';
+
+  @override
+  String get coverageNoAddressMatches =>
+      'We could not find that address. Try a street name and suburb.';
+
+  @override
+  String get coverageMatchedStreet =>
+      'We could not find that house number, so these results are for the street.';
+
+  @override
+  String get coverageMatchedArea =>
+      'We could not find that street, so these results are for the area.';
+
+  @override
+  String get coverageSearchRateLimited =>
+      'Too many searches. Please wait a moment and try again.';
+
+  @override
+  String get coverageMapSemantics =>
+      'Imephu. Thinta indawo ukuze uhlole ukufinyelela lapho.';
+
+  @override
+  String get coverageLocationExplain =>
+      'We use your phone\'s location once to check coverage here. It is sent to your provider only and is not saved.';
+
+  @override
+  String get coverageLocationDeniedForever =>
+      'Indawo ivaliwe kulolu hlelo lokusebenza kuzilungiselelo zefoni yakho. Usengakwazi ukusesha ikheli noma uthinte imephu.';
+
+  @override
+  String get coverageStartHint =>
+      'Sesha ikheli, sebenzisa indawo yakho, noma uthinte imephu ukuze uhlole ukufinyelela.';
+
+  @override
+  String get coverageChecking => 'Iyahlola ukufinyelela…';
+
+  @override
+  String coverageRateLimitedWait(String seconds) {
+    return 'Ukuhlola okuningi kakhulu. Ungazama futhi ngemva kwemizuzwana engu-$seconds.';
+  }
+
+  @override
+  String get coverageRateLimitedNow =>
+      'Ukuhlola okuningi kakhulu. Ungazama futhi manje.';
+
+  @override
+  String get coverageSkipForNow => 'Yeqa okwamanje';
+
+  @override
+  String get coverageNoDataYet =>
+      'Idatha yokufinyelela yomhlinzeki wakho ayikatholakali. Sicela uzame futhi kamuva.';
 }

@@ -439,10 +439,6 @@ class AppLocalizationsAf extends AppLocalizations {
       'To turn your location into an address, your phone\'s map service (Google or Apple) looks it up.';
 
   @override
-  String get coverageAddressLookupNotice =>
-      'Your phone\'s map service (Google or Apple) finds the address you type.';
-
-  @override
   String get consentRicaBody =>
       'Suid-Afrikaanse wetgewing (RICA) vereis dat ons jou identiteit verifieer. Ons verwerk jou gesig- en ID-inligting slegs vir verifikasie, ingevolge POPIA.';
 
@@ -1355,16 +1351,6 @@ class AppLocalizationsAf extends AppLocalizations {
   String get hotspotsClosest => 'CLOSEST';
 
   @override
-  String coverageCurrentLocation(String latitude, String longitude) {
-    return 'Current location ($latitude, $longitude)';
-  }
-
-  @override
-  String coverageEstimatedSpeed(String speed) {
-    return 'Estimated speed: up to $speed Mbps';
-  }
-
-  @override
   String get coverageTurnOnLocationServicesToUse =>
       'Turn on location services to use this.';
 
@@ -1387,19 +1373,6 @@ class AppLocalizationsAf extends AppLocalizations {
 
   @override
   String get coverageViewPlansForThisAddress => 'View plans for this address';
-
-  @override
-  String get coverageCheckADifferentAddress => 'Check a different address';
-
-  @override
-  String get coverageCheckThisAddress => 'Check this address';
-
-  @override
-  String get coverageNotYetCovered => 'Not yet covered';
-
-  @override
-  String get coverageHomeInternetIsAvailableHere =>
-      'Home internet is available here';
 
   @override
   String get ricaPrivacyNotice =>
@@ -3375,4 +3348,68 @@ class AppLocalizationsAf extends AppLocalizations {
   @override
   String get failureOutsideServiceArea =>
       'Ons kan net plekke in Suid-Afrika nagaan. Kontroleer die plek en probeer weer.';
+
+  @override
+  String get coverageSearchHint => 'Straat, woonbuurt of dorp';
+
+  @override
+  String get coverageSearchPrivacyNote =>
+      'The address you type is sent to your provider to find the place. It is not saved on your phone.';
+
+  @override
+  String get coverageClearSearch => 'Maak die adres skoon';
+
+  @override
+  String get coverageSearching => 'Soek tans…';
+
+  @override
+  String get coverageNoAddressMatches =>
+      'We could not find that address. Try a street name and suburb.';
+
+  @override
+  String get coverageMatchedStreet =>
+      'We could not find that house number, so these results are for the street.';
+
+  @override
+  String get coverageMatchedArea =>
+      'We could not find that street, so these results are for the area.';
+
+  @override
+  String get coverageSearchRateLimited =>
+      'Too many searches. Please wait a moment and try again.';
+
+  @override
+  String get coverageMapSemantics =>
+      'Kaart. Tik op \'n plek om dekking daar na te gaan.';
+
+  @override
+  String get coverageLocationExplain =>
+      'We use your phone\'s location once to check coverage here. It is sent to your provider only and is not saved.';
+
+  @override
+  String get coverageLocationDeniedForever =>
+      'Ligging is vir hierdie toepassing in jou foon se instellings afgeskakel. Jy kan steeds \'n adres soek of op die kaart tik.';
+
+  @override
+  String get coverageStartHint =>
+      'Soek \'n adres, gebruik jou ligging, of tik op die kaart om dekking na te gaan.';
+
+  @override
+  String get coverageChecking => 'Gaan tans dekking na…';
+
+  @override
+  String coverageRateLimitedWait(String seconds) {
+    return 'Te veel kontroles. Jy kan oor $seconds sekondes weer probeer.';
+  }
+
+  @override
+  String get coverageRateLimitedNow =>
+      'Te veel kontroles. Jy kan nou weer probeer.';
+
+  @override
+  String get coverageSkipForNow => 'Slaan nou oor';
+
+  @override
+  String get coverageNoDataYet =>
+      'Dekkingsdata vir jou verskaffer is nog nie beskikbaar nie. Probeer later weer.';
 }

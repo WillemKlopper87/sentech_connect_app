@@ -1,7 +1,6 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:sentech_connect_app/core/error/failure.dart';
 import 'package:sentech_connect_app/features/coverage/domain/entities/coverage_check.dart';
-import 'package:sentech_connect_app/features/coverage/domain/entities/coverage_result.dart';
 import 'package:sentech_connect_app/features/coverage/domain/entities/coverage_meta.dart';
 import 'package:sentech_connect_app/features/coverage/domain/entities/geocode_match.dart';
 import 'package:sentech_connect_app/features/coverage/domain/entities/lead.dart';
@@ -10,10 +9,6 @@ import 'package:sentech_connect_app/features/coverage/domain/entities/lead.dart'
 /// against the customer's own provider (tenant). Coordinates, addresses and
 /// contact details go to that provider's platform endpoint and nowhere else.
 abstract class CoverageRepository {
-  /// Legacy single-answer check of the first mock, kept until the screens move
-  /// to [check] (removed in the same slice). The HTTP repository never answers it.
-  Future<Either<Failure, CoverageResult>> checkAddress(String address);
-
   /// The server's answer for a point. Typed failures: [CoverageUnavailableFailure]
   /// (older server, no data), [RateLimitedFailure] (with `Retry-After`),
   /// [NetworkFailure] (timeout or no network), [OutsideServiceAreaFailure].

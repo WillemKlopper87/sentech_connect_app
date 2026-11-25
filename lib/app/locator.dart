@@ -38,7 +38,9 @@ import 'package:sentech_connect_app/features/catalog_checkout/data/repositories/
 import 'package:sentech_connect_app/features/catalog_checkout/data/repositories/mock_checkout_repository.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/domain/repositories/catalog_repository.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/domain/repositories/checkout_repository.dart';
+import 'package:sentech_connect_app/features/coverage/data/geolocator_device_location.dart';
 import 'package:sentech_connect_app/features/coverage/data/repositories/mock_coverage_repository.dart';
+import 'package:sentech_connect_app/features/coverage/domain/device_location.dart';
 import 'package:sentech_connect_app/features/coverage/domain/repositories/coverage_repository.dart';
 import 'package:sentech_connect_app/features/privacy/data/repositories/http_consent_repository.dart';
 import 'package:sentech_connect_app/features/privacy/data/repositories/http_privacy_repository.dart';
@@ -165,6 +167,7 @@ void _registerPlatformServices(CrashReporter? crashReporter) {
   locator.registerLazySingleton<NotificationService>(
     () => PermissionNotificationService(),
   );
+  locator.registerLazySingleton<DeviceLocationService>(() => const GeolocatorDeviceLocation());
   locator.registerLazySingleton<TenantContext>(() => TenantContext());
   locator.registerLazySingleton<PassLocalStore>(() => PassLocalStore());
   locator.registerLazySingleton<TenantPreferences>(

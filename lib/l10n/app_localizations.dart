@@ -868,12 +868,6 @@ abstract class AppLocalizations {
   /// **'To turn your location into an address, your phone\'s map service (Google or Apple) looks it up.'**
   String get consentLocationMapService;
 
-  /// Customer app copy: coverage address lookup notice.
-  ///
-  /// In en, this message translates to:
-  /// **'Your phone\'s map service (Google or Apple) finds the address you type.'**
-  String get coverageAddressLookupNotice;
-
   /// Customer app copy: consent rica body.
   ///
   /// In en, this message translates to:
@@ -2389,18 +2383,6 @@ abstract class AppLocalizations {
   /// Customer copy in coverage page.
   ///
   /// In en, this message translates to:
-  /// **'Current location ({latitude}, {longitude})'**
-  String coverageCurrentLocation(String latitude, String longitude);
-
-  /// Customer copy in coverage page.
-  ///
-  /// In en, this message translates to:
-  /// **'Estimated speed: up to {speed} Mbps'**
-  String coverageEstimatedSpeed(String speed);
-
-  /// Customer copy in coverage page.
-  ///
-  /// In en, this message translates to:
   /// **'Turn on location services to use this.'**
   String get coverageTurnOnLocationServicesToUse;
 
@@ -2439,30 +2421,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'View plans for this address'**
   String get coverageViewPlansForThisAddress;
-
-  /// Customer copy in coverage page.
-  ///
-  /// In en, this message translates to:
-  /// **'Check a different address'**
-  String get coverageCheckADifferentAddress;
-
-  /// Customer copy in coverage page.
-  ///
-  /// In en, this message translates to:
-  /// **'Check this address'**
-  String get coverageCheckThisAddress;
-
-  /// Customer copy in coverage page.
-  ///
-  /// In en, this message translates to:
-  /// **'Not yet covered'**
-  String get coverageNotYetCovered;
-
-  /// Customer copy in coverage page.
-  ///
-  /// In en, this message translates to:
-  /// **'Home internet is available here'**
-  String get coverageHomeInternetIsAvailableHere;
 
   /// Identity verification privacy explanation.
   ///
@@ -5685,6 +5643,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'We can only check places in South Africa. Check the place and try again.'**
   String get failureOutsideServiceArea;
+
+  /// Hint inside the address search field on the coverage check screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Street, suburb or town'**
+  String get coverageSearchHint;
+
+  /// Privacy note under the address search field: the typed address goes only to the customer's own provider (the platform), not to the phone's map service, and is not stored. Data-handling wording: left in English for af and zu until native review and counsel.
+  ///
+  /// In en, this message translates to:
+  /// **'The address you type is sent to your provider to find the place. It is not saved on your phone.'**
+  String get coverageSearchPrivacyNote;
+
+  /// Tooltip of the button that empties the address search field.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear the address'**
+  String get coverageClearSearch;
+
+  /// Shown while the address search is running.
+  ///
+  /// In en, this message translates to:
+  /// **'Searching…'**
+  String get coverageSearching;
+
+  /// Message when the platform's address search found nothing. The platform's own wording (key coverage.results.none), left in English for af and zu like the platform does.
+  ///
+  /// In en, this message translates to:
+  /// **'We could not find that address. Try a street name and suburb.'**
+  String get coverageNoAddressMatches;
+
+  /// Note above address results when the platform matched the street but not the house number (key coverage.address.matched_street). English for af and zu.
+  ///
+  /// In en, this message translates to:
+  /// **'We could not find that house number, so these results are for the street.'**
+  String get coverageMatchedStreet;
+
+  /// Note above address results when the platform matched only the area (key coverage.address.matched_area). English for af and zu.
+  ///
+  /// In en, this message translates to:
+  /// **'We could not find that street, so these results are for the area.'**
+  String get coverageMatchedArea;
+
+  /// Message when the address search is rate limited (key coverage.rate_limited). English for af and zu.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many searches. Please wait a moment and try again.'**
+  String get coverageSearchRateLimited;
+
+  /// Screen-reader label of the coverage map: tapping a place drops a pin and checks coverage there.
+  ///
+  /// In en, this message translates to:
+  /// **'Map. Tap a place to check coverage there.'**
+  String get coverageMapSemantics;
+
+  /// Plain explanation under the use-my-location button on the coverage check screen: when it is used, who receives it and that it is not saved. Data-handling wording: English for af and zu until native review and counsel.
+  ///
+  /// In en, this message translates to:
+  /// **'We use your phone\'s location once to check coverage here. It is sent to your provider only and is not saved.'**
+  String get coverageLocationExplain;
+
+  /// Message when the customer denied location permission for good: how to carry on without it.
+  ///
+  /// In en, this message translates to:
+  /// **'Location is turned off for this app in your phone\'s settings. You can still search for an address or tap the map.'**
+  String get coverageLocationDeniedForever;
+
+  /// First hint on the coverage check screen, before anything was checked.
+  ///
+  /// In en, this message translates to:
+  /// **'Search for an address, use your location, or tap the map to check coverage.'**
+  String get coverageStartHint;
+
+  /// Shown while a coverage check is running.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking coverage…'**
+  String get coverageChecking;
+
+  /// Shown while the coverage check is rate limited. {seconds} is the number of seconds left, from the server's Retry-After.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many checks. You can try again in {seconds} seconds.'**
+  String coverageRateLimitedWait(String seconds);
+
+  /// Shown when the rate limit wait is over and the retry button works again.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many checks. You can try again now.'**
+  String get coverageRateLimitedNow;
+
+  /// Button on the first-time coverage screen that carries on to the app without a coverage check.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip for now'**
+  String get coverageSkipForNow;
+
+  /// Message when the provider has no active coverage data (or the server is older than the check). A retry is offered.
+  ///
+  /// In en, this message translates to:
+  /// **'Coverage data for your provider is not available yet. Please try again later.'**
+  String get coverageNoDataYet;
 }
 
 class _AppLocalizationsDelegate

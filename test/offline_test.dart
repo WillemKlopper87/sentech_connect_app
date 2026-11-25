@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentech_connect_app/app/app.dart';
 import 'package:sentech_connect_app/app/connectivity_cubit.dart';
@@ -16,7 +18,10 @@ import 'package:sentech_connect_app/features/catalog_checkout/presentation/pages
 import 'package:sentech_connect_app/features/catalog_checkout/presentation/pages/checkout_page.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/domain/entities/plan.dart';
 import 'package:sentech_connect_app/features/coverage/data/repositories/mock_coverage_repository.dart';
+import 'package:sentech_connect_app/features/coverage/data/geolocator_device_location.dart';
+import 'package:sentech_connect_app/features/coverage/presentation/bloc/address_search_cubit.dart';
 import 'package:sentech_connect_app/features/coverage/presentation/bloc/coverage_cubit.dart';
+import 'package:sentech_connect_app/features/coverage/presentation/bloc/location_cubit.dart';
 import 'package:sentech_connect_app/features/coverage/presentation/pages/coverage_page.dart';
 import 'helpers/test_setup.dart';
 
@@ -104,13 +109,32 @@ void main() {
       network.offline = true;
       await tester.pumpWidget(
         MaterialApp(
-          home: BlocProvider(
-            create: (_) => CoverageCubit(MockCoverageRepository(network)),
+          home: MultiBlocProvider(
+            providers: [
+              BlocProvider(
+                create: (_) => CoverageCubit(
+                  MockCoverageRepository(network),
+                  debounce: const Duration(milliseconds: 10),
+                ),
+              ),
+              BlocProvider(
+                create: (_) => AddressSearchCubit(MockCoverageRepository(network)),
+              ),
+              BlocProvider(
+                create: (_) => LocationCubit(const GeolocatorDeviceLocation()),
+              ),
+            ],
             child: CoveragePage(onCovered: () {}),
           ),
         ),
       );
       await tester.pump();
+      final map = tester.widget<FlutterMap>(find.byType(FlutterMap));
+      map.options.onTap!(
+        const TapPosition(Offset.zero, Offset.zero),
+        const LatLng(-26.514, 29.103),
+      );
+      await tester.pump(const Duration(milliseconds: 20));
       await tester.pump(const Duration(seconds: 1));
       expect(find.textContaining("You're offline"), findsOneWidget);
 
@@ -119,7 +143,7 @@ void main() {
       await tester.tap(find.text('Retry'));
       await tester.pump();
       await tester.pump(const Duration(seconds: 1));
-      expect(find.text('Home internet is available here'), findsOneWidget);
+      expect(find.text('View plans for this address'), findsOneWidget);
     });
 
     testWidgets(

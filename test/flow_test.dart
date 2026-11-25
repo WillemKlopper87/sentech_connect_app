@@ -72,14 +72,16 @@ void main() {
       await tester.tap(find.text('I agree'));
       await tester.pumpAndSettle();
 
-      // 2. Coverage check
+      // 2. Coverage check: search an address, pick it, read the (demo) answer
       expect(find.text('Coverage check'), findsOneWidget);
-      expect(find.text('Home internet is available here'), findsOneWidget);
-      // A typed address is looked up by the phone's map service: say so.
-      expect(
-        find.textContaining("phone's map service (Google or Apple)"),
-        findsOneWidget,
-      );
+      // The typed address goes to the provider, not to the phone's map service.
+      expect(find.textContaining("phone's map service"), findsNothing);
+      await tester.enterText(find.byType(TextField), 'Lifalethu');
+      await tester.pump(const Duration(milliseconds: 500)); // search debounce
+      await tester.pump(const Duration(milliseconds: 300)); // mock search delay
+      await tester.tap(find.textContaining('12 Lifalethu Avenue'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 800)); // mock check delay
       await tester.tap(find.text('View plans for this address'));
       await tester.pump(); // navigate
       await tester.pump(

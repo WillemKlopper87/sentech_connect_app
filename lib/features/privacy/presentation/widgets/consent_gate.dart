@@ -17,19 +17,23 @@ Future<bool> ensureConsent(
   BuildContext context,
   ConsentPurpose purpose, {
   ConsentRepository? repository,
+
+  /// The registration flow turns a position into an address with the phone's
+  /// map service and says so; the coverage check does not (the platform finds the place).
+  bool mapServiceNote = true,
 }) {
   final repo = repository ?? locator<ConsentRepository>();
   final key = (repo, purpose);
   final running = _ensuring[key];
   if (running != null) return running;
-  return _ensuring[key] = _ensureConsent(context, purpose, repo).whenComplete(() {
+  return _ensuring[key] = _ensureConsent(context, purpose, repo, mapServiceNote).whenComplete(() {
     _ensuring.remove(key);
   });
 }
 
 final _ensuring = <(ConsentRepository, ConsentPurpose), Future<bool>>{};
 
-Future<bool> _ensureConsent(BuildContext context, ConsentPurpose purpose, ConsentRepository repo) async {
+Future<bool> _ensureConsent(BuildContext context, ConsentPurpose purpose, ConsentRepository repo, bool mapServiceNote) async {
   final existing = (await repo.currentConsent(purpose)).getOrElse((_) => null);
   if (existing != null) return true;
   if (!context.mounted) return false;
@@ -37,7 +41,7 @@ Future<bool> _ensureConsent(BuildContext context, ConsentPurpose purpose, Consen
   final agreed = await showDialog<bool>(
     context: context,
     barrierDismissible: false,
-    builder: (_) => ConsentDialog(purpose: purpose),
+    builder: (_) => ConsentDialog(purpose: purpose, mapServiceNote: mapServiceNote),
   );
   if (agreed != true) return false;
   return (await repo.grant(purpose)).isRight();
@@ -45,9 +49,10 @@ Future<bool> _ensureConsent(BuildContext context, ConsentPurpose purpose, Consen
 
 /// Plain-language notice for one purpose, with a link to the full policy.
 class ConsentDialog extends StatelessWidget {
-  const ConsentDialog({super.key, required this.purpose});
+  const ConsentDialog({super.key, required this.purpose, this.mapServiceNote = true});
 
   final ConsentPurpose purpose;
+  final bool mapServiceNote;
 
   @override
   Widget build(BuildContext context) {
@@ -67,7 +72,7 @@ class ConsentDialog extends StatelessWidget {
             Text(body),
             // Reverse geocoding uses the platform geocoder (Google or Apple):
             // say so before any location is read.
-            if (purpose == ConsentPurpose.locationCapture) ...[
+            if (purpose == ConsentPurpose.locationCapture && mapServiceNote) ...[
               const SizedBox(height: 8),
               Text(l10n.consentLocationMapService),
             ],

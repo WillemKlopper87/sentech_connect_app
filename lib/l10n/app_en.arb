@@ -182,7 +182,6 @@
   "consentTitle": "Your privacy",
   "consentLocationBody": "We use your phone's location once to check 5G coverage at your address. It is not stored on your phone or kept after the check.",
   "consentLocationMapService": "To turn your location into an address, your phone's map service (Google or Apple) looks it up.",
-  "coverageAddressLookupNotice": "Your phone's map service (Google or Apple) finds the address you type.",
   "consentRicaBody": "South African law (RICA) requires us to verify your identity. We will process your face and ID information for verification only, under POPIA.",
   "consentLegalBody": "To use the app you need to accept the Terms of Service and the Privacy notice.",
   "dataExportTitle": "Your data",
@@ -1048,27 +1047,6 @@
   "@hotspotsClosest": {
     "description": "Customer copy in wifi hotspots page."
   },
-  "coverageCurrentLocation": "Current location ({latitude}, {longitude})",
-  "@coverageCurrentLocation": {
-    "description": "Customer copy in coverage page.",
-    "placeholders": {
-      "latitude": {
-        "type": "String"
-      },
-      "longitude": {
-        "type": "String"
-      }
-    }
-  },
-  "coverageEstimatedSpeed": "Estimated speed: up to {speed} Mbps",
-  "@coverageEstimatedSpeed": {
-    "description": "Customer copy in coverage page.",
-    "placeholders": {
-      "speed": {
-        "type": "String"
-      }
-    }
-  },
   "coverageTurnOnLocationServicesToUse": "Turn on location services to use this.",
   "@coverageTurnOnLocationServicesToUse": {
     "description": "Customer copy in coverage page."
@@ -1095,22 +1073,6 @@
   },
   "coverageViewPlansForThisAddress": "View plans for this address",
   "@coverageViewPlansForThisAddress": {
-    "description": "Customer copy in coverage page."
-  },
-  "coverageCheckADifferentAddress": "Check a different address",
-  "@coverageCheckADifferentAddress": {
-    "description": "Customer copy in coverage page."
-  },
-  "coverageCheckThisAddress": "Check this address",
-  "@coverageCheckThisAddress": {
-    "description": "Customer copy in coverage page."
-  },
-  "coverageNotYetCovered": "Not yet covered",
-  "@coverageNotYetCovered": {
-    "description": "Customer copy in coverage page."
-  },
-  "coverageHomeInternetIsAvailableHere": "Home internet is available here",
-  "@coverageHomeInternetIsAvailableHere": {
     "description": "Customer copy in coverage page."
   },
   "ricaPrivacyNotice": "Your face and ID information are used for verification only, under POPIA. You will be asked to confirm your consent before the check starts.",
@@ -1662,9 +1624,6 @@
   },
   "@consentLocationMapService": {
     "description": "Customer app copy: consent location map service."
-  },
-  "@coverageAddressLookupNotice": {
-    "description": "Customer app copy: coverage address lookup notice."
   },
   "@consentRicaBody": {
     "description": "Customer app copy: consent rica body."
@@ -3032,5 +2991,39 @@
   "failureAddressSearchUnavailable": "Address search is not available right now. Use your location or the map instead.",
   "@failureAddressSearchUnavailable": {"description": "Customer message when the platform's address search is off or failed (503 address_lookup_unavailable or geocoder_unavailable). The location button and the map still work."},
   "failureOutsideServiceArea": "We can only check places in South Africa. Check the place and try again.",
-  "@failureOutsideServiceArea": {"description": "Customer message for problem codes outside_service_area and coordinates_swapped on the coverage check or the waiting list: the place is not in South Africa."}
+  "@failureOutsideServiceArea": {"description": "Customer message for problem codes outside_service_area and coordinates_swapped on the coverage check or the waiting list: the place is not in South Africa."},
+  "coverageSearchHint": "Street, suburb or town",
+  "@coverageSearchHint": {"description": "Hint inside the address search field on the coverage check screen."},
+  "coverageSearchPrivacyNote": "The address you type is sent to your provider to find the place. It is not saved on your phone.",
+  "@coverageSearchPrivacyNote": {"description": "Privacy note under the address search field: the typed address goes only to the customer's own provider (the platform), not to the phone's map service, and is not stored. Data-handling wording: left in English for af and zu until native review and counsel."},
+  "coverageClearSearch": "Clear the address",
+  "@coverageClearSearch": {"description": "Tooltip of the button that empties the address search field."},
+  "coverageSearching": "Searching…",
+  "@coverageSearching": {"description": "Shown while the address search is running."},
+  "coverageNoAddressMatches": "We could not find that address. Try a street name and suburb.",
+  "@coverageNoAddressMatches": {"description": "Message when the platform's address search found nothing. The platform's own wording (key coverage.results.none), left in English for af and zu like the platform does."},
+  "coverageMatchedStreet": "We could not find that house number, so these results are for the street.",
+  "@coverageMatchedStreet": {"description": "Note above address results when the platform matched the street but not the house number (key coverage.address.matched_street). English for af and zu."},
+  "coverageMatchedArea": "We could not find that street, so these results are for the area.",
+  "@coverageMatchedArea": {"description": "Note above address results when the platform matched only the area (key coverage.address.matched_area). English for af and zu."},
+  "coverageSearchRateLimited": "Too many searches. Please wait a moment and try again.",
+  "@coverageSearchRateLimited": {"description": "Message when the address search is rate limited (key coverage.rate_limited). English for af and zu."},
+  "coverageMapSemantics": "Map. Tap a place to check coverage there.",
+  "@coverageMapSemantics": {"description": "Screen-reader label of the coverage map: tapping a place drops a pin and checks coverage there."},
+  "coverageLocationExplain": "We use your phone's location once to check coverage here. It is sent to your provider only and is not saved.",
+  "@coverageLocationExplain": {"description": "Plain explanation under the use-my-location button on the coverage check screen: when it is used, who receives it and that it is not saved. Data-handling wording: English for af and zu until native review and counsel."},
+  "coverageLocationDeniedForever": "Location is turned off for this app in your phone's settings. You can still search for an address or tap the map.",
+  "@coverageLocationDeniedForever": {"description": "Message when the customer denied location permission for good: how to carry on without it."},
+  "coverageStartHint": "Search for an address, use your location, or tap the map to check coverage.",
+  "@coverageStartHint": {"description": "First hint on the coverage check screen, before anything was checked."},
+  "coverageChecking": "Checking coverage…",
+  "@coverageChecking": {"description": "Shown while a coverage check is running."},
+  "coverageRateLimitedWait": "Too many checks. You can try again in {seconds} seconds.",
+  "@coverageRateLimitedWait": {"description": "Shown while the coverage check is rate limited. {seconds} is the number of seconds left, from the server's Retry-After.", "placeholders": {"seconds": {"type": "String", "example": "30"}}},
+  "coverageRateLimitedNow": "Too many checks. You can try again now.",
+  "@coverageRateLimitedNow": {"description": "Shown when the rate limit wait is over and the retry button works again."},
+  "coverageSkipForNow": "Skip for now",
+  "@coverageSkipForNow": {"description": "Button on the first-time coverage screen that carries on to the app without a coverage check."},
+  "coverageNoDataYet": "Coverage data for your provider is not available yet. Please try again later.",
+  "@coverageNoDataYet": {"description": "Message when the provider has no active coverage data (or the server is older than the check). A retry is offered."}
 }

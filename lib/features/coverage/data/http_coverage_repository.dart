@@ -6,7 +6,6 @@ import 'package:sentech_connect_app/core/security/human_check_provider.dart';
 import 'package:sentech_connect_app/features/coverage/data/coverage_json.dart';
 import 'package:sentech_connect_app/features/coverage/domain/entities/coverage_check.dart';
 import 'package:sentech_connect_app/features/coverage/domain/entities/coverage_meta.dart';
-import 'package:sentech_connect_app/features/coverage/domain/entities/coverage_result.dart';
 import 'package:sentech_connect_app/features/coverage/domain/entities/geocode_match.dart';
 import 'package:sentech_connect_app/features/coverage/domain/entities/lead.dart';
 import 'package:sentech_connect_app/features/coverage/domain/repositories/coverage_repository.dart';
@@ -53,10 +52,6 @@ class HttpCoverageRepository implements CoverageRepository {
   static const geocodePath = '/v1/geocode/search';
   static const leadsPath = '/v1/leads';
   static const withdrawalRequestsPath = '/v1/leads/withdrawal-requests';
-
-  /// Legacy single-answer check, removed with the old screen in the same slice.
-  @override
-  Future<Either<Failure, CoverageResult>> checkAddress(String address) async => const Left(CoverageUnavailableFailure());
 
   /// How long a read meta is trusted: the consent text versions can change.
   static const metaLifetime = Duration(minutes: 10);

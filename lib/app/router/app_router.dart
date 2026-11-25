@@ -40,7 +40,9 @@ import 'package:sentech_connect_app/features/catalog_checkout/presentation/bloc/
 import 'package:sentech_connect_app/features/catalog_checkout/presentation/pages/checkout_page.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/presentation/pages/confirmation_page.dart';
 import 'package:sentech_connect_app/features/catalog_checkout/presentation/pages/payment_page.dart';
+import 'package:sentech_connect_app/features/coverage/presentation/bloc/address_search_cubit.dart';
 import 'package:sentech_connect_app/features/coverage/presentation/bloc/coverage_cubit.dart';
+import 'package:sentech_connect_app/features/coverage/presentation/bloc/location_cubit.dart';
 import 'package:sentech_connect_app/features/coverage/presentation/pages/coverage_page.dart';
 import 'package:sentech_connect_app/features/fiveg_service/domain/repositories/fiveg_repository.dart';
 import 'package:sentech_connect_app/features/fiveg_service/presentation/bloc/fiveg_usage_cubit.dart';
@@ -411,9 +413,16 @@ GoRouter _buildRouter(
       ),
       GoRoute(
         path: AppRoutes.coverage,
-        builder: (context, state) => BlocProvider(
-          create: (_) => CoverageCubit(locator()),
-          child: CoveragePage(onCovered: () => context.go(AppRoutes.main)),
+        builder: (context, state) => MultiBlocProvider(
+          providers: [
+            BlocProvider(create: (_) => CoverageCubit(locator())),
+            BlocProvider(create: (_) => AddressSearchCubit(locator())),
+            BlocProvider(create: (_) => LocationCubit(locator())),
+          ],
+          child: CoveragePage(
+            onCovered: () => context.go(AppRoutes.main),
+            onSkip: () => context.go(AppRoutes.main),
+          ),
         ),
       ),
       GoRoute(
