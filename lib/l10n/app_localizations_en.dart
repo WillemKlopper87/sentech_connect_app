@@ -2923,4 +2923,36 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get failureIdempotencyInProgress =>
       'We are still processing your request. Please try again in a moment.';
+
+  @override
+  String get failureWalletFrozen =>
+      'Your rewards wallet is frozen, so credits cannot be earned or used right now. Contact your provider.';
+
+  @override
+  String get failureCustomerInactive =>
+      'Your account is not active, so credits cannot be earned or used right now.';
+
+  @override
+  String get failureCreditsPaused =>
+      'Rewards are paused right now. You can still see your balance.';
+
+  @override
+  String get failureInsufficientCredits =>
+      'You do not have enough available credits for that pack.';
+
+  @override
+  String get failureRedemptionLimitReached =>
+      'You have reached today\'s limit for packs. Try again tomorrow.';
+
+  @override
+  String get failurePackNotOffered =>
+      'That pack is no longer offered. Refresh and pick another.';
+
+  @override
+  String get failureEarnRefused =>
+      'Your check-in cannot be completed right now. Try again later.';
+
+  @override
+  String get failureCreditsNotAvailable =>
+      'Rewards are not available right now.';
 }

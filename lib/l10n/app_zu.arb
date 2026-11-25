@@ -2736,5 +2736,21 @@
   "failureUnlockPaymentHeld": "Inkokhelo yakho yalokhu kuvulwa kwedatha iyahlolwa. Ungakhokhi futhi. Osekelo luzokuqinisekisa uma seluqediwe.",
   "@failureUnlockPaymentHeld": {"description": "Customer error for problem code unlock_payment_held (409 on checkout): the payment is held, succeeded or refunded already; do not pay again."},
   "failureIdempotencyInProgress": "Sisalucubungula isicelo sakho. Sicela uzame futhi ngemizuzwana embalwa.",
-  "@failureIdempotencyInProgress": {"description": "Customer message for problem code idempotency_in_progress (409): the same request is still being processed."}
+  "@failureIdempotencyInProgress": {"description": "Customer message for problem code idempotency_in_progress (409): the same request is still being processed."},
+  "failureWalletFrozen": "I-wallet yakho yamabhonasi iqandisiwe, ngakho amakhredithi awakwazi ukutholwa noma ukusetshenziswa manje. Xhumana nomhlinzeki wakho.",
+  "@failureWalletFrozen": {"description": "Customer error for problem code wallet_frozen (409): the rewards wallet is frozen by the provider, so credits cannot be earned or used."},
+  "failureCustomerInactive": "I-akhawunti yakho ayisebenzi, ngakho amakhredithi awakwazi ukutholwa noma ukusetshenziswa manje.",
+  "@failureCustomerInactive": {"description": "Customer error for problem code customer_inactive (409): the account is not active, so credits cannot be earned or used."},
+  "failureCreditsPaused": "Amabhonasi amiswe okwesikhashana manje. Usengakwazi ukubona ibhalansi yakho.",
+  "@failureCreditsPaused": {"description": "Customer message for problem code credits_paused (503): the rewards programme is paused; balances can still be viewed."},
+  "failureInsufficientCredits": "Awanamakhredithi amanele atholakalayo kuleli phakheji.",
+  "@failureInsufficientCredits": {"description": "Customer error for problem code insufficient_credits (409): fewer available credits than the pack costs."},
+  "failureRedemptionLimitReached": "Ufinyelele umkhawulo wanamuhla wamaphakheji. Zama futhi kusasa.",
+  "@failureRedemptionLimitReached": {"description": "Customer error for problem code redemption_limit_reached (409): the daily limit of packs (Johannesburg day) is reached."},
+  "failurePackNotOffered": "Leli phakheji alisanikezwa. Vuselela bese ukhetha elinye.",
+  "@failurePackNotOffered": {"description": "Customer error for problem code pack_not_offered (422): the chosen pack size is no longer one of the provider's packs."},
+  "failureEarnRefused": "Ukungena kwakho kwansuku zonke akukwazi ukuqedwa manje. Zama futhi kamuva.",
+  "@failureEarnRefused": {"description": "Customer error for problem code earn_refused (409): the daily check-in cannot be completed; the server gives no reason on purpose."},
+  "failureCreditsNotAvailable": "Amabhonasi awatholakali okwamanje.",
+  "@failureCreditsNotAvailable": {"description": "Customer message when the rewards feature is not available (provider has it off, or the server does not have it). The screens normally hide the feature instead."}
 }

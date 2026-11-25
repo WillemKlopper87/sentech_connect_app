@@ -2754,5 +2754,21 @@
   "failureUnlockPaymentHeld": "Jou betaling vir hierdie dataontsluiting word hersien. Moenie weer betaal nie. Ondersteuning sal bevestig sodra dit klaar is.",
   "@failureUnlockPaymentHeld": {"description": "Customer error for problem code unlock_payment_held (409 on checkout): the payment is held, succeeded or refunded already; do not pay again."},
   "failureIdempotencyInProgress": "Ons verwerk nog jou versoek. Probeer asseblief oor 'n oomblik weer.",
-  "@failureIdempotencyInProgress": {"description": "Customer message for problem code idempotency_in_progress (409): the same request is still being processed."}
+  "@failureIdempotencyInProgress": {"description": "Customer message for problem code idempotency_in_progress (409): the same request is still being processed."},
+  "failureWalletFrozen": "Jou belonings-beursie is gevries, so krediete kan nou nie verdien of gebruik word nie. Kontak jou diensverskaffer.",
+  "@failureWalletFrozen": {"description": "Customer error for problem code wallet_frozen (409): the rewards wallet is frozen by the provider, so credits cannot be earned or used."},
+  "failureCustomerInactive": "Jou rekening is nie aktief nie, so krediete kan nou nie verdien of gebruik word nie.",
+  "@failureCustomerInactive": {"description": "Customer error for problem code customer_inactive (409): the account is not active, so credits cannot be earned or used."},
+  "failureCreditsPaused": "Belonings is tans gepouseer. Jy kan steeds jou saldo sien.",
+  "@failureCreditsPaused": {"description": "Customer message for problem code credits_paused (503): the rewards programme is paused; balances can still be viewed."},
+  "failureInsufficientCredits": "Jy het nie genoeg beskikbare krediete vir daardie pakket nie.",
+  "@failureInsufficientCredits": {"description": "Customer error for problem code insufficient_credits (409): fewer available credits than the pack costs."},
+  "failureRedemptionLimitReached": "Jy het vandag se limiet vir pakkette bereik. Probeer môre weer.",
+  "@failureRedemptionLimitReached": {"description": "Customer error for problem code redemption_limit_reached (409): the daily limit of packs (Johannesburg day) is reached."},
+  "failurePackNotOffered": "Daardie pakket word nie meer aangebied nie. Verfris en kies 'n ander.",
+  "@failurePackNotOffered": {"description": "Customer error for problem code pack_not_offered (422): the chosen pack size is no longer one of the provider's packs."},
+  "failureEarnRefused": "Jou inklokslag kan nou nie voltooi word nie. Probeer later weer.",
+  "@failureEarnRefused": {"description": "Customer error for problem code earn_refused (409): the daily check-in cannot be completed; the server gives no reason on purpose."},
+  "failureCreditsNotAvailable": "Belonings is nie nou beskikbaar nie.",
+  "@failureCreditsNotAvailable": {"description": "Customer message when the rewards feature is not available (provider has it off, or the server does not have it). The screens normally hide the feature instead."}
 }

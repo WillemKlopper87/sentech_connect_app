@@ -48,6 +48,14 @@ void main() {
     const UnlockServiceInactiveFailure(),
     const UnlockPaymentHeldFailure(),
     const IdempotencyInProgressFailure(),
+    const CreditsNotAvailableFailure(),
+    const WalletFrozenFailure(),
+    const CustomerInactiveFailure(),
+    const CreditsPausedFailure(),
+    const InsufficientCreditsFailure(),
+    const RedemptionLimitReachedFailure(),
+    const PackNotOfferedFailure(),
+    const EarnRefusedFailure(),
   ];
 
   for (final l10n in [AppLocalizationsEn(), AppLocalizationsAf(), AppLocalizationsZu()]) {

@@ -4995,6 +4995,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'We are still processing your request. Please try again in a moment.'**
   String get failureIdempotencyInProgress;
+
+  /// Customer error for problem code wallet_frozen (409): the rewards wallet is frozen by the provider, so credits cannot be earned or used.
+  ///
+  /// In en, this message translates to:
+  /// **'Your rewards wallet is frozen, so credits cannot be earned or used right now. Contact your provider.'**
+  String get failureWalletFrozen;
+
+  /// Customer error for problem code customer_inactive (409): the account is not active, so credits cannot be earned or used.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account is not active, so credits cannot be earned or used right now.'**
+  String get failureCustomerInactive;
+
+  /// Customer message for problem code credits_paused (503): the rewards programme is paused; balances can still be viewed.
+  ///
+  /// In en, this message translates to:
+  /// **'Rewards are paused right now. You can still see your balance.'**
+  String get failureCreditsPaused;
+
+  /// Customer error for problem code insufficient_credits (409): fewer available credits than the pack costs.
+  ///
+  /// In en, this message translates to:
+  /// **'You do not have enough available credits for that pack.'**
+  String get failureInsufficientCredits;
+
+  /// Customer error for problem code redemption_limit_reached (409): the daily limit of packs (Johannesburg day) is reached.
+  ///
+  /// In en, this message translates to:
+  /// **'You have reached today\'s limit for packs. Try again tomorrow.'**
+  String get failureRedemptionLimitReached;
+
+  /// Customer error for problem code pack_not_offered (422): the chosen pack size is no longer one of the provider's packs.
+  ///
+  /// In en, this message translates to:
+  /// **'That pack is no longer offered. Refresh and pick another.'**
+  String get failurePackNotOffered;
+
+  /// Customer error for problem code earn_refused (409): the daily check-in cannot be completed; the server gives no reason on purpose.
+  ///
+  /// In en, this message translates to:
+  /// **'Your check-in cannot be completed right now. Try again later.'**
+  String get failureEarnRefused;
+
+  /// Customer message when the rewards feature is not available (provider has it off, or the server does not have it). The screens normally hide the feature instead.
+  ///
+  /// In en, this message translates to:
+  /// **'Rewards are not available right now.'**
+  String get failureCreditsNotAvailable;
 }
 
 class _AppLocalizationsDelegate

@@ -406,3 +406,16 @@ Plans and signup (slice S5, 2026-10-30). Machine-quality drafts, native review b
 | `failureUnlockServiceInactive` | This service is not active, so data cannot be unlocked right now. | Hierdie diens is nie aktief nie, so data kan nou nie ontsluit word nie. | Le sevisi ayisebenzi, ngakho idatha ayikwazi ukuvulwa manje. |
 | `failureUnlockPaymentHeld` | Your payment for this data unlock is being reviewed. Do not pay again. Support will confirm once it is done. | Jou betaling vir hierdie dataontsluiting word hersien. Moenie weer betaal nie. Ondersteuning sal bevestig sodra dit klaar is. | Inkokhelo yakho yalokhu kuvulwa kwedatha iyahlolwa. Ungakhokhi futhi. Osekelo luzokuqinisekisa uma seluqediwe. |
 | `failureIdempotencyInProgress` | We are still processing your request. Please try again in a moment. | Ons verwerk nog jou versoek. Probeer asseblief oor 'n oomblik weer. | Sisalucubungula isicelo sakho. Sicela uzame futhi ngemizuzwana embalwa. |
+
+Credits (rewards), slice G7, 2026-11-25. Machine-quality drafts, native review before release. The English text is the source of truth for the server's plain-words refusals.
+
+| Key | English | Afrikaans | isiZulu |
+|---|---|---|---|
+| `failureWalletFrozen` | Your rewards wallet is frozen, so credits cannot be earned or used right now. Contact your provider. | Jou belonings-beursie is gevries, so krediete kan nou nie verdien of gebruik word nie. Kontak jou diensverskaffer. | I-wallet yakho yamabhonasi iqandisiwe, ngakho amakhredithi awakwazi ukutholwa noma ukusetshenziswa manje. Xhumana nomhlinzeki wakho. |
+| `failureCustomerInactive` | Your account is not active, so credits cannot be earned or used right now. | Jou rekening is nie aktief nie, so krediete kan nou nie verdien of gebruik word nie. | I-akhawunti yakho ayisebenzi, ngakho amakhredithi awakwazi ukutholwa noma ukusetshenziswa manje. |
+| `failureCreditsPaused` | Rewards are paused right now. You can still see your balance. | Belonings is tans gepouseer. Jy kan steeds jou saldo sien. | Amabhonasi amiswe okwesikhashana manje. Usengakwazi ukubona ibhalansi yakho. |
+| `failureInsufficientCredits` | You do not have enough available credits for that pack. | Jy het nie genoeg beskikbare krediete vir daardie pakket nie. | Awanamakhredithi amanele atholakalayo kuleli phakheji. |
+| `failureRedemptionLimitReached` | You have reached today's limit for packs. Try again tomorrow. | Jy het vandag se limiet vir pakkette bereik. Probeer môre weer. | Ufinyelele umkhawulo wanamuhla wamaphakheji. Zama futhi kusasa. |
+| `failurePackNotOffered` | That pack is no longer offered. Refresh and pick another. | Daardie pakket word nie meer aangebied nie. Verfris en kies 'n ander. | Leli phakheji alisanikezwa. Vuselela bese ukhetha elinye. |
+| `failureEarnRefused` | Your check-in cannot be completed right now. Try again later. | Jou inklokslag kan nou nie voltooi word nie. Probeer later weer. | Ukungena kwakho kwansuku zonke akukwazi ukuqedwa manje. Zama futhi kamuva. |
+| `failureCreditsNotAvailable` | Rewards are not available right now. | Belonings is nie nou beskikbaar nie. | Amabhonasi awatholakali okwamanje. |

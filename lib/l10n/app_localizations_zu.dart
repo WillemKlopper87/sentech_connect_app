@@ -2940,4 +2940,35 @@ class AppLocalizationsZu extends AppLocalizations {
   @override
   String get failureIdempotencyInProgress =>
       'Sisalucubungula isicelo sakho. Sicela uzame futhi ngemizuzwana embalwa.';
+
+  @override
+  String get failureWalletFrozen =>
+      'I-wallet yakho yamabhonasi iqandisiwe, ngakho amakhredithi awakwazi ukutholwa noma ukusetshenziswa manje. Xhumana nomhlinzeki wakho.';
+
+  @override
+  String get failureCustomerInactive =>
+      'I-akhawunti yakho ayisebenzi, ngakho amakhredithi awakwazi ukutholwa noma ukusetshenziswa manje.';
+
+  @override
+  String get failureCreditsPaused =>
+      'Amabhonasi amiswe okwesikhashana manje. Usengakwazi ukubona ibhalansi yakho.';
+
+  @override
+  String get failureInsufficientCredits =>
+      'Awanamakhredithi amanele atholakalayo kuleli phakheji.';
+
+  @override
+  String get failureRedemptionLimitReached =>
+      'Ufinyelele umkhawulo wanamuhla wamaphakheji. Zama futhi kusasa.';
+
+  @override
+  String get failurePackNotOffered =>
+      'Leli phakheji alisanikezwa. Vuselela bese ukhetha elinye.';
+
+  @override
+  String get failureEarnRefused =>
+      'Ukungena kwakho kwansuku zonke akukwazi ukuqedwa manje. Zama futhi kamuva.';
+
+  @override
+  String get failureCreditsNotAvailable => 'Amabhonasi awatholakali okwamanje.';
 }

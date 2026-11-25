@@ -56,6 +56,15 @@ void main() {
     expect(f.message, 'Unknown order.');
   });
 
+  test('503 credits_paused is a typed pause that keeps Retry-After, not a generic server failure', () {
+    final f = failureFromDioException(_bad(503, _problem(503, 'credits_paused'), headers: {
+      'retry-after': ['300'],
+    }));
+    expect(f, isA<CreditsPausedFailure>());
+    expect((f as CreditsPausedFailure).retryAfter, const Duration(seconds: 300));
+    expect(failureFromDioException(_bad(503, _problem(503, 'something_else'))), isA<ServerFailure>());
+  });
+
   test('429 is a RateLimitedFailure honouring Retry-After', () {
     final f = failureFromDioException(_bad(429, _problem(429, 'rate_limited'), headers: {
       'retry-after': ['60'],
@@ -382,6 +391,12 @@ void main() {
       (409, 'idempotency_in_progress', IdempotencyInProgressFailure),
       (422, 'unlock_not_available', UnlockNotAvailableFailure),
       (409, 'unlock_not_available', UnlockNotAvailableFailure),
+      (409, 'wallet_frozen', WalletFrozenFailure),
+      (409, 'customer_inactive', CustomerInactiveFailure),
+      (409, 'insufficient_credits', InsufficientCreditsFailure),
+      (409, 'redemption_limit_reached', RedemptionLimitReachedFailure),
+      (422, 'pack_not_offered', PackNotOfferedFailure),
+      (409, 'earn_refused', EarnRefusedFailure),
     ];
     for (final (status, code, type) in refusals) {
       test('$status $code is a typed ValidationFailure that ignores the server wording', () {

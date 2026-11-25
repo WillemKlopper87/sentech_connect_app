@@ -131,6 +131,14 @@ Map<String, String> typedFailureTexts(AppLocalizations l10n) => {
   const UnlockServiceInactiveFailure().message: l10n.failureUnlockServiceInactive,
   const UnlockPaymentHeldFailure().message: l10n.failureUnlockPaymentHeld,
   const IdempotencyInProgressFailure().message: l10n.failureIdempotencyInProgress,
+  const CreditsNotAvailableFailure().message: l10n.failureCreditsNotAvailable,
+  const WalletFrozenFailure().message: l10n.failureWalletFrozen,
+  const CustomerInactiveFailure().message: l10n.failureCustomerInactive,
+  const CreditsPausedFailure().message: l10n.failureCreditsPaused,
+  const InsufficientCreditsFailure().message: l10n.failureInsufficientCredits,
+  const RedemptionLimitReachedFailure().message: l10n.failureRedemptionLimitReached,
+  const PackNotOfferedFailure().message: l10n.failurePackNotOffered,
+  const EarnRefusedFailure().message: l10n.failureEarnRefused,
 };
 
 /// Customer text for a typed refusal, or null when [failure] is not one (the
@@ -231,6 +239,22 @@ String? typedFailureText(AppLocalizations l10n, Failure? failure) {
       return l10n.failureUnlockPaymentHeld;
     case IdempotencyInProgressFailure():
       return l10n.failureIdempotencyInProgress;
+    case CreditsNotAvailableFailure():
+      return l10n.failureCreditsNotAvailable;
+    case WalletFrozenFailure():
+      return l10n.failureWalletFrozen;
+    case CustomerInactiveFailure():
+      return l10n.failureCustomerInactive;
+    case CreditsPausedFailure():
+      return l10n.failureCreditsPaused;
+    case InsufficientCreditsFailure():
+      return l10n.failureInsufficientCredits;
+    case RedemptionLimitReachedFailure():
+      return l10n.failureRedemptionLimitReached;
+    case PackNotOfferedFailure():
+      return l10n.failurePackNotOffered;
+    case EarnRefusedFailure():
+      return l10n.failureEarnRefused;
     default:
       return null;
   }

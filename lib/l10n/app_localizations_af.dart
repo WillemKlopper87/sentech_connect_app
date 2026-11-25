@@ -2936,4 +2936,36 @@ class AppLocalizationsAf extends AppLocalizations {
   @override
   String get failureIdempotencyInProgress =>
       'Ons verwerk nog jou versoek. Probeer asseblief oor \'n oomblik weer.';
+
+  @override
+  String get failureWalletFrozen =>
+      'Jou belonings-beursie is gevries, so krediete kan nou nie verdien of gebruik word nie. Kontak jou diensverskaffer.';
+
+  @override
+  String get failureCustomerInactive =>
+      'Jou rekening is nie aktief nie, so krediete kan nou nie verdien of gebruik word nie.';
+
+  @override
+  String get failureCreditsPaused =>
+      'Belonings is tans gepouseer. Jy kan steeds jou saldo sien.';
+
+  @override
+  String get failureInsufficientCredits =>
+      'Jy het nie genoeg beskikbare krediete vir daardie pakket nie.';
+
+  @override
+  String get failureRedemptionLimitReached =>
+      'Jy het vandag se limiet vir pakkette bereik. Probeer môre weer.';
+
+  @override
+  String get failurePackNotOffered =>
+      'Daardie pakket word nie meer aangebied nie. Verfris en kies \'n ander.';
+
+  @override
+  String get failureEarnRefused =>
+      'Jou inklokslag kan nou nie voltooi word nie. Probeer later weer.';
+
+  @override
+  String get failureCreditsNotAvailable =>
+      'Belonings is nie nou beskikbaar nie.';
 }

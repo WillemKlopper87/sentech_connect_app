@@ -105,6 +105,11 @@ All 289 `/v1/admin/*` and `/v1/platform/*` operations belong to the web consoles
 | 409 or 422 `unlock_not_available`, 409 `unlock_limit_reached`, `unlock_order_open`, `unlock_service_inactive` | `UnlockNotAvailableFailure`, `UnlockLimitReachedFailure`, `UnlockOrderOpenFailure`, `UnlockServiceInactiveFailure` | 5G data unlock refusals (unlock-order POST; `unlock_not_available` is also 422 on checkout) |
 | 409 `unlock_payment_held` | `UnlockPaymentHeldFailure` | checkout of a data-unlock order: payment is being reviewed, do not pay again |
 | 409 `idempotency_in_progress` | `IdempotencyInProgressFailure` | still processing, try again in a moment |
+| 409 `wallet_frozen`, 409 `customer_inactive` | `WalletFrozenFailure`, `CustomerInactiveFailure` | credits routes: wallet frozen by the provider, or account not active; says so in plain words and disables earning and redeeming |
+| 503 `credits_paused` (with `Retry-After`) | `CreditsPausedFailure` (keeps `retryAfter`) | credits are paused for the platform or the provider; balances still read |
+| 409 `insufficient_credits`, 409 `redemption_limit_reached`, 422 `pack_not_offered` | `InsufficientCreditsFailure`, `RedemptionLimitReachedFailure`, `PackNotOfferedFailure` | redeem refusals |
+| 409 `earn_refused` | `EarnRefusedFailure` | check-in refused by the device or address limits; the server gives no reason on purpose |
+| 404, 409 `feature_disabled`, 403 `module_not_enabled` on a credits route | `CreditsNotAvailableFailure` | the repository maps all three to "feature unavailable": the screens hide it, no error, no empty page |
 
 ## ID check data handling (slice S4)
 
@@ -196,5 +201,43 @@ Snapshot re-synced to platform `d4be7ce` (see the top of this file); suspended-i
 - **Problem codes:** `unlock_not_available` (422 on both the unlock-order POST and `POST /v1/orders/{id}/checkout`; the typed table matches 409 and 422 on the code alone), `unlock_limit_reached`, `unlock_order_open`, `unlock_service_inactive` (409), `unlock_payment_held` (409 on checkout of a data-unlock order whose payment is held, succeeded or refunded: `UnlockPaymentHeldFailure`; the payment screen enters `PaymentStatus.paymentHeld`, which offers no pay, retry or cancel, only "Back to Home", with the "being reviewed, do not pay again, support will confirm" copy) and `idempotency_in_progress` (409 on the unlock-order POST when the same key raced a first use: `IdempotencyInProgressFailure`, friendly "still processing, try again in a moment" copy; the `UnlockCubit` keeps the key so the next tap is the same request).
 - **`pending_unlock` behaviour:** the platform omits it while the order's payment is held, succeeded or refunded, and it can show `status: "failed"`. A failed unlock order stays resumable and blocks a new purchase (`unlock_order_open`) until cancelled. The app: `unlock_order_open` re-reads the usage and resumes the pending order, failed or not, on the shared payment screen, which already offers "Try again" and "Cancel order" for a failed order; no pending order listed after `unlock_order_open` shows `unlock_payment_held` copy (assumption: the platform only omits it for held, succeeded or refunded payments); if the usage re-read itself fails the original `unlock_order_open` copy is shown. The pending card on the 5G screen keeps its wording ("waiting for payment, continue"): for a failed order it leads to the payment screen's retry or cancel. No backend change is needed.
 - **Open assumptions (unchanged, still to confirm with the platform):** `cycle_end` is the last day of the cycle (inclusive); `offers[].bytes_mb` is megabytes; `out_of_bundle` shows "allowance used up, not cut off"; the slow-lane copy hard-codes 5/2 Mbit/s; any 404 on the data routes is "feature off or not eligible"; restore polling is 10 s x 18. `PendingUnlockOut.status` is a free string in the schema; the app only compares it to order statuses for display.
+
+Not verified against a running backend: nothing in this section was run against the real platform.
+
+## Credits (rewards), G7, 2026-11-25: BUILT, NOT RUN AGAINST A SERVER
+
+Read from the platform code at `f58b00cf` (`apps/api/src/sentech_api/modules/credits/{router,engagement_router,views,gate,redemption,pause,schemas}.py`) and the snapshot. Not run against a live backend.
+
+**Routes (all customer token; staff tokens get 403 `customer_required`):** `GET /v1/me/credits` (`CreditsOut`), `GET /v1/me/credits/ledger?limit&cursor` (`CreditEntryPage`, newest first, keyset cursor, 400 `invalid_cursor` for a bad one), `POST /v1/me/credits/redeem` (body `{"credits": int}`, 201 `EntitlementOut` with `source` and `origin_type` `credits`), `GET /v1/me/streak` (`StreakOut`), `POST /v1/me/streak/claim` (200 `StreakClaimOut`, no body), `GET /v1/me/missions` (`MissionsOut`), `GET /v1/me/badges` (`BadgesOut`).
+
+**Gates (every route):** 409 `feature_disabled` when the tenant's `credits` flag is off, then 403 `module_not_enabled` (module key `credits`) when the plan module is off. The two POSTs are "mutating": they also answer 503 `credits_paused` with `Retry-After: 300` when the deployment kill switch or the tenant's pause is on. The six reads keep working while paused. Rate limits: reads 120/min, redeem and claim 20/min (429, `RateLimitedFailure`). The app-config carries the flag as `feature_flags.credits` (absent or false is off) and the module as `modules.credits`; the app shows the entry only when BOTH are on.
+
+**Idempotency:** `Idempotency-Key` is REQUIRED on redeem and claim (400 `idempotency_key_required`; 8 to 128 characters of `A-Za-z0-9_.:-`, else 400 `idempotency_key_invalid`). The same key with the same request replays the stored answer (a redeem returns the original pass and never spends twice). The same key with a DIFFERENT request is refused with 422 `idempotency_key_reused`, so the app starts a new key whenever the pack size changes and reuses the key only to retry the same pack. 409 `idempotency_in_progress` means the first request is still running: retry with the same key. A second claim with a NEW key the same Johannesburg day answers 200 `claimed: false` with what the first claim paid (not an error). The claim stores its `earn_refused` / `wallet_frozen` / `customer_inactive` refusal under the key; a redeem refusal rolls back and is not stored. The optional `X-Device-Id` header on the claim feeds a device velocity check; the app does not send it yet (open question).
+
+**Problem codes found:**
+
+| Route | Status and code | Meaning |
+|---|---|---|
+| any credits route | 409 `feature_disabled`, 403 `module_not_enabled` | feature off |
+| redeem, claim | 503 `credits_paused` | paused (`Retry-After` 300 s) |
+| redeem, claim | 409 `wallet_frozen`, 409 `customer_inactive` | frozen wallet, inactive account |
+| redeem | 409 `insufficient_credits` | not enough AVAILABLE credits (pending ones are not spendable) |
+| redeem | 409 `redemption_limit_reached` | daily limit of packs (`pack_daily_max`, default 3, counted per Johannesburg day; not in `rates`) |
+| redeem | 422 `pack_not_offered` | `credits` is not one of `rates.pack_sizes` |
+| redeem | 422 `validation_error` | body is not `{"credits": int >= 1}` |
+| redeem, claim | 422 `idempotency_key_reused` | the key was used with a different request (the app never does this) |
+| claim | 409 `earn_refused` | device or address velocity; no reason given, by design |
+
+**Facts the screens rely on:**
+
+- `rates` (in `CreditsOut`): `mb_per_credit` (default 1, so 1 credit = 1 MB), `ad_credits` (unused, no ads), `pack_sizes` (default 50, 100, 250), `expiry_days` (default 90). Nothing is hard-coded in the app. A redeemed pack's data is `credits x mb_per_credit` MB; its validity (`pack_validity_minutes`, default 1440) and speed are NOT in `rates`: the app shows them from the returned pass (`expires_at`, `speed_kbps`).
+- **Expiring soon:** `CreditsOut.expiring_30d` exists (credits that expire within 30 days). The home page shows the banner when it is above zero, with the server's number; nothing is computed from the ledger. There is no field for WHEN, so the banner says "within 30 days". Platform follow-up: an `earliest_expiry_at` would let it say the date.
+- **Johannesburg day:** `StreakOut.day` is today in Africa/Johannesburg; `claimed_today` and `run_days` follow it. The app shows `day` and never derives a day from the phone clock or time zone.
+- **Capped earn:** `StreakClaimOut.capped_by` names the limit that held credits back (`ad_daily`, `ad_monthly`, `overall_monthly`, `mission_monthly`, `offer_monthly`; an unfamiliar value gets the generic explanation) with `credits: 0`. `CapsOut.overall_month` against `overall_monthly_cap` is the server's own count; the home page says the monthly limit is reached when the count is at or above the cap.
+- **Tier:** `CreditsOut.tier` is a free string (`none`, `silver`, `gold`, or null); an unfamiliar value shows no tier. `StreakOut.tier` is a closed enum.
+- **Missions and badges:** `progress`, `target` and `status` (`in_progress`, `ready`, `completed`) are the server's. Mission keys today: `first_checkin`, `profile_complete`, `first_purchase`, `first_voucher`, `first_redemption`, `checkins_20`, `purchases_3_month`; badge keys: `first_checkin`, `streak_7`, `streak_30`, `streak_100`, `missions_3`, `missions_10`, `first_redemption`, `tier_silver`, `tier_gold`. The server sends no title, so the app maps these keys to localised names and falls back to a neutral label for an unknown key. A `ready` mission is paid by the next server evaluation.
+- Ledger `source` values seen in the platform: `streak`, `streak_bonus`, `mission`, `pack_redemption`, `admin`, `ad`, `referral`, `offer`; the app labels known ones and falls back to the kind (earned, spent, expired, taken back, forfeited).
+
+**Platform follow-ups:** (1) an expiry date next to `expiring_30d`; (2) `pack_daily_max` and how many packs are left today in `rates` or `CreditsOut`, so Redeem can be disabled before a 409; (3) a `paused` flag on `GET /v1/me/credits` so the app can explain a pause before the customer taps; (4) mission and badge titles (or a documented key list) so a new key is not shown with a generic name; (5) `RedeemIn` is declared inline and has no named schema in the snapshot.
 
 Not verified against a running backend: nothing in this section was run against the real platform.
