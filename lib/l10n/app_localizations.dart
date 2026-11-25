@@ -5043,6 +5043,606 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Rewards are not available right now.'**
   String get failureCreditsNotAvailable;
+
+  /// Title of the rewards (credits) area: the page title and the entry on My passes and Account.
+  ///
+  /// In en, this message translates to:
+  /// **'Rewards'**
+  String get creditsTitle;
+
+  /// One line under the Rewards entry on My passes and Account.
+  ///
+  /// In en, this message translates to:
+  /// **'Check in daily, finish missions and turn credits into data'**
+  String get creditsEntrySubtitle;
+
+  /// Shown when someone reaches the Rewards pages but the provider has rewards switched off or the server does not have them.
+  ///
+  /// In en, this message translates to:
+  /// **'Rewards are not available right now.'**
+  String get creditsUnavailable;
+
+  /// A number of credits. Credits are the rewards currency; not money.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 credit} other{{count} credits}}'**
+  String creditsAmount(int count);
+
+  /// A number of days, used for streaks.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 day} other{{count} days}}'**
+  String creditsDaysCount(int count);
+
+  /// Label above the number of credits the customer can use right now.
+  ///
+  /// In en, this message translates to:
+  /// **'Available to use'**
+  String get creditsHomeAvailable;
+
+  /// Line under the available credits: credits that are held back and cannot be used yet. {amount} is a number of credits.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} on hold and not usable yet'**
+  String creditsHomePending(String amount);
+
+  /// Banner when some credits expire within 30 days. {amount} is a number of credits.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} will expire within 30 days. Use them before they are gone.'**
+  String creditsExpiringBanner(String amount);
+
+  /// Plain-words notice on the Rewards pages when the wallet is frozen by the provider.
+  ///
+  /// In en, this message translates to:
+  /// **'Your rewards wallet is frozen, so you cannot earn or use credits right now. Contact your provider for help.'**
+  String get creditsFrozenNotice;
+
+  /// Plain-words notice when rewards are paused by the provider or the platform.
+  ///
+  /// In en, this message translates to:
+  /// **'Rewards are paused right now. You can still see your balance, but you cannot earn or use credits until they start again.'**
+  String get creditsPausedNotice;
+
+  /// Plain-words notice when the account is not active so credits cannot be earned or used.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account is not active, so you cannot earn or use credits right now.'**
+  String get creditsInactiveNotice;
+
+  /// Notice when the monthly limit on credits that can be earned is reached.
+  ///
+  /// In en, this message translates to:
+  /// **'You have reached this month\'s limit on credits you can earn. Earning starts again next month.'**
+  String get creditsMonthlyLimitNotice;
+
+  /// Chip on the Rewards home: the check-in streak. {days} is a number of days.
+  ///
+  /// In en, this message translates to:
+  /// **'Streak: {days}'**
+  String creditsStreakChip(String days);
+
+  /// Chip on the Rewards home: the tier. {tier} is Silver or Gold.
+  ///
+  /// In en, this message translates to:
+  /// **'{tier} tier'**
+  String creditsTierChip(String tier);
+
+  /// Tier name.
+  ///
+  /// In en, this message translates to:
+  /// **'Silver'**
+  String get creditsTierSilver;
+
+  /// Tier name.
+  ///
+  /// In en, this message translates to:
+  /// **'Gold'**
+  String get creditsTierGold;
+
+  /// Rewards home: opens the page that turns credits into a hotspot data pass.
+  ///
+  /// In en, this message translates to:
+  /// **'Use credits for data'**
+  String get creditsTileRedeem;
+
+  /// Hint under the Use credits for data row.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn credits into a hotspot data pass'**
+  String get creditsTileRedeemHint;
+
+  /// Rewards home: opens the daily check-in.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily check-in'**
+  String get creditsTileCheckIn;
+
+  /// Hint under the Daily check-in row.
+  ///
+  /// In en, this message translates to:
+  /// **'Check in each day to earn credits'**
+  String get creditsTileCheckInHint;
+
+  /// Rewards home: opens the missions list.
+  ///
+  /// In en, this message translates to:
+  /// **'Missions'**
+  String get creditsTileMissions;
+
+  /// Rewards home: opens the badges list.
+  ///
+  /// In en, this message translates to:
+  /// **'Badges'**
+  String get creditsTileBadges;
+
+  /// Rewards home: opens the history of credits earned and used.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get creditsTileHistory;
+
+  /// Plain-language terms line under the balance. {days} is the number of days until credits expire.
+  ///
+  /// In en, this message translates to:
+  /// **'Credits are not cash and expire after {days} days.'**
+  String creditsTermsLine(String days);
+
+  /// Title of the How credits work sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'How credits work'**
+  String get creditsHowTitle;
+
+  /// Body of the How credits work sheet. {days} is the number of days until credits expire; {mb} is the megabytes of data one credit gives. Each line starts with a bullet.
+  ///
+  /// In en, this message translates to:
+  /// **'• Credits are not cash and expire after {days} days.\n• 1 credit gives {mb} MB of hotspot data when you use a pack.\n• Check-in days follow South African time (Johannesburg), not your phone\'s clock.'**
+  String creditsHowBody(String days, String mb);
+
+  /// Title of the page that turns credits into a data pass.
+  ///
+  /// In en, this message translates to:
+  /// **'Use credits for data'**
+  String get creditsRedeemTitle;
+
+  /// Intro on the redeem page.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a pack. The data goes into a new hotspot pass in My passes.'**
+  String get creditsRedeemIntro;
+
+  /// Under a pack: how much hotspot data it gives. {data} is a size such as 50 MB.
+  ///
+  /// In en, this message translates to:
+  /// **'{data} of hotspot data'**
+  String creditsPackData(String data);
+
+  /// Under a pack the customer cannot afford with the available credits.
+  ///
+  /// In en, this message translates to:
+  /// **'Not enough available credits'**
+  String get creditsPackNotEnough;
+
+  /// Button that redeems the chosen pack. {amount} is a number of credits.
+  ///
+  /// In en, this message translates to:
+  /// **'Redeem {amount}'**
+  String creditsRedeemButton(String amount);
+
+  /// Button text while the pack is being redeemed.
+  ///
+  /// In en, this message translates to:
+  /// **'Redeeming...'**
+  String get creditsRedeeming;
+
+  /// Shown when the provider offers no packs.
+  ///
+  /// In en, this message translates to:
+  /// **'No packs are offered right now.'**
+  String get creditsRedeemNoPacks;
+
+  /// Heading after a pack was redeemed.
+  ///
+  /// In en, this message translates to:
+  /// **'Your pass is ready'**
+  String get creditsRedeemDoneTitle;
+
+  /// After a pack was redeemed. {amount} is the credits used, {data} the data, {until} when the pass ends.
+  ///
+  /// In en, this message translates to:
+  /// **'You used {amount} and got {data} of hotspot data. The pass lasts until {until}.'**
+  String creditsRedeemDoneBody(String amount, String data, String until);
+
+  /// Button after a redeem: opens My passes.
+  ///
+  /// In en, this message translates to:
+  /// **'View my passes'**
+  String get creditsViewPasses;
+
+  /// Title of the daily check-in page.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily check-in'**
+  String get creditsStreakTitle;
+
+  /// Explains what counts as a check-in day. {date} is today's date in South Africa as the server says it.
+  ///
+  /// In en, this message translates to:
+  /// **'Check-in days follow South African time (Johannesburg), not your phone\'s clock. Today is {date}.'**
+  String creditsStreakDayLine(String date);
+
+  /// Label: the current check-in streak.
+  ///
+  /// In en, this message translates to:
+  /// **'Current streak'**
+  String get creditsStreakRun;
+
+  /// Label: the best check-in streak.
+  ///
+  /// In en, this message translates to:
+  /// **'Best streak'**
+  String get creditsStreakBest;
+
+  /// Label: total check-in days.
+  ///
+  /// In en, this message translates to:
+  /// **'Total check-in days'**
+  String get creditsStreakTotal;
+
+  /// Label: streak freezes available. A freeze covers a missed day.
+  ///
+  /// In en, this message translates to:
+  /// **'Streak freezes'**
+  String get creditsStreakFreezes;
+
+  /// Explains what a streak freeze does.
+  ///
+  /// In en, this message translates to:
+  /// **'A freeze covers a day you miss, so your streak keeps going.'**
+  String get creditsStreakFreezesHint;
+
+  /// Time to the next streak bonus. {days} is a number of days.
+  ///
+  /// In en, this message translates to:
+  /// **'{days} to your next bonus'**
+  String creditsStreakNext(String days);
+
+  /// Check-in rule. {amount} is a number of credits.
+  ///
+  /// In en, this message translates to:
+  /// **'Each check-in earns {amount}.'**
+  String creditsStreakRuleDaily(String amount);
+
+  /// Check-in bonus rule. {amount} is a number of credits, {days} a number of days.
+  ///
+  /// In en, this message translates to:
+  /// **'Bonus of {amount} when your streak reaches {days}.'**
+  String creditsStreakRuleBonus(String amount, String days);
+
+  /// Button for the daily check-in.
+  ///
+  /// In en, this message translates to:
+  /// **'Check in now'**
+  String get creditsCheckInButton;
+
+  /// Button text while checking in.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking in...'**
+  String get creditsCheckingIn;
+
+  /// Shown when today's check-in was already done. Not an error.
+  ///
+  /// In en, this message translates to:
+  /// **'You have already checked in today. Come back tomorrow.'**
+  String get creditsAlreadyCheckedIn;
+
+  /// After a check-in. {amount} is a number of credits.
+  ///
+  /// In en, this message translates to:
+  /// **'Checked in. You earned {amount}.'**
+  String creditsCheckInEarned(String amount);
+
+  /// After a check-in with a bonus. {amount} is a number of credits.
+  ///
+  /// In en, this message translates to:
+  /// **'Plus a bonus of {amount}.'**
+  String creditsCheckInBonus(String amount);
+
+  /// After a check-in that used streak freezes.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 freeze was used to keep your streak.} other{{count} freezes were used to keep your streak.}}'**
+  String creditsCheckInFreezeUsed(int count);
+
+  /// After a check-in that paid nothing because the monthly earning limit is reached.
+  ///
+  /// In en, this message translates to:
+  /// **'Your check-in counted for your streak, but no credits were added: you have reached this month\'s limit on credits you can earn.'**
+  String get creditsCheckInCappedMonthly;
+
+  /// After a check-in that paid nothing because the monthly limit on mission credits is reached.
+  ///
+  /// In en, this message translates to:
+  /// **'Your check-in counted for your streak, but no credits were added: you have reached this month\'s limit on mission credits.'**
+  String get creditsCheckInCappedMission;
+
+  /// After a check-in that paid nothing because an earning limit is reached.
+  ///
+  /// In en, this message translates to:
+  /// **'Your check-in counted for your streak, but no credits were added: an earning limit has been reached.'**
+  String get creditsCheckInCappedOther;
+
+  /// After a check-in where an earning limit held some credits back.
+  ///
+  /// In en, this message translates to:
+  /// **'An earning limit held some credits back.'**
+  String get creditsCheckInPartlyCapped;
+
+  /// Title of the missions page.
+  ///
+  /// In en, this message translates to:
+  /// **'Missions'**
+  String get creditsMissionsTitle;
+
+  /// Shown when there are no missions.
+  ///
+  /// In en, this message translates to:
+  /// **'There are no missions right now.'**
+  String get creditsMissionsEmpty;
+
+  /// Mission reward. {amount} is a number of credits.
+  ///
+  /// In en, this message translates to:
+  /// **'Reward: {amount}'**
+  String creditsMissionReward(String amount);
+
+  /// Mission progress as the server counted it. Both are numbers.
+  ///
+  /// In en, this message translates to:
+  /// **'{progress} of {target}'**
+  String creditsMissionProgress(String progress, String target);
+
+  /// Mission status: finished and paid.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get creditsMissionDone;
+
+  /// Mission status: the target is reached and the reward is paid by the next server check.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete. Your reward is on its way.'**
+  String get creditsMissionReady;
+
+  /// Mission window: counted once.
+  ///
+  /// In en, this message translates to:
+  /// **'One time'**
+  String get creditsMissionOnce;
+
+  /// Mission window: restarts every month.
+  ///
+  /// In en, this message translates to:
+  /// **'Restarts every month'**
+  String get creditsMissionMonthly;
+
+  /// Name for a mission the app does not know by name yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Mission'**
+  String get creditsMissionUnknown;
+
+  /// Mission name.
+  ///
+  /// In en, this message translates to:
+  /// **'First check-in'**
+  String get creditsMissionFirstCheckin;
+
+  /// Mission name.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete your profile'**
+  String get creditsMissionProfileComplete;
+
+  /// Mission name.
+  ///
+  /// In en, this message translates to:
+  /// **'Make your first purchase'**
+  String get creditsMissionFirstPurchase;
+
+  /// Mission name.
+  ///
+  /// In en, this message translates to:
+  /// **'Redeem your first voucher'**
+  String get creditsMissionFirstVoucher;
+
+  /// Mission name.
+  ///
+  /// In en, this message translates to:
+  /// **'Use credits for the first time'**
+  String get creditsMissionFirstRedemption;
+
+  /// Mission name: check in on many days this month.
+  ///
+  /// In en, this message translates to:
+  /// **'Check in often this month'**
+  String get creditsMissionMonthlyCheckins;
+
+  /// Mission name: make several purchases this month.
+  ///
+  /// In en, this message translates to:
+  /// **'Make purchases this month'**
+  String get creditsMissionMonthlyPurchases;
+
+  /// Title of the badges page.
+  ///
+  /// In en, this message translates to:
+  /// **'Badges'**
+  String get creditsBadgesTitle;
+
+  /// Shown when there are no badges.
+  ///
+  /// In en, this message translates to:
+  /// **'There are no badges yet.'**
+  String get creditsBadgesEmpty;
+
+  /// Badge earned. {date} is the date it was awarded.
+  ///
+  /// In en, this message translates to:
+  /// **'Earned on {date}'**
+  String creditsBadgeEarned(String date);
+
+  /// Badge earned, with no date known.
+  ///
+  /// In en, this message translates to:
+  /// **'Earned'**
+  String get creditsBadgeEarnedNoDate;
+
+  /// Badge not earned yet, with the server's progress. Both are numbers.
+  ///
+  /// In en, this message translates to:
+  /// **'{progress} of {target}'**
+  String creditsBadgeLocked(String progress, String target);
+
+  /// Name for a badge the app does not know by name yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Badge'**
+  String get creditsBadgeUnknown;
+
+  /// Badge name.
+  ///
+  /// In en, this message translates to:
+  /// **'First check-in'**
+  String get creditsBadgeFirstCheckin;
+
+  /// Badge name.
+  ///
+  /// In en, this message translates to:
+  /// **'7-day streak'**
+  String get creditsBadgeStreak7;
+
+  /// Badge name.
+  ///
+  /// In en, this message translates to:
+  /// **'30-day streak'**
+  String get creditsBadgeStreak30;
+
+  /// Badge name.
+  ///
+  /// In en, this message translates to:
+  /// **'100-day streak'**
+  String get creditsBadgeStreak100;
+
+  /// Badge name.
+  ///
+  /// In en, this message translates to:
+  /// **'3 missions done'**
+  String get creditsBadgeMissions3;
+
+  /// Badge name.
+  ///
+  /// In en, this message translates to:
+  /// **'10 missions done'**
+  String get creditsBadgeMissions10;
+
+  /// Badge name.
+  ///
+  /// In en, this message translates to:
+  /// **'First pack used'**
+  String get creditsBadgeFirstRedemption;
+
+  /// Badge name.
+  ///
+  /// In en, this message translates to:
+  /// **'Silver tier'**
+  String get creditsBadgeTierSilver;
+
+  /// Badge name.
+  ///
+  /// In en, this message translates to:
+  /// **'Gold tier'**
+  String get creditsBadgeTierGold;
+
+  /// Title of the credits history page.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get creditsLedgerTitle;
+
+  /// Shown when there is no credit activity yet.
+  ///
+  /// In en, this message translates to:
+  /// **'No credit activity yet.'**
+  String get creditsLedgerEmpty;
+
+  /// Button that loads older history.
+  ///
+  /// In en, this message translates to:
+  /// **'Show more'**
+  String get creditsLedgerMore;
+
+  /// History line: credits earned.
+  ///
+  /// In en, this message translates to:
+  /// **'Earned'**
+  String get creditsEntryEarn;
+
+  /// History line: credits used.
+  ///
+  /// In en, this message translates to:
+  /// **'Used'**
+  String get creditsEntrySpend;
+
+  /// History line: credits expired.
+  ///
+  /// In en, this message translates to:
+  /// **'Expired'**
+  String get creditsEntryExpire;
+
+  /// History line: credits taken back.
+  ///
+  /// In en, this message translates to:
+  /// **'Taken back'**
+  String get creditsEntryClawback;
+
+  /// History line: credits forfeited.
+  ///
+  /// In en, this message translates to:
+  /// **'Forfeited'**
+  String get creditsEntryForfeit;
+
+  /// History source: the daily check-in.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily check-in'**
+  String get creditsSourceStreak;
+
+  /// History source: a streak bonus.
+  ///
+  /// In en, this message translates to:
+  /// **'Check-in bonus'**
+  String get creditsSourceStreakBonus;
+
+  /// History source: a mission reward.
+  ///
+  /// In en, this message translates to:
+  /// **'Mission'**
+  String get creditsSourceMission;
+
+  /// History source: a data pack.
+  ///
+  /// In en, this message translates to:
+  /// **'Data pack'**
+  String get creditsSourcePack;
+
+  /// History source: adjusted by the provider.
+  ///
+  /// In en, this message translates to:
+  /// **'Adjusted by your provider'**
+  String get creditsSourceAdmin;
 }
 
 class _AppLocalizationsDelegate

@@ -2968,4 +2968,382 @@ class AppLocalizationsAf extends AppLocalizations {
   @override
   String get failureCreditsNotAvailable =>
       'Belonings is nie nou beskikbaar nie.';
+
+  @override
+  String get creditsTitle => 'Belonings';
+
+  @override
+  String get creditsEntrySubtitle =>
+      'Teken daagliks in, voltooi take en verander krediete in data';
+
+  @override
+  String get creditsUnavailable => 'Belonings is nie nou beskikbaar nie.';
+
+  @override
+  String creditsAmount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count krediete',
+      one: '1 krediet',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String creditsDaysCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count dae',
+      one: '1 dag',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get creditsHomeAvailable => 'Beskikbaar om te gebruik';
+
+  @override
+  String creditsHomePending(String amount) {
+    return '$amount aan die hou en nog nie bruikbaar nie';
+  }
+
+  @override
+  String creditsExpiringBanner(String amount) {
+    return '$amount verval binne 30 dae. Gebruik dit voordat dit weg is.';
+  }
+
+  @override
+  String get creditsFrozenNotice =>
+      'Jou belonings-beursie is gevries, so jy kan nou nie krediete verdien of gebruik nie. Kontak jou diensverskaffer vir hulp.';
+
+  @override
+  String get creditsPausedNotice =>
+      'Belonings is tans gepouseer. Jy kan steeds jou saldo sien, maar jy kan nie krediete verdien of gebruik totdat dit weer begin nie.';
+
+  @override
+  String get creditsInactiveNotice =>
+      'Jou rekening is nie aktief nie, so jy kan nou nie krediete verdien of gebruik nie.';
+
+  @override
+  String get creditsMonthlyLimitNotice =>
+      'Jy het hierdie maand se limiet op krediete wat jy kan verdien bereik. Verdien begin volgende maand weer.';
+
+  @override
+  String creditsStreakChip(String days) {
+    return 'Reeks: $days';
+  }
+
+  @override
+  String creditsTierChip(String tier) {
+    return '$tier-vlak';
+  }
+
+  @override
+  String get creditsTierSilver => 'Silwer';
+
+  @override
+  String get creditsTierGold => 'Goud';
+
+  @override
+  String get creditsTileRedeem => 'Gebruik krediete vir data';
+
+  @override
+  String get creditsTileRedeemHint =>
+      'Verander krediete in \'n hotspot-datapas';
+
+  @override
+  String get creditsTileCheckIn => 'Daaglikse inklokslag';
+
+  @override
+  String get creditsTileCheckInHint =>
+      'Teken elke dag in om krediete te verdien';
+
+  @override
+  String get creditsTileMissions => 'Take';
+
+  @override
+  String get creditsTileBadges => 'Kentekens';
+
+  @override
+  String get creditsTileHistory => 'Geskiedenis';
+
+  @override
+  String creditsTermsLine(String days) {
+    return 'Krediete is nie kontant nie en verval na $days dae.';
+  }
+
+  @override
+  String get creditsHowTitle => 'Hoe krediete werk';
+
+  @override
+  String creditsHowBody(String days, String mb) {
+    return '• Krediete is nie kontant nie en verval na $days dae.\n• 1 krediet gee $mb MB hotspot-data wanneer jy \'n pakket gebruik.\n• Inklokdae volg Suid-Afrikaanse tyd (Johannesburg), nie jou foon se horlosie nie.';
+  }
+
+  @override
+  String get creditsRedeemTitle => 'Gebruik krediete vir data';
+
+  @override
+  String get creditsRedeemIntro =>
+      'Kies \'n pakket. Die data gaan in \'n nuwe hotspot-pas in My passe.';
+
+  @override
+  String creditsPackData(String data) {
+    return '$data hotspot-data';
+  }
+
+  @override
+  String get creditsPackNotEnough => 'Nie genoeg beskikbare krediete nie';
+
+  @override
+  String creditsRedeemButton(String amount) {
+    return 'Gebruik $amount';
+  }
+
+  @override
+  String get creditsRedeeming => 'Besig om te gebruik...';
+
+  @override
+  String get creditsRedeemNoPacks =>
+      'Daar word nou geen pakkette aangebied nie.';
+
+  @override
+  String get creditsRedeemDoneTitle => 'Jou pas is gereed';
+
+  @override
+  String creditsRedeemDoneBody(String amount, String data, String until) {
+    return 'Jy het $amount gebruik en $data hotspot-data gekry. Die pas hou tot $until.';
+  }
+
+  @override
+  String get creditsViewPasses => 'Sien my passe';
+
+  @override
+  String get creditsStreakTitle => 'Daaglikse inklokslag';
+
+  @override
+  String creditsStreakDayLine(String date) {
+    return 'Inklokdae volg Suid-Afrikaanse tyd (Johannesburg), nie jou foon se horlosie nie. Vandag is $date.';
+  }
+
+  @override
+  String get creditsStreakRun => 'Huidige reeks';
+
+  @override
+  String get creditsStreakBest => 'Beste reeks';
+
+  @override
+  String get creditsStreakTotal => 'Totale inklokdae';
+
+  @override
+  String get creditsStreakFreezes => 'Reeks-bevriesings';
+
+  @override
+  String get creditsStreakFreezesHint =>
+      '\'n Bevriesing dek \'n dag wat jy mis, sodat jou reeks aanhou.';
+
+  @override
+  String creditsStreakNext(String days) {
+    return '$days tot jou volgende bonus';
+  }
+
+  @override
+  String creditsStreakRuleDaily(String amount) {
+    return 'Elke inklokslag verdien $amount.';
+  }
+
+  @override
+  String creditsStreakRuleBonus(String amount, String days) {
+    return 'Bonus van $amount wanneer jou reeks $days bereik.';
+  }
+
+  @override
+  String get creditsCheckInButton => 'Teken nou in';
+
+  @override
+  String get creditsCheckingIn => 'Teken tans in...';
+
+  @override
+  String get creditsAlreadyCheckedIn =>
+      'Jy het reeds vandag ingeteken. Kom terug môre.';
+
+  @override
+  String creditsCheckInEarned(String amount) {
+    return 'Ingeteken. Jy het $amount verdien.';
+  }
+
+  @override
+  String creditsCheckInBonus(String amount) {
+    return 'Plus \'n bonus van $amount.';
+  }
+
+  @override
+  String creditsCheckInFreezeUsed(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count bevriesings is gebruik om jou reeks te behou.',
+      one: '1 bevriesing is gebruik om jou reeks te behou.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get creditsCheckInCappedMonthly =>
+      'Jou inklokslag het vir jou reeks getel, maar geen krediete is bygevoeg nie: jy het hierdie maand se limiet op krediete wat jy kan verdien bereik.';
+
+  @override
+  String get creditsCheckInCappedMission =>
+      'Jou inklokslag het vir jou reeks getel, maar geen krediete is bygevoeg nie: jy het hierdie maand se limiet op taakkrediete bereik.';
+
+  @override
+  String get creditsCheckInCappedOther =>
+      'Jou inklokslag het vir jou reeks getel, maar geen krediete is bygevoeg nie: \'n verdienlimiet is bereik.';
+
+  @override
+  String get creditsCheckInPartlyCapped =>
+      '\'n Verdienlimiet het sommige krediete teruggehou.';
+
+  @override
+  String get creditsMissionsTitle => 'Take';
+
+  @override
+  String get creditsMissionsEmpty => 'Daar is nou geen take nie.';
+
+  @override
+  String creditsMissionReward(String amount) {
+    return 'Beloning: $amount';
+  }
+
+  @override
+  String creditsMissionProgress(String progress, String target) {
+    return '$progress van $target';
+  }
+
+  @override
+  String get creditsMissionDone => 'Klaar';
+
+  @override
+  String get creditsMissionReady => 'Voltooi. Jou beloning is op pad.';
+
+  @override
+  String get creditsMissionOnce => 'Een keer';
+
+  @override
+  String get creditsMissionMonthly => 'Begin elke maand weer';
+
+  @override
+  String get creditsMissionUnknown => 'Taak';
+
+  @override
+  String get creditsMissionFirstCheckin => 'Eerste inklokslag';
+
+  @override
+  String get creditsMissionProfileComplete => 'Voltooi jou profiel';
+
+  @override
+  String get creditsMissionFirstPurchase => 'Doen jou eerste aankoop';
+
+  @override
+  String get creditsMissionFirstVoucher => 'Gebruik jou eerste koepon';
+
+  @override
+  String get creditsMissionFirstRedemption =>
+      'Gebruik krediete vir die eerste keer';
+
+  @override
+  String get creditsMissionMonthlyCheckins => 'Teken gereeld in hierdie maand';
+
+  @override
+  String get creditsMissionMonthlyPurchases => 'Doen aankope hierdie maand';
+
+  @override
+  String get creditsBadgesTitle => 'Kentekens';
+
+  @override
+  String get creditsBadgesEmpty => 'Daar is nog geen kentekens nie.';
+
+  @override
+  String creditsBadgeEarned(String date) {
+    return 'Verdien op $date';
+  }
+
+  @override
+  String get creditsBadgeEarnedNoDate => 'Verdien';
+
+  @override
+  String creditsBadgeLocked(String progress, String target) {
+    return '$progress van $target';
+  }
+
+  @override
+  String get creditsBadgeUnknown => 'Kenteken';
+
+  @override
+  String get creditsBadgeFirstCheckin => 'Eerste inklokslag';
+
+  @override
+  String get creditsBadgeStreak7 => '7-dae-reeks';
+
+  @override
+  String get creditsBadgeStreak30 => '30-dae-reeks';
+
+  @override
+  String get creditsBadgeStreak100 => '100-dae-reeks';
+
+  @override
+  String get creditsBadgeMissions3 => '3 take voltooi';
+
+  @override
+  String get creditsBadgeMissions10 => '10 take voltooi';
+
+  @override
+  String get creditsBadgeFirstRedemption => 'Eerste pakket gebruik';
+
+  @override
+  String get creditsBadgeTierSilver => 'Silwervlak';
+
+  @override
+  String get creditsBadgeTierGold => 'Goudvlak';
+
+  @override
+  String get creditsLedgerTitle => 'Geskiedenis';
+
+  @override
+  String get creditsLedgerEmpty => 'Nog geen kredietaktiwiteit nie.';
+
+  @override
+  String get creditsLedgerMore => 'Wys meer';
+
+  @override
+  String get creditsEntryEarn => 'Verdien';
+
+  @override
+  String get creditsEntrySpend => 'Gebruik';
+
+  @override
+  String get creditsEntryExpire => 'Verval';
+
+  @override
+  String get creditsEntryClawback => 'Teruggeneem';
+
+  @override
+  String get creditsEntryForfeit => 'Verbeur';
+
+  @override
+  String get creditsSourceStreak => 'Daaglikse inklokslag';
+
+  @override
+  String get creditsSourceStreakBonus => 'Inklokbonus';
+
+  @override
+  String get creditsSourceMission => 'Taak';
+
+  @override
+  String get creditsSourcePack => 'Datapakket';
+
+  @override
+  String get creditsSourceAdmin => 'Aangepas deur jou diensverskaffer';
 }

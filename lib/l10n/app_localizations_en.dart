@@ -2955,4 +2955,378 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get failureCreditsNotAvailable =>
       'Rewards are not available right now.';
+
+  @override
+  String get creditsTitle => 'Rewards';
+
+  @override
+  String get creditsEntrySubtitle =>
+      'Check in daily, finish missions and turn credits into data';
+
+  @override
+  String get creditsUnavailable => 'Rewards are not available right now.';
+
+  @override
+  String creditsAmount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count credits',
+      one: '1 credit',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String creditsDaysCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days',
+      one: '1 day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get creditsHomeAvailable => 'Available to use';
+
+  @override
+  String creditsHomePending(String amount) {
+    return '$amount on hold and not usable yet';
+  }
+
+  @override
+  String creditsExpiringBanner(String amount) {
+    return '$amount will expire within 30 days. Use them before they are gone.';
+  }
+
+  @override
+  String get creditsFrozenNotice =>
+      'Your rewards wallet is frozen, so you cannot earn or use credits right now. Contact your provider for help.';
+
+  @override
+  String get creditsPausedNotice =>
+      'Rewards are paused right now. You can still see your balance, but you cannot earn or use credits until they start again.';
+
+  @override
+  String get creditsInactiveNotice =>
+      'Your account is not active, so you cannot earn or use credits right now.';
+
+  @override
+  String get creditsMonthlyLimitNotice =>
+      'You have reached this month\'s limit on credits you can earn. Earning starts again next month.';
+
+  @override
+  String creditsStreakChip(String days) {
+    return 'Streak: $days';
+  }
+
+  @override
+  String creditsTierChip(String tier) {
+    return '$tier tier';
+  }
+
+  @override
+  String get creditsTierSilver => 'Silver';
+
+  @override
+  String get creditsTierGold => 'Gold';
+
+  @override
+  String get creditsTileRedeem => 'Use credits for data';
+
+  @override
+  String get creditsTileRedeemHint => 'Turn credits into a hotspot data pass';
+
+  @override
+  String get creditsTileCheckIn => 'Daily check-in';
+
+  @override
+  String get creditsTileCheckInHint => 'Check in each day to earn credits';
+
+  @override
+  String get creditsTileMissions => 'Missions';
+
+  @override
+  String get creditsTileBadges => 'Badges';
+
+  @override
+  String get creditsTileHistory => 'History';
+
+  @override
+  String creditsTermsLine(String days) {
+    return 'Credits are not cash and expire after $days days.';
+  }
+
+  @override
+  String get creditsHowTitle => 'How credits work';
+
+  @override
+  String creditsHowBody(String days, String mb) {
+    return '• Credits are not cash and expire after $days days.\n• 1 credit gives $mb MB of hotspot data when you use a pack.\n• Check-in days follow South African time (Johannesburg), not your phone\'s clock.';
+  }
+
+  @override
+  String get creditsRedeemTitle => 'Use credits for data';
+
+  @override
+  String get creditsRedeemIntro =>
+      'Pick a pack. The data goes into a new hotspot pass in My passes.';
+
+  @override
+  String creditsPackData(String data) {
+    return '$data of hotspot data';
+  }
+
+  @override
+  String get creditsPackNotEnough => 'Not enough available credits';
+
+  @override
+  String creditsRedeemButton(String amount) {
+    return 'Redeem $amount';
+  }
+
+  @override
+  String get creditsRedeeming => 'Redeeming...';
+
+  @override
+  String get creditsRedeemNoPacks => 'No packs are offered right now.';
+
+  @override
+  String get creditsRedeemDoneTitle => 'Your pass is ready';
+
+  @override
+  String creditsRedeemDoneBody(String amount, String data, String until) {
+    return 'You used $amount and got $data of hotspot data. The pass lasts until $until.';
+  }
+
+  @override
+  String get creditsViewPasses => 'View my passes';
+
+  @override
+  String get creditsStreakTitle => 'Daily check-in';
+
+  @override
+  String creditsStreakDayLine(String date) {
+    return 'Check-in days follow South African time (Johannesburg), not your phone\'s clock. Today is $date.';
+  }
+
+  @override
+  String get creditsStreakRun => 'Current streak';
+
+  @override
+  String get creditsStreakBest => 'Best streak';
+
+  @override
+  String get creditsStreakTotal => 'Total check-in days';
+
+  @override
+  String get creditsStreakFreezes => 'Streak freezes';
+
+  @override
+  String get creditsStreakFreezesHint =>
+      'A freeze covers a day you miss, so your streak keeps going.';
+
+  @override
+  String creditsStreakNext(String days) {
+    return '$days to your next bonus';
+  }
+
+  @override
+  String creditsStreakRuleDaily(String amount) {
+    return 'Each check-in earns $amount.';
+  }
+
+  @override
+  String creditsStreakRuleBonus(String amount, String days) {
+    return 'Bonus of $amount when your streak reaches $days.';
+  }
+
+  @override
+  String get creditsCheckInButton => 'Check in now';
+
+  @override
+  String get creditsCheckingIn => 'Checking in...';
+
+  @override
+  String get creditsAlreadyCheckedIn =>
+      'You have already checked in today. Come back tomorrow.';
+
+  @override
+  String creditsCheckInEarned(String amount) {
+    return 'Checked in. You earned $amount.';
+  }
+
+  @override
+  String creditsCheckInBonus(String amount) {
+    return 'Plus a bonus of $amount.';
+  }
+
+  @override
+  String creditsCheckInFreezeUsed(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count freezes were used to keep your streak.',
+      one: '1 freeze was used to keep your streak.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get creditsCheckInCappedMonthly =>
+      'Your check-in counted for your streak, but no credits were added: you have reached this month\'s limit on credits you can earn.';
+
+  @override
+  String get creditsCheckInCappedMission =>
+      'Your check-in counted for your streak, but no credits were added: you have reached this month\'s limit on mission credits.';
+
+  @override
+  String get creditsCheckInCappedOther =>
+      'Your check-in counted for your streak, but no credits were added: an earning limit has been reached.';
+
+  @override
+  String get creditsCheckInPartlyCapped =>
+      'An earning limit held some credits back.';
+
+  @override
+  String get creditsMissionsTitle => 'Missions';
+
+  @override
+  String get creditsMissionsEmpty => 'There are no missions right now.';
+
+  @override
+  String creditsMissionReward(String amount) {
+    return 'Reward: $amount';
+  }
+
+  @override
+  String creditsMissionProgress(String progress, String target) {
+    return '$progress of $target';
+  }
+
+  @override
+  String get creditsMissionDone => 'Done';
+
+  @override
+  String get creditsMissionReady => 'Complete. Your reward is on its way.';
+
+  @override
+  String get creditsMissionOnce => 'One time';
+
+  @override
+  String get creditsMissionMonthly => 'Restarts every month';
+
+  @override
+  String get creditsMissionUnknown => 'Mission';
+
+  @override
+  String get creditsMissionFirstCheckin => 'First check-in';
+
+  @override
+  String get creditsMissionProfileComplete => 'Complete your profile';
+
+  @override
+  String get creditsMissionFirstPurchase => 'Make your first purchase';
+
+  @override
+  String get creditsMissionFirstVoucher => 'Redeem your first voucher';
+
+  @override
+  String get creditsMissionFirstRedemption => 'Use credits for the first time';
+
+  @override
+  String get creditsMissionMonthlyCheckins => 'Check in often this month';
+
+  @override
+  String get creditsMissionMonthlyPurchases => 'Make purchases this month';
+
+  @override
+  String get creditsBadgesTitle => 'Badges';
+
+  @override
+  String get creditsBadgesEmpty => 'There are no badges yet.';
+
+  @override
+  String creditsBadgeEarned(String date) {
+    return 'Earned on $date';
+  }
+
+  @override
+  String get creditsBadgeEarnedNoDate => 'Earned';
+
+  @override
+  String creditsBadgeLocked(String progress, String target) {
+    return '$progress of $target';
+  }
+
+  @override
+  String get creditsBadgeUnknown => 'Badge';
+
+  @override
+  String get creditsBadgeFirstCheckin => 'First check-in';
+
+  @override
+  String get creditsBadgeStreak7 => '7-day streak';
+
+  @override
+  String get creditsBadgeStreak30 => '30-day streak';
+
+  @override
+  String get creditsBadgeStreak100 => '100-day streak';
+
+  @override
+  String get creditsBadgeMissions3 => '3 missions done';
+
+  @override
+  String get creditsBadgeMissions10 => '10 missions done';
+
+  @override
+  String get creditsBadgeFirstRedemption => 'First pack used';
+
+  @override
+  String get creditsBadgeTierSilver => 'Silver tier';
+
+  @override
+  String get creditsBadgeTierGold => 'Gold tier';
+
+  @override
+  String get creditsLedgerTitle => 'History';
+
+  @override
+  String get creditsLedgerEmpty => 'No credit activity yet.';
+
+  @override
+  String get creditsLedgerMore => 'Show more';
+
+  @override
+  String get creditsEntryEarn => 'Earned';
+
+  @override
+  String get creditsEntrySpend => 'Used';
+
+  @override
+  String get creditsEntryExpire => 'Expired';
+
+  @override
+  String get creditsEntryClawback => 'Taken back';
+
+  @override
+  String get creditsEntryForfeit => 'Forfeited';
+
+  @override
+  String get creditsSourceStreak => 'Daily check-in';
+
+  @override
+  String get creditsSourceStreakBonus => 'Check-in bonus';
+
+  @override
+  String get creditsSourceMission => 'Mission';
+
+  @override
+  String get creditsSourcePack => 'Data pack';
+
+  @override
+  String get creditsSourceAdmin => 'Adjusted by your provider';
 }

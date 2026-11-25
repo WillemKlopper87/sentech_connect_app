@@ -419,3 +419,103 @@ Credits (rewards), slice G7, 2026-11-25. Machine-quality drafts, native review b
 | `failurePackNotOffered` | That pack is no longer offered. Refresh and pick another. | Daardie pakket word nie meer aangebied nie. Verfris en kies 'n ander. | Leli phakheji alisanikezwa. Vuselela bese ukhetha elinye. |
 | `failureEarnRefused` | Your check-in cannot be completed right now. Try again later. | Jou inklokslag kan nou nie voltooi word nie. Probeer later weer. | Ukungena kwakho kwansuku zonke akukwazi ukuqedwa manje. Zama futhi kamuva. |
 | `failureCreditsNotAvailable` | Rewards are not available right now. | Belonings is nie nou beskikbaar nie. | Amabhonasi awatholakali okwamanje. |
+| `creditsTitle` | Rewards | Belonings | Amabhonasi |
+| `creditsEntrySubtitle` | Check in daily, finish missions and turn credits into data | Teken daagliks in, voltooi take en verander krediete in data | Ngena nsuku zonke, qedela imisebenzi bese uguqula amakhredithi abe yidatha |
+| `creditsUnavailable` | Rewards are not available right now. | Belonings is nie nou beskikbaar nie. | Amabhonasi awatholakali okwamanje. |
+| `creditsAmount` | {count, plural, =1{1 credit} other{{count} credits}} | {count, plural, =1{1 krediet} other{{count} krediete}} | {count, plural, =1{ikhredithi eli-1} other{amakhredithi angu-{count}}} |
+| `creditsDaysCount` | {count, plural, =1{1 day} other{{count} days}} | {count, plural, =1{1 dag} other{{count} dae}} | {count, plural, =1{usuku olu-1} other{izinsuku ezingu-{count}}} |
+| `creditsHomeAvailable` | Available to use | Beskikbaar om te gebruik | Atholakalayo ukusetshenziswa |
+| `creditsHomePending` | {amount} on hold and not usable yet | {amount} aan die hou en nog nie bruikbaar nie | {amount} amiswe futhi awasetshenziswa okwamanje |
+| `creditsExpiringBanner` | {amount} will expire within 30 days. Use them before they are gone. | {amount} verval binne 30 dae. Gebruik dit voordat dit weg is. | {amount} azophelelwa yisikhathi phakathi nezinsuku ezingu-30. Awasebenzise ngaphambi kokuba aphelelwe. |
+| `creditsFrozenNotice` | Your rewards wallet is frozen, so you cannot earn or use credits right now. Contact your provider for help. | Jou belonings-beursie is gevries, so jy kan nou nie krediete verdien of gebruik nie. Kontak jou diensverskaffer vir hulp. | I-wallet yakho yamabhonasi iqandisiwe, ngakho awukwazi ukuthola noma ukusebenzisa amakhredithi manje. Xhumana nomhlinzeki wakho ukuze uthole usizo. |
+| `creditsPausedNotice` | Rewards are paused right now. You can still see your balance, but you cannot earn or use credits until they start again. | Belonings is tans gepouseer. Jy kan steeds jou saldo sien, maar jy kan nie krediete verdien of gebruik totdat dit weer begin nie. | Amabhonasi amiswe okwesikhashana. Usengakwazi ukubona ibhalansi yakho, kodwa awukwazi ukuthola noma ukusebenzisa amakhredithi aze aqale futhi. |
+| `creditsInactiveNotice` | Your account is not active, so you cannot earn or use credits right now. | Jou rekening is nie aktief nie, so jy kan nou nie krediete verdien of gebruik nie. | I-akhawunti yakho ayisebenzi, ngakho awukwazi ukuthola noma ukusebenzisa amakhredithi manje. |
+| `creditsMonthlyLimitNotice` | You have reached this month's limit on credits you can earn. Earning starts again next month. | Jy het hierdie maand se limiet op krediete wat jy kan verdien bereik. Verdien begin volgende maand weer. | Ufinyelele umkhawulo wale nyanga wamakhredithi ongawathola. Ukuthola kuzoqala futhi ngenyanga ezayo. |
+| `creditsStreakChip` | Streak: {days} | Reeks: {days} | Uchungechunge: {days} |
+| `creditsTierChip` | {tier} tier | {tier}-vlak | izinga i-{tier} |
+| `creditsTierSilver` | Silver | Silwer | Isiliva |
+| `creditsTierGold` | Gold | Goud | Igolide |
+| `creditsTileRedeem` | Use credits for data | Gebruik krediete vir data | Sebenzisa amakhredithi ukuthola idatha |
+| `creditsTileRedeemHint` | Turn credits into a hotspot data pass | Verander krediete in 'n hotspot-datapas | Guqula amakhredithi abe yiphasi ledatha ye-hotspot |
+| `creditsTileCheckIn` | Daily check-in | Daaglikse inklokslag | Ukungena kwansuku zonke |
+| `creditsTileCheckInHint` | Check in each day to earn credits | Teken elke dag in om krediete te verdien | Ngena nsuku zonke ukuze uthole amakhredithi |
+| `creditsTileMissions` | Missions | Take | Imisebenzi |
+| `creditsTileBadges` | Badges | Kentekens | Amabheji |
+| `creditsTileHistory` | History | Geskiedenis | Umlando |
+| `creditsTermsLine` | Credits are not cash and expire after {days} days. | Krediete is nie kontant nie en verval na {days} dae. | Amakhredithi akayona imali futhi aphelelwa yisikhathi ngemva kwezinsuku ezingu-{days}. |
+| `creditsHowTitle` | How credits work | Hoe krediete werk | Indlela amakhredithi asebenza ngayo |
+| `creditsHowBody` | • Credits are not cash and expire after {days} days. • 1 credit gives {mb} MB of hotspot data when you use a pack. • Check-in days follow South African time (Johannesburg), not your phone's clock. | • Krediete is nie kontant nie en verval na {days} dae. • 1 krediet gee {mb} MB hotspot-data wanneer jy 'n pakket gebruik. • Inklokdae volg Suid-Afrikaanse tyd (Johannesburg), nie jou foon se horlosie nie. | • Amakhredithi akayona imali futhi aphelelwa yisikhathi ngemva kwezinsuku ezingu-{days}. • Ikhredithi eli-1 linikeza i-{mb} MB yedatha ye-hotspot uma usebenzisa iphakheji. • Izinsuku zokungena zilandela isikhathi saseNingizimu Afrika (eJohannesburg), hhayi iwashi lefoni yakho. |
+| `creditsRedeemTitle` | Use credits for data | Gebruik krediete vir data | Sebenzisa amakhredithi ukuthola idatha |
+| `creditsRedeemIntro` | Pick a pack. The data goes into a new hotspot pass in My passes. | Kies 'n pakket. Die data gaan in 'n nuwe hotspot-pas in My passe. | Khetha iphakheji. Idatha iya ephasini elisha le-hotspot ku-My passes. |
+| `creditsPackData` | {data} of hotspot data | {data} hotspot-data | {data} yedatha ye-hotspot |
+| `creditsPackNotEnough` | Not enough available credits | Nie genoeg beskikbare krediete nie | Awanamakhredithi anele atholakalayo |
+| `creditsRedeemButton` | Redeem {amount} | Gebruik {amount} | Sebenzisa {amount} |
+| `creditsRedeeming` | Redeeming... | Besig om te gebruik... | Iyasebenzisa... |
+| `creditsRedeemNoPacks` | No packs are offered right now. | Daar word nou geen pakkette aangebied nie. | Awekho amaphakheji anikezwayo okwamanje. |
+| `creditsRedeemDoneTitle` | Your pass is ready | Jou pas is gereed | Iphasi lakho selilungile |
+| `creditsRedeemDoneBody` | You used {amount} and got {data} of hotspot data. The pass lasts until {until}. | Jy het {amount} gebruik en {data} hotspot-data gekry. Die pas hou tot {until}. | Usebenzise {amount} futhi wathola i-{data} yedatha ye-hotspot. Iphasi lihlala kuze kube ngu-{until}. |
+| `creditsViewPasses` | View my passes | Sien my passe | Buka amaphasi ami |
+| `creditsStreakTitle` | Daily check-in | Daaglikse inklokslag | Ukungena kwansuku zonke |
+| `creditsStreakDayLine` | Check-in days follow South African time (Johannesburg), not your phone's clock. Today is {date}. | Inklokdae volg Suid-Afrikaanse tyd (Johannesburg), nie jou foon se horlosie nie. Vandag is {date}. | Izinsuku zokungena zilandela isikhathi saseNingizimu Afrika (eJohannesburg), hhayi iwashi lefoni yakho. Namuhla ngu-{date}. |
+| `creditsStreakRun` | Current streak | Huidige reeks | Uchungechunge lwamanje |
+| `creditsStreakBest` | Best streak | Beste reeks | Uchungechunge olungcono kunazo zonke |
+| `creditsStreakTotal` | Total check-in days | Totale inklokdae | Izinsuku zokungena zizonke |
+| `creditsStreakFreezes` | Streak freezes | Reeks-bevriesings | Ukuqandisa uchungechunge |
+| `creditsStreakFreezesHint` | A freeze covers a day you miss, so your streak keeps going. | 'n Bevriesing dek 'n dag wat jy mis, sodat jou reeks aanhou. | Ukuqandisa kumboza usuku olubuzayo, ukuze uchungechunge lwakho luqhubeke. |
+| `creditsStreakNext` | {days} to your next bonus | {days} tot jou volgende bonus | {days} ukuze ufike kubhonasi olandelayo |
+| `creditsStreakRuleDaily` | Each check-in earns {amount}. | Elke inklokslag verdien {amount}. | Ukungena ngakunye kuthola {amount}. |
+| `creditsStreakRuleBonus` | Bonus of {amount} when your streak reaches {days}. | Bonus van {amount} wanneer jou reeks {days} bereik. | Ibhonasi ka-{amount} uma uchungechunge lwakho lufinyelela ku-{days}. |
+| `creditsCheckInButton` | Check in now | Teken nou in | Ngena manje |
+| `creditsCheckingIn` | Checking in... | Teken tans in... | Iyangena... |
+| `creditsAlreadyCheckedIn` | You have already checked in today. Come back tomorrow. | Jy het reeds vandag ingeteken. Kom terug môre. | Usuvele wangena namuhla. Buya kusasa. |
+| `creditsCheckInEarned` | Checked in. You earned {amount}. | Ingeteken. Jy het {amount} verdien. | Ungenile. Uthole {amount}. |
+| `creditsCheckInBonus` | Plus a bonus of {amount}. | Plus 'n bonus van {amount}. | Kanye nebhonasi ka-{amount}. |
+| `creditsCheckInFreezeUsed` | {count, plural, =1{1 freeze was used to keep your streak.} other{{count} freezes were used to keep your streak.}} | {count, plural, =1{1 bevriesing is gebruik om jou reeks te behou.} other{{count} bevriesings is gebruik om jou reeks te behou.}} | {count, plural, =1{Ukuqandisa okungu-1 kusetshenzisiwe ukugcina uchungechunge lwakho.} other{Ukuqandisa okungu-{count} kusetshenzisiwe ukugcina uchungechunge lwakho.}} |
+| `creditsCheckInCappedMonthly` | Your check-in counted for your streak, but no credits were added: you have reached this month's limit on credits you can earn. | Jou inklokslag het vir jou reeks getel, maar geen krediete is bygevoeg nie: jy het hierdie maand se limiet op krediete wat jy kan verdien bereik. | Ukungena kwakho kubaliwe ochungechungeni lwakho, kodwa awekho amakhredithi engeziwe: ufinyelele umkhawulo wale nyanga wamakhredithi ongawathola. |
+| `creditsCheckInCappedMission` | Your check-in counted for your streak, but no credits were added: you have reached this month's limit on mission credits. | Jou inklokslag het vir jou reeks getel, maar geen krediete is bygevoeg nie: jy het hierdie maand se limiet op taakkrediete bereik. | Ukungena kwakho kubaliwe ochungechungeni lwakho, kodwa awekho amakhredithi engeziwe: ufinyelele umkhawulo wale nyanga wamakhredithi emisebenzi. |
+| `creditsCheckInCappedOther` | Your check-in counted for your streak, but no credits were added: an earning limit has been reached. | Jou inklokslag het vir jou reeks getel, maar geen krediete is bygevoeg nie: 'n verdienlimiet is bereik. | Ukungena kwakho kubaliwe ochungechungeni lwakho, kodwa awekho amakhredithi engeziwe: kufinyelelwe umkhawulo wokuthola. |
+| `creditsCheckInPartlyCapped` | An earning limit held some credits back. | 'n Verdienlimiet het sommige krediete teruggehou. | Umkhawulo wokuthola uvimbele amanye amakhredithi. |
+| `creditsMissionsTitle` | Missions | Take | Imisebenzi |
+| `creditsMissionsEmpty` | There are no missions right now. | Daar is nou geen take nie. | Azikho izinhlelo zemisebenzi okwamanje. |
+| `creditsMissionReward` | Reward: {amount} | Beloning: {amount} | Umvuzo: {amount} |
+| `creditsMissionProgress` | {progress} of {target} | {progress} van {target} | {progress} kwangu-{target} |
+| `creditsMissionDone` | Done | Klaar | Kuqediwe |
+| `creditsMissionReady` | Complete. Your reward is on its way. | Voltooi. Jou beloning is op pad. | Kuqediwe. Umvuzo wakho useyeza. |
+| `creditsMissionOnce` | One time | Een keer | Kanye kuphela |
+| `creditsMissionMonthly` | Restarts every month | Begin elke maand weer | Iqala kabusha njalo ngenyanga |
+| `creditsMissionUnknown` | Mission | Taak | Umsebenzi |
+| `creditsMissionFirstCheckin` | First check-in | Eerste inklokslag | Ukungena kokuqala |
+| `creditsMissionProfileComplete` | Complete your profile | Voltooi jou profiel | Qedela iphrofayela yakho |
+| `creditsMissionFirstPurchase` | Make your first purchase | Doen jou eerste aankoop | Yenza ukuthenga kwakho kokuqala |
+| `creditsMissionFirstVoucher` | Redeem your first voucher | Gebruik jou eerste koepon | Sebenzisa ivawusha yakho yokuqala |
+| `creditsMissionFirstRedemption` | Use credits for the first time | Gebruik krediete vir die eerste keer | Sebenzisa amakhredithi okokuqala |
+| `creditsMissionMonthlyCheckins` | Check in often this month | Teken gereeld in hierdie maand | Ngena kaningi kule nyanga |
+| `creditsMissionMonthlyPurchases` | Make purchases this month | Doen aankope hierdie maand | Yenza ukuthenga kule nyanga |
+| `creditsBadgesTitle` | Badges | Kentekens | Amabheji |
+| `creditsBadgesEmpty` | There are no badges yet. | Daar is nog geen kentekens nie. | Awekho amabheji okwamanje. |
+| `creditsBadgeEarned` | Earned on {date} | Verdien op {date} | Kutholwe ngo-{date} |
+| `creditsBadgeEarnedNoDate` | Earned | Verdien | Kutholiwe |
+| `creditsBadgeLocked` | {progress} of {target} | {progress} van {target} | {progress} kwangu-{target} |
+| `creditsBadgeUnknown` | Badge | Kenteken | Ibheji |
+| `creditsBadgeFirstCheckin` | First check-in | Eerste inklokslag | Ukungena kokuqala |
+| `creditsBadgeStreak7` | 7-day streak | 7-dae-reeks | Uchungechunge lwezinsuku ezingu-7 |
+| `creditsBadgeStreak30` | 30-day streak | 30-dae-reeks | Uchungechunge lwezinsuku ezingu-30 |
+| `creditsBadgeStreak100` | 100-day streak | 100-dae-reeks | Uchungechunge lwezinsuku ezingu-100 |
+| `creditsBadgeMissions3` | 3 missions done | 3 take voltooi | Imisebenzi emi-3 iqediwe |
+| `creditsBadgeMissions10` | 10 missions done | 10 take voltooi | Imisebenzi eyi-10 iqediwe |
+| `creditsBadgeFirstRedemption` | First pack used | Eerste pakket gebruik | Iphakheji lokuqala lisetshenzisiwe |
+| `creditsBadgeTierSilver` | Silver tier | Silwervlak | Izinga leSiliva |
+| `creditsBadgeTierGold` | Gold tier | Goudvlak | Izinga leGolide |
+| `creditsLedgerTitle` | History | Geskiedenis | Umlando |
+| `creditsLedgerEmpty` | No credit activity yet. | Nog geen kredietaktiwiteit nie. | Akukabikho umsebenzi wamakhredithi. |
+| `creditsLedgerMore` | Show more | Wys meer | Bonisa okwengeziwe |
+| `creditsEntryEarn` | Earned | Verdien | Kutholiwe |
+| `creditsEntrySpend` | Used | Gebruik | Kusetshenzisiwe |
+| `creditsEntryExpire` | Expired | Verval | Kuphelelwe yisikhathi |
+| `creditsEntryClawback` | Taken back | Teruggeneem | Kubuyiselwe emuva |
+| `creditsEntryForfeit` | Forfeited | Verbeur | Kulahlekile |
+| `creditsSourceStreak` | Daily check-in | Daaglikse inklokslag | Ukungena kwansuku zonke |
+| `creditsSourceStreakBonus` | Check-in bonus | Inklokbonus | Ibhonasi yokungena |
+| `creditsSourceMission` | Mission | Taak | Umsebenzi |
+| `creditsSourcePack` | Data pack | Datapakket | Iphakheji ledatha |
+| `creditsSourceAdmin` | Adjusted by your provider | Aangepas deur jou diensverskaffer | Lilungiswe umhlinzeki wakho |

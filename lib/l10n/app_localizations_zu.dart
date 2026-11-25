@@ -2971,4 +2971,382 @@ class AppLocalizationsZu extends AppLocalizations {
 
   @override
   String get failureCreditsNotAvailable => 'Amabhonasi awatholakali okwamanje.';
+
+  @override
+  String get creditsTitle => 'Amabhonasi';
+
+  @override
+  String get creditsEntrySubtitle =>
+      'Ngena nsuku zonke, qedela imisebenzi bese uguqula amakhredithi abe yidatha';
+
+  @override
+  String get creditsUnavailable => 'Amabhonasi awatholakali okwamanje.';
+
+  @override
+  String creditsAmount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'amakhredithi angu-$count',
+      one: 'ikhredithi eli-1',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String creditsDaysCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'izinsuku ezingu-$count',
+      one: 'usuku olu-1',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get creditsHomeAvailable => 'Atholakalayo ukusetshenziswa';
+
+  @override
+  String creditsHomePending(String amount) {
+    return '$amount amiswe futhi awasetshenziswa okwamanje';
+  }
+
+  @override
+  String creditsExpiringBanner(String amount) {
+    return '$amount azophelelwa yisikhathi phakathi nezinsuku ezingu-30. Awasebenzise ngaphambi kokuba aphelelwe.';
+  }
+
+  @override
+  String get creditsFrozenNotice =>
+      'I-wallet yakho yamabhonasi iqandisiwe, ngakho awukwazi ukuthola noma ukusebenzisa amakhredithi manje. Xhumana nomhlinzeki wakho ukuze uthole usizo.';
+
+  @override
+  String get creditsPausedNotice =>
+      'Amabhonasi amiswe okwesikhashana. Usengakwazi ukubona ibhalansi yakho, kodwa awukwazi ukuthola noma ukusebenzisa amakhredithi aze aqale futhi.';
+
+  @override
+  String get creditsInactiveNotice =>
+      'I-akhawunti yakho ayisebenzi, ngakho awukwazi ukuthola noma ukusebenzisa amakhredithi manje.';
+
+  @override
+  String get creditsMonthlyLimitNotice =>
+      'Ufinyelele umkhawulo wale nyanga wamakhredithi ongawathola. Ukuthola kuzoqala futhi ngenyanga ezayo.';
+
+  @override
+  String creditsStreakChip(String days) {
+    return 'Uchungechunge: $days';
+  }
+
+  @override
+  String creditsTierChip(String tier) {
+    return 'izinga i-$tier';
+  }
+
+  @override
+  String get creditsTierSilver => 'Isiliva';
+
+  @override
+  String get creditsTierGold => 'Igolide';
+
+  @override
+  String get creditsTileRedeem => 'Sebenzisa amakhredithi ukuthola idatha';
+
+  @override
+  String get creditsTileRedeemHint =>
+      'Guqula amakhredithi abe yiphasi ledatha ye-hotspot';
+
+  @override
+  String get creditsTileCheckIn => 'Ukungena kwansuku zonke';
+
+  @override
+  String get creditsTileCheckInHint =>
+      'Ngena nsuku zonke ukuze uthole amakhredithi';
+
+  @override
+  String get creditsTileMissions => 'Imisebenzi';
+
+  @override
+  String get creditsTileBadges => 'Amabheji';
+
+  @override
+  String get creditsTileHistory => 'Umlando';
+
+  @override
+  String creditsTermsLine(String days) {
+    return 'Amakhredithi akayona imali futhi aphelelwa yisikhathi ngemva kwezinsuku ezingu-$days.';
+  }
+
+  @override
+  String get creditsHowTitle => 'Indlela amakhredithi asebenza ngayo';
+
+  @override
+  String creditsHowBody(String days, String mb) {
+    return '• Amakhredithi akayona imali futhi aphelelwa yisikhathi ngemva kwezinsuku ezingu-$days.\n• Ikhredithi eli-1 linikeza i-$mb MB yedatha ye-hotspot uma usebenzisa iphakheji.\n• Izinsuku zokungena zilandela isikhathi saseNingizimu Afrika (eJohannesburg), hhayi iwashi lefoni yakho.';
+  }
+
+  @override
+  String get creditsRedeemTitle => 'Sebenzisa amakhredithi ukuthola idatha';
+
+  @override
+  String get creditsRedeemIntro =>
+      'Khetha iphakheji. Idatha iya ephasini elisha le-hotspot ku-My passes.';
+
+  @override
+  String creditsPackData(String data) {
+    return '$data yedatha ye-hotspot';
+  }
+
+  @override
+  String get creditsPackNotEnough => 'Awanamakhredithi anele atholakalayo';
+
+  @override
+  String creditsRedeemButton(String amount) {
+    return 'Sebenzisa $amount';
+  }
+
+  @override
+  String get creditsRedeeming => 'Iyasebenzisa...';
+
+  @override
+  String get creditsRedeemNoPacks => 'Awekho amaphakheji anikezwayo okwamanje.';
+
+  @override
+  String get creditsRedeemDoneTitle => 'Iphasi lakho selilungile';
+
+  @override
+  String creditsRedeemDoneBody(String amount, String data, String until) {
+    return 'Usebenzise $amount futhi wathola i-$data yedatha ye-hotspot. Iphasi lihlala kuze kube ngu-$until.';
+  }
+
+  @override
+  String get creditsViewPasses => 'Buka amaphasi ami';
+
+  @override
+  String get creditsStreakTitle => 'Ukungena kwansuku zonke';
+
+  @override
+  String creditsStreakDayLine(String date) {
+    return 'Izinsuku zokungena zilandela isikhathi saseNingizimu Afrika (eJohannesburg), hhayi iwashi lefoni yakho. Namuhla ngu-$date.';
+  }
+
+  @override
+  String get creditsStreakRun => 'Uchungechunge lwamanje';
+
+  @override
+  String get creditsStreakBest => 'Uchungechunge olungcono kunazo zonke';
+
+  @override
+  String get creditsStreakTotal => 'Izinsuku zokungena zizonke';
+
+  @override
+  String get creditsStreakFreezes => 'Ukuqandisa uchungechunge';
+
+  @override
+  String get creditsStreakFreezesHint =>
+      'Ukuqandisa kumboza usuku olubuzayo, ukuze uchungechunge lwakho luqhubeke.';
+
+  @override
+  String creditsStreakNext(String days) {
+    return '$days ukuze ufike kubhonasi olandelayo';
+  }
+
+  @override
+  String creditsStreakRuleDaily(String amount) {
+    return 'Ukungena ngakunye kuthola $amount.';
+  }
+
+  @override
+  String creditsStreakRuleBonus(String amount, String days) {
+    return 'Ibhonasi ka-$amount uma uchungechunge lwakho lufinyelela ku-$days.';
+  }
+
+  @override
+  String get creditsCheckInButton => 'Ngena manje';
+
+  @override
+  String get creditsCheckingIn => 'Iyangena...';
+
+  @override
+  String get creditsAlreadyCheckedIn => 'Usuvele wangena namuhla. Buya kusasa.';
+
+  @override
+  String creditsCheckInEarned(String amount) {
+    return 'Ungenile. Uthole $amount.';
+  }
+
+  @override
+  String creditsCheckInBonus(String amount) {
+    return 'Kanye nebhonasi ka-$amount.';
+  }
+
+  @override
+  String creditsCheckInFreezeUsed(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'Ukuqandisa okungu-$count kusetshenzisiwe ukugcina uchungechunge lwakho.',
+      one: 'Ukuqandisa okungu-1 kusetshenzisiwe ukugcina uchungechunge lwakho.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get creditsCheckInCappedMonthly =>
+      'Ukungena kwakho kubaliwe ochungechungeni lwakho, kodwa awekho amakhredithi engeziwe: ufinyelele umkhawulo wale nyanga wamakhredithi ongawathola.';
+
+  @override
+  String get creditsCheckInCappedMission =>
+      'Ukungena kwakho kubaliwe ochungechungeni lwakho, kodwa awekho amakhredithi engeziwe: ufinyelele umkhawulo wale nyanga wamakhredithi emisebenzi.';
+
+  @override
+  String get creditsCheckInCappedOther =>
+      'Ukungena kwakho kubaliwe ochungechungeni lwakho, kodwa awekho amakhredithi engeziwe: kufinyelelwe umkhawulo wokuthola.';
+
+  @override
+  String get creditsCheckInPartlyCapped =>
+      'Umkhawulo wokuthola uvimbele amanye amakhredithi.';
+
+  @override
+  String get creditsMissionsTitle => 'Imisebenzi';
+
+  @override
+  String get creditsMissionsEmpty => 'Azikho izinhlelo zemisebenzi okwamanje.';
+
+  @override
+  String creditsMissionReward(String amount) {
+    return 'Umvuzo: $amount';
+  }
+
+  @override
+  String creditsMissionProgress(String progress, String target) {
+    return '$progress kwangu-$target';
+  }
+
+  @override
+  String get creditsMissionDone => 'Kuqediwe';
+
+  @override
+  String get creditsMissionReady => 'Kuqediwe. Umvuzo wakho useyeza.';
+
+  @override
+  String get creditsMissionOnce => 'Kanye kuphela';
+
+  @override
+  String get creditsMissionMonthly => 'Iqala kabusha njalo ngenyanga';
+
+  @override
+  String get creditsMissionUnknown => 'Umsebenzi';
+
+  @override
+  String get creditsMissionFirstCheckin => 'Ukungena kokuqala';
+
+  @override
+  String get creditsMissionProfileComplete => 'Qedela iphrofayela yakho';
+
+  @override
+  String get creditsMissionFirstPurchase => 'Yenza ukuthenga kwakho kokuqala';
+
+  @override
+  String get creditsMissionFirstVoucher => 'Sebenzisa ivawusha yakho yokuqala';
+
+  @override
+  String get creditsMissionFirstRedemption =>
+      'Sebenzisa amakhredithi okokuqala';
+
+  @override
+  String get creditsMissionMonthlyCheckins => 'Ngena kaningi kule nyanga';
+
+  @override
+  String get creditsMissionMonthlyPurchases => 'Yenza ukuthenga kule nyanga';
+
+  @override
+  String get creditsBadgesTitle => 'Amabheji';
+
+  @override
+  String get creditsBadgesEmpty => 'Awekho amabheji okwamanje.';
+
+  @override
+  String creditsBadgeEarned(String date) {
+    return 'Kutholwe ngo-$date';
+  }
+
+  @override
+  String get creditsBadgeEarnedNoDate => 'Kutholiwe';
+
+  @override
+  String creditsBadgeLocked(String progress, String target) {
+    return '$progress kwangu-$target';
+  }
+
+  @override
+  String get creditsBadgeUnknown => 'Ibheji';
+
+  @override
+  String get creditsBadgeFirstCheckin => 'Ukungena kokuqala';
+
+  @override
+  String get creditsBadgeStreak7 => 'Uchungechunge lwezinsuku ezingu-7';
+
+  @override
+  String get creditsBadgeStreak30 => 'Uchungechunge lwezinsuku ezingu-30';
+
+  @override
+  String get creditsBadgeStreak100 => 'Uchungechunge lwezinsuku ezingu-100';
+
+  @override
+  String get creditsBadgeMissions3 => 'Imisebenzi emi-3 iqediwe';
+
+  @override
+  String get creditsBadgeMissions10 => 'Imisebenzi eyi-10 iqediwe';
+
+  @override
+  String get creditsBadgeFirstRedemption =>
+      'Iphakheji lokuqala lisetshenzisiwe';
+
+  @override
+  String get creditsBadgeTierSilver => 'Izinga leSiliva';
+
+  @override
+  String get creditsBadgeTierGold => 'Izinga leGolide';
+
+  @override
+  String get creditsLedgerTitle => 'Umlando';
+
+  @override
+  String get creditsLedgerEmpty => 'Akukabikho umsebenzi wamakhredithi.';
+
+  @override
+  String get creditsLedgerMore => 'Bonisa okwengeziwe';
+
+  @override
+  String get creditsEntryEarn => 'Kutholiwe';
+
+  @override
+  String get creditsEntrySpend => 'Kusetshenzisiwe';
+
+  @override
+  String get creditsEntryExpire => 'Kuphelelwe yisikhathi';
+
+  @override
+  String get creditsEntryClawback => 'Kubuyiselwe emuva';
+
+  @override
+  String get creditsEntryForfeit => 'Kulahlekile';
+
+  @override
+  String get creditsSourceStreak => 'Ukungena kwansuku zonke';
+
+  @override
+  String get creditsSourceStreakBonus => 'Ibhonasi yokungena';
+
+  @override
+  String get creditsSourceMission => 'Umsebenzi';
+
+  @override
+  String get creditsSourcePack => 'Iphakheji ledatha';
+
+  @override
+  String get creditsSourceAdmin => 'Lilungiswe umhlinzeki wakho';
 }
