@@ -1,0 +1,17 @@
+{
+  "operations": [
+    {
+      "method": "get",
+      "path": "/v1/me/old"
+    },
+    {
+      "method": "get",
+      "path": "/v1/me/thing"
+    },
+    {
+      "method": "post",
+      "path": "/v1/me/thing"
+    }
+  ],
+  "outsideContract": []
+}
