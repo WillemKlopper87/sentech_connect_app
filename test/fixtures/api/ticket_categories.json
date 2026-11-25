@@ -1,0 +1,7 @@
+{
+  "items": [
+    {"slug": "billing", "name": "Billing"},
+    {"slug": "connection", "name": "Connection problems"},
+    {"slug": "other", "name": "Something else"}
+  ]
+}

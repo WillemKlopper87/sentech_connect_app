@@ -1,0 +1,13 @@
+{
+  "reference": "TKT-7K3M9Q2A",
+  "status": "pending_customer",
+  "category": "billing",
+  "category_name": "Billing",
+  "created_at": "2026-11-20T08:15:00Z",
+  "updated_at": "2026-11-21T09:30:00Z",
+  "awaiting_reply": true,
+  "messages": [
+    {"author": "you", "body": "I was charged twice for my pass.", "created_at": "2026-11-20T08:15:00Z"},
+    {"author": "support", "body": "Thanks, can you tell us the date of the second charge?", "created_at": "2026-11-21T09:30:00Z"}
+  ]
+}

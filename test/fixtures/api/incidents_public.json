@@ -1,0 +1,19 @@
+{
+  "items": [
+    {
+      "id": "0b9c3a52-6f1e-4c0e-9d5a-1a2b3c4d5e6f",
+      "site_id": null,
+      "title": "Slow speeds in the area",
+      "severity": "degraded",
+      "status": "identified",
+      "body": "We have found the fault and are working on it.",
+      "started_at": "2026-11-25T06:00:00Z",
+      "updated_at": "2026-11-25T07:10:00Z",
+      "resolved_at": null,
+      "updates": [
+        {"status": "investigating", "body": "We are looking into slow speeds.", "created_at": "2026-11-25T06:00:00Z"},
+        {"status": "identified", "body": "We have found the fault and are working on it.", "created_at": "2026-11-25T07:10:00Z"}
+      ]
+    }
+  ]
+}
