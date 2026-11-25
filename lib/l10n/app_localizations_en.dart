@@ -3734,7 +3734,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ticketsUnavailable =>
-      'Support tickets are not available right now. You can still send a message from the Help tab.';
+      'Support tickets are not available right now. You can still send your provider a message.';
 
   @override
   String get ticketsLoadMore => 'Show more';
@@ -3803,11 +3803,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ticketsMarkSolvedBody =>
-      'If you write again later, the ticket opens again.';
+      'After this, a reply can reopen it for a few days.';
 
   @override
   String get ticketsResolvedNote =>
-      'This ticket is marked as solved. Write a reply to open it again.';
+      'This ticket is marked as solved. A reply can reopen it for a few days.';
 
   @override
   String get ticketsClosedNote =>
@@ -3864,7 +3864,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ticketsUnknownOutcome =>
-      'We could not confirm that your message was sent. If you try again with the same text, it will not be sent twice.';
+      'We could not confirm that your message was sent. If you try again with the same text while this app session lasts, it will not be sent twice.';
 
   @override
   String get ticketsCheckFirst =>

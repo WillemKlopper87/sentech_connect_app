@@ -227,7 +227,8 @@ String? authRedirect(
   final location = uri.path;
   if (!auth.isSignedIn) {
     if (!AppRoutes.isProtected(location)) return null;
-    final target = uri.toString();
+    // A ticket reference is not carried into the login redirect: signing in returns to the list.
+    final target = location.startsWith(AppRoutes.tickets) ? AppRoutes.tickets : uri.toString();
     if (location == AppRoutes.main) return AppRoutes.login;
     return Uri(
       path: AppRoutes.login,

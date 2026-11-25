@@ -1,12 +1,14 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sentech_connect_app/core/error/failure.dart';
 import 'package:sentech_connect_app/features/support/domain/entities/ticket.dart';
 import 'package:sentech_connect_app/features/support/presentation/bloc/ticket_thread_cubit.dart';
 import 'package:sentech_connect_app/features/support/presentation/tickets_text.dart';
 import 'package:sentech_connect_app/features/support/presentation/widgets/ticket_status_chip.dart';
+import 'package:sentech_connect_app/features/support/presentation/widgets/tickets_unavailable_view.dart';
 import 'package:sentech_connect_app/l10n/l10n.dart';
 import 'package:sentech_connect_app/shared/widgets/failure_view.dart';
 
@@ -94,7 +96,7 @@ class _TicketThreadPageState extends State<TicketThreadPage> {
       case ThreadStatus.loading:
         return const Center(child: CircularProgressIndicator());
       case ThreadStatus.unavailable:
-        return _Message(l10n.ticketsUnavailable);
+        return const TicketsUnavailableView();
       case ThreadStatus.notFound:
         return _Message(l10n.failureTicketNotFound);
       case ThreadStatus.error:
@@ -162,7 +164,7 @@ class _Header extends StatelessWidget {
     final l10n = context.l10n;
     final theme = Theme.of(context);
     final tag = Localizations.localeOf(context).toLanguageTag();
-    final waiting = thread.awaitingReply && !thread.isClosed;
+    final waiting = thread.awaitingReply && !thread.isClosed && !thread.isResolved;
     final canSolve = !thread.isClosed && !thread.isResolved;
     final closeFailure = state.closeFailure;
     return Column(
@@ -185,7 +187,7 @@ class _Header extends StatelessWidget {
           const SizedBox(height: 8),
           OutlinedButton(
             key: const Key('ticket-mark-solved'),
-            onPressed: state.closing ? null : onMarkSolved,
+            onPressed: state.closing || state.replyStatus == ReplyStatus.sending ? null : onMarkSolved,
             child: state.closing
                 ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
                 : Text(l10n.ticketsMarkSolved),
@@ -321,11 +323,21 @@ class _Composer extends StatelessWidget {
                 minLines: 1,
                 maxLines: 5,
                 maxLength: ticketBodyMaxLength,
+                // Over the limit can be typed (pasted text) and is then refused with a message, not silently cut.
+                maxLengthEnforcement: MaxLengthEnforcement.none,
                 keyboardType: TextInputType.multiline,
                 textCapitalization: TextCapitalization.sentences,
                 // What the customer writes to support is personal: the keyboard does not learn from it.
                 enableIMEPersonalizedLearning: false,
-                decoration: InputDecoration(labelText: l10n.ticketsReplyHint),
+                decoration: InputDecoration(
+                  labelText: l10n.ticketsReplyHint,
+                  errorText: switch (state.replyIssue) {
+                    ReplyIssue.empty => l10n.ticketsNewIssueEmpty,
+                    ReplyIssue.tooLong => l10n.ticketsNewIssueTooLong(ticketBodyMaxLength),
+                    null => null,
+                  },
+                  errorMaxLines: 3,
+                ),
               ),
               const SizedBox(height: 8),
               FilledButton(

@@ -6283,7 +6283,7 @@ abstract class AppLocalizations {
   /// Plain-words notice when the provider has support tickets off or the server is older. Help is the name of the Help tab.
   ///
   /// In en, this message translates to:
-  /// **'Support tickets are not available right now. You can still send a message from the Help tab.'**
+  /// **'Support tickets are not available right now. You can still send your provider a message.'**
   String get ticketsUnavailable;
 
   /// Button under the tickets list that loads the next page.
@@ -6409,13 +6409,13 @@ abstract class AppLocalizations {
   /// Body of the confirmation before a ticket is marked as solved. Policy wording: English until reviewed.
   ///
   /// In en, this message translates to:
-  /// **'If you write again later, the ticket opens again.'**
+  /// **'After this, a reply can reopen it for a few days.'**
   String get ticketsMarkSolvedBody;
 
   /// Note on a ticket marked as solved. Policy wording: English until reviewed.
   ///
   /// In en, this message translates to:
-  /// **'This ticket is marked as solved. Write a reply to open it again.'**
+  /// **'This ticket is marked as solved. A reply can reopen it for a few days.'**
   String get ticketsResolvedNote;
 
   /// Note on a closed ticket, in place of the reply box. Policy wording: English until reviewed.
@@ -6511,7 +6511,7 @@ abstract class AppLocalizations {
   /// Notice after a send whose outcome is unknown (lost connection). Promise wording: English until reviewed.
   ///
   /// In en, this message translates to:
-  /// **'We could not confirm that your message was sent. If you try again with the same text, it will not be sent twice.'**
+  /// **'We could not confirm that your message was sent. If you try again with the same text while this app session lasts, it will not be sent twice.'**
   String get ticketsUnknownOutcome;
 
   /// Notice when the customer changed the text after an unknown outcome: the app shows the latest tickets first. English until reviewed.

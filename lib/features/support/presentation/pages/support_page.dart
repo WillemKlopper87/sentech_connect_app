@@ -24,7 +24,6 @@ class SupportPage extends StatelessWidget {
   final VoidCallback? onOpenTickets;
   final VoidCallback? onNewTicket;
 
-
   /// The FAQ list is mock content: hidden in prod, where only the contact
   /// actions (WhatsApp, message support) show.
   final bool showFaqs;
@@ -35,19 +34,27 @@ class SupportPage extends StatelessWidget {
     final l10n = context.l10n;
     return Scaffold(
       appBar: AppBar(title: Text(l10n.supportTitle)),
+      // Everything scrolls together (the incident notice can be long, and text can be large), so the
+      // contact actions are always reachable. Without FAQs (prod) no SupportCubit is needed.
       body: !showFaqs
-          ? Padding(
+          ? ListView(
               padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  if (onOpenTickets != null) const IncidentNoticeCard(),
-                  _ContactActions(whatsAppNumber: whatsAppNumber, onOpenTickets: onOpenTickets, onNewTicket: onNewTicket),
-                ],
-              ),
+              children: [
+                if (onOpenTickets != null) const IncidentNoticeCard(),
+                _ContactActions(
+                  whatsAppNumber: whatsAppNumber,
+                  onOpenTickets: onOpenTickets,
+                  onNewTicket: onNewTicket,
+                ),
+              ],
             )
           : BlocBuilder<SupportCubit, SupportState>(
               builder: (context, state) {
+                final actions = _ContactActions(
+                  whatsAppNumber: whatsAppNumber,
+                  onOpenTickets: onOpenTickets,
+                  onNewTicket: onNewTicket,
+                );
                 if (state.status == SupportStatus.loading) {
                   return const Center(child: CircularProgressIndicator());
                 }
@@ -66,47 +73,59 @@ class SupportPage extends StatelessWidget {
                           faq.question.toLowerCase().contains(query),
                     )
                     .toList();
-                return Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      if (onOpenTickets != null) const IncidentNoticeCard(),
-                      TextField(
-                        onChanged: (value) =>
-                            context.read<SupportCubit>().search(value),
-                        decoration: InputDecoration(
-                          hintText: l10n.supportSearchHint,
-                          prefixIcon: const Icon(Icons.search, size: 20),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Expanded(
-                        child: faqs.isEmpty
-                            ? Center(
-                                child: Text(
-                                  l10n.supportNoResults(state.query),
-                                  style: theme.textTheme.bodyMedium?.copyWith(
-                                    color: theme.colorScheme.onSurfaceVariant,
-                                  ),
-                                ),
-                              )
-                            : ListView.separated(
-                                itemCount: faqs.length,
-                                separatorBuilder: (_, _) =>
-                                    const Divider(height: 1),
-                                itemBuilder: (context, i) => _FaqTile(
-                                  faq: faqs[i],
-                                  expanded: state.expandedId == faqs[i].id,
-                                  onTap: () => context
-                                      .read<SupportCubit>()
-                                      .toggleExpanded(faqs[i].id),
+                // The FAQs and the incident notice scroll; the contact actions stay below them, in an area that
+                // itself scrolls when text is large, so WhatsApp, New ticket and My tickets are always reachable.
+                return Column(
+                  children: [
+                    Expanded(
+                      child: ListView(
+                        padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
+                        children: [
+                          if (onOpenTickets != null) const IncidentNoticeCard(),
+                          TextField(
+                            onChanged: (value) =>
+                                context.read<SupportCubit>().search(value),
+                            decoration: InputDecoration(
+                              hintText: l10n.supportSearchHint,
+                              prefixIcon: const Icon(Icons.search, size: 20),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          if (faqs.isEmpty)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 24),
+                              child: Text(
+                                l10n.supportNoResults(state.query),
+                                textAlign: TextAlign.center,
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  color: theme.colorScheme.onSurfaceVariant,
                                 ),
                               ),
+                            )
+                          else
+                            for (var i = 0; i < faqs.length; i++) ...[
+                              if (i > 0) const Divider(height: 1),
+                              _FaqTile(
+                                faq: faqs[i],
+                                expanded: state.expandedId == faqs[i].id,
+                                onTap: () => context
+                                    .read<SupportCubit>()
+                                    .toggleExpanded(faqs[i].id),
+                              ),
+                            ],
+                        ],
                       ),
-                      _ContactActions(whatsAppNumber: whatsAppNumber, onOpenTickets: onOpenTickets, onNewTicket: onNewTicket),
-                    ],
-                  ),
+                    ),
+                    ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxHeight: MediaQuery.sizeOf(context).height * 0.5,
+                      ),
+                      child: SingleChildScrollView(
+                        padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+                        child: actions,
+                      ),
+                    ),
+                  ],
                 );
               },
             ),
@@ -189,7 +208,11 @@ class _FaqTile extends StatelessWidget {
 /// "Still stuck?": WhatsApp (when the provider published a number) and the
 /// real message form.
 class _ContactActions extends StatelessWidget {
-  const _ContactActions({this.whatsAppNumber, this.onOpenTickets, this.onNewTicket});
+  const _ContactActions({
+    this.whatsAppNumber,
+    this.onOpenTickets,
+    this.onNewTicket,
+  });
 
   final String? whatsAppNumber;
   final VoidCallback? onOpenTickets;

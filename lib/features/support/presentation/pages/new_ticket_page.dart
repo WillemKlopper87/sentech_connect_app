@@ -1,11 +1,13 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sentech_connect_app/features/support/domain/entities/ticket.dart';
 import 'package:sentech_connect_app/features/support/presentation/bloc/new_ticket_cubit.dart';
 import 'package:sentech_connect_app/features/support/presentation/tickets_text.dart';
 import 'package:sentech_connect_app/features/support/presentation/widgets/ticket_status_chip.dart';
+import 'package:sentech_connect_app/features/support/presentation/widgets/tickets_unavailable_view.dart';
 import 'package:sentech_connect_app/l10n/l10n.dart';
 import 'package:sentech_connect_app/shared/widgets/failure_view.dart';
 
@@ -71,16 +73,10 @@ class _NewTicketPageState extends State<NewTicketPage> {
               if (mounted) _syncTicker(held);
             });
             if (state.status == NewTicketStatus.done) return _Done(reference: state.reference!, onOpen: widget.onOpenTicket, onDone: widget.onDone);
-            if (state.status == NewTicketStatus.unavailable) {
-              return Center(
-                child: Padding(padding: const EdgeInsets.all(24), child: Text(l10n.ticketsUnavailable, textAlign: TextAlign.center)),
-              );
-            }
+            if (state.status == NewTicketStatus.unavailable) return const TicketsUnavailableView();
             return switch (state.categoriesStatus) {
               CategoriesStatus.loading => const Center(child: CircularProgressIndicator()),
-              CategoriesStatus.unavailable => Center(
-                child: Padding(padding: const EdgeInsets.all(24), child: Text(l10n.ticketsUnavailable, textAlign: TextAlign.center)),
-              ),
+              CategoriesStatus.unavailable => const TicketsUnavailableView(),
               CategoriesStatus.error => FailureView(failure: state.failure, onRetry: cubit.loadCategories),
               CategoriesStatus.ready => _form(context, state, held ? wait : null),
             };
@@ -126,6 +122,8 @@ class _NewTicketPageState extends State<NewTicketPage> {
           minLines: 5,
           maxLines: 10,
           maxLength: ticketBodyMaxLength,
+          // Over the limit can be typed (pasted text) and is then refused with a message, not silently cut.
+          maxLengthEnforcement: MaxLengthEnforcement.none,
           keyboardType: TextInputType.multiline,
           textCapitalization: TextCapitalization.sentences,
           // What the customer writes to support is personal: the keyboard does not learn from it.

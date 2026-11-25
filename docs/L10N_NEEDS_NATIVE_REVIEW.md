@@ -669,7 +669,7 @@ No string in this feature promises a response time, and none may be added withou
 | `ticketsEntrySubtitle` | Follow your messages to support | Volg jou boodskappe aan ondersteuning | Landela imiyalezo yakho eya osizweni |
 | `ticketsNewTitle` | New ticket | Nuwe kaartjie | Ithikithi elisha |
 | `ticketsEmpty` | You have no tickets yet. | Jy het nog geen kaartjies nie. | Awunamathikithi okwamanje. |
-| `ticketsUnavailable` | Support tickets are not available right now. You can still send a message from the Help tab. | Ondersteuningskaartjies is nou nie beskikbaar nie. Jy kan steeds 'n boodskap vanaf die Hulp-oortjie stuur. | Amathikithi osizo awatholakali okwamanje. Usengathumela umyalezo ngethebhu Yosizo. |
+| `ticketsUnavailable` | Support tickets are not available right now. You can still send your provider a message. | Ondersteuningskaartjies is nou nie beskikbaar nie. Jy kan steeds vir jou diensverskaffer 'n boodskap stuur. | Amathikithi osizo awatholakali okwamanje. Usengathumela umhlinzeki wakho umyalezo. |
 | `ticketsLoadMore` | Show more | Wys meer | Bonisa okuningi |
 | `ticketsOpenedOn` | Opened {date} | Geopen {date} | Livulwe ngo-{date} |
 | `ticketsReference` | Reference {reference} | Verwysing {reference} | Inkomba {reference} |
@@ -722,11 +722,11 @@ No string in this feature promises a response time, and none may be added withou
 | Key | English |
 |---|---|
 | `ticketsMessageRemoved` | The text of this message is no longer available. |
-| `ticketsMarkSolvedBody` | If you write again later, the ticket opens again. |
-| `ticketsResolvedNote` | This ticket is marked as solved. Write a reply to open it again. |
+| `ticketsMarkSolvedBody` | After this, a reply can reopen it for a few days. |
+| `ticketsResolvedNote` | This ticket is marked as solved. A reply can reopen it for a few days. |
 | `ticketsClosedNote` | This ticket is closed, so it cannot take more messages. If you still need help, open a new ticket. |
 | `ticketsClosedRefused` | This ticket was closed, so your message was not sent. Open a new ticket if you still need help. |
-| `ticketsUnknownOutcome` | We could not confirm that your message was sent. If you try again with the same text, it will not be sent twice. |
+| `ticketsUnknownOutcome` | We could not confirm that your message was sent. If you try again with the same text while this app session lasts, it will not be sent twice. |
 | `ticketsCheckFirst` | Your earlier message may have been sent. Check your latest tickets below. If it is not there, send again. |
 | `ticketsReplyCheckFirst` | Your earlier reply may have been sent. Check the conversation above. If it is not there, send again. |
 | `ticketsHeldRateLimit` | You have sent a lot of messages in the last hour, so sending is paused. You can send again in {time}. |

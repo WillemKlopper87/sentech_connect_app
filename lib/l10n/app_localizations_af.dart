@@ -3751,7 +3751,7 @@ class AppLocalizationsAf extends AppLocalizations {
 
   @override
   String get ticketsUnavailable =>
-      'Ondersteuningskaartjies is nou nie beskikbaar nie. Jy kan steeds \'n boodskap vanaf die Hulp-oortjie stuur.';
+      'Ondersteuningskaartjies is nou nie beskikbaar nie. Jy kan steeds vir jou diensverskaffer \'n boodskap stuur.';
 
   @override
   String get ticketsLoadMore => 'Wys meer';
@@ -3820,11 +3820,11 @@ class AppLocalizationsAf extends AppLocalizations {
 
   @override
   String get ticketsMarkSolvedBody =>
-      'If you write again later, the ticket opens again.';
+      'After this, a reply can reopen it for a few days.';
 
   @override
   String get ticketsResolvedNote =>
-      'This ticket is marked as solved. Write a reply to open it again.';
+      'This ticket is marked as solved. A reply can reopen it for a few days.';
 
   @override
   String get ticketsClosedNote =>
@@ -3881,7 +3881,7 @@ class AppLocalizationsAf extends AppLocalizations {
 
   @override
   String get ticketsUnknownOutcome =>
-      'We could not confirm that your message was sent. If you try again with the same text, it will not be sent twice.';
+      'We could not confirm that your message was sent. If you try again with the same text while this app session lasts, it will not be sent twice.';
 
   @override
   String get ticketsCheckFirst =>

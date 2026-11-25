@@ -4,6 +4,7 @@ import 'package:sentech_connect_app/features/support/domain/entities/ticket.dart
 import 'package:sentech_connect_app/features/support/presentation/bloc/tickets_cubit.dart';
 import 'package:sentech_connect_app/features/support/presentation/tickets_text.dart';
 import 'package:sentech_connect_app/features/support/presentation/widgets/ticket_status_chip.dart';
+import 'package:sentech_connect_app/features/support/presentation/widgets/tickets_unavailable_view.dart';
 import 'package:sentech_connect_app/l10n/l10n.dart';
 import 'package:sentech_connect_app/shared/widgets/failure_view.dart';
 
@@ -24,7 +25,7 @@ class TicketsPage extends StatelessWidget {
         child: BlocBuilder<TicketsCubit, TicketsState>(
           builder: (context, state) => switch (state.status) {
             TicketsStatus.loading => const Center(child: CircularProgressIndicator()),
-            TicketsStatus.unavailable => _Message(l10n.ticketsUnavailable),
+            TicketsStatus.unavailable => const TicketsUnavailableView(),
             TicketsStatus.error => FailureView(failure: state.failure, onRetry: () => context.read<TicketsCubit>().refresh()),
             TicketsStatus.ready => RefreshIndicator(
               onRefresh: () => context.read<TicketsCubit>().refresh(),
@@ -68,20 +69,6 @@ class TicketsPage extends StatelessWidget {
   }
 }
 
-class _Message extends StatelessWidget {
-  const _Message(this.text);
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) => Center(
-    child: Padding(
-      padding: const EdgeInsets.all(24),
-      child: Text(text, textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodyMedium),
-    ),
-  );
-}
-
 class _TicketTile extends StatelessWidget {
   const _TicketTile({required this.ticket, required this.onTap});
 
@@ -94,7 +81,7 @@ class _TicketTile extends StatelessWidget {
     final theme = Theme.of(context);
     final tag = Localizations.localeOf(context).toLanguageTag();
     final title = ticketCategoryLabel(l10n, ticket);
-    final waiting = ticket.awaitingReply && !ticket.isClosed;
+    final waiting = ticket.awaitingReply && !ticket.isClosed && !ticket.isResolved;
     return Semantics(
       container: true,
       button: true,

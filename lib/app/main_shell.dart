@@ -172,9 +172,10 @@ class _MainShellState extends State<MainShell> {
           child: DashboardPage(
             onBuyPass: () => _goToShop(ProductCategory.hotspotPass),
             onTopUp: () => _goToShop(ProductCategory.voucher),
-            // A real message to the provider's support (POST /v1/support/messages).
-            onReportIssue: () =>
-                submitSupportTicket(context, topic: SupportTopic.connecting),
+            // With ticketing on, a report is a ticket the customer can follow under My tickets;
+            // otherwise it is the real one-way message to the provider's support (POST /v1/support/messages).
+            // No topic is preselected: the server's categories are the provider's own, so none is guessed.
+            onReportIssue: widget.onNewTicket ?? () => submitSupportTicket(context, topic: SupportTopic.connecting),
             onOpenPromotions: (widget.showPromotions ?? widget.showMockFeatures)
                 ? widget.onOpenPromotions
                 : null,
