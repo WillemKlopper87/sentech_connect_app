@@ -15,7 +15,7 @@ The app has two flavors (`--dart-define=APP_FLAVOR=demo|prod`):
 - **`demo`** (default in debug/profile): every repository is a mock; works fully offline. All tests run in this flavor.
 - **`prod`**: tenants, sign-in (SMS one-time code), catalogue (hotspot passes), orders, payment hand-off, "My passes", profile, consents, data export and account deletion use the Sentech Connect platform API. It **requires** `--dart-define=API_BASE_URL=https://...` (an origin only; https, except cleartext to local dev hosts in debug builds). **Release builds must set `APP_FLAVOR` explicitly** (`demo` or `prod`); a release build without it stops at startup.
 
-Still mock in **both** flavors because the platform has no API for them yet (listed in `stillMockInProd`, `lib/app/locator.dart`): coverage, free Wi-Fi, promotions, the support FAQ list and RICA liveness. Sending a support message is real in both flavors (`HttpSupportMessageRepository`, `POST /v1/support/messages`; the demo flavor uses a labelled mock). Voucher redemption is real in prod (`HttpVoucherRepository`, `POST /v1/me/vouchers/redeem`), so the Scan tab shows in both flavors. The hotspot map is real in prod (`GET /v1/hotspots`). One-tap Wi-Fi login ("Get online now", `POST /v1/me/hotspot/login-token`, no MAC) is real in prod and mock in demo (`MockHotspotLoginRepository`); it shows only with the `hotspot_radius` flag on and an active pass. In a prod build the Help tab shows only the contact actions (WhatsApp, message support), not the mock FAQ list, and the mock-backed free Wi-Fi and Promotions entry points entry points are hidden (shown in demo only). The Home dashboard has no invented router or usage card any more: it shows the customer's passes plus, with the `subscriber_billing` module on, their services, open invoices and ID check status (real data, S9).
+Still mock in **both** flavors because the platform has no API for them yet (listed in `stillMockInProd`, `lib/app/locator.dart`): free Wi-Fi, promotions, the support FAQ list and RICA liveness. Sending a support message is real in both flavors (`HttpSupportMessageRepository`, `POST /v1/support/messages`; the demo flavor uses a labelled mock). Voucher redemption is real in prod (`HttpVoucherRepository`, `POST /v1/me/vouchers/redeem`), so the Scan tab shows in both flavors. The hotspot map is real in prod (`GET /v1/hotspots`). One-tap Wi-Fi login ("Get online now", `POST /v1/me/hotspot/login-token`, no MAC) is real in prod and mock in demo (`MockHotspotLoginRepository`); it shows only with the `hotspot_radius` flag on and an active pass. In a prod build the Help tab shows only the contact actions (WhatsApp, message support), not the mock FAQ list, and the mock-backed free Wi-Fi and Promotions entry points entry points are hidden (shown in demo only). The Home dashboard has no invented router or usage card any more: it shows the customer's passes plus, with the `subscriber_billing` module on, their services, open invoices and ID check status (real data, S9).
 
 ## Quick start
 
@@ -98,7 +98,7 @@ Nothing below contains a real secret; each item needs an input from the owner be
 | **iOS** | `ios/` generated with `--org za.co.sentech` (bundle id `za.co.sentech.sentechConnectApp`); Info.plist has camera, location-when-in-use and Face ID descriptions. Not built or signed. `permission_handler` needs the `PERMISSION_NOTIFICATIONS=1` macro in the Podfile once it exists. | Apple team id, final bundle id, signing, APNs key |
 | **Privacy policy** | `privacyPolicyUrl` placeholder in `lib/core/privacy/privacy_constants.dart` | Published policy URL |
 | **Platform API** | `--dart-define=APP_FLAVOR=prod --dart-define=API_BASE_URL=https://…`; tenants, OTP sign-in, passes, orders, payments, entitlements, profile/consents/export/delete. | Production API hostname (then certificate pinning with a backup pin), SMS provider, Netcash merchant account per tenant |
-| **Still mock** | Coverage, free Wi-Fi, usage/router, promotions, support, RICA liveness (`stillMockInProd`). See the table below. | Backend APIs for each |
+| **Still mock** | Free Wi-Fi, usage/router, promotions, support, RICA liveness (`stillMockInProd`). See the table below. | Backend APIs for each |
 
 ### Mock repositories and their real routes
 
@@ -106,7 +106,6 @@ These repositories are listed in `stillMockInProd` (`lib/app/locator.dart`) and 
 
 | Area | Mock file | Real API route today | Swapped in |
 |---|---|---|---|
-| Coverage | `coverage/data/repositories/mock_coverage_repository.dart` | `GET /v1/coverage/check?lat&lon&tenant`, `GET /v1/coverage/meta`, `GET /v1/tiles/{layer}/{z}/{x}/{y}.mvt`, `GET /v1/geocode/search` | WP-26 |
 | Free WiFi | `wifi_voucher/data/repositories/mock_free_wifi_repository.dart` | none yet (free time) | WP-23 |
 | Hotspots | real: `wifi_voucher/data/repositories/http_wifi_hotspots_repository.dart` (mock for demo) | `GET /v1/hotspots?tenant&bbox&cursor&limit` | done |
 | Router/CPE status and fixed-wireless usage | none: the invented mock was removed in S9 and the card is hidden | none for customers (platform task P10) | not built |
@@ -148,7 +147,7 @@ lib/features/<feature>/
 └── presentation/   # Cubit (state) + Flutter widgets (pages).
 ```
 
-`domain/repositories/*.dart` is the seam: swap `MockCoverageRepository` for `HttpCoverageRepository` and nothing in `presentation/` changes, because the Cubit only ever talks to the interface.
+`domain/repositories/*.dart` is the seam: coverage is already swapped (`HttpCoverageRepository` in prod, the labelled `MockCoverageRepository` demo data in the demo flavor, see "Public coverage (CV17)" in `docs/BACKEND_CONTRACT_SYNC.md`), and nothing in `presentation/` changed, because the Cubit only ever talks to the interface.
 
 Full diagram: [`docs/architecture.md`](docs/architecture.md).
 
@@ -218,7 +217,7 @@ Full route graph: [`docs/architecture.md`](docs/architecture.md).
 - **Ad-gated free WiFi** uses a *simulated* ad (a 6-second countdown dialog), not a real ad network — needs a Google AdMob account + unit IDs to go live (see `wifi_voucher/presentation/pages/watch_ad_dialog.dart`).
 - **RICA liveness** should be a certified vendor (Smile Identity recommended — see `docs/prompt-critique.md`), not `google_mlkit_face_detection` alone; the RICA screen currently mocks the liveness result via `MockLivenessRepository`.
 - **Offline map tile caching** ("pre-load South Africa, refresh monthly on WiFi") was explicitly scoped *out* of this pass — `OsmMap` fetches live OSM tiles each time. Worth its own design task (storage budget, background sync, cache invalidation) before building.
-- **Coverage / CPE telemetry / promotions / hotspot APIs** are all named `Mock*Repository` because Sentech's real endpoints for these don't exist yet or weren't provided.
+- **CPE telemetry / promotions APIs** are named `Mock*Repository` because Sentech's real endpoints for these don't exist yet or weren't provided.
 
 ## Swapping a mock for a real backend
 

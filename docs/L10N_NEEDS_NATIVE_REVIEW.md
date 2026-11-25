@@ -527,3 +527,120 @@ Terms a native reviewer should settle first: "Rewards" (af Belonings, zu Amabhon
 | `creditsTryAgain` | Try again | Probeer weer | Zama futhi |
 | `creditsAmountPlus` | plus {amount} | plus {amount} | kunezelwe {amount} |
 | `creditsAmountMinus` | minus {amount} | minus {amount} | kususiwe {amount} |
+
+## Coverage check (CV17, 2026-11-26)
+
+The live coverage screen (search, pin drop, answer cards, waiting list, leave the list). Two kinds of string:
+
+1. **Machine-quality drafts** (labels and plain error messages): a native Afrikaans and a native isiZulu speaker must review every line before release (gate L3). Placeholders must stay.
+2. **English fallbacks** (claims, disclaimers, band copy, consent, waiting-list and data-handling wording): NEVER machine-drafted. af and zu show the platform's English until a native speaker, and for legal and consent text counsel (items C1, C2, C4), has written them. `test/coverage/coverage_l10n_test.dart` fails if one of these is translated by machine, or if one is missing from this list. The platform keeps the same keys in English (`docs/coverage/native-review-af-zu.md`).
+
+Counsel-gated copy to settle before release: the waiting-list consent text and its two versions (`waitlist_consent_version`, `coverage_arrived_consent_version`), the "leave the list" wording, the privacy notes under the search field and the location button, and the cooling-off notice (`coverageDisclaimerCoolingOff`, still the platform's DRAFT text, and it must change together with the website).
+
+### Machine drafts
+
+| Key | English | Afrikaans (draft) | isiZulu (draft) |
+|---|---|---|---|
+| `coverageSearchHint` | Street, suburb or town | Straat, woonbuurt of dorp | Isitaladi, indawo noma idolobha |
+| `coverageClearSearch` | Clear the address | Maak die adres skoon | Sula ikheli |
+| `coverageSearching` | Searching… | Soek tans… | Iyasesha… |
+| `coverageMapSemantics` | Map. Tap a place to check coverage there. | Kaart. Tik op 'n plek om dekking daar na te gaan. | Imephu. Thinta indawo ukuze uhlole ukufinyelela lapho. |
+| `coverageLocationDeniedForever` | Location is turned off for this app in your phone's settings. You can still search for an address or tap the map. | Ligging is vir hierdie toepassing in jou foon se instellings afgeskakel. Jy kan steeds 'n adres soek of op die kaart tik. | Indawo ivaliwe kulolu hlelo lokusebenza kuzilungiselelo zefoni yakho. Usengakwazi ukusesha ikheli noma uthinte imephu. |
+| `coverageStartHint` | Search for an address, use your location, or tap the map to check coverage. | Soek 'n adres, gebruik jou ligging, of tik op die kaart om dekking na te gaan. | Sesha ikheli, sebenzisa indawo yakho, noma uthinte imephu ukuze uhlole ukufinyelela. |
+| `coverageChecking` | Checking coverage… | Gaan tans dekking na… | Iyahlola ukufinyelela… |
+| `coverageRateLimitedWait` | Too many checks. You can try again in {seconds} seconds. | Te veel kontroles. Jy kan oor {seconds} sekondes weer probeer. | Ukuhlola okuningi kakhulu. Ungazama futhi ngemva kwemizuzwana engu-{seconds}. |
+| `coverageRateLimitedNow` | Too many checks. You can try again now. | Te veel kontroles. Jy kan nou weer probeer. | Ukuhlola okuningi kakhulu. Ungazama futhi manje. |
+| `coverageSkipForNow` | Skip for now | Slaan nou oor | Yeqa okwamanje |
+| `coverageNoDataYet` | Coverage data for your provider is not available yet. Please try again later. | Dekkingsdata vir jou verskaffer is nog nie beskikbaar nie. Probeer later weer. | Idatha yokufinyelela yomhlinzeki wakho ayikatholakali. Sicela uzame futhi kamuva. |
+| `coverageTechUnknown` | Network | Netwerk | Inethiwekhi |
+| `coverageStatusUnreadable` | We could not read the answer. Please try again. | Ons kon nie die antwoord lees nie. Probeer asseblief weer. | Asikwazanga ukufunda impendulo. Sicela uzame futhi. |
+| `coverageNotifyMe` | Notify me | Stel my in kennis | Ngazise |
+| `coverageNotifyContactPhone` | Mobile number | Selfoonnommer | Inombolo yeselula |
+| `coverageNotifyContactEmail` | Email address | E-posadres | Ikheli le-imeyili |
+| `coverageNotifyPhoneHint` | For example 082 123 4567 | Byvoorbeeld 082 123 4567 | Isibonelo: 082 123 4567 |
+| `coverageNotifyEmailHint` | For example name@example.com | Byvoorbeeld naam@voorbeeld.com | Isibonelo: igama@isibonelo.com |
+| `coverageNotifyAddressHint` | The address you want coverage at | Die adres waar jy dekking wil hê | Ikheli ofuna ukufinyelela kulo |
+| `coverageNotifyInterest` | Interested in | Belangstelling in | Unentshisekelo ku |
+| `coverageInterestAny` | Any | Enige | Noma iyiphi |
+| `coverageNotifyContactInvalid` | Enter a valid mobile number or email address. | Voer 'n geldige selfoonnommer of e-posadres in. | Faka inombolo yeselula noma ikheli le-imeyili elivumelekile. |
+| `coverageNotifyAddressInvalid` | Enter the address you want coverage at. | Voer die adres in waar jy dekking wil hê. | Faka ikheli ofuna ukufinyelela kulo. |
+| `coverageNotifyError` | We could not save your details. Please try again. | Ons kon nie jou besonderhede stoor nie. Probeer asseblief weer. | Asikwazanga ukulondoloza imininingwane yakho. Sicela uzame futhi. |
+| `coverageNotifyDone` | Done | Klaar | Kuqedile |
+| `coverageLeaveError` | We could not do that. Please try again in a moment. | Ons kon dit nie doen nie. Probeer oor 'n oomblik weer. | Asikwazanga ukukwenza lokho. Sicela uzame futhi ngemva kwesikhashana. |
+| `failureCoverageUnavailable` | Coverage information is not available right now. | Dekkingsinligting is nou nie beskikbaar nie. | Ulwazi lokufinyelela alutholakali okwamanje. |
+| `failureAddressSearchUnavailable` | Address search is not available right now. Use your location or the map instead. | Adressoektog is nou nie beskikbaar nie. Gebruik eerder jou ligging of die kaart. | Ukusesha kwekheli akutholakali okwamanje. Sebenzisa indawo yakho noma imephu esikhundleni. |
+| `failureOutsideServiceArea` | We can only check places in South Africa. Check the place and try again. | Ons kan net plekke in Suid-Afrika nagaan. Kontroleer die plek en probeer weer. | Singahlola kuphela izindawo eNingizimu Afrika. Hlola indawo bese uzame futhi. |
+
+### English fallbacks (claims and legal wording, not drafted)
+
+| Key | English (af and zu show the same) |
+|---|---|
+| `coverageSearchPrivacyNote` | The address you type is sent to your provider to find the place. It is not saved on your phone. |
+| `coverageNoAddressMatches` | We could not find that address. Try a street name and suburb. |
+| `coverageMatchedStreet` | We could not find that house number, so these results are for the street. |
+| `coverageMatchedArea` | We could not find that street, so these results are for the area. |
+| `coverageSearchRateLimited` | Too many searches. Please wait a moment and try again. |
+| `coverageLocationExplain` | We use your phone's location once to check coverage here. It is sent to your provider only and is not saved. |
+| `coverageOptionCoveredHeading` | {technology}: predicted coverage |
+| `coverageOptionPlannedHeading` | {technology}: planned |
+| `coverageOptionPlannedText` | Expected around {date}. Planned dates are estimates and can change. |
+| `coverageOptionPlannedNoDate` | We do not have a date yet. Planned dates are estimates and can change. |
+| `coverageOptionPredictedTitle` | Coverage is predicted here |
+| `coverageOptionPredictedText` | Our network plan predicts that this technology reaches this place. We do not show a figure for it yet. |
+| `coverageOptionNearBoundary` | This place is close to the edge of this area, so the result may differ. |
+| `coverageBandExcellentTitle` | Strong service is predicted |
+| `coverageBandExcellentText` | Strong service is predicted here. Most things should run smoothly. |
+| `coverageBandGoodTitle` | Good service is predicted |
+| `coverageBandGoodText` | Good service is predicted here for everyday use. |
+| `coverageBandFairTitle` | Fair service is predicted |
+| `coverageBandFairText` | Fair service is predicted here. Video calls may sometimes struggle. |
+| `coverageBandBasicTitle` | Basic service is predicted |
+| `coverageBandBasicText` | Basic service is predicted here. Browsing and messages should work. Tell us and we will let you know if it improves. |
+| `coverageBandNoneTitle` | Service is not predicted yet |
+| `coverageBandNoneText` | We do not predict service here yet. Tell us and we will let you know. |
+| `coverageSpeedTypical` | Typical download speed: {min}–{max} Mbps |
+| `coverageSpeedBusy` | Busy-hour download speed: {min}–{max} Mbps |
+| `coverageConfidenceHigh` | Prediction confidence: high |
+| `coverageConfidenceMedium` | Prediction confidence: medium |
+| `coverageConfidenceLow` | Prediction confidence: low |
+| `coverageMeasureDownlink` | The speeds shown are predicted download speeds, measured outdoors. |
+| `coverageMeasureUplink` | This information is about upload, not download. |
+| `coverageMeasureUnknown` | We do not know what this information measures. |
+| `coverageNearestUnder5` | The closest predicted {technology} coverage is less than 5 km from this place. |
+| `coverageNearestFrom5To20` | The closest predicted {technology} coverage is about 5 to 20 km from this place. |
+| `coverageNearestFrom20To50` | The closest predicted {technology} coverage is about 20 to 50 km from this place. |
+| `coverageNearestOver50` | The closest predicted {technology} coverage is more than 50 km from this place. |
+| `coverageFooterPredicted` | These are predictions, not guarantees. |
+| `coverageFooterRelease` | Network data: {label}, released {date}. |
+| `coverageFooterReleaseLabel` | Network data: {label}. |
+| `coverageFooterReleaseDate` | Network data released {date}. |
+| `coverageFooterVersion` | Network data version {version}. |
+| `coverageSourceTechnologyPartner` | Source: our technology partner's network plan. |
+| `coverageSourceNetworkRfPlanning` | Source: our network planning team. |
+| `coverageSourceIspPlanning` | Source: the network plan of this provider. |
+| `coverageSourceDriveTest` | Source: drive tests on the network. |
+| `coverageDisclaimerEstimate` | Coverage is an estimate from our network plan. Actual speeds vary with location, time of day and device. |
+| `coverageDisclaimerIndoor` | Coverage is predicted for outdoor use. Indoor signal can be weaker because of walls, windows and building materials. |
+| `coverageDisclaimerPlannedDate` | Planned dates are estimates and can change. |
+| `coverageDisclaimerCoolingOff` | DRAFT — needs legal review: ECTA s42 applicability to be confirmed. Refund requests are reviewed by your provider; contact support with your order reference. |
+| `coverageDisclaimerGeneric` | Coverage and speeds are predictions, not guarantees. |
+| `coverageNotCoveredTitle` | We do not cover this place yet. |
+| `coverageOptionsTitle` | Coverage is predicted at this place |
+| `coverageStatusPlanned` | Coverage is planned for this place. |
+| `coverageNotifyPrompt` | Join the waitlist and we will let you know when we arrive. |
+| `coverageNotifyTitle` | Join the waitlist |
+| `coverageNotifyIntro` | Leave a mobile number or email address and we will contact you when coverage reaches this place. |
+| `coverageNotifyConsent` | I agree to be contacted about coverage at this address. |
+| `coverageNotifyConsentNote` | Consent version {version}. We use these details only for this purpose and delete them after a year (POPIA). |
+| `coverageNotifyArrivalConsent` | Also tell me if coverage arrives or improves at this address (optional). |
+| `coverageNotifyArrivalNote` | Separate consent, version {version}. You can leave the list at any time and this choice does not affect your place on it. |
+| `coverageNotifySubmit` | Join the waitlist |
+| `coverageNotifySent` | Thank you. We will let you know when coverage reaches this place. |
+| `coverageNotifyConsentRequired` | Please agree to be contacted so that we can tell you about coverage. |
+| `coverageNotifyReconfirm` | Our consent text was updated. Please read it and tick the box again to confirm. |
+| `coverageNotifyPending` | Your last sign-up may not have finished. Try again to be sure: it will not add you twice. |
+| `coverageLeaveLink` | Already on the list and want to leave it? |
+| `coverageLeaveTitle` | Leave the coverage waiting list |
+| `coverageLeaveIntro` | Enter the mobile number or email address you used. If it is on our list we will send a link to that number or address, and only the link can remove it. We do not say whether a number or address is on the list. |
+| `coverageLeaveSend` | Send me a link |
+| `coverageLeaveRequested` | Thank you. If that number or address is on our waiting list, we have sent it a link. The link works once and expires in 24 hours. If nothing arrives, it was not on the list. |

@@ -37,10 +37,13 @@ Status words: **done** (real repository, tested), **mock** (a `Mock*Repository` 
 | `POST /v1/orders/{order_id}/checkout` | done | `409 order_not_payable` is a typed failure |
 | `POST /v1/payments/{gateway}/notify/{token}` | not for the app | gateway server-to-server |
 | `POST /v1/dev/payments/{id}/simulate` | done (dev only) | not in the OpenAPI file; env dev and test only |
-| `GET /v1/coverage/check`, `GET /v1/coverage/meta`, `GET /v1/tiles/{layer}/{z}/{x}/{y}.mvt`, `GET /v1/geocode/search` | mock | WP-26 |
+| `GET /v1/coverage/check`, `GET /v1/coverage/meta`, `GET /v1/coverage/capabilities` | done (CV17) | `HttpCoverageRepository`, public (no session), `tenant` query; see "Public coverage (CV17)" |
+| `POST /v1/coverage/address`, `GET /v1/geocode/search` | done (CV17) | the platform finds the place for a typed address (the phone's geocoder is no longer used for it); the older route only when the address step is off |
+| `GET /v1/tiles/{layer}/{z}/{x}/{y}.mvt` | not used (CV17) | vector tiles need a renderer the app does not have; a plain pin-drop on the existing base map is used |
 | `GET /v1/hotspots` | mock | WP-11 |
 | `POST /v1/support/messages` | mock | WP-11 |
-| `POST /v1/leads` | not for the app | website form |
+| `POST /v1/leads`, `POST /v1/leads/withdrawal-requests` | done (CV17) | the waiting list from the app (`source: app`); the withdrawal request starts leaving the list |
+| `POST /v1/leads/withdrawals` | not for the app | only the one-time link's page confirms a withdrawal; the app has no deep link for it |
 | `GET /v1/subscriber-plans` | data layer done | `SubscriberPlansRepository` (`HttpSubscriberPlansRepository`, demo `MockSubscriberPlansRepository`), all pages, tenant slug always sent, no session; fixture `subscriber_plans_page.json` (`Page_PublicPlanOut_`). No screen yet (S5). Gate: `subscriberBillingOn` (`modules.subscriber_billing`) |
 | `GET /v1/me/subscriber` | data layer done | `SubscriberRepository.getAccount()`; `404 subscriber_not_found` is `Right(null)` (never signed up), not an error; fixture `subscriber_account.json` (`SubscriberAccountOut`) |
 | `PATCH /v1/me/subscriber` | not started | S8 (billing contact) |
@@ -109,6 +112,9 @@ All 289 `/v1/admin/*` and `/v1/platform/*` operations belong to the web consoles
 | 503 `credits_paused` (with `Retry-After`) | `CreditsPausedFailure` (keeps `retryAfter`) | credits are paused for the platform or the provider; balances still read |
 | 409 `insufficient_credits`, 409 `redemption_limit_reached`, 422 `pack_not_offered` | `InsufficientCreditsFailure`, `RedemptionLimitReachedFailure`, `PackNotOfferedFailure` | redeem refusals |
 | 409 `earn_refused` | `EarnRefusedFailure` | check-in refused by the device or address limits; the server gives no reason on purpose |
+| 404 on a coverage or leads route (route missing, with or without a problem body), no active dataset | `CoverageUnavailableFailure` | plain words and a retry, never a crash or an empty screen |
+| 503 `address_lookup_unavailable`, 503 `geocoder_unavailable` (with `Retry-After`) | `AddressSearchUnavailableFailure` (keeps `retryAfter`) | address search is off or failed; the location button and the map still work |
+| 422 `outside_service_area`, 422 `coordinates_swapped` | `OutsideServiceAreaFailure` | the place is not in South Africa |
 | 404, 409 `feature_disabled`, 403 `module_not_enabled` on a credits route | `CreditsNotAvailableFailure` | the repository maps all three to "feature unavailable": the screens hide it, no error, no empty page |
 
 ## ID check data handling (slice S4)
@@ -245,3 +251,44 @@ Read from the platform code at `f58b00cf` (`apps/api/src/sentech_api/modules/cre
 **Platform follow-ups:** (1) an expiry date next to `expiring_30d`; (2) `pack_daily_max` and how many packs are left today in `rates` or `CreditsOut`, so Redeem can be disabled before a 409; (3) a `paused` flag on `GET /v1/me/credits` so the app can explain a pause before the customer taps; (4) mission and badge titles (or a documented key list) so a new key is not shown with a generic name; (5) `RedeemIn` is declared inline and has no named schema in the snapshot.
 
 Not verified against a running backend: nothing in this section was run against the real platform.
+
+## Public coverage (CV17), 2026-11-26: BUILT, NOT RUN AGAINST A SERVER
+
+Read from the platform code at `f58b00cf` (`apps/api/src/sentech_api/modules/coverage/{router,tiles_router,schemas,options,service,geocode}.py`, `modules/leads/{router,schemas,withdrawal_router,human,contact}.py`, `docs/coverage/*`) and the snapshot (it already holds every route below). Not run against a live backend.
+
+**Routes (all public: no session is sent; `tenant` is optional and defaults to `sentech` on the server, the app always sends the provider's slug):**
+
+| Route | Used for | Limits and notes |
+|---|---|---|
+| `GET /v1/coverage/check?lat&lon&tenant` | the answer (`CoverageCheckOut`, shape v2) | 60 per minute per client address, 3,000 per minute per tenant; `public, max-age=60`; coordinates are quantised to 5 decimals on the server and the app rounds to 5 before it sends; 422 `outside_service_area` / `coordinates_swapped`; 429 `rate_limited` with `Retry-After`; a provider with no active dataset still answers 200 (`not_covered`, `dataset_version` null) |
+| `GET /v1/coverage/meta?tenant` | `CoverageMetaOut`: `dataset_version`, `bounds` `[west, south, east, north]`, the consent text versions `waitlist_consent_version` and `coverage_arrived_consent_version`, `attribution`, `layers` | same limits as the check; the app caches it per provider for ten minutes and drops it when a check answers from another dataset version |
+| `GET /v1/coverage/capabilities` | `address_lookup` (is the address step on) | read once per provider per session; a 404 (older server) means "use the older search" |
+| `POST /v1/coverage/address?tenant` body `{q}` (3 to 200 characters) | address search, answer `{matched, results[{label, lat, lon, precision}]}` | 30 per minute per client address and one hit per ladder step (up to three), 1,500 per minute per tenant; `no-store`; 503 `address_lookup_unavailable` when no provider is configured (`Retry-After` 30 when it failed); the address is in the body only, never in a URL |
+| `GET /v1/geocode/search?q&limit&tenant` | the older address search, used only when `address_lookup` is false | the address IS in the query string (the platform drops it from its logs; the app never logs a query); 503 `geocoder_unavailable` |
+| `POST /v1/leads` | the waiting list | `Idempotency-Key` REQUIRED (400 `idempotency_key_required`/`_invalid`); body `tenant, contact{type phone or email, value}, address_text (5 to 300), lat, lon, technology_interest (5g, lte, any), consent{granted, version}, arrival_consent{granted, version}, store (not sent), source ("app"), turnstile_token` (REQUIRED); 10 per hour per client address; 202 `{status: received}` for new and repeat sign-ups alike; 8 KiB body; 422 `consent_required`, `consent_version_outdated` (also for a wrong arrival version), `invalid_contact`, `outside_service_area`, `idempotency_key_reused`; 403 `human_verification_failed`; 503 `human_verification_unavailable` (`Retry-After` 30); 404 `tenant_not_found` |
+| `POST /v1/leads/withdrawal-requests` | start leaving the list | body `tenant, contact, turnstile_token`; ALWAYS 202 `received` for a well-formed request, whether or not the contact is on the list; a one-time link (24 hours) goes to the contact; 10 per hour per client, 3 per contact per day; no Idempotency-Key |
+| `POST /v1/leads/withdrawals` | confirm with the link's token | NOT called by the app: the link opens the platform's web page (`/leads/withdraw#tenant=...&t=...`, token in the fragment) and only that page confirms |
+
+**The answer (`CoverageCheckOut`) as the app reads it:** `status`, `options[]` in the server's fixed order (`5g`, `lte`), `primary_index`, `nearest` (only when there are no options), `disclaimer_keys`, `waitlist_available` (legacy, read only for an answer with no options), `dataset_version`. Per option: `technology`, `kind` (covered or planned), `band {key, rank, notify}` or null, `typical_down`, `busy_hour_down`, `confidence`, `expected_date`, `near_boundary`, `notify_available`, `dataset {version, release_label, release_date, source_label (a message key), measure_direction, measure_label_key}`. `typical_up` is reserved and always null and is not read. `dataset.audited_figures` (only when the audit gate is open) is not read: the app shows the option's own range, never the dataset's per-band table.
+
+**Rules the app follows (platform `docs/coverage/result-v2.md`):** the server decides everything. A band and a speed range exist only for a covered option of a downlink dataset with an approved ladder and a passed audit; the app shows a range only when the response carries BOTH a band and the range, and drops both for a planned option or a basis that is not downlink; a missing band is "coverage is predicted here" in words with no figure; every option names what its figures measure (`coverage.measure.*`, an unknown key reads as "we do not know"); the primary option is shown first and the rest keep the server's order; `notify_available` decides whether "Notify me" is offered; an empty `options` with a `nearest` shows its distance band in words; `dataset_version` null with nothing found is "not available", never "no coverage".
+
+**Copy keys:** the response carries KEYS, never text. The disclaimer keys in the response (`coverage.estimate`, `coverage.indoor`, `commerce.cooling_off`, `coverage.planned_date`) differ from the platform's i18n catalogue names (`coverage.disclaimer.estimate`, `coverage.indoor_disclaimer`, `legal.cooling_off_notice`, `coverage.disclaimer.planned_date`); the app maps the response keys, as the website does, and an unknown key shows one generic "predictions, not guarantees" text. A covered answer always carries the estimate, indoor and cooling-off notices, as on the website. The cooling-off text is the platform's own DRAFT wording ("DRAFT - needs legal review ...") and must be replaced together with the website's (counsel item C1).
+
+**Human check:** both lead routes verify a Turnstile token with the widget action `lead`; `GET /v1/auth/human-check/config` reports `required.lead: true` always. The app asks `HumanCheckGate` for `HumanCheckAction.lead` (the WebView widget with the platform's site key) and, on a dev stack with no widget, sends the public dev pass `dev-turnstile-pass`, as the support message does.
+
+**Consent:** two separate tick boxes, both unticked: the waiting list (`consent`, version `waitlist_consent_version`) and the optional "tell me if coverage arrives or improves" (`arrival_consent`, version `coverage_arrived_consent_version`, platform item K6; nothing is sent under it yet). The app always sends `arrival_consent` with the real `granted` value; a meta without both versions (an older server) hides the waiting list. A `consent_version_outdated` refusal clears both boxes, reads the meta again and asks the customer to read and tick again.
+
+**Idempotency (leads):** one key per attempt. A retry of the same request after an unknown outcome (network, 5xx, `idempotency_in_progress`, 429, security check unavailable) reuses the key (in memory only, scoped by provider, wiped on sign-out and erase); a changed request or a final answer starts a new key; the platform refuses one key for two different requests (`idempotency_key_reused`). The platform treats a retry as the same request only when the body (without the Turnstile token) is identical, which is why the app keeps a fingerprint of the request with the key.
+
+**Withdrawal:** "leave the list" only STARTS it. The app never claims the contact was removed: that happens when the contact opens the one-time link and confirms on the website. The app has no deep link for the confirmation (out of scope; a platform app link would be needed).
+
+**Retired path:** the coverage screen no longer geocodes a typed address with the phone's map service (`geocoding` package, Google or Apple); the address goes to the platform. The `geocoding` package is still used by registration (reverse geocoding the install address). The location notice no longer says the map service is used when it is opened from the coverage screen.
+
+**Map:** the platform's coverage layers are Mapbox vector tiles (`meta.layers[].url_template`, `.mvt`); the app's map stack (`flutter_map` raster tiles from `TILE_URL_TEMPLATE`) cannot draw them without a vector-tile package, which needs the owner's approval. The coverage layer is therefore not drawn; the customer searches, drops a pin or uses their location on the existing base map, and the answer comes from the check. The base map's tile host still sees the viewport (the existing policy in `osm_map.dart`).
+
+**Fixtures:** `coverage_check_{two_options,placeholder,planned,nearest}.json` (`CoverageCheckOut`), `coverage_meta.json`, `coverage_capabilities.json`, `coverage_address.json`, `geocode_search.json`, `lead_accepted.json`, `withdrawal_requested.json` are validated against the snapshot, and every status, technology, kind, confidence, direction, distance band and precision the API can send is asserted to decode (the direction `unknown` reads as unknown).
+
+**Platform follow-ups:** (1) the app needs a way to draw the coverage layer: raster tiles, or an owner decision to add a vector-tile package; (2) the older `GET /v1/geocode/search` carries the address in the URL: turn the address step on (`GEOCODER_PROVIDER=photon`) for every deployment the app uses so the older route is never needed; (3) the cooling-off notice is a DRAFT (C1); (4) a universal or app link for `/leads/withdraw` would let the app complete a withdrawal; (5) the response disclaimer keys and the catalogue keys have different names (harmless, but one list would be easier to keep in step).
+
+Not verified against a running backend: nothing in this section was run against the real platform, and the screens were not run on a device (no GPS permission prompt, no Turnstile WebView, no real map).
