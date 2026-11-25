@@ -77,6 +77,12 @@ void main() {
       expect(creditsOn((await _tenant(modules: {'credits': true})).state), isFalse, reason: 'flag missing');
       expect(creditsOn((await _tenant(creditsFlag: true)).state), isFalse, reason: 'modules not reported');
       expect(creditsOn(const TenantState()), isFalse, reason: 'no config yet');
+      // The demo flag fallback (no config) must never open the gate, even with everything else on.
+      expect(const TenantState().featureFlags.credits, isTrue, reason: 'the fallback flags are the demo flags');
+      final ready = (await _tenant(modules: {'credits': true}, creditsFlag: true)).state;
+      expect(creditsOn(ready), isTrue);
+      expect(creditsOn(TenantState(config: ready.config, status: TenantStatus.loading)), isFalse, reason: 'not ready');
+      expect(creditsOn(const TenantState(status: TenantStatus.ready)), isFalse, reason: 'ready but no config'); 
     });
 
     test('the flag decoder reads only a real true', () {

@@ -7,7 +7,11 @@ import 'package:sentech_connect_app/features/tenant/presentation/bloc/tenant_cub
 /// yet all read as OFF: an unfinished or unavailable feature never appears by
 /// accident. (The server enforces the same two gates on every route.)
 bool creditsOn(TenantState state) =>
-    state.isModuleOn(AppModuleKeys.credits) && state.featureFlags.credits;
+    // `featureFlags` falls back to the demo flags without a config: only a loaded config may open the gate.
+    state.config != null &&
+    state.status == TenantStatus.ready &&
+    state.isModuleOn(AppModuleKeys.credits) &&
+    state.featureFlags.credits;
 
 /// The router bounces the Rewards pages back to Home when the provider's config
 /// is loaded and rewards are off. Before the config loads they stay, so a deep

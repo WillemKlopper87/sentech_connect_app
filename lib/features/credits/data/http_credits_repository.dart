@@ -16,9 +16,13 @@ import 'package:sentech_connect_app/features/passes/domain/entities/pass.dart';
 /// of crashing or showing an empty page. `credits_paused` (503) is only ever
 /// sent by the two writing routes.
 class HttpCreditsRepository implements CreditsRepository {
-  HttpCreditsRepository(this._api);
+  HttpCreditsRepository(this._api, {this._onModuleRefused});
 
   final ApiClient _api;
+
+  /// Told `credits` when the provider has the flag off (409 `feature_disabled`), so the
+  /// entry is hidden at once, as the `ApiClient` already does for 403 `module_not_enabled`.
+  final void Function(String module)? _onModuleRefused;
 
   static const creditsPath = '/v1/me/credits';
   static const ledgerPath = '/v1/me/credits/ledger';
@@ -28,10 +32,13 @@ class HttpCreditsRepository implements CreditsRepository {
   static const missionsPath = '/v1/me/missions';
   static const badgesPath = '/v1/me/badges';
 
-  static Failure _unavailable(Failure failure) => switch (failure) {
-    NotFoundFailure() || FeatureDisabledFailure() || ModuleDisabledFailure() => const CreditsNotAvailableFailure(),
-    _ => failure,
-  };
+  Failure _unavailable(Failure failure) {
+    if (failure is FeatureDisabledFailure) _onModuleRefused?.call('credits');
+    return switch (failure) {
+      NotFoundFailure() || FeatureDisabledFailure() || ModuleDisabledFailure() => const CreditsNotAvailableFailure(),
+      _ => failure,
+    };
+  }
 
   static Map<String, Object?> _object(Object? data) => Map<String, Object?>.from(data! as Map);
 

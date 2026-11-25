@@ -324,7 +324,7 @@ void _registerProdRepositories(Uri baseUrl, TurnstileConfig? turnstile) {
   locator.registerLazySingleton<KycRepository>(() => HttpKycRepository(locator()));
   locator.registerLazySingleton<HotspotLoginRepository>(() => HttpHotspotLoginRepository(locator()));
   locator.registerLazySingleton<FiveGRepository>(() => HttpFiveGRepository(locator()));
-  locator.registerLazySingleton<CreditsRepository>(() => HttpCreditsRepository(locator()));
+  locator.registerLazySingleton<CreditsRepository>(() => HttpCreditsRepository(locator(), onModuleRefused: locator<SessionEvents>().refuseModule));
   locator.registerLazySingleton<SubscriberProfileRepository>(() => HttpSubscriberProfileRepository(locator()));
   locator.registerLazySingleton<CheckoutRepository>(
     () => HttpCheckoutRepository(locator()),

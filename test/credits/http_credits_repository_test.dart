@@ -67,19 +67,43 @@ void main() {
       expect(_failure(await repo.summary()), isA<CreditsNotAvailableFailure>());
     });
 
+    test('a 409 feature_disabled tells the app to hide the credits module at once; a 404 does not', () async {
+      final refused = <String>[];
+      final withHook = HttpCreditsRepository(h.api, onModuleRefused: refused.add);
+      h.adapter.on('GET', HttpCreditsRepository.creditsPath, (_) => FakeReply.problem(409, 'feature_disabled'));
+      expect(_failure(await withHook.summary()), isA<CreditsNotAvailableFailure>());
+      expect(refused, ['credits']);
+      h.adapter.on('GET', HttpCreditsRepository.creditsPath, (_) => FakeReply.problem(404, 'not_found'));
+      await withHook.summary();
+      expect(refused, ['credits'], reason: 'an older server is not a switched-off provider');
+    });
+
     test('a server error stays a server failure, not a hidden feature', () async {
       h.adapter.on('GET', HttpCreditsRepository.creditsPath, (_) => FakeReply.problem(500, 'internal'));
       expect(_failure(await repo.summary()), isA<ServerFailure>());
     });
 
-    test('a body with an unknown entry kind is refused by the decoder (a server failure)', () async {
+    test('a body with an unknown entry kind still loads: the line is kept as unknown, not a failure', () async {
       h.adapter.on('GET', HttpCreditsRepository.ledgerPath, (_) {
         final page = fixtureMap('credits_ledger_page_1.json');
         final items = [...(page['items']! as List)];
         items[0] = {...Map<String, Object?>.from(items[0] as Map), 'kind': 'gift'};
         return FakeReply(200, {...page, 'items': items});
       });
-      expect(_failure(await repo.ledger()), isA<ServerFailure>());
+      final page = _ok(await repo.ledger());
+      expect(page.items.first.kind, CreditEntryKind.unknown);
+      expect(page.items.first.source, 'streak');
+      expect(page.items, hasLength(2));
+    });
+
+    test('an unknown streak tier and an unknown mission status load as unknown members', () async {
+      h.adapter.on('GET', HttpCreditsRepository.streakPath, (_) => FakeReply(200, {...fixtureMap('credits_streak.json'), 'tier': 'platinum'}));
+      expect(_ok(await repo.streak()).tier, CreditTier.unknown);
+      h.adapter.on('GET', HttpCreditsRepository.missionsPath, (_) {
+        final item = {...Map<String, Object?>.from((fixtureMap('credits_missions.json')['items']! as List).first as Map), 'status': 'paused'};
+        return FakeReply(200, {'items': [item]});
+      });
+      expect(_ok(await repo.missions()).single.status, MissionStatus.unknown);
     });
   });
 

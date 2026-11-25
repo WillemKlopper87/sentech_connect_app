@@ -2974,5 +2974,9 @@
   "creditsRedeemPendingNotice": "Jou laaste gebruik het dalk nie klaargemaak nie. Probeer weer om seker te maak: dit sal nie jou krediete twee keer gebruik nie.",
   "@creditsRedeemPendingNotice": {"description": "Shown on the redeem page after a request got no clear answer (a lost connection): the earlier redeem may or may not have gone through, so only that pack can be tried again, which is safe and never spends twice."},
   "creditsTryAgain": "Probeer weer",
-  "@creditsTryAgain": {"description": "Button to try the same redeem again after a lost response."}
+  "@creditsTryAgain": {"description": "Button to try the same redeem again after a lost response."},
+  "creditsAmountPlus": "plus {amount}",
+  "@creditsAmountPlus": {"description": "Screen-reader label for a history line that added credits. {amount} is a number of credits.", "placeholders": {"amount": {"type": "String", "example": "x"}}},
+  "creditsAmountMinus": "minus {amount}",
+  "@creditsAmountMinus": {"description": "Screen-reader label for a history line that took credits away. {amount} is a number of credits.", "placeholders": {"amount": {"type": "String", "example": "x"}}}
 }

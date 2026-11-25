@@ -475,6 +475,60 @@ void main() {
       expect(find.byKey(const Key('credits-ledger-more')), findsNothing);
     });
 
+    testWidgets('a history line of a kind the app does not know yet shows its source, not a blank or a crash', (tester) async {
+      repo.ledgerPages[null] = Right(
+        ledgerPageFromJson({
+          'items': [
+            {'id': 9, 'kind': 'gift', 'credits': 4, 'source': 'partner_promo', 'created_at': '2026-11-24T06:10:00Z'},
+          ],
+          'next_cursor': null,
+        }),
+      );
+      await pumpThemed(tester, BlocProvider(create: (_) => LedgerCubit(repo), child: const CreditsLedgerPage()));
+      await tester.pumpAndSettle();
+      expect(find.text('partner_promo'), findsOneWidget);
+      expect(find.text('+4'), findsOneWidget);
+    });
+
+    testWidgets('a mission with a status the app does not know shows the server progress neutrally', (tester) async {
+      repo.missionsResult = Right([
+        missionFromJson({
+          'key': 'first_checkin',
+          'window': 'once',
+          'window_key': 'all',
+          'target': 5,
+          'progress': 2,
+          'reward_credits': 3,
+          'status': 'on_hold',
+          'completed_at': null,
+        }),
+      ]);
+      await pumpThemed(tester, BlocProvider(create: (_) => MissionsCubit(repo), child: const MissionsPage()));
+      await tester.pumpAndSettle();
+      expect(find.text('2 of 5'), findsOneWidget);
+    });
+
+    testWidgets('a streak tier the app does not know shows no tier and no crash', (tester) async {
+      repo.streakResult = Right(streakStateFromJson({...fixtureMap('credits_streak.json'), 'tier': 'platinum'}));
+      await _pumpStreak(tester, repo);
+      expect(find.byKey(const Key('credits-checkin-button')), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('a history amount reads aloud with its direction, not just a bare number', (tester) async {
+      final first = ledgerPageFromJson(fixtureMap('credits_ledger_page_1.json'));
+      repo.ledgerPages[null] = Right(first);
+      await pumpThemed(tester, BlocProvider(create: (_) => LedgerCubit(repo), child: const CreditsLedgerPage()));
+      await tester.pumpAndSettle();
+      final handle = tester.ensureSemantics();
+      final spent = tester.getSemantics(find.byKey(const Key('credits-entry-411'))).label;
+      final earned = tester.getSemantics(find.byKey(const Key('credits-entry-412'))).label;
+      expect(spent, contains('minus 50 credits'));
+      expect(spent, isNot(contains('-50')));
+      expect(earned, contains('plus 3 credits'));
+      handle.dispose();
+    });
+
     testWidgets('an empty history says so', (tester) async {
       await _fresh(tester);
       await pumpThemed(tester, BlocProvider(create: (_) => LedgerCubit(repo), child: const CreditsLedgerPage()));

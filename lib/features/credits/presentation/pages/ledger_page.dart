@@ -77,9 +77,11 @@ class _EntryTile extends StatelessWidget {
       key: Key('credits-entry-${entry.id}'),
       contentPadding: EdgeInsets.zero,
       title: Text(entryTitle(l10n, entry)),
-      subtitle: Text('${entryKindText(l10n, entry.kind)} · $when'),
+      subtitle: Text(entry.kind == CreditEntryKind.unknown ? when : '${entryKindText(l10n, entry.kind)} · $when'),
       trailing: Semantics(
-        label: l10n.creditsAmount(entry.credits.abs()),
+        label: entry.credits < 0
+            ? l10n.creditsAmountMinus(l10n.creditsAmount(entry.credits.abs()))
+            : l10n.creditsAmountPlus(l10n.creditsAmount(entry.credits)),
         child: ExcludeSemantics(
           child: Text(
             amount,

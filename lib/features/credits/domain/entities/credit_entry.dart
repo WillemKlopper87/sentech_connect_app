@@ -1,7 +1,8 @@
 import 'package:equatable/equatable.dart';
 
 /// `CreditEntryOut.kind`.
-enum CreditEntryKind { earn, spend, expire, clawback, forfeit }
+/// [unknown] is a kind a newer server may send; the line shows its source.
+enum CreditEntryKind { earn, spend, expire, clawback, forfeit, unknown }
 
 /// One line of the credits history. [credits] is signed: positive for earns,
 /// negative for spends, expiries, clawbacks and forfeits.

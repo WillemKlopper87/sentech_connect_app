@@ -3353,4 +3353,14 @@ class AppLocalizationsAf extends AppLocalizations {
 
   @override
   String get creditsTryAgain => 'Probeer weer';
+
+  @override
+  String creditsAmountPlus(String amount) {
+    return 'plus $amount';
+  }
+
+  @override
+  String creditsAmountMinus(String amount) {
+    return 'minus $amount';
+  }
 }

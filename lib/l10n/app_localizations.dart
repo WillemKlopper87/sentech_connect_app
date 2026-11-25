@@ -5655,6 +5655,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Try again'**
   String get creditsTryAgain;
+
+  /// Screen-reader label for a history line that added credits. {amount} is a number of credits.
+  ///
+  /// In en, this message translates to:
+  /// **'plus {amount}'**
+  String creditsAmountPlus(String amount);
+
+  /// Screen-reader label for a history line that took credits away. {amount} is a number of credits.
+  ///
+  /// In en, this message translates to:
+  /// **'minus {amount}'**
+  String creditsAmountMinus(String amount);
 }
 
 class _AppLocalizationsDelegate

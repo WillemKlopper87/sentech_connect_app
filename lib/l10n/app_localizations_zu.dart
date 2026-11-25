@@ -3356,4 +3356,14 @@ class AppLocalizationsZu extends AppLocalizations {
 
   @override
   String get creditsTryAgain => 'Zama futhi';
+
+  @override
+  String creditsAmountPlus(String amount) {
+    return 'kunezelwe $amount';
+  }
+
+  @override
+  String creditsAmountMinus(String amount) {
+    return 'kususiwe $amount';
+  }
 }

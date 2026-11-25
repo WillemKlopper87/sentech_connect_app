@@ -6,9 +6,10 @@ import 'package:sentech_connect_app/features/credits/domain/entities/streak.dart
 import 'package:sentech_connect_app/features/credits/domain/entities/tier.dart';
 
 /// Decoders for the customer credits answers (`/v1/me/credits`, `/credits/ledger`,
-/// `/streak`, `/streak/claim`, `/missions`, `/badges`). Closed enums (entry kind,
-/// mission status, streak tier) fail with [FormatException] on an unknown value,
-/// which the client turns into a `ServerFailure`, instead of guessing.
+/// `/streak`, `/streak/claim`, `/missions`, `/badges`). Enums (entry kind, mission
+/// status, streak tier) map a value the app does not know to `unknown` instead of
+/// failing the whole page: a newer server must not blank the wallet. The contract
+/// test lists every current value, so a new platform value is still caught in CI.
 
 Map<String, Object?> _map(Object? value) => Map<String, Object?>.from(value! as Map);
 
@@ -16,7 +17,7 @@ CreditTier creditTierFromApi(Object? value) => switch (value) {
   'none' => CreditTier.none,
   'silver' => CreditTier.silver,
   'gold' => CreditTier.gold,
-  final other => throw FormatException('Unknown credit tier $other'),
+  _ => CreditTier.unknown,
 };
 
 /// `CreditsOut.tier` is a free string in the schema (`none`, `silver`, `gold`);
@@ -34,14 +35,14 @@ CreditEntryKind creditEntryKindFromApi(Object? value) => switch (value) {
   'expire' => CreditEntryKind.expire,
   'clawback' => CreditEntryKind.clawback,
   'forfeit' => CreditEntryKind.forfeit,
-  final other => throw FormatException('Unknown credit entry kind $other'),
+  _ => CreditEntryKind.unknown,
 };
 
 MissionStatus missionStatusFromApi(Object? value) => switch (value) {
   'in_progress' => MissionStatus.inProgress,
   'ready' => MissionStatus.ready,
   'completed' => MissionStatus.completed,
-  final other => throw FormatException('Unknown mission status $other'),
+  _ => MissionStatus.unknown,
 };
 
 CreditRates creditRatesFromJson(Map<String, Object?> json) => CreditRates(

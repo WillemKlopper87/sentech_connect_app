@@ -3336,4 +3336,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get creditsTryAgain => 'Try again';
+
+  @override
+  String creditsAmountPlus(String amount) {
+    return 'plus $amount';
+  }
+
+  @override
+  String creditsAmountMinus(String amount) {
+    return 'minus $amount';
+  }
 }

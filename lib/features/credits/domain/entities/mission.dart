@@ -1,7 +1,8 @@
 import 'package:equatable/equatable.dart';
 
 /// `MissionOut.status`.
-enum MissionStatus { inProgress, ready, completed }
+/// [unknown] is a status a newer server may send; it shows the server's progress only.
+enum MissionStatus { inProgress, ready, completed, unknown }
 
 /// One mission as the server evaluated it. [progress] is the server's count:
 /// the app never works it out.

@@ -42,6 +42,7 @@ String entryKindText(AppLocalizations l10n, CreditEntryKind kind) => switch (kin
   CreditEntryKind.expire => l10n.creditsEntryExpire,
   CreditEntryKind.clawback => l10n.creditsEntryClawback,
   CreditEntryKind.forfeit => l10n.creditsEntryForfeit,
+  CreditEntryKind.unknown => '',
 };
 
 /// A history line's title: the source when the app knows it, else the kind.
@@ -51,7 +52,7 @@ String entryTitle(AppLocalizations l10n, CreditEntry entry) => switch (entry.sou
   'mission' => l10n.creditsSourceMission,
   'pack_redemption' => l10n.creditsSourcePack,
   'admin' => l10n.creditsSourceAdmin,
-  _ => entryKindText(l10n, entry.kind),
+  _ => entry.kind == CreditEntryKind.unknown ? entry.source : entryKindText(l10n, entry.kind),
 };
 
 /// The sentence for a check-in that paid nothing because of an earning limit.

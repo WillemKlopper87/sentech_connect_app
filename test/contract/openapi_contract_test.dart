@@ -19,6 +19,9 @@ import 'package:sentech_connect_app/features/wifi_voucher/domain/entities/wifi_h
 
 import 'package:sentech_connect_app/features/hotspot_login/data/http_hotspot_login_repository.dart';
 import 'package:sentech_connect_app/features/credits/data/credits_json.dart';
+import 'package:sentech_connect_app/features/credits/domain/entities/credit_entry.dart';
+import 'package:sentech_connect_app/features/credits/domain/entities/mission.dart';
+import 'package:sentech_connect_app/features/credits/domain/entities/tier.dart';
 import 'package:sentech_connect_app/features/fiveg_service/data/fiveg_json.dart';
 import 'package:sentech_connect_app/features/fiveg_service/domain/entities/fiveg_usage.dart';
 import 'package:sentech_connect_app/features/fiveg_service/domain/usage_levels.dart';
@@ -883,15 +886,15 @@ void main() {
     test('every entry kind, mission status and tier the API can send decodes', () {
       final kinds = ((api.schema('CreditEntryOut')['properties']! as Map)['kind']! as Map)['enum']! as List;
       for (final k in kinds.cast<String>()) {
-        expect(() => creditEntryKindFromApi(k), returnsNormally, reason: k);
+        expect(creditEntryKindFromApi(k), isNot(CreditEntryKind.unknown), reason: k);
       }
       final statuses = ((api.schema('MissionOut')['properties']! as Map)['status']! as Map)['enum']! as List;
       for (final v in statuses.cast<String>()) {
-        expect(() => missionStatusFromApi(v), returnsNormally, reason: v);
+        expect(missionStatusFromApi(v), isNot(MissionStatus.unknown), reason: v);
       }
       final tiers = ((api.schema('StreakOut')['properties']! as Map)['tier']! as Map)['enum']! as List;
       for (final v in tiers.cast<String>()) {
-        expect(() => creditTierFromApi(v), returnsNormally, reason: v);
+        expect(creditTierFromApi(v), isNot(CreditTier.unknown), reason: v);
       }
     });
 

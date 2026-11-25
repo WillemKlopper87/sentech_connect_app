@@ -56,7 +56,8 @@ class _MissionCard extends StatelessWidget {
     final status = switch (mission.status) {
       MissionStatus.completed => l10n.creditsMissionDone,
       MissionStatus.ready => l10n.creditsMissionReady,
-      MissionStatus.inProgress => l10n.creditsMissionProgress('${mission.progress}', '${mission.target}'),
+      MissionStatus.inProgress ||
+      MissionStatus.unknown => l10n.creditsMissionProgress('${mission.progress}', '${mission.target}'),
     };
     return Card(
       key: Key('credits-mission-${mission.key}'),
