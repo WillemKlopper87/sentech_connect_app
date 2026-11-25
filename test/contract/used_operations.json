@@ -1,0 +1,255 @@
+{
+  "_comment": "Operations the app calls (method + OpenAPI path template). Kept honest by test/contract/used_operations_test.dart; see docs/BACKEND_CONTRACT_SYNC.md 'Checking for drift'.",
+  "operations": [
+    {
+      "method": "get",
+      "path": "/v1/app-config"
+    },
+    {
+      "method": "get",
+      "path": "/v1/auth/human-check/config"
+    },
+    {
+      "method": "post",
+      "path": "/v1/auth/logout"
+    },
+    {
+      "method": "post",
+      "path": "/v1/auth/otp/request"
+    },
+    {
+      "method": "post",
+      "path": "/v1/auth/otp/verify"
+    },
+    {
+      "method": "post",
+      "path": "/v1/auth/token/refresh"
+    },
+    {
+      "method": "post",
+      "path": "/v1/coverage/address"
+    },
+    {
+      "method": "get",
+      "path": "/v1/coverage/capabilities"
+    },
+    {
+      "method": "get",
+      "path": "/v1/coverage/check"
+    },
+    {
+      "method": "get",
+      "path": "/v1/coverage/meta"
+    },
+    {
+      "method": "get",
+      "path": "/v1/hotspots"
+    },
+    {
+      "method": "post",
+      "path": "/v1/leads"
+    },
+    {
+      "method": "post",
+      "path": "/v1/leads/withdrawal-requests"
+    },
+    {
+      "method": "delete",
+      "path": "/v1/me"
+    },
+    {
+      "method": "get",
+      "path": "/v1/me/badges"
+    },
+    {
+      "method": "get",
+      "path": "/v1/me/consents"
+    },
+    {
+      "method": "post",
+      "path": "/v1/me/consents"
+    },
+    {
+      "method": "get",
+      "path": "/v1/me/credits"
+    },
+    {
+      "method": "get",
+      "path": "/v1/me/credits/ledger"
+    },
+    {
+      "method": "post",
+      "path": "/v1/me/credits/redeem"
+    },
+    {
+      "method": "post",
+      "path": "/v1/me/delete-challenge"
+    },
+    {
+      "method": "get",
+      "path": "/v1/me/entitlements"
+    },
+    {
+      "method": "get",
+      "path": "/v1/me/export"
+    },
+    {
+      "method": "post",
+      "path": "/v1/me/hotspot/login-token"
+    },
+    {
+      "method": "get",
+      "path": "/v1/me/missions"
+    },
+    {
+      "method": "get",
+      "path": "/v1/me/profile"
+    },
+    {
+      "method": "patch",
+      "path": "/v1/me/profile"
+    },
+    {
+      "method": "get",
+      "path": "/v1/me/streak"
+    },
+    {
+      "method": "post",
+      "path": "/v1/me/streak/claim"
+    },
+    {
+      "method": "get",
+      "path": "/v1/me/subscriber"
+    },
+    {
+      "method": "patch",
+      "path": "/v1/me/subscriber"
+    },
+    {
+      "method": "get",
+      "path": "/v1/me/subscriber/invoices"
+    },
+    {
+      "method": "get",
+      "path": "/v1/me/subscriber/invoices/{invoice_id}"
+    },
+    {
+      "method": "post",
+      "path": "/v1/me/subscriber/invoices/{invoice_id}/checkout"
+    },
+    {
+      "method": "get",
+      "path": "/v1/me/subscriber/kyc"
+    },
+    {
+      "method": "post",
+      "path": "/v1/me/subscriber/kyc"
+    },
+    {
+      "method": "get",
+      "path": "/v1/me/subscriber/services"
+    },
+    {
+      "method": "get",
+      "path": "/v1/me/subscriber/services/{service_id}"
+    },
+    {
+      "method": "post",
+      "path": "/v1/me/subscriber/services/{service_id}/cancel"
+    },
+    {
+      "method": "post",
+      "path": "/v1/me/subscriber/services/{service_id}/change-plan"
+    },
+    {
+      "method": "get",
+      "path": "/v1/me/subscriber/services/{service_id}/data"
+    },
+    {
+      "method": "post",
+      "path": "/v1/me/subscriber/services/{service_id}/data/unlock-orders",
+      "composed": true
+    },
+    {
+      "method": "post",
+      "path": "/v1/me/subscriber/signup"
+    },
+    {
+      "method": "get",
+      "path": "/v1/me/tickets"
+    },
+    {
+      "method": "post",
+      "path": "/v1/me/tickets"
+    },
+    {
+      "method": "get",
+      "path": "/v1/me/tickets/categories"
+    },
+    {
+      "method": "get",
+      "path": "/v1/me/tickets/{reference}",
+      "composed": true
+    },
+    {
+      "method": "post",
+      "path": "/v1/me/tickets/{reference}/close",
+      "composed": true
+    },
+    {
+      "method": "post",
+      "path": "/v1/me/tickets/{reference}/messages",
+      "composed": true
+    },
+    {
+      "method": "post",
+      "path": "/v1/me/vouchers/redeem"
+    },
+    {
+      "method": "get",
+      "path": "/v1/orders"
+    },
+    {
+      "method": "post",
+      "path": "/v1/orders"
+    },
+    {
+      "method": "get",
+      "path": "/v1/orders/{order_id}"
+    },
+    {
+      "method": "post",
+      "path": "/v1/orders/{order_id}/cancel"
+    },
+    {
+      "method": "post",
+      "path": "/v1/orders/{order_id}/checkout"
+    },
+    {
+      "method": "get",
+      "path": "/v1/products"
+    },
+    {
+      "method": "get",
+      "path": "/v1/subscriber-plans"
+    },
+    {
+      "method": "get",
+      "path": "/v1/support/incidents"
+    },
+    {
+      "method": "post",
+      "path": "/v1/support/messages"
+    },
+    {
+      "method": "get",
+      "path": "/v1/tenants"
+    }
+  ],
+  "outsideContract": [
+    {
+      "method": "post",
+      "path": "/v1/dev/payments/{payment_id}/simulate"
+    }
+  ]
+}
