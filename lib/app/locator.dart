@@ -86,6 +86,10 @@ import 'package:sentech_connect_app/features/passes/data/repositories/pass_local
 import 'package:sentech_connect_app/features/passes/data/repositories/mock_passes_repository.dart';
 import 'package:sentech_connect_app/features/passes/domain/repositories/passes_repository.dart';
 import 'package:sentech_connect_app/features/passes/domain/usage_alert_scheduler.dart';
+import 'package:sentech_connect_app/features/support/data/http_support_tickets_repository.dart';
+import 'package:sentech_connect_app/features/support/data/pending_ticket_keys.dart';
+import 'package:sentech_connect_app/features/support/data/repositories/mock_support_tickets_repository.dart';
+import 'package:sentech_connect_app/features/support/domain/repositories/support_tickets_repository.dart';
 import 'package:sentech_connect_app/features/support/data/repositories/http_support_message_repository.dart';
 import 'package:sentech_connect_app/features/support/data/repositories/mock_support_message_repository.dart';
 import 'package:sentech_connect_app/features/support/data/repositories/mock_support_repository.dart';
@@ -177,6 +181,7 @@ void _registerPlatformServices(CrashReporter? crashReporter) {
   locator.registerLazySingleton<SessionEvents>(() => SessionEvents());
   locator.registerLazySingleton<PendingRedeemKeys>(() => PendingRedeemKeys());
   locator.registerLazySingleton<PendingLeadKeys>(() => PendingLeadKeys());
+  locator.registerLazySingleton<PendingTicketKeys>(() => PendingTicketKeys());
   locator.registerLazySingleton<PersonalDataWiper>(
     () => DefaultPersonalDataWiper(
       registration: locator(),
@@ -186,7 +191,13 @@ void _registerPlatformServices(CrashReporter? crashReporter) {
       passes: locator(),
       pendingRedeemKeys: locator(),
       pendingLeadKeys: locator(),
-      onDemoReset: locator<AppEnvironment>().isDemo ? () => (locator<CreditsRepository>() as MockCreditsRepository).reset() : null,
+      pendingTicketKeys: locator(),
+      onDemoReset: locator<AppEnvironment>().isDemo
+          ? () {
+              (locator<CreditsRepository>() as MockCreditsRepository).reset();
+              (locator<SupportTicketsRepository>() as MockSupportTicketsRepository).reset();
+            }
+          : null,
     ),
   );
 }
@@ -232,6 +243,7 @@ void _registerDemoRepositories() {
   locator.registerLazySingleton<HotspotLoginRepository>(() => MockHotspotLoginRepository());
   locator.registerLazySingleton<FiveGRepository>(() => MockFiveGRepository(store: locator()));
   locator.registerLazySingleton<CreditsRepository>(() => MockCreditsRepository());
+  locator.registerLazySingleton<SupportTicketsRepository>(() => MockSupportTicketsRepository());
   locator.registerLazySingleton<SubscriberProfileRepository>(() => MockSubscriberProfileRepository());
   locator.registerLazySingleton<PrivacyRepository>(
     () => MockPrivacyRepository(locator()),
@@ -342,6 +354,9 @@ void _registerProdRepositories(Uri baseUrl, TurnstileConfig? turnstile) {
     ),
   );
   locator.registerLazySingleton<CreditsRepository>(() => HttpCreditsRepository(locator(), onModuleRefused: locator<SessionEvents>().refuseModule));
+  locator.registerLazySingleton<SupportTicketsRepository>(
+    () => HttpSupportTicketsRepository(locator(), tenant: locator(), onModuleRefused: locator<SessionEvents>().refuseModule),
+  );
   locator.registerLazySingleton<SubscriberProfileRepository>(() => HttpSubscriberProfileRepository(locator()));
   locator.registerLazySingleton<CheckoutRepository>(
     () => HttpCheckoutRepository(locator()),

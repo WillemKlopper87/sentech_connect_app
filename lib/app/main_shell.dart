@@ -20,6 +20,8 @@ import 'package:sentech_connect_app/features/subscriber/domain/repositories/subs
 import 'package:sentech_connect_app/features/subscriber/presentation/home/home_overview_cubit.dart';
 import 'package:sentech_connect_app/features/subscriber/subscriber_gate.dart';
 import 'package:sentech_connect_app/features/support/domain/entities/support_message.dart';
+import 'package:sentech_connect_app/features/support/domain/repositories/support_tickets_repository.dart';
+import 'package:sentech_connect_app/features/support/presentation/bloc/incidents_cubit.dart';
 import 'package:sentech_connect_app/features/support/presentation/bloc/support_cubit.dart';
 import 'package:sentech_connect_app/features/support/presentation/pages/support_page.dart';
 import 'package:sentech_connect_app/features/tenant/domain/entities/app_config.dart';
@@ -40,6 +42,8 @@ class MainShell extends StatefulWidget {
     required this.onFindHotspots,
     this.onOpenPasses,
     this.onOpenRewards,
+    this.onOpenTickets,
+    this.onNewTicket,
     this.showMockFeatures = true,
     this.showPromotions,
     this.showFreeWifi,
@@ -56,6 +60,11 @@ class MainShell extends StatefulWidget {
 
   /// Opens Rewards; null when the provider has credits off (no entry then).
   final VoidCallback? onOpenRewards;
+
+  /// Open My tickets and a new ticket; null when the provider has ticketing off
+  /// (no entry then, and the one-way contact form stays the way to reach support).
+  final VoidCallback? onOpenTickets;
+  final VoidCallback? onNewTicket;
 
   /// Support tickets and free Wi-Fi (and the hotspot finder) are backed by
   /// mock repositories until real APIs exist: shown in demo only, never prod.
@@ -211,11 +220,17 @@ class _MainShellState extends State<MainShell> {
       // only the demo flavor shows it.
       (
         id: _Tab.help,
-        page: BlocProvider(
-          create: (_) => SupportCubit(locator()),
+        page: MultiBlocProvider(
+          providers: [
+            BlocProvider(create: (_) => SupportCubit(locator())),
+            // Known network incidents are read only when ticketing is on for the provider.
+            if (widget.onOpenTickets != null) BlocProvider(create: (_) => IncidentsCubit(locator<SupportTicketsRepository>())),
+          ],
           child: SupportPage(
             showFaqs: widget.showMockFeatures,
             whatsAppNumber: widget.supportWhatsAppNumber,
+            onOpenTickets: widget.onOpenTickets,
+            onNewTicket: widget.onNewTicket,
           ),
         ),
         dest: NavigationDestination(
@@ -231,6 +246,7 @@ class _MainShellState extends State<MainShell> {
           providerName: widget.providerName,
           onOpenPasses: widget.onOpenPasses,
           onOpenRewards: widget.onOpenRewards,
+          onOpenTickets: widget.onOpenTickets,
         ),
         dest: NavigationDestination(
           icon: Icon(Icons.person_outline),

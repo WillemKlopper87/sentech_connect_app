@@ -8,6 +8,15 @@ import 'package:go_router/go_router.dart';
 import 'package:sentech_connect_app/app/locator.dart';
 import 'package:sentech_connect_app/app/mock_feature_guard.dart';
 import 'package:sentech_connect_app/features/tenant/domain/entities/app_config.dart';
+import 'package:sentech_connect_app/features/support/data/pending_ticket_keys.dart';
+import 'package:sentech_connect_app/features/support/domain/repositories/support_tickets_repository.dart';
+import 'package:sentech_connect_app/features/support/presentation/bloc/new_ticket_cubit.dart';
+import 'package:sentech_connect_app/features/support/presentation/bloc/ticket_thread_cubit.dart';
+import 'package:sentech_connect_app/features/support/presentation/bloc/tickets_cubit.dart';
+import 'package:sentech_connect_app/features/support/presentation/pages/new_ticket_page.dart';
+import 'package:sentech_connect_app/features/support/presentation/pages/ticket_thread_page.dart';
+import 'package:sentech_connect_app/features/support/presentation/pages/tickets_page.dart';
+import 'package:sentech_connect_app/features/support/tickets_gate.dart';
 import 'package:sentech_connect_app/features/credits/credits_gate.dart';
 import 'package:sentech_connect_app/features/credits/data/pending_redeem_keys.dart';
 import 'package:sentech_connect_app/features/credits/domain/repositories/credits_repository.dart';
@@ -134,6 +143,15 @@ abstract class AppRoutes {
   static const creditsMissions = '/rewards/missions';
   static const creditsBadges = '/rewards/badges';
   static const creditsHistory = '/rewards/history';
+
+  // Support tickets: module `tickets` and the `ticketing` flag. Every page bounces
+  // home when either is off. A ticket is named by its reference, never an internal id,
+  // and nothing the customer typed travels in a route.
+  static const tickets = '/support/tickets';
+  static const ticketsNew = '/support/tickets/new';
+  static const ticketThread = '/support/tickets/:reference';
+
+  static String ticketFor(String reference) => '/support/tickets/$reference';
 
   static String planFor(String planId) => '/plans/$planId';
   static String signupFor(String planId) => '/signup/$planId';
@@ -440,6 +458,12 @@ GoRouter _buildRouter(
           onOpenRewards: tenantCubit != null && creditsOn(tenantCubit.state)
               ? () => context.push(AppRoutes.credits)
               : null,
+          onOpenTickets: tenantCubit != null && ticketsOn(tenantCubit.state)
+              ? () => context.push<void>(AppRoutes.tickets)
+              : null,
+          onNewTicket: tenantCubit != null && ticketsOn(tenantCubit.state)
+              ? () => context.push<void>(AppRoutes.ticketsNew)
+              : null,
           showMockFeatures: locator<AppEnvironment>().isDemo,
           showPromotions: promotionsVisible(locator<AppEnvironment>()),
           showFreeWifi: freeWifiVisible(
@@ -655,6 +679,64 @@ GoRouter _buildRouter(
           create: (_) => LedgerCubit(locator<CreditsRepository>()),
           child: const CreditsLedgerPage(),
         ),
+      ),
+      // Support tickets. Hidden when the module or the flag is off. The new-ticket path is
+      // listed before the reference path so "new" is never read as a reference.
+      GoRoute(
+        path: AppRoutes.tickets,
+        redirect: (context, state) => ticketsRoutesOff(tenantCubit) ? AppRoutes.main : null,
+        builder: (context, state) => BlocProvider(
+          create: (_) => TicketsCubit(locator<SupportTicketsRepository>()),
+          child: Builder(
+            builder: (context) {
+              // Back from a ticket or a new ticket the list is read again.
+              Future<void> open(String route) async {
+                await context.push<void>(route);
+                if (context.mounted) unawaited(context.read<TicketsCubit>().refresh());
+              }
+
+              return TicketsPage(
+                onOpenTicket: (reference) => open(AppRoutes.ticketFor(reference)),
+                onNewTicket: () => open(AppRoutes.ticketsNew),
+              );
+            },
+          ),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.ticketsNew,
+        redirect: (context, state) => ticketsRoutesOff(tenantCubit) ? AppRoutes.main : null,
+        builder: (context, state) => BlocProvider(
+          create: (_) => NewTicketCubit(
+            locator<SupportTicketsRepository>(),
+            pending: locator<PendingTicketKeys>(),
+            scope: PendingTicketKeys.createScope(tenantCubit?.state.config?.tenant.slug ?? '', authCubit.state.user?.id ?? ''),
+          ),
+          child: NewTicketPage(
+            onOpenTicket: (reference) => context.pushReplacement(AppRoutes.ticketFor(reference)),
+            onDone: () => context.pop(),
+          ),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.ticketThread,
+        redirect: (context, state) => ticketsRoutesOff(tenantCubit) ? AppRoutes.main : null,
+        builder: (context, state) {
+          final reference = state.pathParameters['reference']!;
+          return BlocProvider(
+            create: (_) => TicketThreadCubit(
+              locator<SupportTicketsRepository>(),
+              reference,
+              pending: locator<PendingTicketKeys>(),
+              scope: PendingTicketKeys.replyScope(
+                tenantCubit?.state.config?.tenant.slug ?? '',
+                authCubit.state.user?.id ?? '',
+                reference,
+              ),
+            ),
+            child: TicketThreadPage(onNewTicket: () => context.push<void>(AppRoutes.ticketsNew)),
+          );
+        },
       ),
       // ID check (S4). Hidden when the module is off.
       GoRoute(

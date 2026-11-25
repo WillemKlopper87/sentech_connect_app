@@ -3,6 +3,7 @@ import 'package:sentech_connect_app/l10n/demo_copy.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sentech_connect_app/features/support/domain/entities/faq.dart';
 import 'package:sentech_connect_app/features/support/presentation/bloc/support_cubit.dart';
+import 'package:sentech_connect_app/features/support/presentation/widgets/incident_notice_card.dart';
 import 'package:sentech_connect_app/l10n/l10n.dart';
 import 'package:sentech_connect_app/shared/actions/support_actions.dart';
 import 'package:sentech_connect_app/core/local/data_saver.dart';
@@ -13,8 +14,16 @@ class SupportPage extends StatelessWidget {
     this.cpe = false,
     this.whatsAppNumber,
     this.showFaqs = true,
+    this.onOpenTickets,
+    this.onNewTicket,
   });
   final bool cpe;
+
+  /// Open My tickets / a new ticket; null when ticketing is off, and then this page
+  /// is exactly the old one: the one-way message form is the way to reach support.
+  final VoidCallback? onOpenTickets;
+  final VoidCallback? onNewTicket;
+
 
   /// The FAQ list is mock content: hidden in prod, where only the contact
   /// actions (WhatsApp, message support) show.
@@ -29,7 +38,13 @@ class SupportPage extends StatelessWidget {
       body: !showFaqs
           ? Padding(
               padding: const EdgeInsets.all(20),
-              child: _ContactActions(whatsAppNumber: whatsAppNumber),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (onOpenTickets != null) const IncidentNoticeCard(),
+                  _ContactActions(whatsAppNumber: whatsAppNumber, onOpenTickets: onOpenTickets, onNewTicket: onNewTicket),
+                ],
+              ),
             )
           : BlocBuilder<SupportCubit, SupportState>(
               builder: (context, state) {
@@ -56,6 +71,7 @@ class SupportPage extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
+                      if (onOpenTickets != null) const IncidentNoticeCard(),
                       TextField(
                         onChanged: (value) =>
                             context.read<SupportCubit>().search(value),
@@ -88,7 +104,7 @@ class SupportPage extends StatelessWidget {
                                 ),
                               ),
                       ),
-                      _ContactActions(whatsAppNumber: whatsAppNumber),
+                      _ContactActions(whatsAppNumber: whatsAppNumber, onOpenTickets: onOpenTickets, onNewTicket: onNewTicket),
                     ],
                   ),
                 );
@@ -173,9 +189,11 @@ class _FaqTile extends StatelessWidget {
 /// "Still stuck?": WhatsApp (when the provider published a number) and the
 /// real message form.
 class _ContactActions extends StatelessWidget {
-  const _ContactActions({this.whatsAppNumber});
+  const _ContactActions({this.whatsAppNumber, this.onOpenTickets, this.onNewTicket});
 
   final String? whatsAppNumber;
+  final VoidCallback? onOpenTickets;
+  final VoidCallback? onNewTicket;
 
   @override
   Widget build(BuildContext context) {
@@ -200,11 +218,30 @@ class _ContactActions extends StatelessWidget {
           ),
           const SizedBox(height: 8),
         ],
-        OutlinedButton.icon(
-          onPressed: () => submitSupportTicket(context),
-          icon: const Icon(Icons.confirmation_number_outlined, size: 18),
-          label: Text(l10n.supportSubmitTicket),
-        ),
+        if (onNewTicket != null) ...[
+          // Ticketing is on: a ticket the customer can follow replaces the one-way form here.
+          // (The form stays on the dashboard's "report an issue" and the account contact sheet.)
+          FilledButton.icon(
+            key: const Key('help-new-ticket'),
+            onPressed: onNewTicket,
+            icon: const Icon(Icons.edit_outlined, size: 18),
+            label: Text(l10n.ticketsNewTitle),
+          ),
+          if (onOpenTickets != null) ...[
+            const SizedBox(height: 8),
+            OutlinedButton.icon(
+              key: const Key('help-my-tickets'),
+              onPressed: onOpenTickets,
+              icon: const Icon(Icons.forum_outlined, size: 18),
+              label: Text(l10n.ticketsTitle),
+            ),
+          ],
+        ] else
+          OutlinedButton.icon(
+            onPressed: () => submitSupportTicket(context),
+            icon: const Icon(Icons.confirmation_number_outlined, size: 18),
+            label: Text(l10n.supportSubmitTicket),
+          ),
       ],
     );
   }

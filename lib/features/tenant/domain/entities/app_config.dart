@@ -11,6 +11,7 @@ class FeatureFlags extends Equatable {
     this.vouchers = false,
     this.hotspotRadius = false,
     this.credits = false,
+    this.ticketing = false,
   });
 
   /// Demo flavor: hotspot passes lead; router/CPE content stays off, as at
@@ -22,6 +23,7 @@ class FeatureFlags extends Equatable {
     vouchers: true,
     hotspotRadius: true,
     credits: true,
+    ticketing: true,
   );
 
   final bool hotspotPasses;
@@ -34,6 +36,10 @@ class FeatureFlags extends Equatable {
   /// older server, which does not send it, never shows rewards.
   final bool credits;
 
+  /// Sentech's kill switch for support tickets. Absent or anything but `true` is
+  /// OFF, so an older server, which does not send it, never shows tickets.
+  final bool ticketing;
+
   factory FeatureFlags.fromJson(Map<String, Object?> json) => FeatureFlags(
         hotspotPasses: json['hotspot_passes'] == true,
         rica: json['rica'] == true,
@@ -41,6 +47,7 @@ class FeatureFlags extends Equatable {
         vouchers: json['vouchers'] == true,
         hotspotRadius: json['hotspot_radius'] == true,
         credits: json['credits'] == true,
+        ticketing: json['ticketing'] == true,
       );
 
   Map<String, Object?> toJson() => {
@@ -50,10 +57,11 @@ class FeatureFlags extends Equatable {
         'vouchers': vouchers,
         'hotspot_radius': hotspotRadius,
         'credits': credits,
+        'ticketing': ticketing,
       };
 
   @override
-  List<Object?> get props => [hotspotPasses, rica, cpe, vouchers, hotspotRadius, credits];
+  List<Object?> get props => [hotspotPasses, rica, cpe, vouchers, hotspotRadius, credits, ticketing];
 }
 
 /// Module keys, as named in the platform catalog (`plan_modules/catalog.py`).

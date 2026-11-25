@@ -33,6 +33,10 @@ import 'package:sentech_connect_app/features/subscriber/data/repositories/mock_s
 import 'package:sentech_connect_app/features/subscriber/data/repositories/mock_subscriber_repository.dart';
 import 'package:sentech_connect_app/features/subscriber/domain/repositories/subscriber_plans_repository.dart';
 import 'package:sentech_connect_app/features/subscriber/domain/repositories/subscriber_repository.dart';
+import 'package:sentech_connect_app/features/support/data/http_support_tickets_repository.dart';
+import 'package:sentech_connect_app/features/support/data/pending_ticket_keys.dart';
+import 'package:sentech_connect_app/features/support/data/repositories/mock_support_tickets_repository.dart';
+import 'package:sentech_connect_app/features/support/domain/repositories/support_tickets_repository.dart';
 import 'package:sentech_connect_app/features/support/data/repositories/http_support_message_repository.dart';
 import 'package:sentech_connect_app/features/support/data/repositories/mock_support_message_repository.dart';
 import 'package:sentech_connect_app/features/support/domain/repositories/support_message_repository.dart';
@@ -180,6 +184,43 @@ void main() {
     final prodSource = source.substring(prodStart) + source.substring(stillMockStart, demoStart);
     expect(prodSource, isNot(contains('MockCreditsRepository')));
     expect(source.substring(demoStart, prodStart), contains('MockCreditsRepository'));
+  });
+
+  test('prod reads support tickets over HTTP only; demo uses the named mock', () {
+    setupLocator(environment: prod);
+    registerTestFakes();
+    expect(locator<SupportTicketsRepository>(), isA<HttpSupportTicketsRepository>());
+    expect(stillMockInProd, isNot(contains(SupportTicketsRepository)));
+    expect(mockUntilLaterTasks, isNot(contains(SupportTicketsRepository)));
+    setupLocator();
+    registerTestFakes();
+    expect(locator<SupportTicketsRepository>(), isA<MockSupportTicketsRepository>());
+  });
+
+  test('prod_flavor_never_registers_the_mock_tickets_repository', () {
+    final source = File('lib/app/locator.dart').readAsStringSync().replaceAll('\r\n', '\n');
+    final prodStart = source.indexOf('void _registerProdRepositories');
+    final demoStart = source.indexOf('void _registerDemoRepositories');
+    final stillMockStart = source.indexOf('void _registerStillMockRepositories');
+    expect(prodStart, greaterThan(demoStart));
+    final prodSource = source.substring(prodStart) + source.substring(stillMockStart, demoStart);
+    expect(prodSource, isNot(contains('MockSupportTicketsRepository')));
+    expect(prodSource, contains('HttpSupportTicketsRepository'));
+    expect(source.substring(demoStart, prodStart), contains('MockSupportTicketsRepository'));
+  });
+
+  test('the pending ticket keys are one holder shared with the wiper, and signing out in the demo puts the demo tickets back', () async {
+    SharedPreferences.setMockInitialValues({});
+    setupLocator();
+    registerTestFakes();
+    final keys = locator<PendingTicketKeys>();
+    expect(identical(keys, locator<PendingTicketKeys>()), isTrue);
+    keys.put('sentech|u|new', 'key-aaaaaaaa', 1);
+    final tickets = locator<SupportTicketsRepository>();
+    final reference = (await tickets.create(categoryKey: 'billing', body: 'Hello', idempotencyKey: 'key-bbbbbbbb')).getOrElse((_) => throw StateError('x'));
+    await locator<PersonalDataWiper>().wipeOnLogout();
+    expect(keys.pendingFor('sentech|u|new'), isNull);
+    expect((await tickets.get(reference)).isLeft(), isTrue, reason: 'the demo tickets are back to the seed');
   });
 
   test('prod reads the public coverage check over HTTP only; demo uses the named mock', () {

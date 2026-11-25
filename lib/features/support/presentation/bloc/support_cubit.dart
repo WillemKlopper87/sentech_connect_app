@@ -52,6 +52,7 @@ class SupportCubit extends Cubit<SupportState> {
 
   Future<void> _load() async {
     final result = await _repository.getFaqs();
+    if (isClosed) return; // the tab was torn down (for example a redirect) while the FAQs loaded
     result.match(
       (_) => emit(state.copyWith(status: SupportStatus.failure)),
       (faqs) => emit(state.copyWith(status: SupportStatus.loaded, allFaqs: faqs)),

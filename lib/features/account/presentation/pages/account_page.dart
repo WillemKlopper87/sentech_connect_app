@@ -31,6 +31,7 @@ class AccountPage extends StatelessWidget {
     this.providerName,
     this.onOpenPasses,
     this.onOpenRewards,
+    this.onOpenTickets,
   });
 
   final VoidCallback? onChangeProvider;
@@ -41,6 +42,9 @@ class AccountPage extends StatelessWidget {
 
   /// Opens Rewards. The row is hidden without it (provider has credits off).
   final VoidCallback? onOpenRewards;
+
+  /// Opens My tickets; null when the provider has ticketing off (no row then).
+  final VoidCallback? onOpenTickets;
 
   @override
   Widget build(BuildContext context) {
@@ -66,6 +70,7 @@ class AccountPage extends StatelessWidget {
           providerName: providerName,
           onOpenPasses: onOpenPasses,
           onOpenRewards: onOpenRewards,
+          onOpenTickets: onOpenTickets,
         ),
       ),
     );
@@ -78,12 +83,16 @@ class _AccountView extends StatelessWidget {
     this.providerName,
     this.onOpenPasses,
     this.onOpenRewards,
+    this.onOpenTickets,
   });
 
   final VoidCallback? onChangeProvider;
   final String? providerName;
   final VoidCallback? onOpenPasses;
   final VoidCallback? onOpenRewards;
+
+  /// Opens My tickets; null when the provider has ticketing off (no row then).
+  final VoidCallback? onOpenTickets;
 
   /// Language codes, empty meaning "match the device".
   String _languageName(BuildContext context, String code) => switch (code) {
@@ -204,6 +213,17 @@ class _AccountView extends StatelessWidget {
                         title: Text(l10n.creditsTitle),
                         trailing: const Icon(Icons.chevron_right),
                         onTap: openRewards,
+                      ),
+                      const Divider(height: 1),
+                    ],
+                    if (onOpenTickets case final openTickets?) ...[
+                      ListTile(
+                        key: const Key('account-tickets-row'),
+                        minTileHeight: 48,
+                        leading: const Icon(Icons.forum_outlined),
+                        title: Text(l10n.ticketsTitle),
+                        trailing: const Icon(Icons.chevron_right),
+                        onTap: openTickets,
                       ),
                       const Divider(height: 1),
                     ],

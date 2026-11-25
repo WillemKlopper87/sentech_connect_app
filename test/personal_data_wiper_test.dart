@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentech_connect_app/features/coverage/data/pending_lead_keys.dart';
+import 'package:sentech_connect_app/features/support/data/pending_ticket_keys.dart';
 import 'package:sentech_connect_app/features/credits/data/pending_redeem_keys.dart';
 import 'package:sentech_connect_app/app/default_personal_data_wiper.dart';
 import 'package:sentech_connect_app/core/storage/secure_store.dart';
@@ -106,5 +107,24 @@ void main() {
     keys.put('sentech', 'key-bbbbbbbb', unknown: true);
     await expectLater(withKeys.wipeEverything(), throwsStateError);
     expect(keys.pendingFor('sentech'), isNull);
+  });
+
+  test('sign_out_clears_the_pending_ticket_keys: sign-out and account deletion forget a pending ticket or reply key, even when another step fails', () async {
+    final keys = PendingTicketKeys()
+      ..put(PendingTicketKeys.createScope('acme', 'cust-1'), 'key-aaaaaaaa', 1)
+      ..put(PendingTicketKeys.replyScope('acme', 'cust-1', 'TKT-7K3M9Q2A'), 'key-cccccccc', 2);
+    final withKeys = DefaultPersonalDataWiper(
+      registration: _FailingRegistration(store),
+      checkout: checkout,
+      freeWifi: wifi,
+      consent: consent,
+      pendingTicketKeys: keys,
+    );
+    await expectLater(withKeys.wipeOnLogout(), throwsStateError);
+    expect(keys.pendingFor(PendingTicketKeys.createScope('acme', 'cust-1')), isNull);
+    expect(keys.pendingFor(PendingTicketKeys.replyScope('acme', 'cust-1', 'TKT-7K3M9Q2A')), isNull);
+    keys.put(PendingTicketKeys.createScope('acme', 'cust-1'), 'key-bbbbbbbb', 3);
+    await expectLater(withKeys.wipeEverything(), throwsStateError);
+    expect(keys.pendingFor(PendingTicketKeys.createScope('acme', 'cust-1')), isNull);
   });
 }
