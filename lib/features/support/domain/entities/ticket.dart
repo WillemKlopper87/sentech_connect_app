@@ -95,6 +95,18 @@ class TicketThread extends Ticket {
     messages: messages,
   );
 
+  /// This thread with other messages (for example after a reply was added).
+  TicketThread withMessages(List<TicketMessage> next) => TicketThread(
+    reference: reference,
+    status: status,
+    categoryKey: categoryKey,
+    categoryName: categoryName,
+    awaitingReply: awaitingReply,
+    createdAt: createdAt,
+    updatedAt: updatedAt,
+    messages: next,
+  );
+
   @override
   List<Object?> get props => [...super.props, messages];
 }
