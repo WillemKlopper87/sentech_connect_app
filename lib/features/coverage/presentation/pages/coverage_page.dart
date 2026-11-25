@@ -52,7 +52,9 @@ class _CoveragePageState extends State<CoveragePage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) context.read<CoverageCubit>().load();
+      if (!mounted) return;
+      context.read<CoverageCubit>().load();
+      context.read<AddressSearchCubit>().load();
     });
   }
 
@@ -217,6 +219,7 @@ class _SearchField extends StatelessWidget {
           enableSuggestions: false,
           maxLength: 200,
           buildCounter: (_, {required currentLength, required isFocused, maxLength}) => null,
+          enabled: context.select((AddressSearchCubit cubit) => cubit.state.status != AddressSearchStatus.off),
           onChanged: context.read<AddressSearchCubit>().queryChanged,
           decoration: InputDecoration(
             labelText: l10n.coverageAddress,
@@ -278,6 +281,7 @@ class _Suggestions extends StatelessWidget {
           case AddressSearchStatus.none:
             return note(l10n.coverageNoAddressMatches);
           case AddressSearchStatus.unavailable:
+          case AddressSearchStatus.off:
             return note(l10n.failureAddressSearchUnavailable);
           case AddressSearchStatus.rateLimited:
             return note(l10n.coverageSearchRateLimited);

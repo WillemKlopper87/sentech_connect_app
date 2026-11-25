@@ -96,6 +96,15 @@ void main() {
     expect(find.text('12 Lifalethu Avenue, eMbalenhle'), findsOneWidget, reason: 'only the field still holds it');
   });
 
+  testWidgets('with_the_address_step_off_the_field_is_disabled_and_says_so_while_location_and_map_stay', (tester) async {
+    repo.addressLookupResult = const Right(false);
+    await pump(tester);
+    expect(tester.widget<TextField>(find.byType(TextField)).enabled, isFalse);
+    expect(find.textContaining('Address search is not available'), findsOneWidget);
+    expect(find.text('Use my current location'), findsOneWidget);
+    expect(find.byType(FlutterMap), findsOneWidget);
+  });
+
   testWidgets('a street-level match says the house number was not found', (tester) async {
     repo.searchResult = const Right(
       AddressSearchResult(

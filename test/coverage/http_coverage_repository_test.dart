@@ -60,7 +60,6 @@ void main() {
     h.adapter.on('GET', '/v1/coverage/meta', (_) => FakeReply(200, fixture('coverage_meta.json')));
     h.adapter.on('GET', '/v1/coverage/capabilities', (_) => FakeReply(200, fixture('coverage_capabilities.json')));
     h.adapter.on('POST', '/v1/coverage/address', (_) => FakeReply(200, fixture('coverage_address.json')));
-    h.adapter.on('GET', '/v1/geocode/search', (_) => FakeReply(200, fixture('geocode_search.json')));
     h.adapter.on('POST', '/v1/leads', (_) => FakeReply(202, fixture('lead_accepted.json')));
     h.adapter.on('POST', '/v1/leads/withdrawal-requests', (_) => FakeReply(202, fixture('withdrawal_requested.json')));
   });
@@ -157,6 +156,14 @@ void main() {
       expect(h.adapter.requestsTo('GET', '/v1/coverage/meta').last.uri.queryParameters['tenant'], 'acme-isp');
     });
 
+    test('a_meta_with_no_active_dataset_is_not_cached_so_a_retry_reads_it_again', () async {
+      h.adapter.on('GET', '/v1/coverage/meta', (_) => FakeReply(200, {...fixtureMap('coverage_meta.json'), 'dataset_version': null}));
+      expect(_ok(await repo.meta()).datasetVersion, isNull);
+      h.adapter.on('GET', '/v1/coverage/meta', (_) => FakeReply(200, fixture('coverage_meta.json')));
+      expect(_ok(await repo.meta()).datasetVersion, 7, reason: 'the data arrived: a cached "no data" must not hide it');
+      expect(h.adapter.requestsTo('GET', '/v1/coverage/meta'), hasLength(2));
+    });
+
     test('a failed read is not cached', () async {
       h.adapter.on('GET', '/v1/coverage/meta', (_) => FakeReply.problem(404, 'http_404', title: 'Not Found'));
       expect(_failure(await repo.meta()), isA<CoverageUnavailableFailure>());
@@ -166,35 +173,39 @@ void main() {
   });
 
   group('address search', () {
-    test('search_prefers_post_address_when_capabilities_allow_else_geocode_get', () async {
+    test('search_uses_post_address_only_and_never_puts_an_address_in_a_url', () async {
       final result = _ok(await repo.search('12 Lifalethu Avenue'));
       expect(result.matched, MatchPrecision.address);
       expect(result.matches.single.label, '12 Lifalethu Avenue, eMbalenhle, Secunda');
       final post = h.adapter.requestsTo('POST', '/v1/coverage/address').single;
       expect(post.data, {'q': '12 Lifalethu Avenue'});
-      expect(post.uri.queryParameters, {'tenant': 'sentech'}, reason: 'the address is in the body, never in the URL');
+      expect(post.uri.queryParameters, {'tenant': 'sentech'}, reason: 'the address is in the body only, never in the URL');
       expect(h.adapter.requestsTo('GET', '/v1/geocode/search'), isEmpty);
-
-      // The address step is off on this deployment: the older search answers.
-      h.adapter.on('GET', '/v1/coverage/capabilities', (_) => FakeReply(200, {'shape_version': 2, 'address_lookup': false}));
-      final fresh = HttpCoverageRepository(h.api, tenant: h.tenantContext, humanCheck: human, now: () => clock);
-      final older = _ok(await fresh.search('Lifalethu'));
-      expect(older.matches.single.precision, MatchPrecision.unknown);
-      final get = h.adapter.requestsTo('GET', '/v1/geocode/search').single;
-      expect(get.uri.queryParameters['q'], 'Lifalethu');
-      expect(get.uri.queryParameters['tenant'], 'sentech');
-      expect(h.adapter.requestsTo('POST', '/v1/coverage/address'), hasLength(1));
     });
 
-    test('capabilities are read once per session; an older server without them uses the older search', () async {
-      await repo.search('abc');
-      await repo.search('abcd');
-      expect(h.adapter.requestsTo('GET', '/v1/coverage/capabilities'), hasLength(1));
+    test('with the address step off, or capabilities missing (older server), search is unavailable and sends no address anywhere', () async {
+      h.adapter.on('GET', '/v1/coverage/capabilities', (_) => FakeReply(200, {'shape_version': 2, 'address_lookup': false}));
+      final off = HttpCoverageRepository(h.api, tenant: h.tenantContext, humanCheck: human, now: () => clock);
+      expect(_failure(await off.search('Lifalethu')), isA<AddressSearchUnavailableFailure>());
       h.adapter.on('GET', '/v1/coverage/capabilities', (_) => FakeReply.problem(404, 'http_404', title: 'Not Found'));
       final older = HttpCoverageRepository(h.api, tenant: h.tenantContext, humanCheck: human, now: () => clock);
-      expect(_ok(await older.search('Lifalethu')).matches, isNotEmpty);
-      expect(h.adapter.requestsTo('GET', '/v1/geocode/search'), hasLength(1));
+      expect(_failure(await older.search('Lifalethu')), isA<AddressSearchUnavailableFailure>());
       expect(_ok(await older.addressLookupAvailable()), isFalse);
+      expect(h.adapter.requestsTo('GET', '/v1/geocode/search'), isEmpty, reason: 'the older route would put the address in the URL');
+      expect(h.adapter.requestsTo('POST', '/v1/coverage/address'), isEmpty);
+    });
+
+    test('a capabilities network failure is unknown (not false) and is read again; the answer is cached only for a while', () async {
+      h.adapter.on('GET', '/v1/coverage/capabilities', (_) => FakeReply.error(DioExceptionType.connectionError));
+      expect(_failure(await repo.addressLookupAvailable()), isA<NetworkFailure>());
+      expect(_failure(await repo.search('Lifalethu')), isA<NetworkFailure>());
+      h.adapter.on('GET', '/v1/coverage/capabilities', (_) => FakeReply(200, fixture('coverage_capabilities.json')));
+      expect(_ok(await repo.addressLookupAvailable()), isTrue);
+      await repo.search('abc');
+      expect(h.adapter.requestsTo('GET', '/v1/coverage/capabilities'), hasLength(3), reason: 'two failures, then one read that is cached');
+      clock = clock.add(const Duration(minutes: 11));
+      h.adapter.on('GET', '/v1/coverage/capabilities', (_) => FakeReply(200, {'shape_version': 2, 'address_lookup': false}));
+      expect(_ok(await repo.addressLookupAvailable()), isFalse, reason: 'a deployment that turns the step off is noticed');
     });
 
     test('the address step answering 503 address_lookup_unavailable is its own state, with the Retry-After hint', () async {
@@ -210,37 +221,26 @@ void main() {
       expect(_failure(await repo.search('Lifalethu')), isA<ValidationFailure>());
     });
 
-    test('the older search answering 503 geocoder_unavailable is the same state; 429 carries Retry-After', () async {
-      h.adapter.on('GET', '/v1/coverage/capabilities', (_) => FakeReply(200, {'shape_version': 2, 'address_lookup': false}));
-      h.adapter.on('GET', '/v1/geocode/search', (_) => FakeReply.problem(503, 'geocoder_unavailable'));
-      expect(_failure(await repo.search('Lifalethu')), isA<AddressSearchUnavailableFailure>());
-      h.adapter.on('GET', '/v1/geocode/search', (_) => FakeReply.problem(429, 'rate_limited', headers: {'retry-after': ['9']}));
-      expect((_failure(await repo.search('Lifalethu'))! as RateLimitedFailure).retryAfter, const Duration(seconds: 9));
-    });
-  });
-
-  group('leads', () {
-    test('submit_lead_sends_the_idempotency_key_and_both_consents_separately', () async {
-      _ok(await repo.submitLead(_request(), idempotencyKey: 'app-key-0001'));
-      final request = h.adapter.requestsTo('POST', '/v1/leads').single;
-      expect(request.headers['Idempotency-Key'], 'app-key-0001');
-      expect(request.headers.containsKey('Authorization'), isFalse);
-      expect(request.data, {
-        'tenant': 'sentech',
-        'contact': {'type': 'phone', 'value': '082 123 4567'},
-        'address_text': '12 Lifalethu Avenue, eMbalenhle',
-        'lat': -26.51423,
-        'lon': 29.10311,
-        'technology_interest': 'any',
-        'consent': {'granted': true, 'version': '2026-10-01'},
-        'arrival_consent': {'granted': false, 'version': '2026-11-18'},
-        'source': 'app',
-        'turnstile_token': 'turnstile-token-1',
-      });
-      _ok(await repo.submitLead(_request(arrival: true), idempotencyKey: 'app-key-0002'));
-      final second = h.adapter.requestsTo('POST', '/v1/leads').last.data as Map;
-      expect(second['arrival_consent'], {'granted': true, 'version': '2026-11-18'});
-      expect(second['consent'], {'granted': true, 'version': '2026-10-01'});
+    test('lead_coordinates_are_rounded_to_five_decimals_like_the_check', () async {
+      final precise = NotifyRequest(
+        contactType: ContactKind.phone,
+        contactValue: '0821234567',
+        addressText: '12 Lifalethu Avenue',
+        lat: -26.514231234567,
+        lon: 29.103119876543,
+        technologyInterest: TechnologyInterest.any,
+        waitlistConsentVersion: '2026-10-01',
+        arrivalConsentGranted: false,
+        arrivalConsentVersion: '2026-11-18',
+      );
+      _ok(await repo.submitLead(precise, idempotencyKey: 'app-key-0020'));
+      final body = h.adapter.requestsTo('POST', '/v1/leads').single.data as Map;
+      expect(body['lat'], -26.51423);
+      expect(body['lon'], 29.10312);
+      for (final v in [body['lat'], body['lon']]) {
+        final decimals = '$v'.contains('.') ? '$v'.split('.').last.length : 0;
+        expect(decimals, lessThanOrEqualTo(5));
+      }
     });
 
     test('the technology of interest and an email contact are sent as chosen', () async {

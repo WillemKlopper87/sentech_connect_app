@@ -78,8 +78,8 @@ class CoverageCubit extends Cubit<CoverageState> {
   /// Reads the provider's coverage meta (service area, consent versions, dataset version).
   /// A missing route or no active dataset is `unavailable`; a network blip is ignored here
   /// (the first check shows it).
-  Future<void> load() async {
-    final result = await _repository.meta();
+  Future<void> load({bool refresh = false}) async {
+    final result = await _repository.meta(refresh: refresh);
     if (isClosed) return;
     switch (result) {
       case Right(value: final meta):
@@ -138,7 +138,7 @@ class CoverageCubit extends Cubit<CoverageState> {
     if (state.status == CoverageStatus.rateLimited && until != null && _now().isBefore(until)) return;
     final point = state.point;
     if (point != null) return checkAt(point.lat, point.lon);
-    return load();
+    return load(refresh: true);
   }
 
   void reset() {

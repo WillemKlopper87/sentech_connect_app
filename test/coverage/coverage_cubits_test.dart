@@ -185,7 +185,9 @@ void main() {
       await cubit.load();
       expect(cubit.state.status, CoverageStatus.unavailable);
       repo.metaResult = Right(metaFixture());
+      final before = repo.metaRefreshes;
       await cubit.retry();
+      expect(repo.metaRefreshes, before + 1, reason: 'the retry reads the meta again, not a cached answer');
       expect(cubit.state.status, CoverageStatus.idle);
       expect(cubit.state.meta, isNotNull);
       await cubit.close();
@@ -318,6 +320,28 @@ void main() {
       await _wait();
       expect(cubit.state.status, AddressSearchStatus.error);
       await cubit.close();
+    });
+
+    test('with_the_address_step_off_the_field_is_off_and_a_network_failure_is_unknown_not_off', () async {
+      repo.addressLookupResult = const Right(false);
+      final cubit = makeSearch();
+      await cubit.load();
+      expect(cubit.state.status, AddressSearchStatus.off);
+      cubit.queryChanged('Lifalethu');
+      await _wait();
+      expect(repo.searchCalls, isEmpty, reason: 'nothing is typed into a search that is off');
+      repo.addressLookupResult = const Left(NetworkFailure());
+      final unknown = makeSearch();
+      await unknown.load();
+      expect(unknown.state.status, AddressSearchStatus.idle);
+      repo.addressLookupResult = const Right(true);
+      await unknown.load();
+      expect(unknown.state.status, AddressSearchStatus.idle);
+      unknown.queryChanged('Lifalethu');
+      await _wait();
+      expect(repo.searchCalls, ['Lifalethu']);
+      await cubit.close();
+      await unknown.close();
     });
 
     test('clear drops the list and cancels a pending search', () async {

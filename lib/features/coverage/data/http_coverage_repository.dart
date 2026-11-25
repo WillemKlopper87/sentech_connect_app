@@ -21,8 +21,8 @@ import 'package:sentech_connect_app/features/coverage/domain/repositories/covera
 ///  * `POST /v1/coverage/address` (body `{q}`, 3 to 200 characters; 30 per
 ///    minute per client, one hit per ladder step): 503 `address_lookup_unavailable`
 ///    when the deployment has no provider. When `address_lookup` is false the
-///    older `GET /v1/geocode/search?q&limit&tenant` is used (the address is then
-///    in the query string; the platform drops it from its logs).
+///    address search is simply unavailable: the older `GET /v1/geocode/search` is NOT used,
+///    because it puts the typed address in the URL.
 ///  * `POST /v1/leads` (Idempotency-Key required, human-check token required,
 ///    10 per hour per client): 202 `{status: received}` for new and repeat
 ///    sign-ups alike. 422 `consent_required`, `consent_version_outdated`,
@@ -49,7 +49,6 @@ class HttpCoverageRepository implements CoverageRepository {
   static const metaPath = '/v1/coverage/meta';
   static const capabilitiesPath = '/v1/coverage/capabilities';
   static const addressPath = '/v1/coverage/address';
-  static const geocodePath = '/v1/geocode/search';
   static const leadsPath = '/v1/leads';
   static const withdrawalRequestsPath = '/v1/leads/withdrawal-requests';
 
@@ -62,7 +61,7 @@ class HttpCoverageRepository implements CoverageRepository {
   static const _writeTimeout = Duration(seconds: 30);
 
   ({String tenant, CoverageMeta meta, DateTime at})? _metaCache;
-  final _addressLookup = <String, bool>{};
+  ({String tenant, bool available, DateTime at})? _addressLookup;
 
   Failure _unavailable(Failure failure) => switch (failure) {
     NotFoundFailure() || ModuleDisabledFailure() || FeatureDisabledFailure() => const CoverageUnavailableFailure(),
@@ -107,7 +106,8 @@ class HttpCoverageRepository implements CoverageRepository {
       decode: (data) => coverageMetaFromJson(_object(data)),
     );
     return result.map((meta) {
-      _metaCache = (tenant: slug, meta: meta, at: _now());
+      // "No active dataset" is not kept: the next read (a retry) must see the data when it arrives.
+      _metaCache = meta.datasetVersion == null ? null : (tenant: slug, meta: meta, at: _now());
       return meta;
     }).mapLeft(_unavailable);
   }
@@ -115,8 +115,8 @@ class HttpCoverageRepository implements CoverageRepository {
   @override
   Future<Either<Failure, bool>> addressLookupAvailable() async {
     final slug = _tenant.slug;
-    final known = _addressLookup[slug];
-    if (known != null) return Right(known);
+    final known = _addressLookup;
+    if (known != null && known.tenant == slug && _now().difference(known.at) < metaLifetime) return Right(known.available);
     final result = await _api.get<bool>(
       capabilitiesPath,
       authenticated: false,
@@ -124,14 +124,15 @@ class HttpCoverageRepository implements CoverageRepository {
       decode: (data) => _object(data)['address_lookup'] == true,
     );
     return result.match(
-      // An older server has no capabilities route: the older search is used.
+      // An older server has no capabilities route: no address search (never the older one, which puts the
+      // address in the URL). Any other failure is "unknown": it is not remembered and the caller can retry.
       (failure) => failure is NotFoundFailure ? _remember(slug, false) : Left(failure),
       (available) => _remember(slug, available),
     );
   }
 
   Either<Failure, bool> _remember(String slug, bool available) {
-    _addressLookup[slug] = available;
+    _addressLookup = (tenant: slug, available: available, at: _now());
     return Right(available);
   }
 
@@ -140,24 +141,16 @@ class HttpCoverageRepository implements CoverageRepository {
     final available = await addressLookupAvailable();
     final lookup = available.match((_) => null, (v) => v);
     if (lookup == null) return Left(available.match((f) => f, (_) => const CoverageUnavailableFailure()));
-    final slug = _tenant.slug;
-    final result = lookup
-        // The address is in the body only: never in a URL.
-        ? await _api.post<AddressSearchResult>(
-            addressPath,
-            body: {'q': query},
-            authenticated: false,
-            timeout: _readTimeout,
-            decode: (data) => addressSearchResultFromJson(_object(data)),
-            query: {'tenant': slug},
-          )
-        : await _api.get<AddressSearchResult>(
-            geocodePath,
-            query: {'q': query, 'limit': 5, 'tenant': slug},
-            authenticated: false,
-            timeout: _readTimeout,
-            decode: (data) => AddressSearchResult(matches: geocodeMatchesFromJson(_object(data))),
-          );
+    // Only the platform's address step, and only with the address in the body: never a URL.
+    if (!lookup) return const Left(AddressSearchUnavailableFailure());
+    final result = await _api.post<AddressSearchResult>(
+      addressPath,
+      body: {'q': query},
+      query: {'tenant': _tenant.slug},
+      authenticated: false,
+      timeout: _readTimeout,
+      decode: (data) => addressSearchResultFromJson(_object(data)),
+    );
     return result.mapLeft(_unavailable);
   }
 
@@ -175,8 +168,9 @@ class HttpCoverageRepository implements CoverageRepository {
         'tenant': _tenant.slug,
         'contact': {'type': request.contactType.name, 'value': request.contactValue},
         'address_text': request.addressText,
-        'lat': request.lat,
-        'lon': request.lon,
+        // The same 5 decimals (about 1 m) the platform quantises to: no more precision leaves the device.
+        'lat': _round5(request.lat),
+        'lon': _round5(request.lon),
         'technology_interest': switch (request.technologyInterest) {
           TechnologyInterest.any => 'any',
           TechnologyInterest.fiveG => '5g',

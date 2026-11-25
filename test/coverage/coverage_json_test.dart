@@ -225,9 +225,6 @@ void main() {
     expect(matches.single.lat, -26.514);
     expect(matches.single.toString(), isNot(contains('-26.514')));
     expect(matches.single.toString(), isNot(contains('Lifalethu')));
-    // The older geocoder answers `kind` instead of `precision`.
-    final older = geocodeMatchesFromJson(fixtureMap('geocode_search.json'));
-    expect(older.single.precision, MatchPrecision.unknown);
     // A hit without usable coordinates is skipped.
     expect(
       geocodeMatchesFromJson({

@@ -107,7 +107,6 @@ const fixtureSchemas = {
   'coverage_meta.json': 'CoverageMetaOut',
   'coverage_capabilities.json': 'CoverageCapabilitiesOut',
   'coverage_address.json': 'AddressSearchOut', // POST /v1/coverage/address 200
-  'geocode_search.json': 'GeocodeSearchOut', // GET /v1/geocode/search 200 (older route, used when the address step is off)
   'lead_accepted.json': 'LeadAcceptedOut', // POST /v1/leads 202
   'withdrawal_requested.json': 'WithdrawalRequestedOut', // POST /v1/leads/withdrawal-requests 202
 };
@@ -272,8 +271,6 @@ const decoderReads = <String, Set<String>>{
   'CoverageCapabilitiesOut': {'address_lookup'},
   'AddressSearchOut': {'matched', 'results'},
   'AddressHitOut': {'label', 'lat', 'lon', 'precision'},
-  'GeocodeSearchOut': {'results'},
-  'GeocodeResultOut': {'label', 'lat', 'lon'},
 };
 
 /// Keys read before the API serves them (absent = default value).

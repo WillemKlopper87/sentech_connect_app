@@ -7,7 +7,8 @@ import 'package:sentech_connect_app/core/error/failure.dart';
 import 'package:sentech_connect_app/features/coverage/domain/entities/geocode_match.dart';
 import 'package:sentech_connect_app/features/coverage/domain/repositories/coverage_repository.dart';
 
-enum AddressSearchStatus { idle, searching, results, none, unavailable, rateLimited, error }
+/// [off]: the platform's address step is not available here (the field is disabled; the location button and the map still work).
+enum AddressSearchStatus { idle, searching, results, none, unavailable, rateLimited, error, off }
 
 /// The state never holds the typed text: only the platform's matches (personal
 /// data, in memory, printed redacted) and how the search went.
@@ -50,8 +51,23 @@ class AddressSearchCubit extends Cubit<AddressSearchState> {
   Timer? _timer;
   String? _lastQuery;
 
-  void queryChanged(String raw) {
+  /// Asks the platform whether the address step is on. A network failure is "unknown", not "off".
+  Future<void> load() async {
+    final result = await _repository.addressLookupAvailable();
     if (isClosed) return;
+    result.match((_) {}, (available) {
+      if (!available) {
+        _timer?.cancel();
+        _generation++;
+        emit(const AddressSearchState(status: AddressSearchStatus.off));
+      } else if (state.status == AddressSearchStatus.off) {
+        emit(const AddressSearchState());
+      }
+    });
+  }
+
+  void queryChanged(String raw) {
+    if (isClosed || state.status == AddressSearchStatus.off) return;
     final query = _tidy(raw);
     _timer?.cancel();
     if (query.runes.length < minLength) {
